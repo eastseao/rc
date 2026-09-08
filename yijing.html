@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>每日卜卦 · 六十四卦</title>
+<style>
+  :root {
+    --bg: #f6f0e4;
+    --panel: #fffdf7;
+    --ink: #2b2620;
+    --ink-soft: #6b6355;
+    --accent: #a33327;
+    --accent-dark: #7f231a;
+    --gold: #b98a2e;
+    --line: #e6dcc8;
+    --shadow: 0 10px 30px rgba(80, 60, 30, 0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "STKaiti", "KaiTi", "FangSong", "Noto Serif SC", serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 16px 48px;
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(163,51,39,0.05), transparent 40%),
+      radial-gradient(circle at 85% 90%, rgba(185,138,46,0.06), transparent 40%);
+  }
+
+  .header { text-align: center; margin-bottom: 24px; }
+  .header h1 {
+    font-size: 40px;
+    letter-spacing: 12px;
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .header .sub {
+    margin-top: 10px;
+    color: var(--ink-soft);
+    font-size: 15px;
+    letter-spacing: 2px;
+  }
+  .header .date {
+    margin-top: 6px;
+    color: var(--accent);
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+
+  .stage {
+    display: flex;
+    gap: 24px;
+    width: 100%;
+    max-width: 1020px;
+    align-items: stretch;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 26px 24px;
+  }
+
+  /* 左右两个卦面板 */
+  .gua-panel {
+    flex: 1 1 400px;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .panel-title {
+    font-size: 26px;
+    letter-spacing: 6px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .panel-sub {
+    font-size: 13px;
+    color: var(--ink-soft);
+    letter-spacing: 2px;
+    margin: 6px 0 10px;
+  }
+
+  .btn {
+    font-family: inherit;
+    font-size: 20px;
+    letter-spacing: 6px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    border: none;
+    border-radius: 999px;
+    padding: 13px 46px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(163,51,39,0.30);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(163,51,39,0.38); }
+  .btn:active { transform: translateY(0); }
+  .btn:disabled { opacity: 0.55; cursor: default; transform: none; }
+
+  .digits {
+    display: flex;
+    gap: 8px;
+    margin: 22px 0 8px;
+  }
+  .digit {
+    width: 46px;
+    height: 56px;
+    border: 2px solid var(--line);
+    border-radius: 9px;
+    background: #fbf7ed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--ink);
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+  .digit.on { color: var(--accent); border-color: #d9b08a; background: #fdf6ec; }
+  .digit.spin { animation: pulse 0.12s ease; }
+  @keyframes pulse { 0%{transform:scale(1);} 50%{transform:scale(1.12);} 100%{transform:scale(1);} }
+
+  .digits-label {
+    color: var(--ink-soft);
+    font-size: 12px;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  /* 爻图 */
+  .hexagram { display: flex; flex-direction: column-reverse; gap: 6px; align-items: center; }
+  .yao-line {
+    width: 200px;
+    height: 14px;
+    border-radius: 3px;
+    background: var(--ink);
+    opacity: 0;
+    transform: scaleX(0.2);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  .yao-line.yin {
+    background: transparent;
+    display: flex;
+    gap: 34px;
+    justify-content: center;
+  }
+  .yao-line.yin::before, .yao-line.yin::after {
+    content: "";
+    width: 83px;
+    height: 14px;
+    border-radius: 3px;
+    background: var(--ink);
+    display: block;
+  }
+  .yao-line.show { opacity: 1; transform: scaleX(1); }
+
+  /* 动爻高亮 */
+  .yao-line.moving { background: var(--accent); }
+  .yao-line.moving.yin { background: transparent; }
+  .yao-line.moving.yin::before, .yao-line.moving.yin::after { background: var(--accent); }
+
+  /* 动爻说明 */
+  .hex-move {
+    margin-top: 10px;
+    min-height: 18px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: var(--accent);
+    text-align: center;
+  }
+
+  /* 卦详情 */
+  .gua-detail { width: 100%; margin-top: 14px; }
+  .gua-detail .placeholder { padding: 24px 0; }
+
+  .placeholder {
+    text-align: center;
+    color: var(--ink-soft);
+    opacity: 0.6;
+  }
+  .placeholder .glyph { font-size: 54px; display: block; margin-bottom: 12px; }
+
+  .gua-head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 14px;
+  }
+  .gua-symbol { font-size: 64px; line-height: 1; color: var(--accent); }
+  .gua-name { font-size: 34px; letter-spacing: 5px; font-weight: 700; }
+  .gua-meta { color: var(--ink-soft); font-size: 13px; margin-top: 5px; letter-spacing: 1px; }
+
+  .gua-body { margin-top: 16px; }
+  .block { margin-bottom: 14px; }
+  .block .tag {
+    display: inline-block;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    border: 1px solid #e3c9b0;
+    background: #fbf1e4;
+    border-radius: 6px;
+    padding: 2px 10px;
+    margin-bottom: 7px;
+  }
+  .block .val { font-size: 16px; line-height: 1.7; color: var(--ink); }
+  .block.meaning .val { font-size: 18px; letter-spacing: 1px; }
+  .block.text .val { color: #4a4336; }
+  .block.explain .val {
+    font-size: 15px;
+    color: #3a342a;
+    background: #fbf7ee;
+    border-left: 3px solid #d9b08a;
+    border-radius: 0 8px 8px 0;
+    padding: 9px 13px;
+  }
+
+  /* 变卦卡片 */
+  .block.change .change-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    border: 1px dashed #d9b08a;
+    background: #fbf7ee;
+    border-radius: 10px;
+    padding: 11px 13px;
+  }
+  .change-card .c-sym { font-size: 40px; line-height: 1; color: var(--accent); }
+  .change-card .c-info { flex: 1; }
+  .change-card .c-name { font-size: 16px; letter-spacing: 1px; font-weight: 700; color: var(--ink); }
+  .change-card .c-move { font-size: 12px; color: var(--accent); margin-top: 3px; }
+  .change-card .c-bai { font-size: 13px; color: var(--ink-soft); margin-top: 5px; line-height: 1.6; }
+
+  /* 历史记录 */
+  .history-panel {
+    width: 100%;
+    max-width: 1020px;
+    margin-top: 24px;
+  }
+  .hist-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .hist-title {
+    font-size: 18px;
+    letter-spacing: 3px;
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .hist-clear {
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: var(--ink-soft);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 4px 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .hist-clear:hover { color: var(--accent); border-color: #d9b08a; background: #fbf1e4; }
+  .hist-list { display: flex; flex-direction: column; gap: 8px; }
+  .hist-empty { color: var(--ink-soft); opacity: 0.6; text-align: center; padding: 16px 0; font-size: 14px; }
+  .hist-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fffdf7;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .hist-item:hover { border-color: #d9b08a; background: #fdf6ec; transform: translateY(-1px); }
+  .hist-item .h-sym { font-size: 30px; line-height: 1; color: var(--accent); }
+  .hist-item .h-name { font-size: 18px; letter-spacing: 2px; font-weight: 700; }
+  .hist-item .h-meta { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+  .hist-item .h-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .hist-item .h-src {
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--accent);
+    border: 1px solid #e3c9b0;
+    background: #fbf1e4;
+    border-radius: 6px;
+    padding: 1px 8px;
+  }
+  .hist-item .h-time { font-size: 12px; color: var(--ink-soft); }
+
+  .footer {
+    margin-top: 30px;
+    color: var(--ink-soft);
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-align: center;
+    opacity: 0.7;
+  }
+
+  @media (max-width: 640px) {
+    .header h1 { font-size: 30px; letter-spacing: 8px; }
+    .digit { width: 38px; height: 48px; font-size: 26px; }
+    .yao-line { width: 170px; }
+    .yao-line.yin::before, .yao-line.yin::after { width: 68px; }
+    .gua-symbol { font-size: 54px; }
+    .gua-name { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>每日卜卦</h1>
+    <div class="sub">—— 周易 · 六十四卦 ——</div>
+    <div class="date" id="today"></div>
+  </div>
+
+  <div class="stage">
+    <!-- 左侧：随机起卦 -->
+    <div class="panel gua-panel">
+      <div class="panel-title">随机起卦</div>
+      <button class="btn" id="randomBtn">摇 一 卦</button>
+
+      <div class="digits" id="randomDigits">
+        <div class="digit">–</div><div class="digit">–</div><div class="digit">–</div>
+        <div class="digit">–</div><div class="digit">–</div><div class="digit">–</div>
+      </div>
+      <div class="digits-label">初爻 · 二爻 · 三爻 · 四爻 · 五爻 · 上爻</div>
+
+      <div class="hexagram" id="randomHexagram">
+        <div class="yao-line"></div><div class="yao-line"></div><div class="yao-line"></div>
+        <div class="yao-line"></div><div class="yao-line"></div><div class="yao-line"></div>
+      </div>
+      <div class="hex-move" id="randomHexMove"></div>
+
+      <div class="gua-detail" id="randomDetail">
+        <div class="placeholder"><span class="glyph">䷀</span>点击「摇一卦」，诚心起卦</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel history-panel" id="historyPanel">
+    <div class="hist-head">
+      <span class="hist-title">历史记录</span>
+      <button class="hist-clear" id="clearBtn">清空</button>
+    </div>
+    <div class="hist-list" id="histList">
+      <div class="hist-empty">暂无记录，摇卦后会自动保存在这里</div>
+    </div>
+  </div>
+
+  <div class="footer">六十四卦 · 随机起卦 · 卦辞据《周易》通行本</div>
+
+<script>
+  // 六十四卦数据（文王序）。yao 为六爻，自下而上，1=阳 0=阴；bai 为白话解读。
+  const GUA = [
+    {n:1, name:"乾", s:"䷀", up:"乾", dn:"乾", yi:"纯阳刚正，万物始生", yao:"111111", ci:"元亨利贞。", bai:"万物处于最刚健、最旺盛的状态，宜主动进取、自强不息，大吉大利；但物极必反，位高时更要戒骄戒躁。"},
+    {n:2, name:"坤", s:"䷁", up:"坤", dn:"坤", yi:"柔而能刚，厚德载物", yao:"000000", ci:"元亨，利牝马之贞。君子有攸往，先迷后得主，利。西南得朋，东北丧朋。安贞吉。", bai:"如大地般包容承载，宜顺势而为、厚德载物；以柔顺守正得吉，宜追随配合而不宜争先冒进。"},
+    {n:3, name:"屯", s:"䷂", up:"坎", dn:"震", yi:"草创时刻，充满艰难", yao:"100010", ci:"元亨利贞。勿用有攸往，利建侯。", bai:"万事开头难，如草木初生、充满艰难；此时不宜冒进，应蓄积力量、打好根基，等待时机成熟。"},
+    {n:4, name:"蒙", s:"䷃", up:"艮", dn:"坎", yi:"启蒙发智，尊师敬学", yao:"010001", ci:"亨。匪我求童蒙，童蒙求我。初筮告，再三渎，渎则不告。利贞。", bai:"蒙昧未开、正需启蒙；要虚心求教、尊师重道，诚恳学习才能受益，三心二意则学无所成。"},
+    {n:5, name:"需", s:"䷄", up:"坎", dn:"乾", yi:"耐心等待，守持正固", yao:"111010", ci:"有孚，光亨，贞吉。利涉大川。", bai:"时机未到，需耐心等待；以诚信守正、静候时机成熟，不可急躁冒进，方能渡过难关。"},
+    {n:6, name:"讼", s:"䷅", up:"乾", dn:"坎", yi:"止讼免争，持中不偏", yao:"010111", ci:"有孚窒惕，中吉，终凶。利见大人，不利涉大川。", bai:"与人争讼，即使一时占理也难有好结果；宜止讼息争、持中守和，不纠缠、不较劲。"},
+    {n:7, name:"师", s:"䷆", up:"坤", dn:"坎", yi:"统帅兵众，纪律严明", yao:"010000", ci:"贞，丈人吉，无咎。", bai:"率众行事，须纪律严明、名正言顺；由有德望的长者统率，众人同心，方能无咎。"},
+    {n:8, name:"比", s:"䷇", up:"坎", dn:"坤", yi:"相亲相辅，光明无私", yao:"000010", ci:"吉。原筮，元永贞，无咎。不宁方来，后夫凶。", bai:"亲附他人、结盟合作，须光明正大、真诚无私；及早归附则吉，迟疑观望则凶。"},
+    {n:9, name:"小畜", s:"䷈", up:"巽", dn:"乾", yi:"积蓄力量，争取支援", yao:"111011", ci:"亨。密云不雨，自我西郊。", bai:"力量尚小，需积蓄实力、争取支援；如密云不雨、时机未到，静待即可，不可强求。"},
+    {n:10, name:"履", s:"䷉", up:"乾", dn:"兑", yi:"谦虚谨慎，循礼而行", yao:"110111", ci:"履虎尾，不咥人，亨。", bai:"如踩虎尾、处境险峻；只要谦虚谨慎、循礼而行，则可化险为夷、安然无恙。"},
+    {n:11, name:"泰", s:"䷊", up:"坤", dn:"乾", yi:"阴阳交合，安泰亨通", yao:"111000", ci:"小往大来，吉亨。", bai:"天地交泰、阴阳和合，诸事通达安泰；小往大来、付出有回报，是亨通顺遂之象。"},
+    {n:12, name:"否", s:"䷋", up:"乾", dn:"坤", yi:"阴阳不合，阻滞闭塞", yao:"000111", ci:"否之匪人，不利君子贞，大往小来。", bai:"天地不交、上下闭塞，时运不济；此时宜收敛守正、静待转机，不宜强求或冒进。"},
+    {n:13, name:"同人", s:"䷌", up:"乾", dn:"离", yi:"大同世界，天下为公", yao:"101111", ci:"同人于野，亨。利涉大川，利君子贞。", bai:"与人同心同德、志同道合；以公心结交众人、团结协作，则大事可成、无往不利。"},
+    {n:14, name:"大有", s:"䷍", up:"离", dn:"乾", yi:"昌盛富有，满不可溢", yao:"111101", ci:"元亨。", bai:"丰盛富有、大有收获；但满招损、谦受益，宜谦逊守成、乐善好施，不可骄奢自满。"},
+    {n:15, name:"谦", s:"䷎", up:"坤", dn:"艮", yi:"屈躬下物，先人后己", yao:"001000", ci:"亨，君子有终。", bai:"谦虚处下、先人后己；谦谦君子万事亨通、有始有终，是全卦中最吉之卦，宜守谦德。"},
+    {n:16, name:"豫", s:"䷏", up:"震", dn:"坤", yi:"喜悦和乐，居安思危", yao:"000100", ci:"利建侯行师。", bai:"愉悦和乐、众人拥戴；但安乐之中须居安思危、防患未然，不可沉溺享乐。"},
+    {n:17, name:"随", s:"䷐", up:"兑", dn:"震", yi:"随和众人，顺其自然", yao:"100110", ci:"元亨利贞，无咎。", bai:"随顺时势、顺应众人；顺其自然、从善如流，则诸事顺遂无咎，但不可随波逐流。"},
+    {n:18, name:"蛊", s:"䷑", up:"艮", dn:"巽", yi:"惩弊治乱，谨始慎终", yao:"011001", ci:"元亨，利涉大川。先甲三日，后甲三日。", bai:"积弊已久、需整治除弊；面对问题当机立断、拨乱反正，但须先谋后动、谨始慎终。"},
+    {n:19, name:"临", s:"䷒", up:"坤", dn:"兑", yi:"监临天下，恩威并济", yao:"110000", ci:"元亨利贞。至于八月有凶。", bai:"亲临督导、恩威并施，运势正盛；宜趁势而为，但须防盛极而衰、早作准备。"},
+    {n:20, name:"观", s:"䷓", up:"巽", dn:"坤", yi:"诚信严正，恭敬仰慕", yao:"000011", ci:"盥而不荐，有孚颙若。", bai:"观察审视、为人表率；以诚信庄重待人，虚心观察时势、了解实情，再作决断。"},
+    {n:21, name:"噬嗑", s:"䷔", up:"离", dn:"震", yi:"小惩大戒，政通人和", yao:"100101", ci:"亨。利用狱。", bai:"有阻隔需咬合破除，如执法断案；果断清除障碍、明正典刑，方能政通人和。"},
+    {n:22, name:"贲", s:"䷕", up:"艮", dn:"离", yi:"美化文饰，恰如其分", yao:"101001", ci:"亨。小利有攸往。", bai:"文饰修饰宜恰如其分；外在装点适度即可，不可本末倒置、华而不实，重在内在修养。"},
+    {n:23, name:"剥", s:"䷖", up:"艮", dn:"坤", yi:"小人当道，谨慎隐忍", yao:"000001", ci:"不利有攸往。", bai:"阴盛阳衰、小人得势，时运不佳；宜谨慎隐忍、守身自保，静待转机，不可妄动。"},
+    {n:24, name:"复", s:"䷗", up:"坤", dn:"震", yi:"正气回复，为所当为", yao:"100000", ci:"亨。出入无疾，朋来无咎。反复其道，七日来复。利有攸往。", bai:"一阳来复、正气回归，否极泰来；宜把握转机、回归正途，前景可期，可有所作为。"},
+    {n:25, name:"无妄", s:"䷘", up:"乾", dn:"震", yi:"合乎正道，心安理得", yao:"100111", ci:"元亨利贞。其匪正有眚，不利有攸往。", bai:"心地纯正、不存妄念；守正道而行则顺遂，若存侥幸、妄为妄求则招灾惹祸。"},
+    {n:26, name:"大畜", s:"䷙", up:"艮", dn:"乾", yi:"既富且强，当止则止", yao:"111001", ci:"利贞。不家食吉。利涉大川。", bai:"积蓄丰厚、实力强大；此时宜有所止、储备人才与资源，以待大用，可担当重任。"},
+    {n:27, name:"颐", s:"䷚", up:"艮", dn:"震", yi:"颐养天下，取之于民", yao:"100001", ci:"贞吉。观颐，自求口实。", bai:"颐养之道重在自食其力；谨言慎行、养德养身，观察所养是否正当，靠自己努力谋生则吉。"},
+    {n:28, name:"大过", s:"䷛", up:"兑", dn:"巽", yi:"刚柔相济，力求平衡", yao:"011110", ci:"栋桡。利有攸往，亨。", bai:"负荷过重、刚柔失衡；非常之时须非常之举，谨慎权衡、及时调整，避免栋梁倾覆。"},
+    {n:29, name:"坎", s:"䷜", up:"坎", dn:"坎", yi:"同舟共济，突破险难", yao:"010010", ci:"习坎，有孚，维心亨，行有尚。", bai:"重重险难、如陷深渊；唯有心怀诚信、同舟共济，坚定心志，方能渡过难关、有所成就。"},
+    {n:30, name:"离", s:"䷝", up:"离", dn:"离", yi:"有所依托，柔顺中庸", yao:"101101", ci:"利贞，亨。畜牝牛，吉。", bai:"有所依附、光明磊落；依附正道、柔顺守中，如畜养母牛般温顺守正，方能长久吉祥。"},
+    {n:31, name:"咸", s:"䷞", up:"兑", dn:"艮", yi:"相互沟通，建立感情", yao:"001110", ci:"亨，利贞。取女吉。", bai:"两情相感、相互感应；真诚沟通、以情动人，则感情通达，婚恋嫁娶皆吉。"},
+    {n:32, name:"恒", s:"䷟", up:"震", dn:"巽", yi:"恒常不变，相依相助", yao:"011100", ci:"亨，无咎，利贞。利有攸往。", bai:"恒久之道、相依相助；坚守常道、持之以恒，不朝三暮四，则无往不利。"},
+    {n:33, name:"遁", s:"䷠", up:"乾", dn:"艮", yi:"暂行退避，以图振兴", yao:"001111", ci:"亨，小利贞。", bai:"时势不利、宜暂行退避；以退为进、保全实力，于小事守正，等待时机再图振兴。"},
+    {n:34, name:"大壮", s:"䷡", up:"震", dn:"乾", yi:"声势壮大，诚信自守", yao:"111100", ci:"利贞。", bai:"声势壮大、阳气盛极；强盛之时更须守正，不可恃强妄为，否则必招损失。"},
+    {n:35, name:"晋", s:"䷢", up:"离", dn:"坤", yi:"依附明君，飞黄腾达", yao:"000101", ci:"康侯用锡马蕃庶，昼日三接。", bai:"如日东升、晋升腾达；依附贤明、积极进取，可获赏识重用，前途光明。"},
+    {n:36, name:"明夷", s:"䷣", up:"坤", dn:"离", yi:"内明外柔，韬光养晦", yao:"101000", ci:"利艰贞。", bai:"光明受损、贤者受挫；宜韬光养晦、内守其明，于艰难中坚持正道，静待时机。"},
+    {n:37, name:"家人", s:"䷤", up:"巽", dn:"离", yi:"相亲相爱，各尽本分", yao:"101011", ci:"利女贞。", bai:"家道和睦、各守本分；内外有序、相亲相爱，人人尽责，则家业兴旺、诸事顺遂。"},
+    {n:38, name:"睽", s:"䷥", up:"离", dn:"兑", yi:"因势利导，求同存异", yao:"110101", ci:"小事吉。", bai:"意见相左、彼此背离；宜求同存异、因势利导，于分歧中寻共识，小事可成、大事谨慎。"},
+    {n:39, name:"蹇", s:"䷦", up:"坎", dn:"艮", yi:"遭遇困难，停止不前", yao:"001010", ci:"利西南，不利东北。利见大人，贞吉。", bai:"前路艰难、行步维艰；宜止步自省、求助贤人，选对方向，不宜贸然冒进。"},
+    {n:40, name:"解", s:"䷧", up:"震", dn:"坎", yi:"解除困难，与民休息", yao:"010100", ci:"利西南。无所往，其来复吉。有攸往，夙吉。", bai:"险难已解、如释重负；宜趁势休养生息、速解余患，早日回归正轨，则吉祥。"},
+    {n:41, name:"损", s:"䷨", up:"艮", dn:"兑", yi:"减损之道，以诚为本", yao:"110001", ci:"有孚，元吉，无咎，可贞。利有攸往。曷之用，二簋可用享。", bai:"减损自我、以诚为本；有所舍弃方能有所得，损己利人、真诚相待，简朴亦可成事。"},
+    {n:42, name:"益", s:"䷩", up:"巽", dn:"震", yi:"助益他人，获得信任", yao:"100011", ci:"利有攸往，利涉大川。", bai:"增益他人、助人为乐；损上益下、惠及于人，则获信任与支持，可大有作为。"},
+    {n:43, name:"夬", s:"䷪", up:"兑", dn:"乾", yi:"清除小人，刚毅果断", yao:"111110", ci:"扬于王庭，孚号有厉。告自邑，不利即戎，利有攸往。", bai:"决断除奸、刚毅果敢；面对小人当机立断、光明正大，但宜以理服人，不宜轻启武力。"},
+    {n:44, name:"姤", s:"䷫", up:"乾", dn:"巽", yi:"邂逅相遇，防范邪恶", yao:"011111", ci:"女壮，勿用取女。", bai:"不期而遇、邂逅相逢；当防微杜渐，警惕来路不正之人或事，不可轻信轻从。"},
+    {n:45, name:"萃", s:"䷬", up:"兑", dn:"坤", yi:"荟萃聚集，安和乐利", yao:"000110", ci:"亨。王假有庙，利见大人，亨，利贞。用大牲吉，利有攸往。", bai:"人才荟萃、聚集一堂；聚众成事，宜真诚相待、同心同德，则安和乐利、大有所为。"},
+    {n:46, name:"升", s:"䷭", up:"坤", dn:"巽", yi:"顺势上升，积小成大", yao:"011000", ci:"元亨。用见大人，勿恤，南征吉。", bai:"顺势上升、积小成大；宜借助贤人、把握时机，积极进取，如南征之吉、前景光明。"},
+    {n:47, name:"困", s:"䷮", up:"兑", dn:"坎", yi:"穷困自守，徐图突破", yao:"010110", ci:"亨。贞，大人吉，无咎。有言不信。", bai:"身处困境、困顿不堪；宜坚守正道、沉默蓄力，徐图突破，不可轻言放弃或怨天尤人。"},
+    {n:48, name:"井", s:"䷯", up:"坎", dn:"巽", yi:"修德惠人，大公无私", yao:"011010", ci:"改邑不改井，无丧无得，往来井井。汔至，亦未繘井，羸其瓶，凶。", bai:"如井养人、惠泽大众；宜修身立德、大公无私，服务他人，则其道恒久，善始善终。"},
+    {n:49, name:"革", s:"䷰", up:"兑", dn:"离", yi:"顺天应民，实行变革", yao:"101110", ci:"巳日乃孚。元亨利贞，悔亡。", bai:"变革之时、顺天应民；时机成熟当机立断、除旧布新，则众望所归、大吉大利。"},
+    {n:50, name:"鼎", s:"䷱", up:"离", dn:"巽", yi:"除旧布新，用贤任能", yao:"011101", ci:"元吉，亨。", bai:"除旧布新、鼎新革故；宜任用贤能、稳固根基，如鼎之稳重，可开创大业、吉祥亨通。"},
+    {n:51, name:"震", s:"䷲", up:"震", dn:"震", yi:"灾难来临，从容镇定", yao:"100100", ci:"亨。震来虩虩，笑言哑哑。震惊百里，不丧匕鬯。", bai:"突发变故、惊雷震动；须镇定自若、处变不惊，临危不乱，则虽惊无险、可保无虞。"},
+    {n:52, name:"艮", s:"䷳", up:"艮", dn:"艮", yi:"自我节制，适可而止", yao:"001001", ci:"艮其背，不获其身；行其庭，不见其人。无咎。", bai:"止于当止、适可而止；自我节制、知止不殆，动静得宜、心不妄动，方能无咎。"},
+    {n:53, name:"渐", s:"䷴", up:"巽", dn:"艮", yi:"循序渐进，动静自然", yao:"001011", ci:"女归吉，利贞。", bai:"循序渐进、动静自然；如女子出嫁、按礼而行，凡事循序渐进、不可急于求成，则吉。"},
+    {n:54, name:"归妹", s:"䷵", up:"震", dn:"兑", yi:"谈婚论嫁，坚守妇德", yao:"110100", ci:"征凶，无攸利。", bai:"婚嫁失序、操之过急；宜守正慎行、名正言顺，不可急于求成或本末倒置，否则徒劳无益。"},
+    {n:55, name:"丰", s:"䷶", up:"震", dn:"离", yi:"丰盛之时，持盈保泰", yao:"101100", ci:"亨。王假之，勿忧，宜日中。", bai:"丰盛盈满、如日中天；盛极之时宜持盈保泰、居安思危，珍惜当下、勿忧未来。"},
+    {n:56, name:"旅", s:"䷷", up:"离", dn:"艮", yi:"颠沛流离，安定为先", yao:"001101", ci:"小亨。旅贞吉。", bai:"漂泊在外、颠沛流离；宜安分守己、谦逊低调，安定为先，谨慎行事则小事亨通。"},
+    {n:57, name:"巽", s:"䷸", up:"巽", dn:"巽", yi:"择善而从，谦虚柔顺", yao:"011011", ci:"小亨。利有攸往，利见大人。", bai:"谦逊柔顺、择善而从；如风之入，顺从正道、反复叮咛，则无往不利、可获贵人相助。"},
+    {n:58, name:"兑", s:"䷹", up:"兑", dn:"兑", yi:"外柔内刚，与人和悦", yao:"110110", ci:"亨，利贞。", bai:"喜悦和悦、以诚相待；外柔内刚、与人和悦，则众人心悦诚服，诸事亨通。"},
+    {n:59, name:"涣", s:"䷺", up:"巽", dn:"坎", yi:"拯救涣散，消除私心", yao:"010011", ci:"亨。王假有庙，利涉大川，利贞。", bai:"人心涣散、需要凝聚；宜消除私心、团结众人，如祭祀般虔诚庄重，则能涣然冰释、渡过难关。"},
+    {n:60, name:"节", s:"䷻", up:"坎", dn:"兑", yi:"适当节制，不逾规范", yao:"110010", ci:"亨。苦节不可贞。", bai:"节制有度、不逾规范；适度节制则亨，过分刻薄则不可持久，贵在适中、恰到好处。"},
+    {n:61, name:"中孚", s:"䷼", up:"巽", dn:"兑", yi:"诚信之德，促进和谐", yao:"110011", ci:"豚鱼吉，利涉大川，利贞。", bai:"诚信发自内心、感人至深；以诚待人、信及万物，则如豚鱼亦吉，无往不利。"},
+    {n:62, name:"小过", s:"䷽", up:"震", dn:"艮", yi:"因应时机，小有过越", yao:"001100", ci:"亨，利贞。可小事，不可大事。飞鸟遗之音，不宜上，宜下，大吉。", bai:"稍有过度、小有过越；宜做小事、不宜大事，宜低调务实、不宜好高骛远，则大吉。"},
+    {n:63, name:"既济", s:"䷾", up:"坎", dn:"离", yi:"万事皆济，守成不易", yao:"101010", ci:"亨，小利贞。初吉终乱。", bai:"万事已济、大功告成；但守成不易，初吉终乱，宜居安思危、防患未然、善始善终。"},
+    {n:64, name:"未济", s:"䷿", up:"离", dn:"坎", yi:"物不可穷，继续演进", yao:"010101", ci:"亨。小狐汔济，濡其尾，无攸利。", bai:"事未成、物未穷；虽未完成但充满希望，谨慎而为、继续努力，不轻言放弃，终将达成。"}
+  ];
+
+  const yaoNames = ["初爻","二爻","三爻","四爻","五爻","上爻"];
+
+  // 日期
+  const now = new Date();
+  const week = ["日","一","二","三","四","五","六"][now.getDay()];
+  document.getElementById("today").textContent =
+    `${now.getFullYear()} 年 ${now.getMonth()+1} 月 ${now.getDate()} 日 · 星期${week}`;
+
+  // 六爻字符串 → 卦 的映射
+  const GUA_BY_YAO = {};
+  GUA.forEach(g => { GUA_BY_YAO[g.yao] = g; });
+
+  // 翻转多个动爻得变卦六爻
+  function flipMulti(yaoStr, moves) {
+    const bits = yaoStr.split("");
+    moves.forEach(pos => {
+      const idx = pos - 1;
+      bits[idx] = bits[idx] === "1" ? "0" : "1";
+    });
+    return bits.join("");
+  }
+
+  // 摇一爻：阴阳各半，动爻概率 1/4
+  function castOne(rnd) {
+    const yang = rnd() < 0.5;
+    const moving = rnd() < 0.25;
+    return { y: yang ? "1" : "0", moving };
+  }
+
+  // 随机起卦
+  function castHex() {
+    let yao = "";
+    const moves = [];
+    for (let i = 1; i <= 6; i++) {
+      const r = castOne(Math.random);
+      yao += r.y;
+      if (r.moving) moves.push(i);
+    }
+    return { yao, moves };
+  }
+
+  // 面板 DOM 引用
+  function refs(panel) {
+    return {
+      digits: Array.from(document.querySelectorAll("#" + panel + "Digits .digit")),
+      yaos: Array.from(document.querySelectorAll("#" + panel + "Hexagram .yao-line")),
+      hexMove: document.getElementById(panel + "HexMove"),
+      detail: document.getElementById(panel + "Detail")
+    };
+  }
+
+  // 卦详情 HTML
+  function buildDetail(g, info) {
+    const moves = (info && info.moves) || [];
+    let changeHtml = "";
+    if (info && moves.length && info.changedG) {
+      const cg = info.changedG;
+      const moveDesc = moves.map(p => yaoNames[p-1]).join("、");
+      changeHtml = `
+        <div class="block change">
+          <span class="tag">变 卦</span>
+          <div class="change-card">
+            <span class="c-sym">${cg.s}</span>
+            <div class="c-info">
+              <div class="c-name">${cg.name}卦 · 第 ${cg.n} 卦 · ${cg.up}上${cg.dn}下</div>
+              <div class="c-move">本卦${moveDesc}动而变</div>
+              <div class="c-bai">${cg.bai}</div>
+            </div>
+          </div>
+        </div>`;
+    } else if (info) {
+      changeHtml = `
+        <div class="block change">
+          <span class="tag">变 卦</span>
+          <div class="change-card">
+            <div class="c-info">
+              <div class="c-name">六爻皆静 · 无变卦</div>
+              <div class="c-bai">本卦即终卦，事情按本卦之意发展，无需另观变卦。</div>
+            </div>
+          </div>
+        </div>`;
+    }
+    return `
+      <div class="gua-head">
+        <div class="gua-symbol">${g.s}</div>
+        <div>
+          <div class="gua-name">${g.name}卦</div>
+          <div class="gua-meta">第 ${g.n} 卦 · ${g.up}上 ${g.dn}下</div>
+        </div>
+      </div>
+      <div class="gua-body">
+        <div class="block meaning">
+          <span class="tag">卦 义</span>
+          <div class="val">${g.yi}</div>
+        </div>
+        <div class="block text">
+          <span class="tag">卦 辞</span>
+          <div class="val">${g.ci}</div>
+        </div>
+        <div class="block explain">
+          <span class="tag">白话解读</span>
+          <div class="val">${g.bai}</div>
+        </div>
+        ${changeHtml}
+      </div>`;
+  }
+
+  // 渲染一卦到指定面板
+  function renderPanel(panel, g, info) {
+    const r = refs(panel);
+    const moves = (info && info.moves) || [];
+    const bits = g.yao.split("");
+    bits.forEach((b, i) => {
+      r.digits[i].textContent = b;
+      r.digits[i].classList.toggle("on", b === "1");
+    });
+    bits.forEach((b, i) => {
+      r.yaos[i].classList.toggle("yin", b === "0");
+      r.yaos[i].classList.toggle("moving", moves.includes(i + 1));
+      r.yaos[i].classList.add("show");
+    });
+    if (moves.length) {
+      r.hexMove.textContent = "动爻：" + moves.map(p => yaoNames[p-1] + (g.yao[p-1] === "1" ? "○" : "×")).join("、");
+    } else {
+      r.hexMove.textContent = "六爻皆静 · 静卦";
+    }
+    r.detail.innerHTML = buildDetail(g, info);
+  }
+
+  function clearPanel(panel, placeholder) {
+    const r = refs(panel);
+    r.digits.forEach(el => { el.textContent = "–"; el.classList.remove("on", "spin"); });
+    r.yaos.forEach(el => el.classList.remove("show", "yin", "moving"));
+    r.hexMove.textContent = "";
+    r.detail.innerHTML = `<div class="placeholder"><span class="glyph">䷀</span>${placeholder}</div>`;
+  }
+
+  // 随机起卦（animate 是否动画，record 是否记入历史）
+  function doRandom(animate, record) {
+    const btn = document.getElementById("randomBtn");
+    const cast = castHex();
+    const g = GUA_BY_YAO[cast.yao];
+    const changedG = cast.moves.length ? GUA_BY_YAO[flipMulti(cast.yao, cast.moves)] : null;
+    const info = { moves: cast.moves, changedG };
+    const finish = () => {
+      renderPanel("random", g, info);
+      if (record) recordHistory(g, cast.moves, changedG);
+      btn.disabled = false;
+    };
+
+    clearPanel("random", "摇卦中…");
+    if (!animate) { finish(); return; }
+
+    btn.disabled = true;
+    const r = refs("random");
+    const finalBits = cast.yao.split("");
+    let tick = 0;
+    const total = 18;
+    const timer = setInterval(() => {
+      tick++;
+      r.digits.forEach(el => {
+        const b = Math.random() < 0.5 ? "0" : "1";
+        el.textContent = b;
+        el.classList.toggle("on", b === "1");
+        el.classList.remove("spin");
+        void el.offsetWidth;
+        el.classList.add("spin");
+      });
+      if (tick >= total) {
+        clearInterval(timer);
+        finalBits.forEach((b, i) => {
+          r.digits[i].textContent = b;
+          r.digits[i].classList.toggle("on", b === "1");
+        });
+        finalBits.forEach((b, i) => {
+          setTimeout(() => {
+            r.yaos[i].classList.toggle("yin", b === "0");
+            r.yaos[i].classList.add("show");
+          }, i * 140);
+        });
+        setTimeout(finish, finalBits.length * 140 + 120);
+      }
+    }, 60);
+  }
+
+  // ===== 历史记录（localStorage，记录随机起卦） =====
+  function loadHistory() {
+    try { return JSON.parse(localStorage.getItem("gua_history") || "[]"); }
+    catch (e) { return []; }
+  }
+  function saveHistory(list) {
+    localStorage.setItem("gua_history", JSON.stringify(list));
+  }
+  function fmtTime(ts) {
+    const d = new Date(ts);
+    const p = n => String(n).padStart(2, "0");
+    return `${d.getMonth()+1}月${d.getDate()}日 ${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+  function recordHistory(g, moves, changedG) {
+    const list = loadHistory();
+    const last = list[0];
+    const sameMoves = (a, b) => JSON.stringify((a || []).slice().sort()) === JSON.stringify((b || []).slice().sort());
+    if (last && last.n === g.n && sameMoves(last.move, moves)) {
+      last.t = Date.now();
+    } else {
+      list.unshift({ t: Date.now(), n: g.n, name: g.name, s: g.s, yao: g.yao, move: moves || [], cname: changedG ? changedG.name : null });
+    }
+    if (list.length > 30) list.length = 30;
+    saveHistory(list);
+    renderHistory();
+  }
+  function renderHistory() {
+    const list = loadHistory();
+    const box = document.getElementById("histList");
+    if (!list.length) {
+      box.innerHTML = `<div class="hist-empty">暂无记录，摇卦后会自动保存在这里</div>`;
+      return;
+    }
+    box.innerHTML = list.map((r, idx) => `
+      <div class="hist-item" data-idx="${idx}">
+        <div class="h-sym">${r.s}</div>
+        <div>
+          <div class="h-name">${r.name}卦</div>
+          <div class="h-meta">第 ${r.n} 卦${r.cname ? " · 变 " + r.cname + "卦" : (Array.isArray(r.move) && r.move.length === 0 ? " · 静卦" : "")}</div>
+        </div>
+        <div class="h-right">
+          <span class="h-src">随机起卦</span>
+          <span class="h-time">${fmtTime(r.t)}</span>
+        </div>
+      </div>`).join("");
+    box.querySelectorAll(".hist-item").forEach(el => {
+      el.addEventListener("click", () => {
+        const r = list[Number(el.dataset.idx)];
+        viewHistory(r);
+      });
+    });
+  }
+  function viewHistory(rec) {
+    const g = GUA[rec.n - 1];
+    let moves = [];
+    if (Array.isArray(rec.move)) moves = rec.move;
+    else if (typeof rec.move === "number") moves = [rec.move];   // 兼容旧版单动爻
+    const changedG = moves.length ? GUA_BY_YAO[flipMulti(g.yao, moves)] : null;
+    renderPanel("random", g, { moves, changedG });
+  }
+
+  // 事件
+  document.getElementById("randomBtn").addEventListener("click", () => doRandom(true, true));
+  document.getElementById("clearBtn").addEventListener("click", () => {
+    localStorage.removeItem("gua_history");
+    renderHistory();
+  });
+
+  // 初始：自动摇一卦
+  renderHistory();
+  doRandom(true, false);
+</script>
+<a href="index.html" title="返回 RC 首页" style="position:fixed;bottom:20px;left:20px;z-index:99999;display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:999px;background:rgba(28,32,51,.82);color:#fff;font-size:13px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.18);">← RC 首页</a>
+</body>
+</html>
