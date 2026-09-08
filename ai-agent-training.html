@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent 提效培训 · 产品部 | WorkBuddy 专题</title>
+<style>
+  :root{
+    --primary:#2b5cff; --primary-dark:#1e3fd8; --accent:#ff7a45; --bg:#0e1424;
+    --card:#182238; --card2:#1f2b47; --text:#eaf0ff; --muted:#9fb0d0; --green:#2bd5a3; --purple:#8b7bff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"Microsoft YaHei","PingFang SC",-apple-system,sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+  .deck{position:relative;width:100vw;height:100vh}
+  .slide{position:absolute;inset:0;display:none;flex-direction:column;padding:56px 80px 76px;overflow-y:auto}
+  .slide.active{display:flex;animation:fadeIn .45s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  h1{font-size:52px;line-height:1.25;margin-bottom:18px}
+  h2{font-size:36px;margin-bottom:8px;display:flex;align-items:center;gap:14px}
+  h2::before{content:"";width:10px;height:34px;background:linear-gradient(180deg,var(--primary),var(--purple));border-radius:6px}
+  .sub{color:var(--muted);font-size:18px;margin-bottom:28px}
+  .grid{display:grid;gap:20px}
+  .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.g5{grid-template-columns:repeat(5,1fr)}
+  .card{background:var(--card);border:1px solid #2a3a5e;border-radius:16px;padding:22px;transition:.25s}
+  .card:hover{transform:translateY(-4px);border-color:var(--primary);box-shadow:0 12px 30px rgba(43,92,255,.18)}
+  .card h3{font-size:19px;margin-bottom:10px;color:#fff}
+  .card p,.card li{font-size:14.5px;color:var(--muted);line-height:1.7}
+  .tag{display:inline-block;padding:3px 12px;border-radius:99px;font-size:12px;margin-bottom:10px;font-weight:600}
+  .t-blue{background:rgba(43,92,255,.18);color:#7ea0ff}.t-green{background:rgba(43,213,163,.15);color:#5fe0b4}
+  .t-orange{background:rgba(255,122,69,.15);color:#ffab8a}.t-purple{background:rgba(139,123,255,.16);color:#b3a6ff}
+  .footer{position:fixed;bottom:0;left:0;right:0;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:rgba(10,15,28,.85);backdrop-filter:blur(8px);border-top:1px solid #22304e;z-index:50}
+  .footer button{background:var(--card2);color:var(--text);border:1px solid #33456e;border-radius:8px;padding:8px 20px;cursor:pointer;font-size:14px}
+  .footer button:hover{background:var(--primary)}
+  .pager{font-size:14px;color:var(--muted)}
+  .toc{columns:2;column-gap:40px;margin-top:10px}
+  .toc li{break-inside:avoid;margin-bottom:14px;list-style:none;font-size:17px;padding:10px 14px;background:var(--card);border-radius:10px;border-left:4px solid var(--primary)}
+  .toc li b{color:#fff;margin-right:8px}
+  .hero{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
+  .hero .badge{background:linear-gradient(90deg,var(--primary),var(--purple));padding:6px 18px;border-radius:99px;font-size:14px;font-weight:700;margin-bottom:26px}
+  .hero p{color:var(--muted);font-size:20px;max-width:760px;line-height:1.8}
+  .flow{display:flex;gap:0;align-items:stretch;margin-top:24px}
+  .flow .step{flex:1;background:var(--card);border:1px solid #2a3a5e;border-radius:14px;padding:18px 14px;text-align:center;position:relative}
+  .flow .arrow{display:flex;align-items:center;padding:0 8px;color:var(--primary);font-size:24px;font-weight:700}
+  .big-num{font-size:38px;font-weight:800;background:linear-gradient(90deg,#7ea0ff,#b3a6ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  th{background:var(--card2);color:#fff;padding:12px 14px;text-align:left;font-size:14px}
+  td{padding:11px 14px;border-bottom:1px solid #24345a;color:var(--muted);line-height:1.6}
+  td:first-child{color:var(--text);font-weight:600}
+  .note{margin-top:22px;background:rgba(255,122,69,.1);border:1px solid rgba(255,122,69,.4);border-radius:12px;padding:14px 18px;font-size:14px;color:#ffc4ab;line-height:1.7}
+  .tip{margin-top:22px;background:rgba(43,213,163,.08);border:1px solid rgba(43,213,163,.35);border-radius:12px;padding:14px 18px;font-size:14px;color:#9ce9d0;line-height:1.7}
+  ul.clean{list-style:none}
+  ul.clean li{padding-left:22px;position:relative;margin-bottom:8px;line-height:1.7;color:var(--muted);font-size:15px}
+  ul.clean li::before{content:"▸";position:absolute;left:0;color:var(--primary);font-weight:700}
+  .kbd{background:#26355a;border-radius:6px;padding:2px 10px;font-size:13px;border:1px solid #3a4e7e}
+  .metric{ text-align:center;padding:26px 18px}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- 1 封面 -->
+<section class="slide active">
+  <div style="display:flex;align-items:center;gap:60px;height:100%">
+    <div class="hero" style="flex:1.4">
+      <div class="badge">产品部 · 内部培训 · 2026</div>
+      <h1>让 AI Agent 成为你的<br><span style="background:linear-gradient(90deg,#7ea0ff,#b3a6ff,#ffab8a);-webkit-background-clip:text;background-clip:text;color:transparent">数字员工</span></h1>
+      <p>从概念到实战：理解 Token、API、Skill、Agent 与大模型的关系，<br>掌握市面主流智能体，并用 <b style="color:#fff">WorkBuddy</b> 重构产品部的十大日常工作场景。</p>
+      <p style="margin-top:34px;font-size:16px">按 <span class="kbd">→</span> 或点击下方按钮开始 · 全程约 60 分钟</p>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:18px">
+      <img src="assets/eastseao-avatar.jpg" alt="讲师头像"
+           style="width:220px;height:220px;object-fit:cover;border-radius:50%;border:4px solid #2b5cff;box-shadow:0 0 40px rgba(43,92,255,.45)">
+      <div style="background:var(--card);border:1px solid #2a3a5e;border-radius:16px;padding:18px 22px;max-width:420px">
+        <p style="font-size:17px;font-weight:700;color:#fff;margin-bottom:8px">EastSeaO</p>
+        <p style="font-size:14px;color:var(--muted);line-height:1.8">从事包装采购 · 前端开发，AI 爱好者，自研采购助手等桌面工具。增量迭代、功能+打包一步到位，务实落地。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 目录 -->
+<section class="slide">
+  <h2>今天讲什么</h2>
+  <p class="sub">三个模块：看懂 AI → 选对工具 → 落地工作</p>
+  <ul class="toc">
+    <li><b>01</b> AI 基础概念：Token / API / Skill / Agent / 大模型</li>
+    <li><b>02</b> 市面主流 Agent 智能体盘点与选型</li>
+    <li><b>03</b> WorkBuddy 是什么：你的全能数字员工</li>
+    <li><b>04</b> 场景实战（上）：市场洞察与产品策划</li>
+    <li><b>05</b> 场景实战（中）：研发、合规与成本</li>
+    <li><b>06</b> 场景实战（下）：立项、结题与存量管理</li>
+    <li><b>07</b> 文档总结、整理与可视化展示</li>
+    <li><b>08</b> 提示词技巧 + 上手路线图 + Q&A</li>
+  </ul>
+</section>
+
+<!-- 3 概念比喻 -->
+<section class="slide">
+  <h2>五个概念，一个比喻讲清楚</h2>
+  <p class="sub">把 AI 想象成一位新入职的"数字员工"，一切都好理解了</p>
+  <div class="grid g5">
+    <div class="card metric"><div class="big-num">🧠</div><h3>大模型</h3><p><b style="color:#fff">大脑</b>。负责思考、理解语言、推理和生成内容。大脑越强，员工越聪明（GPT、Claude、GLM、Qwen、DeepSeek…）</p></div>
+    <div class="card metric"><div class="big-num">📊</div><h3>Token</h3><p><b style="color:#fff">流量</b>。模型按 Token 计费和记忆，1 Token ≈ 0.5~1.5 个汉字。对话越多，流量消耗越大</p></div>
+    <div class="card metric"><div class="big-num">🔌</div><h3>API</h3><p><b style="color:#fff">插座</b>。标准接口，让程序能把任务交给大模型、把能力接入业务系统，随插随用</p></div>
+    <div class="card metric"><div class="big-num">🎒</div><h3>Skill</h3><p><b style="color:#fff">技能包</b>。教员工掌握的具体本领：读 Excel、查数据库、生成 PPT、调用钉钉……技能越多越能干</p></div>
+    <div class="card metric"><div class="big-num">🤖</div><h3>Agent</h3><p><b style="color:#fff">员工</b>。大脑+技能+工具+自主规划，能理解目标、拆解步骤、执行任务、汇报结果</p></div>
+  </div>
+  <div class="tip">💡 一句话总结：<b>大模型</b>是脑子，<b>Token</b>是口粮，<b>API</b>是插座，<b>Skill</b>是技能包，<b>Agent</b>= 前四者组装出来能干活的<b>员工</b>。</div>
+</section>
+
+<!-- 4 聊天机器人 vs Agent -->
+<section class="slide">
+  <h2>为什么是 Agent，而不是"聊天框"？</h2>
+  <p class="sub">从"只出主意"到"真干活"的跨越</p>
+  <div class="grid g2">
+    <div class="card">
+      <span class="tag t-orange">普通对话 AI（Chatbot）</span>
+      <ul class="clean">
+        <li>你问一句，它答一句，被动响应</li>
+        <li>只会生成文字，不能操作系统和文件</li>
+        <li>需要你复制粘贴到各个工具里自己执行</li>
+        <li>适合：查资料、写文案、头脑风暴</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:var(--primary)">
+      <span class="tag t-blue">智能体（Agent）</span>
+      <ul class="clean">
+        <li>理解目标后<b style="color:#fff">自主规划</b>：拆步骤 → 调工具 → 检查结果 → 迭代</li>
+        <li>能读写文件、查表格、发消息、跑脚本</li>
+        <li>交付的是<b style="color:#fff">成果物</b>：报告、表格、PPT、待办</li>
+        <li>适合：端到端完成一项完整工作</li>
+      </ul>
+    </div>
+  </div>
+  <div class="flow">
+    <div class="step"><b>接收目标</b><p style="font-size:13px">"帮我调研玻尿酸原料趋势"</p></div><div class="arrow">→</div>
+    <div class="step"><b>自主拆解</b><p style="font-size:13px">搜索→筛选→整理→测算</p></div><div class="arrow">→</div>
+    <div class="step"><b>调用工具</b><p style="font-size:13px">浏览器 / Excel / 知识库</p></div><div class="arrow">→</div>
+    <div class="step"><b>交付成果</b><p style="font-size:13px">报告.docx + 数据表 + 结论</p></div>
+  </div>
+</section>
+
+<!-- 5 主流Agent盘点 -->
+<section class="slide">
+  <h2>市面主流 Agent 智能体盘点</h2>
+  <p class="sub">2026 年视角：通用型、编程型、办公型三大阵营</p>
+  <table>
+    <tr><th>产品</th><th>阵营</th><th>特点</th><th>适合产品部的用途</th></tr>
+    <tr><td>WorkBuddy</td><td>企业办公 Agent</td><td>贴合企业流程，文档/表格/知识库/审批一站式，可编排技能</td><td>⭐ 本次培训主角：日常工作的全能助手</td></tr>
+    <tr><td>ChatGPT（OpenAI）</td><td>通用型</td><td>生态最成熟，GPTs 可自定义智能体，多模态强</td><td>创意生成、方案初稿、翻译润色</td></tr>
+    <tr><td>Claude（Anthropic）</td><td>通用/长文本</td><td>长文档理解出色，Projects 知识管理，Computer Use 可操作电脑</td><td>超长报告阅读、合规文档比对</td></tr>
+    <tr><td>Coze / 扣子（字节）</td><td>低代码搭建平台</td><td>拖拽式搭建 Agent，插件/workflow 丰富，中文生态好</td><td>搭建部门专属小工具和机器人</td></tr>
+    <tr><td>GLM 智能体（智谱）</td><td>通用型（国产）</td><td>中文理解强，AutoGLM 可代操作 App 与网页</td><td>国产化要求场景、日常问答</td></tr>
+    <tr><td>Manus / 通用执行 Agent</td><td>任务执行型</td><td>给目标直接交付成果物（报告/表格/网页）</td><td>一次性深度调研任务</td></tr>
+    <tr><td>Copilot（微软）/ WPS AI</td><td>生产力内嵌型</td><td>嵌入 Office/WPS，Word/Excel/PPT 原生提效</td><td>文档表格日常微操提效</td></tr>
+    <tr><td>DingTalk AI / 钉钉魔搭</td><td>协同办公型</td><td>与 IM、审批、会议纪要、AI 表格深度打通</td><td>团队协作、消息与待办自动化</td></tr>
+  </table>
+  <div class="tip">选型口诀：<b>日常办公用 WorkBuddy</b>，创意用 ChatGPT，长文档用 Claude，搭定制机器人用 Coze，国产合规用 GLM。</div>
+</section>
+
+<!-- 6 WorkBuddy 介绍 -->
+<section class="slide">
+  <h2>WorkBuddy：你的全能数字员工</h2>
+  <p class="sub">为什么本次培训以它为核心——因为它离我们的工作流最近</p>
+  <div class="grid g4">
+    <div class="card"><span class="tag t-blue">📄 文档</span><h3>会写</h3><p>立项书、结题报告、方案、周报，一句话生成初稿，自动套用模板</p></div>
+    <div class="card"><span class="tag t-green">📊 数据</span><h3>会算</h3><p>读 Excel、跑公式、核成本、比价格，BOM 梳理与测算自动化</p></div>
+    <div class="card"><span class="tag t-orange">🔍 研究</span><h3>会查</h3><p>联网检索市场趋势、原料情报、法规动态，自动汇总成简报</p></div>
+    <div class="card"><span class="tag t-purple">🗂️ 整理</span><h3>会管</h3><p>知识库沉淀、文件归类、会议纪要转待办，成果可复用</p></div>
+  </div>
+  <div class="note" style="margin-top:26px">📌 使用心法：把 WorkBuddy 当<b>新来的聪明实习生</b>——目标讲清楚、资料给到位、过程多确认、结果做把关。</div>
+</section>
+
+<!-- 7 十大场景总览 -->
+<section class="slide">
+  <h2>产品部十大工作场景 × Agent 提效地图</h2>
+  <p class="sub">先看全景：每项工作 Agent 能替代的部分与人的角色</p>
+  <div class="grid g2" style="margin-top:6px">
+    <div class="card"><h3>🧭 前端：洞察与策划</h3><p>① 市场趋势及原料机会挖掘　② 产品概念营销策划<br><span style="color:#7ea0ff">Agent 做：情报搜集、趋势归纳、创意发散 → 人做：判断与决策</span></p></div>
+    <div class="card"><h3>🧪 中台：研发与供应</h3><p>③ 配方研发合规与核心数值测算　④ 原料索样及成本预估　⑤ 包装设计与工艺　⑥ 生产跟产及问题协调<br><span style="color:#5fe0b4">Agent 做：法规筛查、价格比对、问题记录归档 → 人做：专业审核</span></p></div>
+    <div class="card"><h3>📝 后端：文档与管理</h3><p>⑦ 立项撰写　⑧ 结题报告　⑨ 现有产品 BOM 梳理及价格匹配　⑩ 包材原料库存查询<br><span style="color:#b3a6ff">Agent 做：模板化撰写、批量匹配、即时查询 → 人做：终稿确认</span></p></div>
+    <div class="card"><h3>🎨 横向：文档总结与可视化</h3><p>各类文档的总结整理、汇报材料生成、数据图表可视化<br><span style="color:#ffab8a">Agent 做：从原始素材到成品交付 → 人做：讲故事的角度</span></p></div>
+  </div>
+  <div class="tip">接下来用 3 页展开每个场景的「WorkBuddy 实战用法 + 示例指令」。</div>
+</section>
+
+<!-- 8 场景1-2 -->
+<section class="slide">
+  <h2>场景实战（上）：市场洞察与产品策划</h2>
+  <p class="sub">把 3 天的资料搜集压缩到 30 分钟</p>
+  <div class="grid g2">
+    <div class="card">
+      <span class="tag t-blue">① 市场趋势及原料机会挖掘</span>
+      <ul class="clean">
+        <li><b style="color:#fff">Agent 做：</b>定时检索行业报告、社媒声量、竞品动态、新原料发布，自动汇总《每周原料机会简报》并标注热度与依据</li>
+        <li><b style="color:#fff">示例指令：</b>"检索近 90 天'重组胶原蛋白'在护肤品的应用趋势，输出：趋势摘要 / 代表产品 / 潜在机会点 / 风险提示，附来源链接"</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag t-green">② 产品概念营销策划</span>
+      <ul class="clean">
+        <li><b style="color:#fff">Agent 做：</b>基于人群画像批量生成概念方向、卖点话术、命名提案、竞品对标表，一稿多变体供筛选</li>
+        <li><b style="color:#fff">示例指令：</b>"针对 25-35 岁熬夜党，基于'依克多因'生成 5 个产品概念，每个含：核心卖点 / 一句话文案 / 目标人群洞察 / 对标竞品及差异点"</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note">⚠️ 提醒：市场数据务必让 Agent 附上<b>来源链接</b>，关键数字人工复核，避免"幻觉数据"进入决策。</div>
+</section>
+
+<!-- 9 场景3-6 -->
+<section class="slide">
+  <h2>场景实战（中）：研发、合规与成本</h2>
+  <p class="sub">专业判断留给人，重复劳动交给 Agent</p>
+  <div class="grid g2">
+    <div class="card">
+      <span class="tag t-purple">③ 配方研发及合规、核心数值测算</span>
+      <ul class="clean">
+        <li>上传《化妆品安全技术规范》等法规文件建立知识库，输入配方表自动筛查：<b style="color:#fff">限用组分超标、禁用成分、标签标识要求</b></li>
+        <li>示例："比对这份配方与《已使用化妆品原料目录》，列出：超出限量 / 需标注 / 存疑的原料及法规依据"</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag t-orange">④ 原料索样及成本预估</span>
+      <ul class="clean">
+        <li>给定目标成本，Agent 生成配方成本测算表、多方案对比（A/B/C 配方克单价），并自动起草索样邮件/询价函</li>
+        <li>示例："按此配方与附表价格，测算 10 万支规格的单品原料成本，若目标克单价 ≤0.8 元，给出降本替代建议"</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag t-blue">⑤ 包装设计与工艺</span>
+      <ul class="clean">
+        <li>生成包装设计 Brief（材质/工艺/容量/风格关键词）、AI 出概念图，整理供应商工艺可行性问答清单</li>
+        <li>示例："为该精华生成包装 Brief：定位轻奢、主色莫兰迪、含刀版图要素清单与常见工艺（烫金/UV）成本档位"</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag t-green">⑥ 生产跟产及问题协调</span>
+      <ul class="clean">
+        <li>跟产记录、群消息、照片描述 → Agent 自动整理成《跟产日报》：问题 / 责任方 / 截止时间 / 待办，并分发给相关人</li>
+        <li>示例："把今天跟产群里的讨论整理成日报，突出 3 个异常项，生成待办清单并@责任人"</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 10 场景7-10 -->
+<section class="slide">
+  <h2>场景实战（下）：立项、结题与存量管理</h2>
+  <p class="sub">最耗时的"文书工作"，恰是 Agent 最强的战场</p>
+  <div class="grid g2">
+    <div class="card">
+      <span class="tag t-blue">⑦ 立项撰写</span>
+      <ul class="clean">
+        <li>上传立项模板 + 前期调研成果，Agent 按"背景/机会/方案/预算/计划/风险"逐节生成初稿，数据自动回填</li>
+        <li>示例："按公司立项模板，基于我提供的调研简报和成本测算，生成立项报告初稿，缺失信息用【待补充】标出"</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag t-purple">⑧ 结题报告</span>
+      <ul class="clean">
+        <li>汇总立项书、过程记录、检测数据，自动生成对照式结题报告：目标 vs 实际、偏差分析、经验沉淀</li>
+        <li>示例："对照立项书指标，用这些过程数据写结题报告，重点写清 2 项指标偏差的原因与改进措施"</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag t-orange">⑨ BOM 梳理及原料包材价格匹配</span>
+      <ul class="clean">
+        <li>上传多版本 BOM 表 + 最新价格表，Agent 批量匹配、标红缺失与涨价项，输出更新后 BOM 与差异报告</li>
+        <li>示例："用附表价格更新全量 BOM，输出：更新后成本 / 涨跌幅 TOP10 / 未匹配原料清单"</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag t-green">⑩ 包材原料库存查询</span>
+      <ul class="clean">
+        <li>接入库存系统或定期导入库存表后，自然语言即查："查一下 30ml 玻璃瓶和卡波姆的现有库存与可支撑产量"</li>
+        <li>进一步：设置低库存预警，自动生成补货提醒</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 11 文档总结与可视化 -->
+<section class="slide">
+  <h2>横向能力：文档总结、整理与可视化</h2>
+  <p class="sub">从"一堆素材"到"一页汇报"的标准动作</p>
+  <div class="flow">
+    <div class="step"><b>📥 素材汇总</b><p style="font-size:13px">会议纪要/报告/群聊记录<br>全部丢给 Agent</p></div><div class="arrow">→</div>
+    <div class="step"><b>🧹 清洗提炼</b><p style="font-size:13px">去重、分类、抽取要点<br>生成结构化大纲</p></div><div class="arrow">→</div>
+    <div class="step"><b>📊 可视化</b><p style="font-size:13px">自动选图表：趋势→折线<br>占比→饼图 对比→柱状</p></div><div class="arrow">→</div>
+    <div class="step"><b>📤 成品交付</b><p style="font-size:13px">汇报 PPT 大纲/一页纸摘要<br>周报/看板自动生成</p></div>
+  </div>
+  <div class="grid g3" style="margin-top:24px">
+    <div class="card"><h3>长文档 → 一页纸</h3><p>"把这份 60 页行业报告浓缩成一页纸摘要：3 个核心结论 + 5 组关键数据 + 对我们的 3 点启示"</p></div>
+    <div class="card"><h3>数据 → 图表</h3><p>"把这组销售与原料价格数据做成双轴图，标注相关性和异常点，生成图表说明文字"</p></div>
+    <div class="card"><h3>过程 → 汇报</h3><p>"基于本月项目进展记录，生成给管理层的月度汇报：里程碑、风险、下月计划，语气简洁专业"</p></div>
+  </div>
+</section>
+
+<!-- 12 提示词技巧 -->
+<section class="slide">
+  <h2>用好 Agent 的万能公式</h2>
+  <p class="sub">指令质量决定产出质量</p>
+  <div class="card" style="margin-bottom:20px;border-color:var(--primary)">
+    <h3 style="font-size:22px">🎯 角色 + 背景 + 任务 + 要求 + 格式</h3>
+    <p style="font-size:16px;color:#cdd9f5">"你是一名<b>化妆品法规专员</b>（角色）。我们正在开发一款面部精华（背景）。请筛查这份配方表的合规风险（任务），依据 2021 版《化妆品安全技术规范》，重点看限用组分与防腐剂（要求），以表格输出：原料/含量/限量/结论（格式）。"</p>
+  </div>
+  <div class="grid g3">
+    <div class="card"><h3>✅ 要做</h3><ul class="clean"><li>给足上下文和参考资料</li><li>复杂任务拆步骤、分多次对话</li><li>要求附来源、标出不确定项</li><li>不满意就追问迭代，别推倒重来</li></ul></div>
+    <div class="card"><h3>❌ 别做</h3><ul class="clean"><li>一句话下模糊指令（"写个方案"）</li><li>把 AI 输出当最终稿直接提交</li><li>上传涉密数据到未授权工具</li><li>期待 100% 准确却不做复核</li></ul></div>
+    <div class="card"><h3>🔐 安全红线</h3><ul class="clean"><li>公司机密配方、客户数据不外传</li><li>使用公司批准的工具与账号</li><li>合规结论以法规原文和专业人士为准</li><li>AI 生成内容需人工署名负责</li></ul></div>
+  </div>
+</section>
+
+<!-- 13 上手路线 -->
+<section class="slide">
+  <h2>上手路线图：三步走</h2>
+  <p class="sub">不要试图一天掌握全部，按周推进</p>
+  <div class="grid g3">
+    <div class="card"><span class="tag t-green">第 1 周 · 试用</span><h3>从一个小场景开始</h3><ul class="clean"><li>每天用 WorkBuddy 完成 1 件文档工作</li><li>如：周报总结、一份报告摘要</li><li>目标：建立手感，消除陌生感</li></ul></div>
+    <div class="card"><span class="tag t-blue">第 2-3 周 · 融入</span><h3>接管 2-3 个高频场景</h3><ul class="clean"><li>立项初稿 / BOM 匹配 / 市场简报</li><li>把常用指令存成个人"指令库"</li><li>目标：单场景节省 50% 以上时间</li></ul></div>
+    <div class="card"><span class="tag t-purple">第 4 周+ · 沉淀</span><h3>团队级复用</h3><ul class="clean"><li>优质指令模板共享到团队知识库</li><li>沉淀部门专属技能包</li><li>目标：形成部门 AI 工作范式</li></ul></div>
+  </div>
+  <div class="tip" style="margin-top:26px">📈 衡量标准很简单：同样一件事，<b>上周花 3 小时，本周花 1 小时</b>——省下的时间用来做只有人能做的判断和创意。</div>
+</section>
+
+<!-- 14 结尾 -->
+<section class="slide">
+  <div class="hero">
+    <h1>AI 不会取代你，<br>但<b style="color:#7ea0ff">会用 AI 的人</b>会</h1>
+    <p style="margin-top:10px">今天回家就做一件事：挑一项你最烦的文档工作，交给 WorkBuddy 试试。</p>
+    <p style="margin-top:40px;font-size:22px;color:#fff">Q & A · 谢谢大家 🙌</p>
+  </div>
+</section>
+
+</div>
+<div class="footer">
+  <button onclick="nav(-1)">← 上一页</button>
+  <span class="pager" id="pager">1 / 14</span>
+  <button onclick="nav(1)">下一页 →</button>
+</div>
+<script>
+  const slides=[...document.querySelectorAll('.slide')];let cur=0;
+  function show(i){slides[cur].classList.remove('active');cur=(i+slides.length)%slides.length;
+    slides[cur].classList.add('active');slides[cur].scrollTop=0;
+    document.getElementById('pager').textContent=(cur+1)+' / '+slides.length;}
+  function nav(d){show(cur+d)}
+  document.addEventListener('keydown',e=>{
+    if(['ArrowRight','PageDown',' '].includes(e.key))nav(1);
+    if(['ArrowLeft','PageUp'].includes(e.key))nav(-1);
+    if(e.key==='Home')show(0); if(e.key==='End')show(slides.length-1);});
+</script>
+</body>
+</html>
