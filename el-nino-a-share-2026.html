@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>超强厄尔尼诺 · A股受益板块全维度分析</title>
+<meta name="description" content="本轮厄尔尼诺大概率成为有观测记录以来最强，从天气→大宗商品→上市公司盈利的完整传导链，梳理 A 股七大受益主线与个股映射。">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+  :root {
+    --bg: #f7f8fb;
+    --card: #ffffff;
+    --ink: #1c2033;
+    --ink-2: #545b6e;
+    --ink-3: #8a91a3;
+    --line: #e8eaf0;
+    --brand: #2f5cff;
+    --brand-2: #00b4d8;
+    --up: #e54545;      /* A股 红涨 */
+    --down: #16a34a;    /* A股 绿跌 */
+    --warn: #f59e0b;
+    --danger: #dc2626;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(20,24,40,.04), 0 8px 24px rgba(20,24,40,.06);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--ink); line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 20px; }
+
+  /* ===== Top nav ===== */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255,255,255,.86); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav .inner {
+    max-width: 920px; margin: 0 auto; padding: 12px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav .back {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 14px; color: var(--ink-2); font-weight: 600; transition: color .15s;
+  }
+  .nav .back:hover { color: var(--brand); }
+  .nav .brand { font-size: 14px; color: var(--ink-3); }
+  .nav .brand b { color: var(--brand); font-weight: 700; }
+
+  /* ===== Hero ===== */
+  .hero {
+    position: relative; overflow: hidden;
+    background: linear-gradient(135deg, #0f1c4d 0%, #1e3fae 45%, #2563eb 80%, #06b6d4 100%);
+    color: #fff; padding: 64px 0 72px;
+  }
+  .hero::before {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(circle at 80% 12%, rgba(125,211,252,.22), transparent 40%),
+                radial-gradient(circle at 12% 85%, rgba(165,243,252,.14), transparent 45%);
+  }
+  .hero .wrap { position: relative; }
+  .hero .kicker {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; letter-spacing: .5px; color: rgba(255,255,255,.9);
+    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.22);
+    padding: 5px 14px; border-radius: 999px; margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-size: clamp(28px, 5vw, 42px); font-weight: 800; line-height: 1.25;
+    letter-spacing: -.5px; margin-bottom: 16px; max-width: 760px;
+  }
+  .hero .meta { display: flex; flex-wrap: wrap; gap: 18px; font-size: 14px; color: rgba(255,255,255,.8); }
+  .hero .meta span { display: inline-flex; align-items: center; gap: 6px; }
+
+  /* ===== Section 通用 ===== */
+  section { padding: 44px 0 8px; }
+  .sec-title {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+  }
+  .sec-title .no {
+    flex: none; width: 32px; height: 32px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 800; color: #fff;
+    background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  }
+  .sec-title h2 { font-size: 22px; font-weight: 800; letter-spacing: -.3px; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 24px; margin-bottom: 18px;
+  }
+  .card h3 { font-size: 17px; font-weight: 700; margin-bottom: 12px; }
+  .card p { color: var(--ink-2); font-size: 14.5px; }
+
+  /* ===== 结论卡 ===== */
+  .tldr {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;
+  }
+  .tldr .item {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 18px 20px; box-shadow: var(--shadow);
+    border-left: 4px solid var(--brand);
+  }
+  .tldr .item .k { font-size: 13px; color: var(--ink-3); margin-bottom: 6px; }
+  .tldr .item .v { font-size: 16px; font-weight: 700; line-height: 1.5; }
+  .tldr .item.hl { border-left-color: var(--warn); }
+  .tldr .item.danger { border-left-color: var(--danger); }
+  .tldr .item.ok { border-left-color: var(--down); }
+
+  /* ===== 表格 ===== */
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: #fafbfd; color: var(--ink-2); font-weight: 600; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  td .code { font-family: ui-monospace, "SF Mono", Consolas, monospace; color: var(--brand); font-weight: 600; }
+  .tier { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 5px; font-weight: 600; }
+  .tier.core { background: rgba(229,69,69,.1); color: var(--up); }
+  .tier.mid { background: rgba(47,92,255,.1); color: var(--brand); }
+  .tier.elastic { background: rgba(245,158,11,.14); color: #b45309; }
+  .tier.observe { background: #f1f2f5; color: var(--ink-3); }
+  .up { color: var(--up); font-weight: 600; }
+  .down { color: var(--down); font-weight: 600; }
+
+  /* ===== 传导链 ===== */
+  .chain { display: flex; flex-direction: column; gap: 6px; }
+  .chain .node {
+    text-align: center; padding: 13px 16px; border-radius: 11px;
+    font-size: 14px; font-weight: 600;
+  }
+  .chain .n1 { background: linear-gradient(135deg,#0f1c4d,#1e3fae); color:#fff; }
+  .chain .n2 { background: #eef2ff; color:#3b4cbf; border:1px dashed #c7d2fe; }
+  .chain .n3 { background: #fff7ed; color:#c2410c; border:1px solid #fed7aa; }
+  .chain .n4 { background: #ecfeff; color:#0e7490; border:1px solid #a5f3fc; }
+  .chain .arrow { text-align: center; color: var(--ink-3); font-size: 18px; line-height: 1; }
+
+  .branch { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 10px; }
+  .branch .b {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 12px 14px; font-size: 13px; color: var(--ink-2); line-height: 1.55;
+    box-shadow: var(--shadow);
+  }
+  .branch .b b { display: block; color: var(--ink); margin-bottom: 3px; }
+
+  /* ===== 排序徽章 ===== */
+  .rank { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 8px; font-weight: 800; font-size: 13px; color: #fff; }
+  .r1 { background: #e54545; } .r2 { background: #f59e0b; } .r3 { background: #2f5cff; }
+  .r4 { background: #00b4d8; } .r5 { background: #7c3aed; } .r6 { background: #8a91a3; } .r7 { background: #b6bcc9; }
+
+  /* ===== 时间线 ===== */
+  .timeline { position: relative; padding-left: 26px; }
+  .timeline::before { content: ""; position: absolute; left: 8px; top: 6px; bottom: 6px; width: 2px; background: var(--line); }
+  .timeline .tl { position: relative; padding-bottom: 22px; }
+  .timeline .tl::before {
+    content: ""; position: absolute; left: -24px; top: 6px; width: 12px; height: 12px;
+    border-radius: 50%; background: var(--brand); box-shadow: 0 0 0 4px rgba(47,92,255,.15);
+  }
+  .timeline .tl .t { font-weight: 700; font-size: 15px; }
+  .timeline .tl .d { color: var(--ink-2); font-size: 13.5px; margin-top: 3px; }
+
+  /* ===== 风险/来源 ===== */
+  .note { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 11px; padding: 14px 16px; font-size: 13.5px; color: #9a3412; margin-bottom: 12px; }
+  .src-list { list-style: none; font-size: 13.5px; }
+  .src-list li { padding: 9px 0; border-bottom: 1px dashed var(--line); color: var(--ink-2); }
+  .src-list li:last-child { border-bottom: none; }
+  .src-list b { color: var(--ink); }
+  .tag-src { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 4px; margin-left: 6px; vertical-align: middle; }
+  .t-1 { background: rgba(22,163,74,.12); color: #15803d; }
+  .t-2 { background: rgba(245,158,11,.14); color: #b45309; }
+
+  /* ===== 免责 ===== */
+  .disclaimer {
+    background: #f8fafc; border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 18px 22px; font-size: 13px; color: var(--ink-2); line-height: 1.8;
+    margin: 20px 0 40px;
+  }
+  .disclaimer b { color: var(--ink); }
+
+  footer {
+    border-top: 1px solid var(--line); background: var(--card);
+    padding: 28px 24px; text-align: center; color: var(--ink-3); font-size: 13px;
+  }
+  footer a { color: var(--brand); }
+  .chart { width: 100%; height: 340px; }
+
+  @media (max-width: 640px) {
+    .hero { padding: 48px 0 56px; }
+    section { padding: 34px 0 4px; }
+    th, td { padding: 8px; font-size: 12.5px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="nav">
+    <div class="inner">
+      <a class="back" href="index.html">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        返回首页
+      </a>
+      <span class="brand">RC · <b>Agent 作品集</b></span>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="wrap">
+      <div class="kicker">🌊 气候异动 · 金融映射</div>
+      <h1>超强厄尔尼诺 · A股受益板块全维度分析</h1>
+      <div class="meta">
+        <span>📅 2026-09-08</span>
+        <span>🏷️ 金融分析 / 板块轮动 / 农产品</span>
+        <span>⏱️ 跨年至 2027 年一季度</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- ===== 首屏结论 ===== -->
+    <section>
+      <div class="sec-title"><div class="no">·</div><h2>核心结论（TL;DR）</h2></div>
+      <div class="tldr">
+        <div class="item hl">
+          <div class="k">前提已官方证实</div>
+          <div class="v">Niño3.4 海温 5 月 +0.94℃ → 8 月上半月 +2.64℃，11–12 月见顶，有望成「有观测记录以来最强」</div>
+        </div>
+        <div class="item">
+          <div class="k">持续到明年</div>
+          <div class="v">接近 100% 概率持续至 2027 年 2 月，「受益到明年」前提成立</div>
+        </div>
+        <div class="item">
+          <div class="k">第一梯队 · 弹性之王</div>
+          <div class="v">糖 / 天然橡胶 / 棕榈油（东南亚干旱减产）</div>
+        </div>
+        <div class="item">
+          <div class="k">确定性最强</div>
+          <div class="v">种业 + 规模化种植（卖铲子逻辑）</div>
+        </div>
+        <div class="item ok">
+          <div class="k">防御性配置</div>
+          <div class="v">火电 + 煤炭（高温用电 + 水电保供）</div>
+        </div>
+        <div class="item danger">
+          <div class="k">明确规避</div>
+          <div class="v">西南旱区水电（来水偏枯）、养殖、户外文旅、巨灾保险</div>
+        </div>
+      </div>
+      <div class="note" style="margin-top:16px;">
+        ⚠️ 关键提示：<b>白糖、种业板块短期已大幅上涨</b>（9/8 中粮糖业 +9.99%、亚盛集团涨停、敦煌种业 7 天 4 板被监管点名），追高需谨慎；<b>橡胶板块 9 月以来 -1.55%</b>，是「预期先行、事实落地」节奏里相对滞后的方向，更适合中期潜伏。
+      </div>
+    </section>
+
+    <!-- ===== 强度判断 ===== -->
+    <section>
+      <div class="sec-title"><div class="no">1</div><h2>为什么是「超强」厄尔尼诺</h2></div>
+      <div class="card">
+        <h3>Niño3.4 海温指数走势（距平 ℃）</h3>
+        <div id="chartNino" class="chart"></div>
+        <p style="margin-top:8px;font-size:13px;color:var(--ink-3);">数据来源：国家气候中心 / 国家海洋环境预报中心 / NOAA-CPC（2026-08）；峰值为多家机构预测值。</p>
+      </div>
+      <div class="card">
+        <table>
+          <thead><tr><th>指标</th><th>数据</th><th>来源 / 时点</th></tr></thead>
+          <tbody>
+            <tr><td>Niño3.4 海温指数</td><td>5 月 +0.94 → 6 月 +1.55 → 7 月 +2.03~2.09 → 8 月上半月 +2.64℃</td><td>国家气候中心，2026-08</td></tr>
+            <tr><td>峰值预测</td><td>11–12 月见顶，峰值有望接近 <b>3.5℃</b></td><td>国家海洋环境预报中心，2026-09-05</td></tr>
+            <tr><td>国际峰值预测</td><td>巴克莱：2026 底–2027 初峰值约 <b>3.2℃</b>，较 2015–16 强约 15%</td><td>巴克莱报告（需核实原文）</td></tr>
+            <tr><td>超强判定门槛</td><td>峰值强度 ≥ 2.5℃（国标 GB/T 33666-2017）</td><td>国家标准</td></tr>
+            <tr><td>成为历史最强概率</td><td>秋冬 90%+ 概率「very strong」；10–12 月 69% 概率超 1950 年以来所有事件</td><td>NOAA/CPC，2026-08-13</td></tr>
+            <tr><td>持续至 2027 年初</td><td>接近 100% 概率持续到 2027 年 2 月</td><td>WMO《厄尔尼诺/拉尼娜通报》，2026-08</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== 传导链 ===== -->
+    <section>
+      <div class="sec-title"><div class="no">2</div><h2>传导机制：从「天气」到「股票」</h2></div>
+      <div class="card">
+        <div class="chain">
+          <div class="node n1">赤道中东太平洋海温异常升高</div>
+          <div class="arrow">↓</div>
+          <div class="node n2">大气环流异常（沃克环流减弱）→ 全球降水错位</div>
+          <div class="arrow">↓</div>
+          <div class="branch">
+            <div class="b"><b>东南亚 / 澳大利亚干旱</b>糖、橡胶、棕榈油、大米主产区减产</div>
+            <div class="b"><b>南美（巴西）暴雨</b>甘蔗、铜矿生产运输受扰</div>
+            <div class="b"><b>中国「南涝北旱」</b>长江流域多雨、华北黄淮偏旱</div>
+            <div class="b"><b>全球气温偏高</b>高温 → 空调用电激增</div>
+            <div class="b"><b>台风偏强偏多</b>防汛救灾、水利工程需求</div>
+          </div>
+          <div class="arrow">↓</div>
+          <div class="node n4">大宗商品涨价 / 用电负荷抬升 / 灾害链需求 → 上市公司盈利预期变化 → 股价</div>
+        </div>
+        <p style="margin-top:16px;">核心抓手是「<b>降水错位</b>」四个字：厄尔尼诺不是「全国都热」，而是把降水重新分配——东南亚旱、南美部分涝、中国南涝北旱。这直接决定了<b>哪些受益、哪些其实是利空</b>（比如西南旱区水电）。</p>
+      </div>
+    </section>
+
+    <!-- ===== 板块定位图 ===== -->
+    <section>
+      <div class="sec-title"><div class="no">3</div><h2>七大主线定位图（确定性 × 弹性）</h2></div>
+      <div class="card">
+        <div id="chartScatter" class="chart" style="height:420px;"></div>
+        <p style="font-size:13px;color:var(--ink-3);">横轴＝受益确定性，纵轴＝涨价弹性，气泡大小＝综合配置优先级（定性评估）。</p>
+      </div>
+    </section>
+
+    <!-- ===== 七大主线 ===== -->
+    <section>
+      <div class="sec-title"><div class="no">4</div><h2>七大主线与个股映射</h2></div>
+
+      <div class="card">
+        <h3>主线一 · 热带软商品（糖 / 橡胶 / 棕榈油）— 弹性之王</h3>
+        <p style="margin-bottom:12px;">东南亚干旱 → 甘蔗/油棕/橡胶树减产 → 供给收缩涨价。原糖期货 7 月底以来累计涨超 20%；巴克莱预计棕榈油、橡胶未来 18 个月或涨 30%–40%。</p>
+        <table>
+          <thead><tr><th>分层</th><th>标的</th><th>代码</th><th>受益逻辑</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tier core">核心龙头</span></td><td>中粮糖业</td><td class="code">600737</td><td>国内糖业全产业链龙头，9/8 涨停 +9.99%</td></tr>
+            <tr><td><span class="tier core">核心龙头</span></td><td>海南橡胶</td><td class="code">601118</td><td>国内最大天然橡胶种植，自有胶园占全国约 60%</td></tr>
+            <tr><td><span class="tier elastic">糖业弹性</span></td><td>粤桂股份</td><td class="code">000833</td><td>广西制糖龙头（原南宁糖业），产糖量弹性大</td></tr>
+            <tr><td><span class="tier elastic">糖业弹性</span></td><td>广农糖业</td><td class="code">000911</td><td>广西糖业，现为 *ST 广糖，需关注经营风险</td></tr>
+            <tr><td><span class="tier mid">油脂化工</span></td><td>赞宇科技</td><td class="code">002637</td><td>印尼油化基地，产地低价毛棕榈油 + 涨价双重红利</td></tr>
+            <tr><td><span class="tier mid">油脂中军</span></td><td>金龙鱼</td><td class="code">300999</td><td>油脂加工头部，具备成本传导能力</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>主线二 · 种业 + 规模化种植（卖铲子，确定性最强）</h3>
+        <p style="margin-bottom:12px;">全球粮食减产 → 粮价上行 → 种植积极性 + 抗逆品种需求。叠加 9/7 六部门《乡村振兴投入机制实施方案》政策催化。</p>
+        <table>
+          <thead><tr><th>分层</th><th>标的</th><th>代码</th><th>受益逻辑</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tier core">核心龙头</span></td><td>隆平高科</td><td class="code">000998</td><td>杂交水稻全球领先，玉米种子巴西前三</td></tr>
+            <tr><td><span class="tier core">核心龙头</span></td><td>登海种业</td><td class="code">002041</td><td>国内玉米种质资源领先，抗逆品种储备</td></tr>
+            <tr><td><span class="tier mid">转基因</span></td><td>大北农</td><td class="code">002385</td><td>DBN 系列大豆玉米转基因全链条自主</td></tr>
+            <tr><td><span class="tier mid">央企小麦</span></td><td>农发种业</td><td class="code">600313</td><td>央企小麦种子龙头，兼营化肥</td></tr>
+            <tr><td><span class="tier mid">土地壁垒</span></td><td>北大荒</td><td class="code">600598</td><td>约 4874 万亩耕地，规模化种植确定性最强</td></tr>
+            <tr><td><span class="tier mid">规模种植</span></td><td>苏垦农发</td><td class="code">601952</td><td>江苏规模化种植，粮价上行直接受益</td></tr>
+            <tr><td><span class="tier elastic">高弹性</span></td><td>敦煌种业</td><td class="code">600354</td><td>9/8 涨停、7 天 4 板被监管点名，⚠️ 已透支</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>主线三 · 火电 + 煤炭（高温用电 + 水电保供，防御首选）</h3>
+        <p style="margin-bottom:12px;">高温 → 空调用电激增；西南/北方旱区水电来水偏枯 → 火电补位 → 利用小时数抬升 → 动力煤需求支撑。历史对照：2015–16 华能国际 Q3 单季涨超 40%。</p>
+        <table>
+          <thead><tr><th>分层</th><th>标的</th><th>代码</th><th>受益逻辑</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tier core">火电龙头</span></td><td>华能国际</td><td class="code">600011</td><td>火电规模最大，利用小时数回升 + 煤价可控</td></tr>
+            <tr><td><span class="tier mid">火电核心</span></td><td>国电电力</td><td class="code">600795</td><td>火电+水电双主业，火电保供弹性</td></tr>
+            <tr><td><span class="tier mid">火电核心</span></td><td>华电国际</td><td class="code">600027</td><td>火电核心标的，业绩弹性</td></tr>
+            <tr><td><span class="tier mid">煤炭保供</span></td><td>中国神华</td><td class="code">601088</td><td>动力煤龙头 + 高股息，防御首选</td></tr>
+            <tr><td><span class="tier elastic">煤炭弹性</span></td><td>陕西煤业</td><td class="code">601225</td><td>盈利扎实、高股息，煤价上行弹性</td></tr>
+            <tr><td><span class="tier observe">水电蓝筹</span></td><td>长江电力</td><td class="code">600900</td><td>⚠️ 长江中下游多雨，来水反而改善，属涝区受益</td></tr>
+          </tbody>
+        </table>
+        <div class="note" style="margin-top:12px;">⚠️ 水电是「分化」而非「普涨」：西南/北方旱区水电站来水偏枯是利空；长江流域及南方多雨区水电出力反而提升。笼统的确定性上，<b>火电 &gt; 水电</b>。</div>
+      </div>
+
+      <div class="card">
+        <h3>主线四 · 白色家电 + 制冷设备（高温刚需）</h3>
+        <p style="margin-bottom:12px;">持续高温 → 空调新装/替换 + 欧洲热浪 → 内销外销共振 → 排产走高。中国空调对欧出口额同比 +41%，工业制冷设备订单 4–6 月同比 +47%。</p>
+        <table>
+          <thead><tr><th>分层</th><th>标的</th><th>代码</th><th>受益逻辑</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tier core">空调龙头</span></td><td>格力电器</td><td class="code">000651</td><td>空调龙头，内销高温直接受益</td></tr>
+            <tr><td><span class="tier core">全品类</span></td><td>美的集团</td><td class="code">000333</td><td>空调 + 全品类，全球家电龙头</td></tr>
+            <tr><td><span class="tier core">全球龙头</span></td><td>海尔智家</td><td class="code">600690</td><td>全球家电，海外热浪受益</td></tr>
+            <tr><td><span class="tier mid">制冷配件</span></td><td>三花智控</td><td class="code">002050</td><td>阀件/热管理核心，排产上行直接受益</td></tr>
+            <tr><td><span class="tier elastic">制冷设备</span></td><td>申菱环境</td><td class="code">301018</td><td>数据中心+工业制冷，8/25 曾领涨</td></tr>
+            <tr><td><span class="tier mid">制冷剂</span></td><td>巨化股份</td><td class="code">600160</td><td>制冷剂龙头，排产 + 涨价双驱动</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>主线五 · 水利防汛 / 节水灌溉（南涝北旱，灾害链后置）</h3>
+        <p style="margin-bottom:12px;">「南涝北旱」→ 涝区排水管网/水利工程、旱区节水灌溉设备。行情通常滞后，历史经验在厄尔尼诺末期（1998 长江洪灾、2016 全国高温）集中爆发。</p>
+        <table>
+          <thead><tr><th>分层</th><th>标的</th><th>代码</th><th>受益逻辑</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tier core">水利建设</span></td><td>中国电建</td><td class="code">601669</td><td>大型水利水电建设龙头，抗洪+抗旱订单弹性</td></tr>
+            <tr><td><span class="tier mid">节水灌溉</span></td><td>大禹节水</td><td class="code">300021</td><td>节水灌溉龙头，旱区需求</td></tr>
+            <tr><td><span class="tier mid">管材</span></td><td>青龙管业</td><td class="code">002457</td><td>排水/供水管材，涝区管网需求</td></tr>
+            <tr><td><span class="tier observe">管网</span></td><td>新兴铸管</td><td class="code">000778</td><td>球墨铸管，水利管网</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>主线六 · 有色金属（扰动型，低权重）</h3>
+        <p style="margin-bottom:12px;">南美暴雨扰动铜矿生产运输 → 铜价事件性催化；西南干旱限电 → 电解铝负荷受限。巴克莱预计铝、铜未来 18 个月或最多涨 20%。</p>
+        <table>
+          <thead><tr><th>分层</th><th>标的</th><th>代码</th><th>受益逻辑</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tier mid">铜龙头</span></td><td>紫金矿业</td><td class="code">601899</td><td>铜金资源龙头，铜价催化</td></tr>
+            <tr><td><span class="tier mid">铜中军</span></td><td>江西铜业</td><td class="code">600362</td><td>铜冶炼龙头</td></tr>
+            <tr><td><span class="tier elastic">铝弹性</span></td><td>云铝股份</td><td class="code">000807</td><td>云南水电铝，西南限电扰动供给</td></tr>
+          </tbody>
+        </table>
+        <div class="note" style="margin-top:12px;">有色属于「扰动而非趋势」，持续时长和幅度均弱于农产品，定价应给更低权重。</div>
+      </div>
+
+      <div class="card">
+        <h3>主线七 · 航运（巴拿马运河，事件型）</h3>
+        <p style="margin-bottom:12px;">巴拿马运河干旱限流 → 船舶绕行 → 运距拉长、运价抬升。属事件型催化，非趋势。</p>
+        <table>
+          <thead><tr><th>分层</th><th>标的</th><th>代码</th><th>受益逻辑</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tier observe">观察型</span></td><td>中远海控</td><td class="code">601919</td><td>集运龙头，运价催化</td></tr>
+            <tr><td><span class="tier observe">观察型</span></td><td>招商轮船</td><td class="code">601872</td><td>油运/干散，运价弹性</td></tr>
+            <tr><td><span class="tier observe">观察型</span></td><td>中远海能</td><td class="code">600026</td><td>油运，运价催化</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== 优先级排序 ===== -->
+    <section>
+      <div class="sec-title"><div class="no">5</div><h2>板块优先级排序（核心观点）</h2></div>
+      <div class="card">
+        <p style="margin-bottom:14px;">排序依据：<b>确定性（传导链硬不硬）× 弹性（涨价空间）× 当前交易位置（是否已透支）</b>。</p>
+        <table>
+          <thead><tr><th>#</th><th>板块</th><th>确定性</th><th>弹性</th><th>当前位置</th><th>综合评级</th></tr></thead>
+          <tbody>
+            <tr><td><span class="rank r1">1</span></td><td>种业 / 规模化种植</td><td>★★★★★</td><td>★★★★</td><td>中位</td><td><b>核心配置</b></td></tr>
+            <tr><td><span class="rank r2">2</span></td><td>糖业</td><td>★★★★★</td><td>★★★★★</td><td class="up">高位（+10%）</td><td><b>核心配置（等回调）</b></td></tr>
+            <tr><td><span class="rank r3">3</span></td><td>火电 / 煤炭</td><td>★★★★</td><td>★★★</td><td class="down">低位（-2.68%）</td><td><b>防御底仓</b></td></tr>
+            <tr><td><span class="rank r4">4</span></td><td>橡胶 / 棕榈油</td><td>★★★★</td><td>★★★★</td><td class="down">低位（-1.55%）</td><td><b>中期潜伏</b></td></tr>
+            <tr><td><span class="rank r5">5</span></td><td>白电 / 制冷</td><td>★★★★</td><td>★★★</td><td>中高位</td><td>配置</td></tr>
+            <tr><td><span class="rank r6">6</span></td><td>水利防汛 / 灌溉</td><td>★★★</td><td>★★★</td><td>低位</td><td>跟踪</td></tr>
+            <tr><td><span class="rank r7">7</span></td><td>有色 / 航运</td><td>★★</td><td>★★</td><td>低位</td><td>观察</td></tr>
+          </tbody>
+        </table>
+        <div class="note" style="margin-top:14px;">
+          <b>核心判断：</b>当前最该警惕的不是「买不买」，而是「追不追」——白糖、农业 9/8 批量涨停，情绪已过热；<b>橡胶、棕榈油是相对滞后方向</b>，适合中期潜伏；<b>煤炭短期回调、中期逻辑在</b>（ETF 连续 13 日获主力净流入）。
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 时间节奏 ===== -->
+    <section>
+      <div class="sec-title"><div class="no">6</div><h2>时间节奏与验证窗口</h2></div>
+      <div class="card">
+        <div class="timeline">
+          <div class="tl"><div class="t">启动期 · 当下（2026 夏秋）</div><div class="d">农产品减产预期 → 当前糖、种业已先行。</div></div>
+          <div class="tl"><div class="t">峰值期 · 2026 年 11–12 月</div><div class="d">供应收缩 + 涨价兑现 → 商品期货主升浪。</div></div>
+          <div class="tl"><div class="t">后期 · 2027 年一季度</div><div class="d">水利、灾害、高温 → 1998 长江洪灾、2016 全国高温均在末期。</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>历史对照（2015.03–2016.04 超强事件）</h3>
+        <p style="margin-bottom:12px;">申万一级行业显著跑赢大盘：<b>农林牧渔 +47.2%</b>、有色 +22.6%、公用事业（水电）+18.1%、家电 +12.4%。大宗商品：ICE 原糖 +140%、郑糖 +65%、沪胶最高 +120%、棕榈油主升浪滞后到 2016 下半年。</p>
+        <h3 style="margin-top:6px;">关键验证指标（逐月盯紧）</h3>
+        <ul class="src-list">
+          <li><b>糖：</b>郑糖产销数据、巴西制糖比周报、印度季风降雨进度</li>
+          <li><b>橡胶/棕榈油：</b>东南亚主产区干旱、到港/库存数据（滞后 6–12 个月）</li>
+          <li><b>电力：</b>全国用电负荷、电厂利用小时数、来水情况（南方多雨区 vs 西南旱区）</li>
+          <li><b>粮价：</b>国际小麦/玉米期货、国内最低收购价政策</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===== 风险 ===== -->
+    <section>
+      <div class="sec-title"><div class="no">7</div><h2>风险提示与「伪受益」识别</h2></div>
+      <div class="card">
+        <ol class="src-list" style="list-style:decimal inside;">
+          <li><b>糖板块短期过热：</b>9/8 白糖板块区间涨幅已达 +10.14%，中粮糖业等涨停，追高风险大。国内 2025/26 榨季产糖 1296.6 万吨创近 11 年新高，库存同比增 200 万吨，<b>国内基本面并不紧张</b>，涨价更多是外盘传导。</li>
+          <li><b>水电「伪受益」：</b>西南旱区来水偏枯是利空，不能把水电当受益板块无差别买入。</li>
+          <li><b>概念炒作风险：</b>敦煌种业 7 天 4 板被监管点名，说明部分个股已脱离基本面；粮价传导到种子业绩节奏偏慢。</li>
+          <li><b>传导时滞：</b>橡胶、棕榈油减产效应滞后 6–12 个月，当下买入不等于马上兑现。</li>
+          <li><b>政策对冲：</b>六部门明确「推动粮价保持合理水平」，种业种植的「涨价弹性」有天花板。</li>
+          <li><b>历史 ≠ 未来：</b>本轮叠加 2023–24 温和厄尔尼诺后的库存结构、全球变暖背景，传导路径可能与历史不一致。</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== 数据来源 ===== -->
+    <section>
+      <div class="sec-title"><div class="no">8</div><h2>数据来源与口径</h2></div>
+      <div class="card">
+        <table>
+          <thead><tr><th>数据类别</th><th>来源</th><th>时点</th><th>可信度</th></tr></thead>
+          <tbody>
+            <tr><td>ENSO 海温指数、峰值预测</td><td>国家气候中心 / 国家海洋环境预报中心 / WMO / NOAA-CPC</td><td>2026-08</td><td><span class="tag-src t-1">一手权威</span></td></tr>
+            <tr><td>板块行情 / 涨跌幅 / 资金流</td><td>通达信 MCP + 东方财富</td><td>2026-09-08 盘中</td><td><span class="tag-src t-1">实时行情</span></td></tr>
+            <tr><td>商品价格（原糖、郑糖）</td><td>ICE、郑商所（经证券之星转引）</td><td>2026-08</td><td><span class="tag-src t-2">需核实原文</span></td></tr>
+            <tr><td>用电负荷</td><td>国家能源局（经证券之星转引）</td><td>2026-08</td><td><span class="tag-src t-2">需核实原文</span></td></tr>
+            <tr><td>机构商品价格预测</td><td>巴克莱、StoneX、ISO（经转引）</td><td>2026-08</td><td><span class="tag-src t-2">需核实原文</span></td></tr>
+            <tr><td>历史板块涨幅复盘</td><td>天天基金、雪球、中国证券网</td><td>复盘数据</td><td><span class="tag-src t-2">需核实原文</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="disclaimer">
+      <b>免责声明：</b>以上内容基于公开数据和量化分析，仅供参考，不构成投资建议。市场有风险，投资需谨慎。任何投资决策应结合个人风险承受能力、资金状况和投资目标独立判断，必要时咨询持牌专业机构。过往表现不预示未来收益。
+    </div>
+
+  </main>
+
+  <footer>
+    <div>RC · Agent 作品集 — 由 WorkBuddy 生成维护 · 数据截至 2026-09-08 盘中</div>
+    <div style="margin-top:6px;"><a href="index.html">← 返回首页</a> · <a href="https://github.com/eastseao/rc" target="_blank" rel="noopener">GitHub 仓库</a></div>
+  </footer>
+
+<script>
+// ===== 图 1：Niño3.4 海温指数 =====
+(function () {
+  var c = echarts.init(document.getElementById('chartNino'));
+  c.setOption({
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    grid: { left: 48, right: 20, top: 30, bottom: 34 },
+    xAxis: {
+      type: 'category',
+      data: ['2026.05', '2026.06', '2026.07', '2026.08\n(上半月)', '峰值预测\n(11-12月)'],
+      axisLabel: { color: '#545b6e', fontSize: 11 }
+    },
+    yAxis: {
+      type: 'value', name: '距平 ℃',
+      nameTextStyle: { color: '#8a91a3' },
+      axisLabel: { color: '#8a91a3' },
+      splitLine: { lineStyle: { color: '#eef0f4' } }
+    },
+    series: [{
+      type: 'bar',
+      data: [
+        { value: 0.94, itemStyle: { color: '#3b82f6' } },
+        { value: 1.55, itemStyle: { color: '#2563eb' } },
+        { value: 2.03, itemStyle: { color: '#1d4ed8' } },
+        { value: 2.64, itemStyle: { color: '#1e3a8a' } },
+        { value: 3.35, itemStyle: { color: '#f59e0b' } }
+      ],
+      barWidth: '52%',
+      markLine: {
+        silent: true,
+        symbol: 'none',
+        lineStyle: { type: 'dashed', color: '#dc2626' },
+        label: { formatter: '超强阈值 2.5℃', color: '#dc2626', fontSize: 11, position: 'insideEndTop' },
+        data: [{ yAxis: 2.5 }]
+      },
+      label: {
+        show: true, position: 'top', color: '#1c2033', fontSize: 12, fontWeight: 600,
+        formatter: function (p) { return p.dataIndex === 4 ? '≈3.2~3.5' : p.value.toFixed(2); }
+      }
+    }]
+  });
+  window.addEventListener('resize', function () { c.resize(); });
+})();
+
+// ===== 图 2：七大主线定位散点图 =====
+(function () {
+  var c = echarts.init(document.getElementById('chartScatter'));
+  var data = [
+    { name: '种业/种植', value: [5, 4, 9], color: '#e54545' },
+    { name: '糖业',     value: [5, 5, 8], color: '#f59e0b' },
+    { name: '火电/煤炭', value: [4, 3, 7], color: '#2f5cff' },
+    { name: '橡胶/棕榈油', value: [4, 4, 6], color: '#00b4d8' },
+    { name: '白电/制冷', value: [4, 3, 5], color: '#7c3aed' },
+    { name: '水利/灌溉', value: [3, 3, 4], color: '#8a91a3' },
+    { name: '有色/航运', value: [2, 2, 3], color: '#b6bcc9' }
+  ];
+  c.setOption({
+    tooltip: {
+      formatter: function (p) { return p.data.name + '<br/>确定性 ' + p.data.value[0] + ' · 弹性 ' + p.data.value[1]; }
+    },
+    grid: { left: 52, right: 30, top: 34, bottom: 46 },
+    xAxis: {
+      type: 'value', name: '受益确定性 →', min: 0, max: 6,
+      nameTextStyle: { color: '#8a91a3' },
+      axisLabel: { color: '#8a91a3' },
+      splitLine: { lineStyle: { color: '#eef0f4' } }
+    },
+    yAxis: {
+      type: 'value', name: '涨价弹性 →', min: 0, max: 6,
+      nameTextStyle: { color: '#8a91a3' },
+      axisLabel: { color: '#8a91a3' },
+      splitLine: { lineStyle: { color: '#eef0f4' } }
+    },
+    series: [{
+      type: 'scatter',
+      data: data.map(function (d) {
+        return {
+          name: d.name,
+          value: d.value,
+          itemStyle: { color: d.color },
+          symbolSize: d.value[2] * 5 + 12
+        };
+      }),
+      label: {
+        show: true, position: 'top', fontSize: 12, color: '#1c2033', fontWeight: 600,
+        formatter: function (p) { return p.data.name; }
+      }
+    }]
+  });
+  window.addEventListener('resize', function () { c.resize(); });
+})();
+</script>
+</body>
+</html>
