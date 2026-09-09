@@ -31,19 +31,18 @@
   .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
 
   /* ── 头部（编辑式，替代原渐变 hero）── */
-  .hero{padding:62px 0 34px}
-  .eyebrow{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent-ink);margin-bottom:14px}
-  h1 .en{display:block;font-family:var(--mono);font-size:46px;font-weight:600;letter-spacing:-.02em;line-height:1.08}
-  h1 .zh{display:block;font-size:23px;font-weight:600;margin-top:8px}
-  .lede{color:var(--muted);font-size:16px;line-height:1.75;max-width:640px;margin-top:16px}
+  .hero{padding:26px 0 18px}
+  .eyebrow{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent-ink);margin-bottom:10px}
+  h1 .zh{display:block;font-size:19px;font-weight:600}
+  .lede{color:var(--muted);font-size:14.5px;line-height:1.7;margin-top:8px}
 
   /* 统计：hairline 横条 */
-  .stats{display:flex;border-block:1px solid var(--border);margin-top:30px}
-  .cell{flex:1;padding:16px 8px 13px;text-align:start}
+  .stats{display:flex;border-block:1px solid var(--border);margin-top:16px}
+  .cell{flex:1;padding:10px 8px 9px;text-align:start}
   .cell + .cell{border-inline-start:1px solid var(--border)}
-  .num{font-family:var(--mono);font-size:24px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.2}
+  .num{font-family:var(--mono);font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.2}
   .num span{color:var(--accent-ink)}
-  .label{font-size:12px;color:var(--muted);margin-top:3px}
+  .label{font-size:11px;color:var(--muted);margin-top:1px}
 
   /* ── 搜索与分类 ── */
   .toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;margin:30px 0 6px}
@@ -78,6 +77,21 @@
   .empty{grid-column:1/-1;text-align:center;padding:64px 20px;color:var(--muted);border:1px dashed var(--border)}
   .empty .big{font-size:34px;margin-bottom:8px;opacity:.6}
 
+  /* ── 左侧固定悬浮标签卡 ── */
+  .tag-float{position:fixed;left:20px;top:96px;z-index:40;width:186px;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:11px 13px}
+  .tag-float summary{list-style:none;cursor:pointer;font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+  .tag-float summary::-webkit-details-marker{display:none}
+  .tag-float summary::after{content:"+";float:right;font-family:var(--mono)}
+  .tag-float[open] summary::after{content:"–"}
+  .tag-float[open]{max-height:calc(100vh - 130px);overflow-y:auto}
+  .tag-list{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+  .tag-chip{cursor:pointer;font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--code);border:1px solid var(--border);border-radius:3px;padding:2px 8px;transition:border-color .15s,color .15s;user-select:none}
+  .tag-chip:hover{border-color:var(--accent);color:var(--accent-ink)}
+  .tag-chip .n{color:var(--accent-ink)}
+  @media (max-width:1399px){
+    .tag-float{left:14px;top:auto;bottom:16px;box-shadow:0 8px 28px rgba(28,27,26,.14)}
+  }
+
   /* ── 页脚 ── */
   footer{border-top:1px solid var(--border);background:var(--surface);padding:26px 24px;text-align:center;color:var(--muted);font-size:12.5px;font-family:var(--mono);letter-spacing:.03em}
   footer a{color:var(--ink)}
@@ -90,8 +104,7 @@
     .cell:nth-child(3){border-inline-start:0;border-top:1px solid var(--border)}
     .cell:nth-child(4){border-top:1px solid var(--border)}
     .toolbar{flex-direction:column;align-items:stretch}
-    h1 .en{font-size:36px}
-    .hero{padding:44px 0 28px}
+    .hero{padding:18px 0 14px}
   }
 </style>
 </head>
@@ -106,7 +119,7 @@
 
   <header class="hero">
     <p class="eyebrow">Agent Daily · 日常产出档案</p>
-    <h1><span class="en">RC / INDEX</span><span class="zh">日常 · 智能作品集</span></h1>
+    <h1><span class="zh">日常 · 智能作品集</span></h1>
     <p class="lede">这里汇集日常由 Agent 生成的研究报告、行业分析与数据可视化网页，按主题归档，随产出不断增补。</p>
     <div class="stats">
       <div class="cell"><div class="num" id="statPages">0</div><div class="label">网页总数</div></div>
@@ -275,6 +288,32 @@ function render() {
 document.getElementById('q').addEventListener('input', render);
 render();
 
+</script>
+
+<details class="tag-float" id="tagFloat">
+  <summary>标签 · Tags</summary>
+  <div class="tag-list" id="tagList"></div>
+</details>
+
+<script>
+(function(){
+  var counts = {};
+  PAGES.forEach(function(p){ (p.tags||[]).forEach(function(t){ counts[t] = (counts[t]||0)+1; }); });
+  var tags = Object.keys(counts).sort(function(a,b){ return counts[b]-counts[a] || a.localeCompare(b,'zh'); });
+  document.getElementById('tagList').innerHTML = tags.map(function(t){
+    return '<span class="tag-chip" data-tag="' + t + '" title="点击按标签筛选">' + t + ' <span class="n">' + counts[t] + '</span></span>';
+  }).join('');
+  document.getElementById('tagList').addEventListener('click', function(e){
+    var chip = e.target.closest('.tag-chip'); if (!chip) return;
+    var q = document.getElementById('q');
+    q.value = (q.value === chip.getAttribute('data-tag')) ? '' : chip.getAttribute('data-tag');
+    q.dispatchEvent(new Event('input'));
+  });
+  var mq = window.matchMedia('(min-width:1400px)');
+  var sync = function(){ document.getElementById('tagFloat').open = mq.matches; };
+  if (mq.addEventListener) { mq.addEventListener('change', sync); } else { mq.addListener(sync); }
+  sync();
+})();
 </script>
 </body>
 </html>
