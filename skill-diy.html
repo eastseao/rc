@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>如何制作一个适合自己的 Skill</title>
+<meta name="description" content="制作适合自己的 Agent Skill 的七步法实操指南：高频任务选择、挖掘隐性判断、提炼 RULE 规则、五部分目录结构、输入输出契约、真实案例训练、自评闭环，以及个人 Skill 工厂与三个母 Skill。" />
+<!--
+  Discovery:
+    deliverable: 如何制作适合自己的 Skill · 单文件 docs 页（与 skill.html / skill-spec.html 同源视觉体系）
+    source: 用户附件《如何制作一个适合自己的skill？.md》，章节顺序对应原文（一~十一 + 最关键的一句话）
+    direction: 暖纸 + terracotta 单 accent + mono 元数据 + hairline
+-->
+<style>
+  :root{
+    --bg:#faf9f7; --surface:#fffefb; --ink:#1c1b1a; --muted:#6d6a63; --border:#e6e3dc;
+    --code:#f4f2ed; --accent:#c96442; --accent-ink:#a2431f;
+    --mono:"JetBrains Mono","Cascadia Mono",Consolas,"SFMono-Regular",Menlo,monospace;
+    --sans:"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 var(--sans)}
+  ::selection{background:var(--accent);color:#fff}
+  a:focus-visible,summary:focus-visible{outline:2px solid var(--accent-ink);outline-offset:2px}
+
+  .topbar{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--border);
+    padding:10px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+  .brand{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.02em;text-decoration:none;color:var(--ink)}
+  .brand em{font-style:normal;color:var(--accent-ink)}
+  .topmeta{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.06em}
+  #pbar{position:fixed;top:0;inset-inline-start:0;height:2px;width:0;background:var(--accent);z-index:30}
+
+  .layout{display:grid;grid-template-columns:250px minmax(0,1fr) 218px;max-width:1400px;margin:0 auto;min-height:calc(100vh - 45px)}
+
+  .side{padding:30px 16px 48px;border-inline-end:1px solid var(--border);position:sticky;top:45px;align-self:start;max-height:calc(100vh - 45px);overflow-y:auto}
+  .side .grp{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;
+    color:var(--muted);padding:0 10px;margin:24px 0 8px}
+  .side .grp:first-child{margin-top:0}
+  .side a{display:block;padding:4px 10px;font-size:13px;color:var(--ink);text-decoration:none;
+    border-inline-start:2px solid transparent;line-height:1.45}
+  .side a:hover{background:var(--surface)}
+  .side a.active{font-weight:600;border-inline-start-color:var(--accent);background:var(--code)}
+  .side a .no{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-inline-end:6px}
+
+  .mnav{display:none;border-bottom:1px solid var(--border);background:var(--surface)}
+  .mnav summary{cursor:pointer;padding:12px 20px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--muted);list-style:none}
+  .mnav summary::before{content:"▸ "}
+  .mnav[open] summary::before{content:"▾ "}
+  .mnav .grp{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);padding:10px 20px 4px}
+  .mnav a{display:block;padding:6px 20px;font-size:13.5px;color:var(--ink);text-decoration:none}
+
+  main{padding:44px 52px 96px;max-width:790px}
+  .crumbs{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.05em;margin-bottom:22px}
+  .crumbs b{color:var(--ink);font-weight:600}
+  .crumbs a:hover{color:var(--accent-ink)}
+  h1 .en{display:block;font-family:var(--mono);font-size:52px;font-weight:600;letter-spacing:-.02em;line-height:1.05;margin:0 0 6px}
+  h1 .zh{display:block;font-size:26px;font-weight:600;letter-spacing:.01em;line-height:1.3;margin:0}
+  .lede{color:var(--muted);font-size:16.5px;line-height:1.75;margin:18px 0 0}
+  .lede a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--border);text-underline-offset:3px}
+  .lede a:hover{color:var(--accent-ink)}
+  .meta{display:flex;flex-wrap:wrap;gap:8px 28px;font-family:var(--mono);font-size:12px;color:var(--muted);
+    border-block:1px solid var(--border);padding:10px 0;margin:28px 0 8px}
+  .meta b{color:var(--ink);font-weight:600}
+
+  h2{font-size:23px;font-weight:600;letter-spacing:.005em;line-height:1.35;margin:72px 0 14px;scroll-margin-top:76px}
+  h2.mt-l{margin-top:92px}
+  h3{font-size:15.5px;font-weight:600;margin:28px 0 8px;scroll-margin-top:76px}
+  p{margin:12px 0;line-height:1.75}
+  .eyebrow{display:block;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.1em;
+    color:var(--accent-ink);margin:0 0 6px}
+  .eyebrow .cat{color:var(--muted)}
+  strong{font-weight:600}
+  .muted{color:var(--muted)}
+  ul,ol{padding-inline-start:22px}
+  li{margin:5px 0;line-height:1.7}
+
+  a.tlink{color:var(--ink);text-decoration:underline;text-decoration-color:var(--border);text-underline-offset:3px}
+  a.tlink:hover{text-decoration-color:var(--accent-ink)}
+
+  code{font-family:var(--mono);font-size:.88em;background:var(--code);border:1px solid var(--border);
+    border-radius:3px;padding:1px 5px;white-space:nowrap}
+  pre{background:var(--code);border:1px solid var(--border);border-radius:3px;padding:14px 16px;
+    overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.6;margin:16px 0}
+  pre code{background:none;border:0;padding:0;white-space:pre}
+
+  .note{border:1px solid var(--border);background:var(--surface);padding:14px 18px;margin:20px 0;font-size:14px;line-height:1.7}
+  .note .lab{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:6px}
+  .note.concl{background:var(--code)}
+
+  .formula{font-family:var(--mono);font-size:13px;line-height:1.8;border:1px solid var(--border);
+    background:var(--code);padding:12px 18px;margin:18px 0;overflow-x:auto}
+
+  pre.tree{font-size:12.5px;color:var(--ink)}
+  pre.tree .c{color:var(--muted)}
+
+  .compare{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--border);background:var(--surface);margin:20px 0}
+  .compare>*{padding:12px 18px;border-bottom:1px solid var(--border);min-width:0;font-size:13.5px;line-height:1.65}
+  .compare>*:nth-child(odd){border-inline-end:1px solid var(--border)}
+  .compare>*:nth-last-child(-n+2){border-bottom:0}
+  .compare .c-h{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--muted);background:var(--code);padding:9px 18px}
+  .compare .c-h b{color:var(--ink)}
+  .compare .k{font-family:var(--mono);font-size:12px;color:var(--accent-ink)}
+
+  .kw{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin:20px 0}
+  .kw>div{background:var(--bg);padding:14px 16px}
+  .kw .t{font-family:var(--mono);font-size:12.5px;font-weight:600;letter-spacing:.01em}
+  .kw .d{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.55}
+
+  .layers{border:1px solid var(--border);margin:20px 0;background:var(--surface)}
+  .layer{display:grid;grid-template-columns:46px 158px 1fr;border-bottom:1px solid var(--border);min-height:44px}
+  .layer:last-child{border-bottom:0}
+  .layer .n{font-family:var(--mono);font-size:12px;color:var(--muted);display:flex;align-items:center;
+    justify-content:center;border-inline-end:1px solid var(--border);background:var(--code)}
+  .layer .t{font-weight:600;font-size:13.5px;padding:11px 14px;border-inline-end:1px solid var(--border)}
+  .layer .t small{display:block;font-weight:400;font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.04em}
+  .layer .d{font-size:13px;color:var(--muted);padding:11px 16px;line-height:1.6;align-self:center}
+
+  .flow-v{list-style:none;margin:18px 0;padding:0 0 0 4px;border-inline-start:1px solid var(--border)}
+  .flow-v li{position:relative;margin:0;padding:5px 0 5px 22px;font-size:13.5px;line-height:1.6}
+  .flow-v li::before{content:"";position:absolute;inset-inline-start:-4.5px;top:13px;width:8px;height:8px;
+    background:var(--bg);border:1.5px solid var(--muted);border-radius:50%}
+  .flow-v li b{font-weight:600}
+  .flow-v li small{color:var(--muted)}
+
+  .flow-h{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:18px 0;font-size:13px}
+  .flow-h .chip{border:1px solid var(--border);background:var(--surface);padding:5px 12px;font-size:12.5px}
+  .flow-h .arr{font-family:var(--mono);color:var(--muted)}
+
+  .arch{margin:20px 0}
+  .arch .box{border:1px solid var(--ink);background:var(--surface);padding:12px 16px;text-align:center}
+  .arch .box .bt{font-weight:600;font-size:13.5px;letter-spacing:.03em}
+  .arch .box .bs{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:.03em}
+  .arch .box.dim{border-style:dashed;border-color:var(--muted);background:var(--bg)}
+  .arch .down{font-family:var(--mono);color:var(--muted);text-align:center;font-size:13px;padding:4px 0}
+  .arch .sidecars{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+  .arch .sidecars .box{border-style:dashed;border-color:var(--muted);font-family:var(--mono);font-size:11.5px;color:var(--ink)}
+
+  table{width:100%;border-collapse:collapse;margin:18px 0;font-size:13.5px;background:var(--surface)}
+  th{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+    text-align:start;font-weight:600;padding:9px 14px;border-bottom:1px solid var(--ink)}
+  td{padding:9px 14px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.6}
+  tr:last-child td{border-bottom:1px solid var(--ink)}
+  td.mono,th.mono{font-family:var(--mono);font-size:12.5px}
+  tr.hl td{background:var(--code)}
+
+  .pq{font-size:20px;font-weight:400;line-height:1.75;margin:30px 0;padding:0}
+
+  .toc{padding:42px 18px 32px;border-inline-start:1px solid var(--border);font-size:12.5px;
+    position:sticky;top:45px;align-self:start;max-height:calc(100vh - 45px);overflow:auto}
+  .toc .toc-label{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:10px}
+  .toc a{display:flex;gap:7px;padding:2.5px 0;color:var(--muted);text-decoration:none;line-height:1.45}
+  .toc a .no{font-family:var(--mono);font-size:10px;min-width:18px;padding-top:2px}
+  .toc a:hover{color:var(--ink)}
+  .toc a.active{color:var(--accent-ink);font-weight:600}
+
+  .colophon{margin-top:88px;border-top:1px solid var(--ink);padding-top:22px;font-size:13px;color:var(--muted)}
+  .colophon .lab{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px}
+  .pager{display:flex;justify-content:space-between;gap:12px;margin-top:64px;padding-top:22px;border-top:1px solid var(--border)}
+  .pager a{flex:1;text-decoration:none;color:var(--ink);padding:12px 16px;background:var(--surface);border:1px solid var(--border)}
+  .pager a small{display:block;font-family:var(--mono);font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+  .pager a.rt{text-align:end}
+
+  .site-home-pill{position:fixed;inset-inline-end:18px;bottom:18px;z-index:9999;display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border-radius:3px;background:#1c1b1a;color:#faf9f7;font-family:var(--mono);font-size:12px;letter-spacing:.04em;transition:background .15s}
+  .site-home-pill:hover{background:#c96442}
+  @media (max-width:640px){.site-home-pill{inset-inline-end:14px;bottom:14px;padding:8px 12px}}
+
+  @media (max-width:1120px){.layout{grid-template-columns:232px minmax(0,1fr)}.toc{display:none}}
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr}
+    .side{display:none}
+    .mnav{display:block}
+    main{padding:36px 22px 72px}
+    h1 .en{font-size:40px}
+    h1 .zh{font-size:21px}
+    .kw{grid-template-columns:1fr 1fr}
+    .layer{grid-template-columns:38px 118px 1fr}
+  }
+  @media (max-width:520px){
+    .compare{grid-template-columns:1fr}
+    .compare>*:nth-child(odd){border-inline-end:0}
+    .compare>*:nth-last-child(-n+2){border-bottom:1px solid var(--border)}
+    .compare>*:last-child{border-bottom:0}
+    .kw{grid-template-columns:1fr}
+  }
+  @media print{
+    .topbar,.side,.toc,.mnav,#pbar,.pager,.site-home-pill{display:none}
+    .layout{display:block}
+    main{max-width:none;padding:0}
+    h2{margin-top:40px}
+  }
+</style>
+</head>
+<body>
+<div id="pbar"></div>
+
+<header class="topbar" data-od-id="topbar">
+  <a class="brand" href="#top">SKILL DIY<em>·</em>制作适合自己的 Skill</a>
+  <span class="topmeta">13 SECTIONS · REV 2026-09</span>
+</header>
+
+<nav class="mnav" data-od-id="mnav" aria-label="章节导航（移动端）">
+  <summary>章节目录 · 13 节</summary>
+  <div class="grp">开篇</div>
+  <a href="#sec-01">01 · 什么才叫「自己的 Skill」</a>
+  <a href="#sec-02">02 · 七步法总览</a>
+  <div class="grp">七步法</div>
+  <a href="#sec-03">03 · ① 找高频重复任务</a>
+  <a href="#sec-04">04 · ② 挖出脑中的方法</a>
+  <a href="#sec-05">05 · ③ 经验变判断规则</a>
+  <a href="#sec-06">06 · ④ 五个核心部分</a>
+  <a href="#sec-07">07 · ⑤ 输入输出契约</a>
+  <a href="#sec-08">08 · ⑥ 真实案例训练</a>
+  <a href="#sec-09">09 · ⑦ 自我评价标准</a>
+  <div class="grp">进阶</div>
+  <a href="#sec-10">10 · 数字化分身</a>
+  <a href="#sec-11">11 · 个人 Skill 工厂</a>
+  <a href="#sec-12">12 · 三个母 Skill</a>
+  <div class="grp">结语</div>
+  <a href="#sec-13">13 · 最关键的一句话</a>
+</nav>
+
+<div class="layout" id="top">
+
+  <nav class="side" data-od-id="sidebar" aria-label="章节导航">
+    <div class="grp">开篇</div>
+    <a href="#sec-01"><span class="no">01</span>什么才叫「自己的」</a>
+    <a href="#sec-02"><span class="no">02</span>七步法总览</a>
+    <div class="grp">七步法</div>
+    <a href="#sec-03"><span class="no">03</span>① 找高频重复任务</a>
+    <a href="#sec-04"><span class="no">04</span>② 挖出脑中的方法</a>
+    <a href="#sec-05"><span class="no">05</span>③ 经验变判断规则</a>
+    <a href="#sec-06"><span class="no">06</span>④ 五个核心部分</a>
+    <a href="#sec-07"><span class="no">07</span>⑤ 输入输出契约</a>
+    <a href="#sec-08"><span class="no">08</span>⑥ 真实案例训练</a>
+    <a href="#sec-09"><span class="no">09</span>⑦ 自我评价标准</a>
+    <div class="grp">进阶</div>
+    <a href="#sec-10"><span class="no">10</span>数字化分身</a>
+    <a href="#sec-11"><span class="no">11</span>个人 Skill 工厂</a>
+    <a href="#sec-12"><span class="no">12</span>三个母 Skill</a>
+    <div class="grp">结语</div>
+    <a href="#sec-13"><span class="no">13</span>最关键的一句话</a>
+  </nav>
+
+  <main data-od-id="article">
+    <p class="crumbs">概念介绍 › Agent Skills › <b>制作自己的 Skill</b> · 前篇 <a href="skill.html">SKILL 介绍</a> · <a href="skill-spec.html">架构规范</a></p>
+    <h1 id="diy-top">
+      <span class="en">SKILL DIY</span>
+      <span class="zh">如何制作一个适合自己的 Skill</span>
+    </h1>
+    <p class="lede">「适合自己的 Skill」不是从写 Prompt 开始，而是从<strong>提炼你自己的工作方法</strong>开始：把一个人稳定、可复用、可验证的做事方法，压缩成 AI 可以调用的一套能力。最重要的不是写得多，而是把你的经验变成<strong>规则、流程和判断标准</strong>。本篇按七步法展开，并给出进阶路线。</p>
+    <div class="meta">
+      <span>类型 <b>实操指南</b></span>
+      <span>结构 <b>13 节</b></span>
+      <span>阅读 <b>约 15 分钟</b></span>
+      <span>系列 <b><a href="skill.html">概念手册</a> · <a href="skill-spec.html">架构规范</a> · 本篇</b></span>
+    </div>
+
+    <!-- 01 -->
+    <h2 id="sec-01"><span class="eyebrow">§01 <span class="cat">· 开篇</span></span>先理解：什么才叫「自己的 Skill」</h2>
+    <div class="kw">
+      <div><div class="t">普通 Prompt</div><div class="d">「帮我做一个产品包装方案。」</div></div>
+      <div><div class="t">普通 Skill</div><div class="d">当用户需要产品包装方案时，按照产品定位 → 人群 → 卖点 → 信息层级 → 包装结构 → 文案 → 视觉方向 → 验证的流程完成。</div></div>
+      <div><div class="t">适合自己的 Skill</div><div class="d">在流程之上，进一步加入「<strong>我通常是怎么判断的？</strong>」</div></div>
+    </div>
+    <p>例如做包装工作时，你可能已经形成了很多隐性判断：</p>
+    <ul>
+      <li>消费者第一眼应该看到什么？</li>
+      <li>哪些信息不能放正面？</li>
+      <li>什么卖点消费者真正听得懂？</li>
+      <li>高端产品为什么不能堆砌「高科技」？</li>
+      <li>食品包装上的专业术语应该如何转成消费者语言？</li>
+      <li>产品名称、核心卖点、产地、工艺之间如何排序？</li>
+      <li>什么情况下应该突出原料？</li>
+      <li>什么情况下应该突出功效场景？</li>
+      <li>什么情况下应该砍掉 50% 的文字？</li>
+    </ul>
+    <div class="note concl"><div class="lab">核心资产</div>这些东西才是<strong>你的 Skill 核心资产</strong>。</div>
+
+    <!-- 02 -->
+    <h2 id="sec-02"><span class="eyebrow">§02 <span class="cat">· 开篇</span></span>制作自己的 Skill：七步法总览</h2>
+    <p>整个过程可以压缩成一条链：</p>
+    <div class="flow-h"><span class="chip">经验</span><span class="arr">→</span><span class="chip">任务</span><span class="arr">→</span><span class="chip">方法</span><span class="arr">→</span><span class="chip">规则</span><span class="arr">→</span><span class="chip">流程</span><span class="arr">→</span><span class="chip">案例</span><span class="arr">→</span><span class="chip">Skill</span></div>
+    <p>下面按 ① → ⑦ 逐步展开。</p>
+
+    <!-- 03 -->
+    <h2 id="sec-03"><span class="eyebrow">§03 <span class="cat">· 七步法 · ①</span></span>找一个「高频重复任务」</h2>
+    <p>不要一上来做「我的营销 Skill」——太大。应该从一个具体任务开始，例如：</p>
+    <div class="flow-h"><span class="chip">产品包装文案优化</span><span class="chip">食品包装卖点提炼</span><span class="chip">竞品包装分析</span><span class="chip">采购方案比价</span><span class="chip">Markdown 文档结构化</span><span class="chip">把复杂专业资料整理成消费者语言</span></div>
+    <h3>一个好 Skill 通常满足三个条件</h3>
+    <table>
+      <thead><tr><th>条件</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">高频</td><td>你经常做</td></tr>
+        <tr><td class="mono">重复</td><td>每次都有类似过程</td></tr>
+        <tr><td class="mono">有经验壁垒</td><td>你比普通人判断得更好</td></tr>
+      </tbody>
+    </table>
+    <div class="note concl"><div class="lab">最值得 Skill 化的任务</div><strong>你已经做过 50 次，但每次还要重新告诉 AI 怎么做。</strong></div>
+
+    <!-- 04 -->
+    <h2 id="sec-04"><span class="eyebrow">§04 <span class="cat">· 七步法 · ②</span></span>把「你脑子里的方法」挖出来</h2>
+    <p>这是制作个人 Skill 最关键的一步。不要问「这个 Skill 应该写什么？」，应该问——</p>
+    <p class="pq">如果让我手把手教一个新人，我会怎么教？</p>
+    <p>以「消费者语言包装文案 Skill」为例，把自己的思维拆开：</p>
+    <ol class="flow-v">
+      <li><b>输入产品资料</b></li>
+      <li><b>判断产品是什么</b></li>
+      <li><b>判断消费者是谁</b></li>
+      <li><b>找消费者真正关心的问题</b></li>
+      <li><b>提炼产品事实</b></li>
+      <li><b>区分事实 / 卖点 / 利益</b></li>
+      <li><b>把专业语言翻译成消费者语言</b></li>
+      <li><b>建立包装信息层级</b></li>
+      <li><b>生成正面核心文案</b></li>
+      <li><b>生成辅助信息</b></li>
+      <li><b>检查是否夸大</b></li>
+      <li><b>输出方案</b></li>
+    </ol>
+    <div class="note concl"><div class="lab">质变点</div>这已经开始从「Prompt」变成「Skill」。</div>
+
+    <!-- 05 -->
+    <h2 id="sec-05"><span class="eyebrow">§05 <span class="cat">· 七步法 · ③</span></span>把经验变成「判断规则」</h2>
+    <p>这是 Skill 与普通 Prompt 最大的区别。普通 Prompt 写「请使用消费者语言」——太模糊。你的个人 Skill 可以变成一条条规则：</p>
+<pre><code>RULE-01
+如果一个卖点需要专业知识才能理解，
+优先转换成消费者可以直接理解的结果语言。
+
+RULE-02
+如果一个技术名词无法回答"对消费者有什么意义"，
+则不得作为核心卖点。
+
+RULE-03
+包装正面优先表达：
+产品是什么 + 核心价值 + 为什么值得购买。
+
+RULE-04
+一个包装正面原则上只保留一个第一核心卖点。
+
+RULE-05
+不得为了"显得高级"堆砌：
+科技、臻选、匠心、赋能、矩阵等空泛词汇。</code></pre>
+    <div class="note concl"><div class="lab">价值公式</div><strong>Skill 的价值 ≠ 它知道什么，而是它知道「什么时候应该怎么判断」。</strong></div>
+
+    <!-- 06 -->
+    <h2 id="sec-06"><span class="eyebrow">§06 <span class="cat">· 七步法 · ④</span></span>把 Skill 分成 5 个核心部分</h2>
+    <p>如果是给自己长期使用，不要把所有东西都塞进 <code>SKILL.md</code>，可以采用这个结构：</p>
+<pre class="tree">my-packaging-skill/
+│
+├── SKILL.md
+│
+├── rules/
+│   ├── positioning.md
+│   ├── consumer-language.md
+│   ├── information-hierarchy.md
+│   └── compliance.md
+│
+├── workflow/
+│   └── workflow.md
+│
+├── examples/
+│   ├── good.md
+│   └── bad.md
+│
+├── templates/
+│   └── packaging-output.md
+│
+└── evaluation/
+    └── evaluation.md</pre>
+    <p>核心逻辑：</p>
+    <div class="arch">
+      <div class="box"><div class="bt">SKILL.md</div><div class="bs">我是谁 / 做什么 · 什么情况下使用 · 怎么做 · 怎么判断 · 去哪里读取详细知识</div></div>
+      <div class="down">↓</div>
+      <div class="sidecars">
+        <div class="box">Rules</div>
+        <div class="box">Workflow</div>
+      </div>
+      <div class="sidecars">
+        <div class="box">Examples</div>
+        <div class="box">Templates</div>
+        <div class="box">Evaluation</div>
+      </div>
+    </div>
+    <div class="note"><div class="lab">设计方向</div>符合 Agent Skills 的重要设计原则：<strong>渐进式加载</strong>，而不是一开始把所有知识塞进上下文。</div>
+
+    <!-- 07 -->
+    <h2 id="sec-07"><span class="eyebrow">§07 <span class="cat">· 七步法 · ⑤</span></span>给 Skill 一个明确的「输入 → 输出契约」</h2>
+    <p>这是很多人制作 Skill 时容易忽略的。例如输入：</p>
+<pre><code>product:
+  name: 有机五黑饮
+  category: 植物饮品
+
+ingredients:
+  - 黑枸杞
+  - 黑桑葚
+  - 黑加仑
+  - 黑莓
+  - 黑豆
+
+target_user:
+  - 关注健康的人群
+
+positioning:
+  - 高花青素
+  - 有机</code></pre>
+    <p>Skill 不应该只是「自由发挥」，而应该规定处理流程：</p>
+    <div class="flow-h"><span class="chip">输入</span><span class="arr">→</span><span class="chip">产品事实整理</span><span class="arr">→</span><span class="chip">消费者需求分析</span><span class="arr">→</span><span class="chip">核心价值提炼</span><span class="arr">→</span><span class="chip">卖点优先级排序</span></div>
+    <div class="flow-h"><span class="arr">→</span><span class="chip">包装信息架构</span><span class="arr">→</span><span class="chip">正面文案</span><span class="arr">→</span><span class="chip">背面文案</span><span class="arr">→</span><span class="chip">风险检查</span><span class="arr">→</span><span class="chip">最终方案</span></div>
+    <p>最终输出也应该固定：</p>
+<pre><code>output:
+  positioning:
+  core_benefit:
+  key_selling_points:
+  front_panel:
+  back_panel:
+  visual_direction:
+  compliance_risk:
+  recommendations:</code></pre>
+    <div class="note concl"><div class="lab">收益</div>这样以后你的 Agent 才能<strong>稳定调用</strong>它。</div>
+
+    <!-- 08 -->
+    <h2 id="sec-08" class="mt-l"><span class="eyebrow">§08 <span class="cat">· 七步法 · ⑥</span></span>用你过去做过的「真实案例」训练 Skill</h2>
+    <p>你过去已经做过大量类似工作——产品命名、包装文案、五黑饮、黑枸杞、冬虫夏草、茶油、松茸、食品/健康产品、消费者语言转换——这些实际上就是非常好的 <strong>Skill Dataset</strong>。</p>
+    <p>不要只保存最终答案，最好保存完整链条：</p>
+    <ol class="flow-v">
+      <li><b>原始需求</b></li>
+      <li><b>原始资料</b></li>
+      <li><b>第一次方案</b></li>
+      <li><b>哪里不好</b></li>
+      <li><b>为什么不好</b></li>
+      <li><b>如何修改</b></li>
+      <li><b>最终方案</b></li>
+      <li><b>为什么最终方案更好</b></li>
+    </ol>
+    <p>例如一个真实案例的演进：</p>
+    <div class="flow-h"><span class="chip">高活性花青素矩阵</span><span class="arr">→</span><span class="chip">5 种天然高花青素黑色果实</span><span class="arr">→</span><span class="chip">5 种天然黑色果实，富含花青素</span><span class="arr">→</span><span class="chip">根据包装位置决定用哪种表达</span></div>
+    <div class="note"><div class="lab">案例解读</div>第一版专业感强，但消费者不知道是什么意思；逐版修改后，最终按包装位置决定表达方式。</div>
+    <div class="note concl"><div class="lab">关键差别</div>这时候 AI 学到的不只是「某句话怎么写」，而是<strong>「什么情况下应该这么写」</strong>——这才是个人 Skill。</div>
+
+    <!-- 09 -->
+    <h2 id="sec-09"><span class="eyebrow">§09 <span class="cat">· 七步法 · ⑦</span></span>最后一定要加入「自我评价标准」</h2>
+    <p>这是从普通 Skill 走向<strong>生产级 Skill</strong> 的关键。例如包装文案 Skill 可以规定，每次输出后必须检查：</p>
+    <ol>
+      <li>消费者是否一眼理解？</li>
+      <li>是否明确产品是什么？</li>
+      <li>是否只有一个第一核心卖点？</li>
+      <li>是否存在专业术语堆砌？</li>
+      <li>是否存在空泛营销词？</li>
+      <li>是否存在重复表达？</li>
+      <li>是否存在夸大宣传？</li>
+      <li>是否符合产品真实事实？</li>
+      <li>是否适合包装实际面积？</li>
+      <li>是否具有购买理由？</li>
+    </ol>
+    <p>然后让 AI 自己评分（示例）：</p>
+<pre><code>消费者理解度：9/10
+卖点聚焦度：  8/10
+差异化：      7/10
+可信度：      9/10
+包装适配度：  8/10
+
+综合：        8.2/10</code></pre>
+    <div class="flow-h"><span class="chip">执行</span><span class="arr">→</span><span class="chip">检查</span><span class="arr">→</span><span class="chip">修正</span></div>
+    <div class="note concl"><div class="lab">闭环</div>这时候 Skill 就开始具有「执行 → 检查 → 修正」的闭环。</div>
+
+    <!-- 10 -->
+    <h2 id="sec-10" class="mt-l"><span class="eyebrow">§10 <span class="cat">· 进阶</span></span>你可以把自己的 Skill 看成一个「数字化分身」</h2>
+    <p>一本书能不能蒸馏成 Skill？一个人的语言和思维方式能不能蒸馏成 Skill？一个好用的技能能不能蒸馏出来？答案可以统一成：</p>
+    <div class="flow-h"><span class="chip">原始专家</span><span class="arr">→</span><span class="chip">经验资料</span><span class="arr">→</span><span class="chip">案例</span><span class="arr">→</span><span class="chip">决策过程</span><span class="arr">→</span><span class="chip">判断规则</span><span class="arr">→</span><span class="chip">方法论</span><span class="arr">→</span><span class="chip">Skill</span><span class="arr">→</span><span class="chip">Agent</span></div>
+    <div class="compare">
+      <div class="c-h"><b>知识库</b></div>
+      <div class="c-h"><b>Skill</b></div>
+      <div>「我知道什么。」</div>
+      <div>「<span class="k">我会怎么做。</span>」</div>
+    </div>
+    <div class="note concl"><div class="lab">最值钱的部分</div>你的个人 Skill 最有价值的其实是：<strong>「我为什么这么做，而不是那么做。」</strong></div>
+
+    <!-- 11 -->
+    <h2 id="sec-11"><span class="eyebrow">§11 <span class="cat">· 进阶</span></span>建立自己的「个人 Skill 工厂」</h2>
+    <p>如果准备长期做，不建议一个一个手工写 Skill，可以建立流水线：</p>
+    <div class="arch">
+      <div class="box dim"><div class="bt">我的经验</div></div>
+      <div class="down">↓</div>
+      <div class="box"><div class="bt">任务识别器</div></div>
+      <div class="down">↓</div>
+      <div class="box"><div class="bt">方法提取器</div></div>
+      <div class="down">↓</div>
+      <div class="sidecars">
+        <div class="box">决策规则提取</div>
+        <div class="box">工作流程提取</div>
+      </div>
+      <div class="down">↓</div>
+      <div class="box"><div class="bt">SKILL 生成器</div></div>
+      <div class="down">↓</div>
+      <div class="box"><div class="bt">SKILL 评测器</div></div>
+      <div class="down">↓</div>
+      <div class="box"><div class="bt">PRODUCTION SKILL</div></div>
+      <div class="down">↓</div>
+      <div class="box"><div class="bt">实际使用 / 反馈 → SKILL 进化</div></div>
+    </div>
+    <div class="note concl"><div class="lab">终局</div>最终形成：<strong>你的个人 Skill OS</strong>。</div>
+
+    <!-- 12 -->
+    <h2 id="sec-12"><span class="eyebrow">§12 <span class="cat">· 进阶</span></span>最适合的制作路线：先做 3 个「母 Skill」</h2>
+    <p>按照 Agent / OPC / Skill 体系，不要从几十个 Skill 开始。先做三个母 Skill，再向下拆：</p>
+    <div class="kw">
+      <div><div class="t">① 分析 Skill</div><div class="d">看资料 → 找事实 → 找问题 → 找规律 → 得出结论。如：资料分析、竞品分析、市场分析、产品分析、文档分析。</div></div>
+      <div><div class="t">② 创作 Skill</div><div class="d">信息 → 策略 → 表达 → 成品。如：包装文案、产品命名、营销文案、视觉提示词、方案撰写。</div></div>
+      <div><div class="t">③ 决策 Skill</div><div class="d">多个方案 → 判断 → 筛选 → 推荐。如：供应商选择、包装方案选择、产品定位、采购决策、方案评审。</div></div>
+    </div>
+<pre class="tree">Personal Skill OS
+│
+├── Analysis
+│   ├── Document Analysis
+│   ├── Competitor Analysis
+│   ├── Product Analysis
+│   └── Market Analysis
+│
+├── Creation
+│   ├── Packaging Copy
+│   ├── Product Naming
+│   ├── Marketing Copy
+│   └── Visual Prompt
+│
+└── Decision
+    ├── Supplier Selection
+    ├── Packaging Evaluation
+    ├── Product Positioning
+    └── Procurement Decision</pre>
+    <div class="note concl"><div class="lab">格局</div>这样就不是在「做几个 Prompt」，而是在逐渐建立<strong>一个属于你自己的 AI 能力系统</strong>。</div>
+
+    <!-- 13 -->
+    <h2 id="sec-13" class="mt-l"><span class="eyebrow">§13 <span class="cat">· 结语</span></span>最关键的一句话</h2>
+    <div class="formula">个人 Skill = 你的经验 + 你的方法 + 你的判断规则<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; + 你的案例 + 你的输出标准 + AI 可执行流程</div>
+    <p>一个成熟 Skill 最终应该形成完整闭环：</p>
+    <div class="flow-h"><span class="chip">触发</span><span class="arr">→</span><span class="chip">理解任务</span><span class="arr">→</span><span class="chip">加载必要知识</span><span class="arr">→</span><span class="chip">调用方法</span><span class="arr">→</span><span class="chip">执行</span></div>
+    <div class="flow-h"><span class="arr">→</span><span class="chip">做判断</span><span class="arr">→</span><span class="chip">输出</span><span class="arr">→</span><span class="chip">自检</span><span class="arr">→</span><span class="chip">修正</span><span class="arr">→</span><span class="chip">记录经验</span><span class="arr">→</span><span class="chip">Skill 升级</span></div>
+    <p class="pq">这就已经从 Prompt Engineering 开始进入 Personal Agent Engineering 了。</p>
+    <div class="note"><div class="lab">下一步建议</div>直接拿你<strong>最擅长、最经常做的一项工作</strong>，从实际经验中反向「蒸馏」出来，一步步做成可以放进 OpenClaw / Claude / Codex / 自己 Agent 系统的生产级 Skill。</div>
+
+    <div class="pager">
+      <a href="skill-spec.html"><small>← 前篇</small>生产级 Agent Skill 架构规范</a>
+      <a class="rt" href="#diy-top"><small>↑ 回到开头</small>SKILL DIY</a>
+    </div>
+
+    <footer class="colophon" id="colophon">
+      <div class="lab">说明</div>
+      <p>内容依据用户提供的《如何制作一个适合自己的skill？》原文整理，章节顺序与原文对应（一~十一 + 最关键的一句话）。本页为单文件 HTML，双击即可打开。</p>
+    </footer>
+  </main>
+
+  <aside class="toc" data-od-id="toc" aria-label="本页结构">
+    <div class="toc-label">本页结构 · On this page</div>
+    <a href="#sec-01"><span class="no">01</span>什么才叫「自己的」</a>
+    <a href="#sec-02"><span class="no">02</span>七步法总览</a>
+    <a href="#sec-03"><span class="no">03</span>① 高频重复任务</a>
+    <a href="#sec-04"><span class="no">04</span>② 挖出脑中的方法</a>
+    <a href="#sec-05"><span class="no">05</span>③ 经验变判断规则</a>
+    <a href="#sec-06"><span class="no">06</span>④ 五个核心部分</a>
+    <a href="#sec-07"><span class="no">07</span>⑤ 输入输出契约</a>
+    <a href="#sec-08"><span class="no">08</span>⑥ 真实案例训练</a>
+    <a href="#sec-09"><span class="no">09</span>⑦ 自我评价标准</a>
+    <a href="#sec-10"><span class="no">10</span>数字化分身</a>
+    <a href="#sec-11"><span class="no">11</span>个人 Skill 工厂</a>
+    <a href="#sec-12"><span class="no">12</span>三个母 Skill</a>
+    <a href="#sec-13"><span class="no">13</span>最关键的一句话</a>
+  </aside>
+</div>
+
+<script>
+  (function(){
+    var bar = document.getElementById('pbar');
+    function onScroll(){
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+    }
+    window.addEventListener('scroll', onScroll, {passive:true});
+    onScroll();
+
+    var heads = Array.prototype.slice.call(document.querySelectorAll('main h2[id]'));
+    var links = Array.prototype.slice.call(document.querySelectorAll('.toc a, .side a, .mnav a'));
+    function setActive(id){
+      links.forEach(function(a){
+        var on = a.getAttribute('href') === '#' + id;
+        if (on) { a.classList.add('active'); } else { a.classList.remove('active'); }
+      });
+    }
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if (e.isIntersecting) { setActive(e.target.id); }
+        });
+      }, {rootMargin: '-12% 0px -78% 0px', threshold: 0});
+      heads.forEach(function(h){ io.observe(h); });
+    }
+  })();
+</script>
+
+<a class="site-home-pill" href="index.html" title="返回日常首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+</body>
+</html>
