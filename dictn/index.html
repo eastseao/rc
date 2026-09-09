@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0C2A4D">
+<title>DiCTN 迪腾 · 数字包装综合解决方案</title>
+<style>
+  :root{
+    --navy:#0C2A4D; --navy-2:#123A66; --blue:#1B5FA8; --blue-lt:#3E7CC1;
+    --gold:#C99846; --gold-lt:#E4C385; --green:#27A468;
+    --ink:#22303F; --muted:#68788D; --faint:#93A3B8;
+    --bg:#F3F6FA; --card:#FFFFFF; --line:#E4EAF2;
+    --red:#D64545;
+    --topbar-h:46px; --hud-h:58px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","HarmonyOS Sans SC","MiSans","Microsoft YaHei","Noto Sans SC",sans-serif;
+    background:#0A1A2E; color:var(--ink);
+    line-height:1.6; font-size:14.5px;
+    overflow:hidden;
+    display:flex; flex-direction:column;
+  }
+
+  /* ===== top bar ===== */
+  .topbar{
+    flex:0 0 auto;
+    background:linear-gradient(90deg,#0A2340,#123A66);
+    padding:9px 14px;
+    padding-top:calc(9px + env(safe-area-inset-top));
+    display:flex;align-items:center;justify-content:space-between;
+    position:relative; z-index:60;
+  }
+  .topbar img{height:21px;display:block}
+  .topbar .t{color:#fff;font-size:11.5px;letter-spacing:.06em;opacity:.85}
+
+  /* ===== horizontal deck ===== */
+  .deck{
+    flex:1 1 auto; min-height:0;
+    display:flex;
+    overflow-x:auto; overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    scrollbar-width:none; -ms-overflow-style:none;
+    scroll-behavior:smooth;
+  }
+  .deck::-webkit-scrollbar{display:none}
+  .slide{
+    flex:0 0 100%;
+    height:100%;
+    scroll-snap-align:center; scroll-snap-stop:always;
+    overflow-y:auto; overflow-x:hidden;
+    background:var(--bg);
+    position:relative;
+  }
+  .slide .wrap{
+    max-width:480px;margin:0 auto;
+    padding:16px 16px calc(var(--hud-h) + 18px + env(safe-area-inset-bottom));
+  }
+  .slide.dark{background:var(--navy);color:#fff;display:flex;flex-direction:column}
+  .slide.dark .wrap{flex:1;display:flex;flex-direction:column;width:100%;max-width:none;margin:0}
+
+  /* ===== HUD ===== */
+  .hud{
+    position:fixed;left:50%;transform:translateX(-50%);
+    bottom:calc(10px + env(safe-area-inset-bottom));
+    z-index:70;
+    display:flex;align-items:center;gap:10px;
+    background:rgba(10,35,64,.88);backdrop-filter:blur(6px);
+    border:1px solid rgba(140,180,230,.25);
+    border-radius:999px;padding:6px 8px 6px 14px;
+    color:#fff;box-shadow:0 4px 18px rgba(4,16,32,.4);
+  }
+  .hud .name{font-size:11.5px;color:#A9C2E0;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hud .cnt{font-size:12px;color:#E4EEF9;font-variant-numeric:tabular-nums;letter-spacing:.05em}
+  .hud button{
+    width:34px;height:34px;border-radius:50%;border:0;cursor:pointer;
+    background:rgba(255,255,255,.12);color:#fff;font-size:15px;line-height:1;
+    display:flex;align-items:center;justify-content:center;
+    transition:background .15s;
+  }
+  .hud button:active{background:rgba(255,255,255,.3)}
+  .hud button:disabled{opacity:.3;cursor:default}
+
+  .progress{
+    position:fixed;left:0;right:0;bottom:0;height:3px;
+    background:rgba(255,255,255,.12);z-index:65;
+  }
+  .progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold-lt));transition:width .25s}
+
+  /* swipe hint on cover */
+  .swipe-hint{
+    position:absolute;right:18px;bottom:calc(var(--hud-h) + 20px);
+    display:flex;align-items:center;gap:7px;
+    font-size:11.5px;color:#9FB6D2;letter-spacing:.12em;
+    animation:hint 1.8s ease-in-out infinite;
+  }
+  @keyframes hint{0%,100%{transform:translateX(0);opacity:.65}50%{transform:translateX(8px);opacity:1}}
+
+  /* ===== cover / backcover ===== */
+  .cover{
+    position:relative;overflow:hidden;text-align:left;
+    background:radial-gradient(120% 90% at 85% -10%, #1C4E8A 0%, #123A66 45%, #0A2340 100%);
+    padding:0;
+  }
+  .cover .inner{
+    position:relative;flex:1;display:flex;flex-direction:column;justify-content:center;
+    padding:20px 22px calc(var(--hud-h) + 30px);max-width:480px;width:100%;margin:0 auto;
+  }
+  .cover .year{
+    position:absolute;top:8px;right:12px;
+    font-size:92px;font-weight:800;letter-spacing:.02em;line-height:1.15;
+    background:linear-gradient(180deg,rgba(120,165,220,.28),rgba(120,165,220,0));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    pointer-events:none;
+  }
+  .cover .dots{
+    position:absolute;right:-30px;top:110px;width:220px;height:220px;opacity:.5;pointer-events:none;
+    background-image:radial-gradient(rgba(140,180,230,.5) 1.5px, transparent 1.5px);
+    background-size:20px 20px;
+    -webkit-mask-image:radial-gradient(circle at 60% 40%, #000 30%, transparent 72%);
+    mask-image:radial-gradient(circle at 60% 40%, #000 30%, transparent 72%);
+  }
+  .cover .ring{
+    position:absolute;right:-60px;top:50px;width:260px;height:260px;border-radius:50%;
+    border:1px solid rgba(140,180,230,.22);pointer-events:none;
+  }
+  .cover img.logo{height:24px;margin-bottom:40px}
+  .cover h1{font-size:32px;line-height:1.28;font-weight:800;letter-spacing:.01em;position:relative}
+  .cover .slogan{margin-top:12px;font-size:16.5px;color:var(--gold-lt);letter-spacing:.04em}
+  .cover .rule{width:200px;height:2px;background:linear-gradient(90deg,var(--gold),rgba(201,152,70,.15));margin:14px 0 16px}
+  .cover .breakthrough{font-size:13px;color:#C9D8EC;line-height:1.9}
+  .cover .breakthrough b{color:#fff;font-weight:600}
+  .cover .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .cover .chips span{
+    font-size:11.5px;padding:4px 11px;border:1px solid rgba(160,195,235,.4);
+    border-radius:999px;color:#D7E4F4;letter-spacing:.03em;
+  }
+  .cover .company{margin-top:22px;font-size:13.5px;color:#AFC4DE}
+  .cover .motto{
+    margin-top:34px;padding-top:14px;border-top:1px solid rgba(160,195,235,.18);
+    font-size:12.5px;color:#8FA9C9;letter-spacing:.05em;
+  }
+
+  .backcover{background:linear-gradient(160deg,#0A2340 0%,#10315B 60%,#0C2A4D 100%)}
+  .backcover .inner{
+    position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:20px 26px calc(var(--hud-h) + 30px);width:100%;
+  }
+  .backcover::before{content:"";position:absolute;top:0;left:20%;right:20%;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+  .backcover h2{font-size:26px;font-weight:800;letter-spacing:.02em}
+  .backcover .s{color:var(--gold-lt);font-size:15px;margin-top:11px}
+  .backcover .t{font-size:12px;color:#9FB6D2;line-height:2;margin-top:22px}
+  .backcover .co{margin-top:26px;padding-top:20px;border-top:1px solid rgba(160,195,235,.18);width:220px}
+  .backcover .co b{font-size:16px;display:block}
+  .backcover .co span{font-size:10.5px;letter-spacing:.22em;color:#7E97B8;display:block;margin-top:4px}
+
+  /* ===== section head ===== */
+  .sec-head{position:relative;padding-left:13px;margin-bottom:4px}
+  .sec-head::before{content:"";position:absolute;left:0;top:4px;bottom:4px;width:4px;border-radius:2px;background:var(--gold)}
+  .sec-head .kicker{font-size:10.5px;color:var(--gold);letter-spacing:.14em;font-weight:600;text-transform:uppercase}
+  .sec-head h2{font-size:20px;color:var(--navy);font-weight:800;line-height:1.35}
+  .sec-head .sub{font-size:12.5px;color:var(--muted);margin-top:1px}
+  .sec-body{margin-top:12px}
+  .divider{height:1px;background:var(--line);margin:4px 0 12px}
+  .pageno{position:absolute;top:0;right:0;font-size:26px;font-weight:800;color:rgba(18,58,102,.08);line-height:1}
+
+  /* ===== generic cards ===== */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:14px;margin-bottom:10px;box-shadow:0 1px 3px rgba(18,58,102,.05)}
+  .card h3{font-size:15px;color:var(--navy);font-weight:700;margin-bottom:7px}
+  .card p{font-size:13px;color:#4A5A6E}
+  .card p + p{margin-top:7px}
+  .hl{color:var(--blue);font-weight:600}
+
+  .feat-list{margin-top:4px}
+  .feat{display:flex;gap:9px;padding:8px 0;border-top:1px dashed #EDF1F7}
+  .feat:first-child{border-top:0}
+  .feat .ck{flex:0 0 auto;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;margin-top:2px}
+  .ck.g{background:#E4F5EC;color:var(--green)}
+  .ck.o{background:#F7EFDD;color:var(--gold)}
+  .ck.r{background:#FBE7E7;color:var(--red)}
+  .feat b{display:block;font-size:13.5px;color:var(--navy);font-weight:700}
+  .feat span{font-size:12px;color:var(--muted);line-height:1.5;display:block}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .mini{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px}
+  .mini b{display:block;font-size:13px;color:var(--navy);font-weight:700;margin-bottom:3px}
+  .mini span{font-size:11.5px;color:var(--muted);line-height:1.5;display:block}
+
+  .numrow{display:flex;gap:11px;align-items:flex-start;padding:8px 0;border-top:1px dashed #EDF1F7}
+  .numrow:first-child{border-top:0}
+  .numrow .n{
+    flex:0 0 25px;height:25px;border-radius:50%;background:var(--navy-2);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;margin-top:2px;
+  }
+  .numrow.gold .n{background:var(--gold)}
+  .numrow b{display:block;font-size:13.5px;color:var(--navy);font-weight:700}
+  .numrow span{font-size:12px;color:var(--muted);line-height:1.5;display:block}
+
+  .note{
+    background:#EDF4FC;border:1px solid #D4E4F5;border-radius:11px;
+    padding:11px 13px;font-size:12.5px;color:#2E4A6B;margin-bottom:10px;
+  }
+  .note b{color:var(--navy)}
+  .note.gold{background:#FAF4E7;border-color:#EBD9B4;color:#6B5320}
+  .note.gold b{color:#8A6620}
+  .note.green{background:#EAF7F0;border-color:#C9E9D8;color:#1E5C3F}
+  .note.green b{color:#18603C}
+
+  .tbl{width:100%;border-collapse:collapse;background:#fff;border-radius:11px;overflow:hidden;font-size:12px;border:1px solid var(--line)}
+  .tbl th{background:var(--navy);color:#fff;font-weight:600;padding:8px 7px;text-align:left;line-height:1.4}
+  .tbl th.gold-h{background:var(--gold)}
+  .tbl td{padding:8px 7px;border-top:1px solid #EEF2F7;color:#4A5A6E;line-height:1.5;vertical-align:top}
+  .tbl td:first-child{color:var(--navy);font-weight:600;white-space:nowrap}
+  .tbl td.di{color:#8A6620;background:#FCF8F0;font-weight:600}
+  .tbl td b{color:var(--ink)}
+
+  .step{display:flex;gap:13px}
+  .step .rail{flex:0 0 32px;display:flex;flex-direction:column;align-items:center}
+  .step .dot{
+    width:32px;height:32px;border-radius:50%;color:#fff;font-weight:800;font-size:13px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .step .rail .ln{flex:1;width:2px;background:linear-gradient(#C8D6E8,#E6EDF5);margin-top:5px}
+  .step:last-child .rail .ln{display:none}
+  .step .bd{flex:1;padding-bottom:18px}
+  .step .bd h3{font-size:15px;color:var(--navy);font-weight:800;margin-bottom:3px}
+  .step .bd p{font-size:12.5px;color:#4A5A6E}
+  .c-navy{background:var(--navy-2)} .c-blue{background:#2E6DB4} .c-gold{background:var(--gold)} .c-green{background:var(--green)}
+
+  .chips{display:flex;flex-wrap:wrap;gap:7px}
+  .chips span{font-size:11.5px;color:#33506F;background:#EFF4FA;border:1px solid #DDE7F2;border-radius:8px;padding:4px 9px}
+
+  .layer{display:flex;gap:9px;margin-bottom:9px;align-items:stretch}
+  .layer .tag{
+    flex:0 0 80px;border-radius:10px;color:#fff;font-weight:700;font-size:13px;
+    display:flex;align-items:center;justify-content:center;text-align:center;padding:9px 4px;line-height:1.4;
+  }
+  .layer .items{flex:1;display:flex;flex-wrap:wrap;gap:6px;align-content:center}
+  .layer .items span{font-size:11px;background:#fff;border:1px solid var(--line);border-radius:7px;padding:3px 7px;color:#3D5168}
+
+  .chain{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:10px}
+  .chain .node{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 4px;text-align:center}
+  .chain .node .ic{width:28px;height:28px;border-radius:50%;margin:0 auto 5px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700}
+  .chain .node b{display:block;font-size:11px;color:var(--navy)}
+  .chain .node span{font-size:9.5px;color:var(--faint)}
+
+  .stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-top:2px}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:11px;padding:11px 6px;text-align:center}
+  .stat b{display:block;font-size:16px;color:var(--navy);font-weight:800;letter-spacing:-.01em}
+  .stat i{display:block;font-style:normal;font-size:10.5px;color:var(--gold);font-weight:700;margin:1px 0 3px}
+  .stat span{font-size:10.5px;color:var(--muted);line-height:1.45;display:block}
+
+  .cmp{border:1px solid var(--line);border-radius:11px;overflow:hidden;margin-bottom:9px;background:#fff}
+  .cmp .hd{padding:8px 12px;font-size:12.5px;font-weight:700;color:#fff;display:flex;justify-content:space-between;align-items:center}
+  .cmp .hd .pill{font-size:10px;background:rgba(255,255,255,.22);padding:2px 8px;border-radius:999px;font-weight:600}
+  .cmp .bd{padding:9px 12px}
+  .cmp .big{font-size:19px;font-weight:800;color:var(--navy)}
+  .cmp .big small{font-size:10.5px;color:var(--muted);font-weight:400;display:block;margin-top:1px}
+  .cmp ul{list-style:none;margin-top:5px}
+  .cmp li{font-size:11.5px;color:var(--muted);padding-left:13px;position:relative;margin-top:3px}
+  .cmp li::before{content:"·";position:absolute;left:2px;color:var(--gold);font-weight:800}
+  .impact{
+    background:linear-gradient(120deg,#0E2F55,#164072);border-radius:11px;color:#fff;
+    padding:12px 13px;margin-bottom:10px;display:flex;gap:11px;align-items:center;
+  }
+  .impact .l{flex:1}
+  .impact b{font-size:13.5px;display:block;margin-bottom:3px}
+  .impact span{font-size:11.5px;color:#C6D6EA;line-height:1.55;display:block}
+  .impact .r{flex:0 0 112px;background:rgba(255,255,255,.1);border-radius:8px;padding:7px 8px}
+  .impact .r i{display:block;font-style:normal;font-size:10px;color:#A9BFD9;line-height:1.5}
+
+  .xrow{display:flex;gap:9px;padding:8px 0;border-top:1px dashed #EDF1F7}
+  .xrow:first-child{border-top:0}
+  .xrow .mk{flex:0 0 17px;height:17px;border-radius:50%;font-size:10px;display:flex;align-items:center;justify-content:center;margin-top:2px;font-weight:700}
+  .mk.no{background:#FBE7E7;color:var(--red)}
+  .mk.yes{background:#E4F5EC;color:var(--green)}
+  .xrow b{display:block;font-size:13.5px;color:var(--navy)}
+  .xrow span{font-size:12px;color:var(--muted);display:block}
+  .quote{border-left:3px solid var(--gold);background:#FBF7EE;padding:9px 11px;border-radius:0 10px 10px 0;font-size:12.5px;color:#6B5320;margin-top:10px}
+
+  .codecard{background:#fff;border:1px solid var(--line);border-radius:13px;overflow:hidden;margin-bottom:10px}
+  .codecard .bar{height:4px}
+  .codecard .in{padding:12px 14px}
+  .codecard h3{font-size:15px;color:var(--navy);font-weight:800}
+  .codecard .d{font-size:12px;color:var(--muted);margin:3px 0 7px}
+  .codecard .cks{display:flex;flex-wrap:wrap;gap:6px}
+  .codecard .cks span{font-size:10.5px;color:#3D5168;background:#F2F6FB;border-radius:6px;padding:3px 7px}
+  .codecard .cks span::before{content:"✓ ";color:var(--green);font-weight:700}
+
+  .combo{
+    background:linear-gradient(120deg,#0E2F55,#164072);color:#fff;border-radius:11px;
+    padding:12px 14px;font-size:12px;line-height:1.7;margin-top:2px;
+  }
+  .combo b{color:var(--gold-lt)}
+
+  .figure{background:#fff;border:1px solid var(--line);border-radius:11px;padding:9px;margin-bottom:10px}
+  .figure img{width:100%;display:block;border-radius:7px}
+  .figure figcaption{font-size:10.5px;color:var(--faint);text-align:center;margin-top:6px}
+  .hw-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .hw{background:#fff;border:1px solid var(--line);border-radius:11px;padding:9px 9px 11px;text-align:center}
+  .hw .ph{height:104px;display:flex;align-items:center;justify-content:center;margin-bottom:7px}
+  .hw .ph img{max-width:100%;max-height:100%;object-fit:contain}
+  .hw b{font-size:12px;color:var(--navy);font-weight:700;line-height:1.4;display:block}
+
+  .barr{background:#fff;border:1px solid var(--line);border-radius:11px;padding:11px 12px;position:relative}
+  .barr .no{font-size:14px;font-weight:800;color:var(--gold);letter-spacing:.02em}
+  .barr b{display:block;font-size:13.5px;color:var(--navy);font-weight:800;margin:2px 0 3px}
+  .barr span{font-size:11.5px;color:var(--muted);line-height:1.5;display:block}
+
+  .mode{background:#fff;border:1px solid var(--line);border-radius:13px;overflow:hidden;margin-bottom:10px}
+  .mode .tp{text-align:center;padding:14px 13px 9px;background:linear-gradient(180deg,#F6F9FC,#fff)}
+  .mode .tp .cir{width:42px;height:42px;border-radius:50%;margin:0 auto 7px;display:flex;align-items:center;justify-content:center;font-size:17px;border:1.5px solid}
+  .mode .tp b{font-size:14.5px;color:var(--navy);font-weight:800;display:block}
+  .mode .tp i{font-style:normal;font-size:11px;color:var(--faint)}
+  .mode ul{list-style:none;padding:8px 15px 12px}
+  .mode li{font-size:12px;color:#4A5A6E;padding:4px 0 4px 21px;position:relative;border-top:1px dashed #F0F3F8}
+  .mode li:first-child{border-top:0}
+  .mode li::before{content:"✓";position:absolute;left:2px;color:var(--green);font-weight:700}
+
+  footer.credit{padding:10px;text-align:center;font-size:10px;color:var(--faint)}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <img src="assets/logo-white.png" alt="DiCTN | Masuton">
+  <span class="t">数字包装综合解决方案</span>
+</header>
+
+<div class="deck" id="deck">
+
+  <!-- ========== 01 封面 ========== -->
+  <section class="slide dark cover" data-title="封面">
+    <div class="year">2026</div>
+    <div class="ring"></div>
+    <div class="dots"></div>
+    <div class="inner">
+      <img class="logo" src="assets/logo-white.png" alt="DiCTN | Masuton">
+      <h1>数字包装<br>综合解决方案</h1>
+      <div class="slogan">一物一码 · 全链路溯源 · 数字包装</div>
+      <div class="rule"></div>
+      <div class="breakthrough">
+        <b>满版熵隐码 · 透频材料 · AI智能</b>&nbsp;两大核心技术突破<br>
+        软件 · 智能硬件 · 数字包装&nbsp;<b>全自研</b>
+      </div>
+      <div class="chips">
+        <span>满版熵隐码</span><span>透频材料</span><span>AI智能</span><span>RFID融合</span>
+      </div>
+      <div class="company">深圳迪腾物流科技有限公司</div>
+      <div class="motto">身份让产品可信，数据驱动经营</div>
+    </div>
+    <div class="swipe-hint">左右滑动浏览 ›</div>
+  </section>
+
+  <!-- ========== 02 公司简介 ========== -->
+  <section class="slide" data-title="公司简介">
+    <div class="wrap">
+      <div class="pageno">01</div>
+      <div class="sec-head">
+        <div class="kicker">About Us</div>
+        <h2>公司简介</h2>
+        <div class="sub">软件 · 智能硬件 · 数字包装&nbsp;&nbsp;全自研</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <div class="card">
+          <h3>全自研数字包装综合服务商</h3>
+          <p>迪腾物流科技是国内少数同时具备<span class="hl">一物一码追溯软件平台、智能硬件、数字包装生产</span>能力的全自研高新技术企业。</p>
+          <p>两大核心技术突破：<span class="hl">满版熵隐码</span>（AI阵列生码/解码）、<span class="hl">RFID射频透频材料</span>。</p>
+          <p>旗下"码溯源"一物一码平台，覆盖溯源、防伪、防窜、营销、控价全场景；并拥有自研全系列隐形码扫描、RFID绑定等智能硬件；联合打造迪盛智能包装生产基地，实现从设计、打样到量产全流程自主。</p>
+        </div>
+        <div class="feat-list">
+          <div class="feat"><div class="ck g">✓</div><div><b>软件自研</b><span>码溯源平台 + 运营平台，AI智能加持</span></div></div>
+          <div class="feat"><div class="ck o">✓</div><div><b>硬件自研</b><span>隐形码扫描、RFID读写器、手持机、通道门全系列</span></div></div>
+          <div class="feat"><div class="ck g">✓</div><div><b>生产自研</b><span>迪盛数字包装基地，设计打样量产全自主</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 03 行业痛点 ========== -->
+  <section class="slide" data-title="行业痛点">
+    <div class="wrap">
+      <div class="pageno">02</div>
+      <div class="sec-head">
+        <div class="kicker">Pain Points</div>
+        <h2>行业痛点</h2>
+        <div class="sub">传统溯源防伪方案的四大核心挑战</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <div class="grid2">
+          <div class="mini"><b><span style="color:var(--red)">01</span> 防伪能力不足</b><span>单一二维码易复制易篡改，局部码单点破损即失效</span></div>
+          <div class="mini"><b><span style="color:var(--gold)">02</span> 采集效率低下</b><span>人工扫码效率低易出错，批量出入库耗时长</span></div>
+          <div class="mini"><b><span style="color:#7C5CC4">03</span> 窜货管控困难</b><span>渠道窜货取证难、追责难，刮码坏码严重，导致价格体系混乱，渠道苦不堪言</span></div>
+          <div class="mini"><b><span style="color:var(--blue)">04</span> 数据孤岛严重</b><span>生产、物流、渠道、终端数据分散，无法支撑决策</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 04 核心技术一 ========== -->
+  <section class="slide" data-title="核心技术一 · 满版熵隐码">
+    <div class="wrap">
+      <div class="pageno">03</div>
+      <div class="sec-head">
+        <div class="kicker">Core Tech Ⅰ</div>
+        <h2>核心技术一：满版熵隐码</h2>
+        <div class="sub">物理随机纹理 · AI阵列生码 · 智能解码验证</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <div class="card">
+          <h3>🧪 技术原理</h3>
+          <p>满版熵隐码是将随机微结构纹理均匀分布在整个包装表面，每个微小区域都包含独特的纹理特征，如同包装的<span class="hl">"物理指纹"</span>。</p>
+          <p>纹理在生产过程中自然生成，具有物理随机性和不可复制性。即使知道生产工艺，也无法制造出纹理完全一致的两枚包装。</p>
+          <p>与传统局部码不同，熵隐码满版分布、无单点失效，包装面积越大，特征点越多，防伪能力越强。</p>
+        </div>
+        <div class="card">
+          <div class="feat-list" style="margin-top:0">
+            <div class="feat"><div class="ck g">✓</div><div><b>满版分布，无单点失效</b><span>纹理遍布整个包装表面，不存在单点破损即失效问题。即使90%面积受损，剩余区域仍可验证。</span></div></div>
+            <div class="feat"><div class="ck g">✓</div><div><b>物理不可复制</b><span>生产过程中自然生成的随机纹理，具有物理熵增特性，无法逆向工程、无法批量复制。</span></div></div>
+            <div class="feat"><div class="ck g">✓</div><div><b>面积越大越安全</b><span>包装面积越大，纹理特征点越多，防伪等级越高。与传统局部码"越小越精"形成本质区别。</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 05 面积对比 ========== -->
+  <section class="slide" data-title="从100mm²到20,000mm²">
+    <div class="wrap">
+      <div class="pageno">04</div>
+      <div class="sec-head">
+        <div class="kicker">Coverage ×200</div>
+        <h2>从 100mm² 到 20,000mm²</h2>
+        <div class="sub">不是一个隐藏码，而是整个版面的身份</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <div class="cmp">
+          <div class="hd" style="background:#5B6B80">常规单个隐形点码</div>
+          <div class="bd">
+            <div class="big">10 × 10 mm<small>身份集中在一个局部码区 · 码点面积 100 mm²</small></div>
+            <ul><li>有一个主要码区，产品仍围绕"一枚隐形码"展开</li><li>产线隐患：一码区域残损、脏污即受影响</li></ul>
+          </div>
+        </div>
+        <div class="cmp">
+          <div class="hd" style="background:linear-gradient(90deg,#1B5FA8,#2FA0C9)">DiCTN 满版熵隐码 <span class="pill">面积约 200×</span></div>
+          <div class="bd">
+            <div class="big">100 × 200 mm<small>在包装有效版面形成可局部提取的编码点阵 · 20,000 mm²</small></div>
+            <ul><li>满版分布，任意区域均可提取防伪特征</li><li>无单点失效，局部破损不影响整体验证</li></ul>
+          </div>
+        </div>
+        <div class="impact">
+          <div class="l"><b>面积冲击</b><span>覆盖面积扩大约 200 倍；仅按覆盖面积比较，单位面积成本进入局部码的约 1/200 量级。</span></div>
+          <div class="r"><i>具备局部码生产能力<br>≠ 具备连续满版生产能力</i></div>
+        </div>
+        <div class="stats">
+          <div class="stat"><b>10×10mm</b><i>100 mm²</i><span>局部码典型码区</span></div>
+          <div class="stat"><b>100×200mm</b><i>20,000 mm²</i><span>满版有效区域</span></div>
+          <div class="stat"><b>≈200×</b><i>覆盖面积</i><span>单位码成本约 1/200 量级</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 06 AI阵列生码 ========== -->
+  <section class="slide" data-title="AI阵列生码与智能解码">
+    <div class="wrap">
+      <div class="pageno">05</div>
+      <div class="sec-head">
+        <div class="kicker">AI-Powered</div>
+        <h2>AI阵列生码与智能解码</h2>
+        <div class="sub">AI技术赋能，生码高效、解码精准、验证极速</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <div class="card">
+          <h3 style="color:var(--gold)">⚙️ AI阵列生码技术</h3>
+          <div class="numrow"><div class="n">1</div><div><b>熵源采集</b><span>采集物理随机熵源，生成随机数种子，确保每枚码唯一性</span></div></div>
+          <div class="numrow"><div class="n">2</div><div><b>阵列生成</b><span>AI模型生成微结构纹理阵列，亿级不重复，满足海量赋码需求</span></div></div>
+          <div class="numrow"><div class="n">3</div><div><b>特征提取</b><span>自动提取纹理特征点，生成特征指纹数据，存入特征数据库</span></div></div>
+          <div class="numrow"><div class="n">4</div><div><b>排版优化</b><span>AI智能排版，确保纹理均匀分布，兼顾印刷适性和防伪强度</span></div></div>
+        </div>
+        <div class="card">
+          <h3 style="color:var(--gold)">👁 AI智能解码验证</h3>
+          <div class="numrow gold"><div class="n">1</div><div><b>图像采集</b><span>手机/专用设备拍摄包装表面，获取纹理图像</span></div></div>
+          <div class="numrow gold"><div class="n">2</div><div><b>AI识别</b><span>深度学习算法自动定位、提取纹理特征点</span></div></div>
+          <div class="numrow gold"><div class="n">3</div><div><b>特征比对</b><span>与数据库特征指纹进行相似度比对计算</span></div></div>
+          <div class="numrow gold"><div class="n">4</div><div><b>结果输出</b><span>毫秒级输出验证结果，支持真伪判定和溯源查询</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 07 核心技术二 ========== -->
+  <section class="slide" data-title="核心技术二 · 透频材料">
+    <div class="wrap">
+      <div class="pageno">06</div>
+      <div class="sec-head">
+        <div class="kicker">Core Tech Ⅱ</div>
+        <h2>核心技术二：透频材料 &amp; RFID融合</h2>
+        <div class="sub">突破镀铝屏蔽难题 · RFID原生内嵌包装</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <div class="card">
+          <h3>📡 透频材料技术突破</h3>
+          <p>透频材料是迪腾自主研发的核心材料技术，突破了<span class="hl">镀铝膜/铝箔包装对RFID信号的屏蔽难题</span>。</p>
+          <div class="feat-list" style="margin-top:8px">
+            <div class="feat"><div class="ck g">✓</div><div><b>信号穿透镀铝层</b><span>RFID信号可穿透镀铝/铝箔层，读取稳定</span></div></div>
+            <div class="feat"><div class="ck g">✓</div><div><b>保持铝箔功能</b><span>不影响镀铝层的遮光、防潮、保鲜等原有功能</span></div></div>
+            <div class="feat"><div class="ck g">✓</div><div><b>位置自由设计</b><span>芯片可嵌入任意位置，不受铝层位置限制</span></div></div>
+            <div class="feat"><div class="ck g">✓</div><div><b>一体化生产</b><span>材料生产过程中完成改性，无需后处理工序</span></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>🔖 RFID与包装原生融合</h3>
+          <p>RFID芯片在包装生产过程中<span class="hl">原生内嵌</span>，与包装结构融为一体，而非后期粘贴。</p>
+          <div class="feat-list" style="margin-top:8px">
+            <div class="feat"><div class="ck g">✓</div><div><b>原生内嵌</b><span>纸箱/纸盒生产过程中嵌入芯片，与结构融为一体</span></div></div>
+            <div class="feat"><div class="ck g">✓</div><div><b>安全防篡改</b><span>芯片隐藏于包装结构内部，无法移除、无法替换</span></div></div>
+            <div class="feat"><div class="ck g">✓</div><div><b>稳定耐用</b><span>不受摩擦、碰撞、潮湿干扰，多次周转仍可靠</span></div></div>
+            <div class="feat"><div class="ck g">✓</div><div><b>批量读取</b><span>支持整托批量识别，出入库效率提升10倍以上</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 08 路线对比 ========== -->
+  <section class="slide" data-title="标签路线 vs 材料路线">
+    <div class="wrap">
+      <div class="pageno">07</div>
+      <div class="sec-head">
+        <div class="kicker">Route Compare</div>
+        <h2>改变每枚标签，还是改变包装材料</h2>
+        <div class="sub">两条技术路线，成本与体验差异巨大</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <table class="tbl">
+          <tr><th style="width:26%">对比项目</th><th style="width:37%">常规抗金属标签路线</th><th class="gold-h" style="width:37%">DiCTN 透频材料路线</th></tr>
+          <tr><td>RFID 载体</td><td>抗金属成品标签</td><td class="di">普通 RFID Inlay</td></tr>
+          <tr><td>标签端单枚成本</td><td><b>1.9—3.2 元</b></td><td class="di">约 0.35—0.6 元</td></tr>
+          <tr><td>安装位置</td><td>产品内表面后贴</td><td class="di">制造阶段进入包装结构</td></tr>
+          <tr><td>读取方向</td><td>读取面必须朝外</td><td class="di">不依赖抗金属标签朝外安装</td></tr>
+          <tr><td>包装外观</td><td>增加标签和安装位置</td><td class="di">保留镀铝外观，表面无后贴标签</td></tr>
+        </table>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:12px">
+          <b style="color:var(--gold);font-size:16px;white-space:nowrap">标签端成本差异约 30—50 倍</b>
+        </div>
+        <p style="font-size:11px;color:var(--faint);margin-top:2px">注：材料、加工和交付费用另行计算，此处为标签端单枚成本对比。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 09 RFID原生内嵌 ========== -->
+  <section class="slide" data-title="RFID 原生内嵌">
+    <div class="wrap">
+      <div class="pageno">08</div>
+      <div class="sec-head">
+        <div class="kicker">Native Embedding</div>
+        <h2>把 RFID 做进包装，而不是包装做好后再贴</h2>
+        <div class="sub">"贴在里面看不见"，不等于"生产在包装里面"</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <div class="card">
+          <div class="xrow"><div class="mk no">✕</div><div><b>包装完成后贴在外表面</b><span>仍属于后贴标签</span></div></div>
+          <div class="xrow"><div class="mk no">✕</div><div><b>包装完成后贴在内表面</b><span>看不见，也仍属于后贴标签</span></div></div>
+          <div class="xrow"><div class="mk yes">✓</div><div><b>制造阶段进入纸张或复合袋结构</b><span>Inlay 成为包装成品的一部分</span></div></div>
+          <div class="quote">"贴在里面看不见"，不等于"生产在包装里面"。</div>
+        </div>
+        <figure class="figure">
+          <img src="assets/diag-rfid.png" alt="数字包装制造流程：满版熵隐码生产 / 纸张内嵌融合 / 复合袋融合" loading="lazy">
+          <figcaption>不是贴在包装上，而是生产在包装里面 —— 迪盛实体数字包装工厂</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 10 多样化赋码 ========== -->
+  <section class="slide" data-title="多样化赋码方式">
+    <div class="wrap">
+      <div class="pageno">09</div>
+      <div class="sec-head">
+        <div class="kicker">Coding Options</div>
+        <h2>多样化赋码方式</h2>
+        <div class="sub">多种码型灵活组合，按需定制最佳方案</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <div class="codecard">
+          <div class="bar" style="background:#1B5FA8"></div>
+          <div class="in">
+            <h3>RFID芯片</h3>
+            <div class="d">内嵌式RFID芯片，批量读取、快速采集、数据安全</div>
+            <div class="cks"><span>批量识别</span><span>远距离读取</span><span>数据安全</span><span>不易篡改</span></div>
+          </div>
+        </div>
+        <div class="codecard">
+          <div class="bar" style="background:#C99846"></div>
+          <div class="in">
+            <h3>满版熵隐码</h3>
+            <div class="d">满版物理随机纹理，不可复制、无单点失效</div>
+            <div class="cks"><span>满版分布</span><span>物理不可复制</span><span>AI智能验证</span><span>越用越安全</span></div>
+          </div>
+        </div>
+        <div class="codecard">
+          <div class="bar" style="background:#27A468"></div>
+          <div class="in">
+            <h3>二维码</h3>
+            <div class="d">通用二维码方案，扫码即用、消费者触达便捷</div>
+            <div class="cks"><span>普及率高</span><span>扫码便捷</span><span>成本较低</span><span>营销入口</span></div>
+          </div>
+        </div>
+        <div class="codecard">
+          <div class="bar" style="background:#7C5CC4"></div>
+          <div class="in">
+            <h3>环形码</h3>
+            <div class="d">环形结构码型，适配圆形异形包装，全向可扫</div>
+            <div class="cks"><span>环形布局</span><span>全向扫描</span><span>异形适配</span><span>辨识度高</span></div>
+          </div>
+        </div>
+        <div class="combo">💡 <b>组合服务</b>：可灵活组合多种码型，实现"一码多用"或"多码协同"，<b>RFID + 熵隐码 + 二维码</b>三位一体，满足不同层级防伪溯源需求。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 11 三码协同 ========== -->
+  <section class="slide" data-title="三种入口协同">
+    <div class="wrap">
+      <div class="pageno">10</div>
+      <div class="sec-head">
+        <div class="kicker">Synergy</div>
+        <h2>满版熵隐码 + RFID + 二维码：三种入口协同</h2>
+        <div class="sub">多种码型灵活组合，按需定制最佳方案</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <figure class="figure">
+          <img src="assets/diag-box.png" alt="包装盒型展开图：RFID芯片 + 二维码 + 满版熵隐码" loading="lazy">
+          <figcaption>同一包装上的三种码型入口</figcaption>
+        </figure>
+        <div class="card">
+          <h3 style="color:var(--gold)">方案如何工作</h3>
+          <p>三类入口绑定同一商品身份：<br>
+          <span class="hl">二维码</span>连接消费者 · <span class="hl">RFID</span>完成自动批量采集 · <span class="hl">满版熵隐码</span>承担高可信核验</p>
+          <p style="margin-top:9px"><b style="color:var(--navy)">客户价值：</b>不让一种码承担所有任务。消费者、供应链和企业管理共用同一商品主档，数据持续、统一、可信。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 12 防伪防窜 ========== -->
+  <section class="slide" data-title="防伪防窜货核心能力">
+    <div class="wrap">
+      <div class="pageno">11</div>
+      <div class="sec-head">
+        <div class="kicker">Anti-Counterfeit</div>
+        <h2>防伪防窜货核心能力</h2>
+        <div class="sub">多重技术保障，让假冒窜货无处遁形</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <div class="card">
+          <h3>🛡 多维防伪能力</h3>
+          <div class="feat-list" style="margin-top:3px">
+            <div class="feat"><div class="ck g">✓</div><div><b>满版熵隐码防伪</b><span>物理随机纹理，不可复制，AI智能验证</span></div></div>
+            <div class="feat"><div class="ck g">✓</div><div><b>RFID芯片防伪</b><span>全球唯一ID，芯片内嵌无法修改，难以仿造</span></div></div>
+            <div class="feat"><div class="ck g">✓</div><div><b>隐形熵码防伪</b><span>肉眼不可见，隐蔽性极强，专用设备验证</span></div></div>
+            <div class="feat"><div class="ck g">✓</div><div><b>多码交叉验证</b><span>多种码型组合验证，层层设防，防伪等级倍增</span></div></div>
+            <div class="feat"><div class="ck g">✓</div><div><b>AI智能识别</b><span>深度学习算法，准确率99.9%+，毫秒级验证</span></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>🔔 渠道防窜能力</h3>
+          <div class="feat-list" style="margin-top:3px">
+            <div class="feat"><div class="ck o">✓</div><div><b>渠道绑定</b><span>每件产品绑定指定经销商，出库即关联订单和渠道</span></div></div>
+            <div class="feat"><div class="ck o">✓</div><div><b>AI智能预警</b><span>AI算法分析异常流向，自动触发窜货预警，实时通知</span></div></div>
+            <div class="feat"><div class="ck o">✓</div><div><b>稽查取证</b><span>线下批量扫描快速取证，拍照上传，证据链完整</span></div></div>
+            <div class="feat"><div class="ck o">✓</div><div><b>地理位置判断</b><span>消费者扫码地理位置辅助判断窜货，覆盖面广</span></div></div>
+            <div class="feat"><div class="ck o">✓</div><div><b>价格管控</b><span>全渠道价格监控，乱价自动识别，维护价格体系</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 13 全链路追溯 ========== -->
+  <section class="slide" data-title="全链路追溯能力">
+    <div class="wrap">
+      <div class="pageno">12</div>
+      <div class="sec-head">
+        <div class="kicker">Traceability</div>
+        <h2>全链路追溯能力</h2>
+        <div class="sub">从原材料到终端消费者，全流程精准追溯</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <div class="chain">
+          <div class="node"><div class="ic c-navy">原</div><b>原材料</b><span>原料溯源</span></div>
+          <div class="node"><div class="ic c-gold">厂</div><b>生产工厂</b><span>生产赋码</span></div>
+          <div class="node"><div class="ic c-navy">检</div><b>质量检测</b><span>质检关联</span></div>
+          <div class="node"><div class="ic c-gold">仓</div><b>仓储管理</b><span>出入库盘点</span></div>
+          <div class="node"><div class="ic c-navy">运</div><b>物流运输</b><span>在途追踪</span></div>
+          <div class="node"><div class="ic c-gold">渠</div><b>经销渠道</b><span>渠道防窜</span></div>
+          <div class="node"><div class="ic c-navy">店</div><b>终端门店</b><span>零售管理</span></div>
+          <div class="node"><div class="ic c-gold">客</div><b>消费者</b><span>扫码溯源</span></div>
+        </div>
+        <div class="card" style="margin-bottom:9px"><h3>🔍 来源可查</h3><p>从原材料到成品，每一个环节都有据可查，确保供应链透明可信。</p></div>
+        <div class="card" style="margin-bottom:9px"><h3>🧭 去向可追</h3><p>产品流向实时掌握，精准定位每件产品的位置和状态，物流全程可视。</p></div>
+        <div class="card" style="margin-bottom:0"><h3>⚖️ 责任可究</h3><p>问题快速定位、定责到人，召回管理精准高效，降低品牌风险。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 14 AI智能防窜货 ========== -->
+  <section class="slide" data-title="AI智能防窜货">
+    <div class="wrap">
+      <div class="pageno">13</div>
+      <div class="sec-head">
+        <div class="kicker">AI Surveillance</div>
+        <h2>AI智能防窜货</h2>
+        <div class="sub">AI算法驱动 · 智能预警 · 精准稽查</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <div class="codecard">
+          <div class="bar" style="background:#1B5FA8"></div>
+          <div class="in">
+            <h3>AI流向分析</h3>
+            <div class="d">基于海量扫码数据和订单数据，AI算法智能分析产品流向，识别异常流动模式</div>
+            <div class="cks"><span>异常流向识别</span><span>窜货概率评分</span><span>实时预警推送</span><span>趋势预测分析</span></div>
+          </div>
+        </div>
+        <div class="codecard">
+          <div class="bar" style="background:#C99846"></div>
+          <div class="in">
+            <h3>AI位置判断</h3>
+            <div class="d">综合消费者扫码位置、IP地址、基站定位等多维数据，智能判断产品是否窜货</div>
+            <div class="cks"><span>多维定位数据</span><span>位置偏差计算</span><span>窜货区域热力图</span><span>异常区域聚类</span></div>
+          </div>
+        </div>
+        <div class="codecard">
+          <div class="bar" style="background:#27A468"></div>
+          <div class="in">
+            <h3>AI智能稽查</h3>
+            <div class="d">AI辅助稽查人员高效取证，自动识别窜货证据，生成完整证据链和稽查报告</div>
+            <div class="cks"><span>批量扫描取证</span><span>证据自动整理</span><span>稽查报告生成</span><span>责任人自动定位</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 15 营销控价 ========== -->
+  <section class="slide" data-title="营销控价增值能力">
+    <div class="wrap">
+      <div class="pageno">14</div>
+      <div class="sec-head">
+        <div class="kicker">Marketing Value</div>
+        <h2>营销控价增值能力</h2>
+        <div class="sub">不止于溯源防伪，更赋能品牌增长</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <div class="card">
+          <h3>🎯 智能营销能力</h3>
+          <div class="grid2" style="margin-top:9px">
+            <div class="mini" style="background:#F7FAFD"><b>扫码红包</b><span>消费者扫码领红包，提升复购率</span></div>
+            <div class="mini" style="background:#F7FAFD"><b>积分商城</b><span>积分累计兑换，增强用户粘性</span></div>
+            <div class="mini" style="background:#F7FAFD"><b>私域引流</b><span>扫码引导关注，沉淀私域流量</span></div>
+            <div class="mini" style="background:#F7FAFD"><b>精准营销</b><span>用户画像分析，精准触达目标人群</span></div>
+            <div class="mini" style="background:#F7FAFD"><b>促销活动</b><span>区域化、节日化营销活动灵活配置</span></div>
+            <div class="mini" style="background:#F7FAFD"><b>店主返利</b><span>终端店主扫码返利，提升动销积极性</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>💰 价格管控能力</h3>
+          <div class="grid2" style="margin-top:9px">
+            <div class="mini" style="background:#FDFAF3;border-color:#EBDDBB"><b style="color:#8A6620">价格监控</b><span>全渠道价格实时监控，异常价格自动预警</span></div>
+            <div class="mini" style="background:#FDFAF3;border-color:#EBDDBB"><b style="color:#8A6620">价盘管理</b><span>各级渠道价格体系数字化管理，维护价格稳定</span></div>
+            <div class="mini" style="background:#FDFAF3;border-color:#EBDDBB"><b style="color:#8A6620">乱价治理</b><span>乱价产品快速定位、追溯货源，及时治理</span></div>
+            <div class="mini" style="background:#FDFAF3;border-color:#EBDDBB"><b style="color:#8A6620">促销控价</b><span>促销活动价格管控，防止跨区域窜货式促销</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 16 码溯通平台 ========== -->
+  <section class="slide" data-title="码溯通平台">
+    <div class="wrap">
+      <div class="pageno">15</div>
+      <div class="sec-head">
+        <div class="kicker">Platform</div>
+        <h2>码溯通平台</h2>
+        <div class="sub">一物一码全链路追溯平台</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <div class="note">码溯通是迪腾自主研发的<b>全链路一物一码追溯平台</b>，为每件产品赋予唯一数字身份ID，集防伪、溯源、防窜、营销、控价于一体，AI智能加持，为企业全链路数字化转型赋能。</div>
+        <div class="layer"><div class="tag" style="background:#0C2A4D">应用层</div><div class="items"><span>品牌防伪</span><span>智慧溯源</span><span>渠道防窜</span><span>智能营销</span><span>价格管控</span><span>数据运营</span></div></div>
+        <div class="layer"><div class="tag" style="background:#2E6DB4">业务层</div><div class="items"><span>赋码管理</span><span>多码合一</span><span>产线关联</span><span>批次管理</span><span>库存管理</span><span>会员管理</span></div></div>
+        <div class="layer"><div class="tag" style="background:#C99846">AI引擎</div><div class="items"><span>AI生码引擎</span><span>AI解码识别</span><span>AI防窜分析</span><span>AI营销推荐</span><span>数据智能</span><span>异常检测</span></div></div>
+        <div class="layer"><div class="tag" style="background:#27A468">采集层</div><div class="items"><span>RFID读写设备</span><span>手持终端</span><span>通道门</span><span>产线赋码</span><span>视频监控</span><span>传感器</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 17 智能硬件矩阵 ========== -->
+  <section class="slide" data-title="智能硬件矩阵">
+    <div class="wrap">
+      <div class="pageno">16</div>
+      <div class="sec-head">
+        <div class="kicker">Hardware</div>
+        <h2>智能硬件矩阵</h2>
+        <div class="sub">全系列自研硬件，满足全场景数据采集需求</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <div class="hw-grid">
+          <div class="hw"><div class="ph"><img src="assets/hw-1.png" alt="包装自动绑定设备" loading="lazy"></div><b>包装自动绑定设备</b></div>
+          <div class="hw"><div class="ph"><img src="assets/hw-2.png" alt="数字包装自动全检设备" loading="lazy"></div><b>数字包装自动全检设备</b></div>
+          <div class="hw"><div class="ph"><img src="assets/hw-3.png" alt="熵隐码解码设备" loading="lazy"></div><b>熵隐码解码设备</b></div>
+          <div class="hw"><div class="ph"><img src="assets/hw-4.png" alt="数字包装桌面绑定设备" loading="lazy"></div><b>数字包装桌面绑定设备</b></div>
+          <div class="hw"><div class="ph"><img src="assets/hw-5.png" alt="RFID手持机" loading="lazy"></div><b>RFID手持机</b></div>
+          <div class="hw"><div class="ph"><img src="assets/hw-6.png" alt="数字包装贴标设备" loading="lazy"></div><b>数字包装贴标设备</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 18 迪盛运营平台 ========== -->
+  <section class="slide" data-title="迪盛数字包装运营平台">
+    <div class="wrap">
+      <div class="pageno">17</div>
+      <div class="sec-head">
+        <div class="kicker">Ecosystem</div>
+        <h2>迪盛数字包装运营平台</h2>
+        <div class="sub">链接包装生态企业 · 共建数字化包装新生态</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <div class="note green">数字包装运营平台是迪盛打造的包装生态链接平台，连接<b>包装材料供应商、品牌商、物流企业、渠道商</b>等产业链各方，通过统一的数字包装标准和数据接口，实现包装资源共享、数据互通、价值共创。</div>
+        <div class="grid2">
+          <div class="mini"><b>📦 包装资源中心</b><span>整合包装材料供应商资源<br>标准化数字包装产品库<br>在线选型下单</span></div>
+          <div class="mini"><b>🏷 赋码管理中心</b><span>统一码段管理<br>多码合一配置<br>码包数据安全管控</span></div>
+          <div class="mini"><b>🤝 生态协同中心</b><span>产业链数据互通<br>业务协同作业<br>供应链效率提升</span></div>
+          <div class="mini"><b>📊 数据运营中心</b><span>全链路数据分析<br>行业洞察报告<br>辅助经营决策</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 19 生产基地 ========== -->
+  <section class="slide" data-title="迪盛数字包装生产基地">
+    <div class="wrap">
+      <div class="pageno">18</div>
+      <div class="sec-head">
+        <div class="kicker">Production Base</div>
+        <h2>迪盛数字包装生产基地</h2>
+        <div class="sub">设计 → 打样 → 生产 → 赋码&nbsp;&nbsp;印刷全流程自主可控</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <div class="step">
+          <div class="rail"><div class="dot c-navy">01</div><div class="ln"></div></div>
+          <div class="bd"><h3>🎨 包装设计</h3><p>包装结构设计 · 平面视觉设计 · 数字码位规划 · 3D效果预览 · 专业设计软件</p></div>
+        </div>
+        <div class="step">
+          <div class="rail"><div class="dot c-blue">02</div><div class="ln"></div></div>
+          <div class="bd"><h3>📐 打样验证</h3><p>数码打样 · 小批量试制 · 性能测试验证 · 客户确认打样 · 快速打样周期</p></div>
+        </div>
+        <div class="step">
+          <div class="rail"><div class="dot c-gold">03</div><div class="ln"></div></div>
+          <div class="bd"><h3>🏭 批量生产</h3><p>瓦楞纸板生产 · 印刷开槽模切 · 品质过程管控 · 高效产能保障 · 严格质量检验</p></div>
+        </div>
+        <div class="step">
+          <div class="rail"><div class="dot c-green">04</div></div>
+          <div class="bd"><h3>💻 数字赋码</h3><p>RFID芯片内嵌 · 满版熵隐码赋码 · 二维码/环形码 · 多码关联绑定 · 数据安全加密</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 20 三类生产能力 ========== -->
+  <section class="slide" data-title="三类数字包装生产能力">
+    <div class="wrap">
+      <div class="pageno">19</div>
+      <div class="sec-head">
+        <div class="kicker">Capabilities</div>
+        <h2>三类数字包装生产能力</h2>
+        <div class="sub">设计 → 打样 → 生产 → 赋码&nbsp;&nbsp;印刷全流程自主可控</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <figure class="figure">
+          <img src="assets/photo-line.png" alt="迪盛数字包装生产线" loading="lazy">
+        </figure>
+        <div class="codecard">
+          <div class="bar" style="background:#C99846"></div>
+          <div class="in">
+            <h3><span style="color:var(--gold);font-size:12.5px;margin-right:6px">01</span>满版熵隐码包装</h3>
+            <div class="d">专用满版喷印 → 包装后道 → 满版成品质检</div>
+            <div class="cks"><span>交付：合格包装 + 合格身份载体</span></div>
+          </div>
+        </div>
+        <div class="codecard">
+          <div class="bar" style="background:#1B5FA8"></div>
+          <div class="in">
+            <h3><span style="color:var(--blue);font-size:12.5px;margin-right:6px">02</span>RFID 纸包装</h3>
+            <div class="d">Inlay 进入纸张/纸板夹层 → 复合、模切、压痕、糊盒</div>
+            <div class="cks"><span>交付：合格包装 + 合格身份载体</span></div>
+          </div>
+        </div>
+        <div class="codecard">
+          <div class="bar" style="background:#27A468"></div>
+          <div class="in">
+            <h3><span style="color:var(--green);font-size:12.5px;margin-right:6px">03</span>RFID 复合袋</h3>
+            <div class="d">Inlay 进入连续卷材 → 复合、熟化、分切、制袋、热封</div>
+            <div class="cks"><span>交付：合格包装 + 合格身份载体</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 21 生产技术赋能 ========== -->
+  <section class="slide" data-title="生产技术赋能">
+    <div class="wrap">
+      <div class="pageno">20</div>
+      <div class="sec-head">
+        <div class="kicker">Tech Empowerment</div>
+        <h2>生产技术赋能</h2>
+        <div class="sub">可复制的数字包装生产能力，赋能行业包装公司</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <div class="card">
+          <h3>🚀 技术赋能模式</h3>
+          <p>迪腾将数字包装生产技术<span class="hl">模块化、标准化</span>，向传统包装企业输出可复制的数字包装生产能力。</p>
+          <p>通过技术授权、设备改造、人员培训等方式，帮助传统包装企业快速具备数字包装生产能力。不打破原有供应链体系，实现技术共享、合作共赢。</p>
+          <p>欢迎传统包装企业加入数字包装研发生产生态圈，共创行业新未来。</p>
+        </div>
+        <div class="card">
+          <div class="feat-list" style="margin-top:0">
+            <div class="feat"><div class="ck o">✓</div><div><b>生产工艺输出</b><span>满版熵隐码工艺、RFID内嵌工艺、透频材料应用等核心技术</span></div></div>
+            <div class="feat"><div class="ck o">✓</div><div><b>设备改造方案</b><span>传统印刷设备数字化改造方案，最小投入实现数字包装生产</span></div></div>
+            <div class="feat"><div class="ck o">✓</div><div><b>人员技术培训</b><span>生产操作人员技术培训，确保生产质量稳定和效率达标</span></div></div>
+            <div class="feat"><div class="ck o">✓</div><div><b>软件系统对接</b><span>生产管理系统、赋码管理系统部署对接，数字化生产管理</span></div></div>
+            <div class="feat"><div class="ck o">✓</div><div><b>持续技术支持</b><span>持续技术升级支持和新产品研发共享，保持技术领先</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 22 核心竞争壁垒 ========== -->
+  <section class="slide" data-title="核心竞争壁垒">
+    <div class="wrap">
+      <div class="pageno">21</div>
+      <div class="sec-head">
+        <div class="kicker">Moats</div>
+        <h2>核心竞争壁垒</h2>
+        <div class="sub">全自研三位一体，构建独特竞争优势</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <div class="grid2">
+          <div class="barr"><div class="no">01</div><b>材料技术壁垒</b><span>透频材料、满版熵隐码核心材料技术，专利保护</span></div>
+          <div class="barr"><div class="no">02</div><b>AI技术壁垒</b><span>AI阵列生码、AI智能解码、AI防窜分析，算法领先</span></div>
+          <div class="barr"><div class="no">03</div><b>软件平台壁垒</b><span>码溯源 + 运营平台双平台，50+软著专利</span></div>
+          <div class="barr"><div class="no">04</div><b>硬件研发壁垒</b><span>全系列智能硬件自研，软硬件深度适配</span></div>
+          <div class="barr"><div class="no">05</div><b>生产制造壁垒</b><span>华南迪盛生产基地，设计到量产全流程自主</span></div>
+          <div class="barr"><div class="no">06</div><b>生态协同壁垒</b><span>软件 + 硬件 + 生产三位一体，产业链生态布局</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 23 合作模式一 ========== -->
+  <section class="slide" data-title="合作模式一 · 产品采购">
+    <div class="wrap">
+      <div class="pageno">22</div>
+      <div class="sec-head">
+        <div class="kicker">Model Ⅰ</div>
+        <h2>合作模式一：产品采购模式</h2>
+        <div class="sub">SaaS软件 + 智能硬件 + 数字包装&nbsp;&nbsp;一站式采购</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <div class="note"><b>📋 模式特点</b><br>客户直接采购迪腾数字包装产品、智能硬件和SaaS软件服务，按需付费、快速上线，以较低门槛使用数字包装技术，摊分研发生产成本，性价比更高。</div>
+        <div class="mode">
+          <div class="tp"><div class="cir" style="border-color:#1B5FA8;color:#1B5FA8">💻</div><b>SaaS软件服务</b><i>码溯源平台按需开通</i></div>
+          <ul><li>按账号/用量付费</li><li>快速部署上线</li><li>持续版本升级</li><li>标准功能覆盖</li></ul>
+        </div>
+        <div class="mode">
+          <div class="tp"><div class="cir" style="border-color:#C99846;color:#C99846">🔧</div><b>智能硬件采购</b><i>全系列硬件产品</i></div>
+          <ul><li>手持机/通道门</li><li>产线赋码设备</li><li>质量稳定可靠</li><li>软件深度适配</li></ul>
+        </div>
+        <div class="mode">
+          <div class="tp"><div class="cir" style="border-color:#27A468;color:#27A468">📦</div><b>数字包装供应</b><i>迪盛生产基地直供</i></div>
+          <ul><li>多样化赋码方式</li><li>稳定批量交付</li><li>质量全程可控</li><li>价格优势明显</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 24 合作模式二 ========== -->
+  <section class="slide" data-title="合作模式二 · 技术赋能">
+    <div class="wrap">
+      <div class="pageno">23</div>
+      <div class="sec-head">
+        <div class="kicker">Model Ⅱ</div>
+        <h2>合作模式二：技术赋能模式</h2>
+        <div class="sub">技术赋能共享 · 不打破原有供应链现状</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <div class="note gold"><b>🤝 模式特点</b><br>迪腾向合作伙伴输出SaaS软件、智能硬件和数字包装技术能力，不改变客户原有包装供应链体系，实现技术共享、权益同等，帮助合作伙伴快速具备数字包装服务能力。</div>
+        <div class="mode">
+          <div class="tp"><div class="cir" style="border-color:#C99846;color:#C99846">💻</div><b>SaaS软件赋能</b><i>码溯源平台OEM/私有化部署</i></div>
+          <ul><li>品牌白标定制</li><li>私有化部署</li><li>API接口开放</li><li>联合运营支持</li></ul>
+        </div>
+        <div class="mode">
+          <div class="tp"><div class="cir" style="border-color:#C99846;color:#C99846">🔧</div><b>智能硬件赋能</b><i>硬件产品供应 + 技术支持</i></div>
+          <ul><li>全系列硬件供应</li><li>定制化开发</li><li>技术支持服务</li><li>运维培训指导</li></ul>
+        </div>
+        <div class="mode">
+          <div class="tp"><div class="cir" style="border-color:#C99846;color:#C99846">🏭</div><b>生产技术赋能</b><i>数字包装生产技术输出</i></div>
+          <ul><li>生产工艺输出</li><li>设备改造方案</li><li>人员技术培训</li><li>持续技术升级</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 25 合作模式三 ========== -->
+  <section class="slide" data-title="合作模式三 · 生态共创">
+    <div class="wrap">
+      <div class="pageno">24</div>
+      <div class="sec-head">
+        <div class="kicker">Model Ⅲ</div>
+        <h2>合作模式三：生态共创模式</h2>
+        <div class="sub">软件 · 硬件 · 生产技术共创&nbsp;&nbsp;共建数字包装生态圈</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <div class="note green"><b>🌱 模式特点</b><br>面向传统包装企业，迪腾开放软件、硬件、生产技术，邀请合作伙伴加入数字包装研发生产生态圈，深度共创、利益共享，共同推进行业数字化升级。</div>
+        <div class="grid2">
+          <div class="mini"><b>🔬 技术共创</b><span>联合研发数字包装新技术、新产品，共享知识产权</span></div>
+          <div class="mini"><b>🏭 产能共享</b><span>区域化生产布局，就近交付，降低物流成本和交付周期</span></div>
+          <div class="mini"><b>👥 客户共享</b><span>生态圈客户资源共享，交叉销售，互利共赢</span></div>
+          <div class="mini"><b>📈 价值共创</b><span>共同做大数字包装市场，分享行业增长红利</span></div>
+        </div>
+        <div class="combo" style="text-align:center;margin-top:10px">🤝 诚邀传统包装企业加入数字包装研发生产生态圈，<b>共创行业新未来</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 26 服务流程 ========== -->
+  <section class="slide" data-title="服务流程">
+    <div class="wrap">
+      <div class="pageno">25</div>
+      <div class="sec-head">
+        <div class="kicker">Process</div>
+        <h2>服务流程</h2>
+        <div class="sub">四阶段稳步推进，风险可控，效果可见</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-body">
+        <div class="step">
+          <div class="rail"><div class="dot c-navy">01</div><div class="ln"></div></div>
+          <div class="bd"><h3>需求调研</h3><p>深入了解业务需求和痛点，提供专业咨询建议，输出初步方案。</p></div>
+        </div>
+        <div class="step">
+          <div class="rail"><div class="dot c-blue">02</div><div class="ln"></div></div>
+          <div class="bd"><h3>方案设计</h3><p>定制数字包装 + 硬件 + 平台一体化方案，明确实施路径和预期效果。</p></div>
+        </div>
+        <div class="step">
+          <div class="rail"><div class="dot c-gold">03</div><div class="ln"></div></div>
+          <div class="bd"><h3>小批量验证</h3><p>小批量试产试用，验证实际效果，优化方案后再扩大规模。</p></div>
+        </div>
+        <div class="step">
+          <div class="rail"><div class="dot c-green">04</div></div>
+          <div class="bd"><h3>全面落地</h3><p>全面部署实施，持续运营支持，定期效果复盘，助力数字化转型。</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 27 封底 ========== -->
+  <section class="slide dark backcover" data-title="封底">
+    <div class="inner">
+      <h2>从一个真实包装开始</h2>
+      <div class="s">让每一件包装都拥有数字身份</div>
+      <div class="t">满版熵隐码 · 透频材料 · AI智能<br>软件 · 智能硬件 · 数字包装&nbsp;&nbsp;全自研</div>
+      <div class="co">
+        <b>迪腾物流科技</b>
+        <span>DICTN LOGISTICS TECHNOLOGY</span>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="progress"><i id="bar"></i></div>
+<div class="hud">
+  <button id="prev" aria-label="上一页">‹</button>
+  <span class="cnt" id="cnt">1 / 27</span>
+  <span class="name" id="hud-name">封面</span>
+  <button id="next" aria-label="下一页">›</button>
+</div>
+
+<script>
+(function(){
+  var deck = document.getElementById('deck');
+  var slides = Array.prototype.slice.call(deck.children);
+  var total = slides.length;
+  var cnt = document.getElementById('cnt');
+  var name = document.getElementById('hud-name');
+  var bar = document.getElementById('bar');
+  var prev = document.getElementById('prev');
+  var next = document.getElementById('next');
+
+  function index(){
+    return Math.max(0, Math.min(total - 1, Math.round(deck.scrollLeft / deck.clientWidth)));
+  }
+  function update(){
+    var i = index();
+    cnt.textContent = (i + 1) + ' / ' + total;
+    name.textContent = slides[i].getAttribute('data-title') || '';
+    bar.style.width = ((i + 1) / total * 100) + '%';
+    prev.disabled = (i === 0);
+    next.disabled = (i === total - 1);
+  }
+  function go(i){
+    i = Math.max(0, Math.min(total - 1, i));
+    deck.scrollTo({ left: i * deck.clientWidth, behavior: 'smooth' });
+  }
+  prev.addEventListener('click', function(){ go(index() - 1); });
+  next.addEventListener('click', function(){ go(index() + 1); });
+
+  function slideScrollable(s){ return s.scrollHeight - s.clientHeight > 1; }
+  document.addEventListener('keydown', function(e){
+    var goNext = false, goPrev = false;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') goNext = true;
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')   goPrev = true;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      var s = slides[index()];
+      var canScroll = slideScrollable(s);
+      if (canScroll && e.key === 'ArrowDown' && s.scrollTop + s.clientHeight < s.scrollHeight - 1) return;
+      if (canScroll && e.key === 'ArrowUp'   && s.scrollTop > 0) return;
+      if (e.key === 'ArrowDown') goNext = true; else goPrev = true;
+    }
+    if (goNext) { e.preventDefault(); go(index() + 1); }
+    if (goPrev) { e.preventDefault(); go(index() - 1); }
+  });
+
+  /* 桌面端：垂直滚轮 → 左右翻页；当前页内容超高时先纵向滚动，滚到边界再翻页 */
+  var wheelLock = 0;
+  deck.addEventListener('wheel', function(e){
+    if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return; /* 横向滚动交给原生 scroll-snap */
+    var s = slides[index()];
+    if (slideScrollable(s)) {
+      var atTop = s.scrollTop <= 0;
+      var atBottom = s.scrollTop + s.clientHeight >= s.scrollHeight - 1;
+      if ((e.deltaY > 0 && !atBottom) || (e.deltaY < 0 && !atTop)) return; /* 交给页内纵滚 */
+    }
+    e.preventDefault();
+    var now = Date.now();
+    if (now < wheelLock) return;
+    wheelLock = now + 450;
+    go(index() + (e.deltaY > 0 ? 1 : -1));
+  }, { passive: false });
+
+  var rAF = null;
+  deck.addEventListener('scroll', function(){
+    if (rAF) return;
+    rAF = requestAnimationFrame(function(){ rAF = null; update(); });
+  }, { passive: true });
+
+  window.addEventListener('resize', function(){
+    var i = index();
+    deck.scrollLeft = i * deck.clientWidth;
+    update();
+  });
+
+  update();
+})();
+</script>
+</body>
+</html>

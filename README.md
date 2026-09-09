@@ -7,6 +7,7 @@
 ```
 rc/
 ├── index.html                  # 首页（聚合导航，数据驱动）
+├── dictn/                      # 子网页（子目录形式：迪腾数字包装方案册，左右滑动版，自带 assets）
 ├── el-nino-a-share-2026.html   # 子网页示例：厄尔尼诺 A股分析
 └── README.md
 ```
