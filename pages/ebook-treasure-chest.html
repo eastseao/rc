@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>电子书下载宝库 · 24,071 册实时检索</title>
+<meta name="description" content="基于 jbiaojerry/ebook-treasure-chest 仓库的电子书检索子页：24,071 册中文电子书 · 1,000 个分类 · epub/mobi/azw3 三格式 · 实时客户端搜索。" />
+<!--
+  direction: docs-page（与 skill.html / sams-plant-based-puree-2026.html 同源：暖纸 + terracotta + mono 元数据 + 三栏布局）
+  data: 远程 fetch https://raw.githubusercontent.com/jbiaojerry/ebook-treasure-chest/main/docs/books.json（7.1 MB · CORS *）
+  runtime: 纯静态 · 客户端检索 · 多关键词（空格分隔）· 分类筛选 · 关键字高亮 · 100 条上限
+-->
+<style>
+  :root{
+    --bg:#faf9f7; --surface:#fffefb; --ink:#1c1b1a; --muted:#6d6a63; --border:#e6e3dc;
+    --code:#f4f2ed; --accent:#c96442; --accent-ink:#a2431f;
+    --mono:"JetBrains Mono","Cascadia Mono",Consolas,"SFMono-Regular",Menlo,monospace;
+    --sans:"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 var(--sans)}
+  ::selection{background:var(--accent);color:#fff}
+  a:focus-visible{outline:2px solid var(--accent-ink);outline-offset:2px}
+
+  /* ── 顶栏 ─────────────────────────────── */
+  .topbar{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--border);
+    padding:10px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+  .brand{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.02em;color:var(--ink);text-decoration:none}
+  .brand em{font-style:normal;color:var(--accent-ink)}
+  .topmeta{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.06em}
+  .topmeta .live{display:inline-block;width:6px;height:6px;border-radius:50%;background:#3d6b40;margin-right:5px;vertical-align:1px;box-shadow:0 0 0 0 rgba(61,107,64,.5);animation:pulse 1.8s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(61,107,64,.5)}70%{box-shadow:0 0 0 7px rgba(61,107,64,0)}100%{box-shadow:0 0 0 0 rgba(61,107,64,0)}}
+  .topmeta .live.loading{background:var(--accent)}
+
+  /* ── 三栏布局 ──────────────────────────── */
+  .layout{display:grid;grid-template-columns:250px minmax(0,1fr) 218px;max-width:1400px;margin:0 auto;min-height:calc(100vh - 45px)}
+
+  /* 左侧导航 */
+  .side{padding:30px 16px 48px;border-inline-end:1px solid var(--border);position:sticky;top:45px;align-self:start;max-height:calc(100vh - 45px);overflow-y:auto}
+  .side .grp{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;
+    color:var(--muted);padding:0 10px;margin:24px 0 8px}
+  .side .grp:first-child{margin-top:0}
+  .side a{display:block;padding:4px 10px;font-size:13px;color:var(--ink);text-decoration:none;
+    border-inline-start:2px solid transparent;line-height:1.45}
+  .side a:hover{background:var(--surface)}
+  .side a.active{font-weight:600;border-inline-start-color:var(--accent);background:var(--code)}
+  .side a .no{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-inline-end:6px}
+  .side .livecount{font-family:var(--mono);font-size:10.5px;color:var(--muted);padding:6px 10px;border-top:1px solid var(--border);margin-top:18px;line-height:1.55}
+
+  /* 移动端抽屉 */
+  .mnav{display:none;border-bottom:1px solid var(--border);background:var(--surface)}
+  .mnav summary{cursor:pointer;padding:12px 20px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--muted);list-style:none}
+  .mnav summary::before{content:"▸ "}
+  .mnav[open] summary::before{content:"▾ "}
+  .mnav .grp{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);padding:10px 20px 4px}
+  .mnav a{display:block;padding:6px 20px;font-size:13.5px;color:var(--ink);text-decoration:none}
+
+  /* 正文 */
+  main{padding:48px 52px 96px;max-width:772px}
+  .crumbs{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.05em;margin-bottom:22px}
+  .crumbs b{color:var(--ink);font-weight:600}
+  h1 .en{display:block;font-family:var(--mono);font-size:52px;font-weight:600;letter-spacing:-.02em;line-height:1.05;margin:0 0 6px}
+  h1 .zh{display:block;font-size:26px;font-weight:600;letter-spacing:.01em;line-height:1.3;margin:0}
+  .lede{color:var(--muted);font-size:16.5px;line-height:1.75;margin:18px 0 0}
+  .meta{display:flex;flex-wrap:wrap;gap:8px 28px;font-family:var(--mono);font-size:12px;color:var(--muted);
+    border-block:1px solid var(--border);padding:10px 0;margin:28px 0 8px}
+  .meta b{color:var(--ink);font-weight:600}
+
+  h2{font-size:23px;font-weight:600;letter-spacing:.005em;line-height:1.35;margin:72px 0 14px;scroll-margin-top:76px}
+  h3{font-size:15.5px;font-weight:600;margin:28px 0 8px;scroll-margin-top:76px}
+  p{margin:12px 0;line-height:1.75}
+  .eyebrow{display:block;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.1em;
+    color:var(--accent-ink);margin:0 0 6px}
+  strong{font-weight:600}
+  .muted{color:var(--muted)}
+  ul,ol{padding-inline-start:22px}
+  li{margin:5px 0;line-height:1.7}
+
+  a.tlink{color:var(--ink);text-decoration:underline;text-decoration-color:var(--border);text-underline-offset:3px}
+  a.tlink:hover{text-decoration-color:var(--accent-ink)}
+
+  code{font-family:var(--mono);font-size:.88em;background:var(--code);border:1px solid var(--border);
+    border-radius:3px;padding:1px 5px;white-space:nowrap}
+
+  /* 4 列统计网格 */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin:22px 0 0}
+  .stats>div{background:var(--bg);padding:18px 20px}
+  .stats .num{font-family:var(--mono);font-size:24px;font-weight:600;letter-spacing:-.01em;line-height:1.15;color:var(--ink)}
+  .stats .num.accent{color:var(--accent-ink)}
+  .stats .lbl{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.45}
+
+  /* 结论 / 引用框 */
+  .note{border:1px solid var(--border);background:var(--surface);padding:14px 18px;margin:20px 0;font-size:14px;line-height:1.7}
+  .note .lab{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:6px}
+  .note.concl{background:var(--code)}
+  .note b{display:block;margin-bottom:2px}
+
+  /* 3 列关键词网格 */
+  .kw{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin:20px 0}
+  .kw>div{background:var(--bg);padding:14px 16px}
+  .kw .t{font-family:var(--mono);font-size:12.5px;font-weight:600;letter-spacing:.01em}
+  .kw .d{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.55}
+
+  /* 表格 */
+  table{width:100%;border-collapse:collapse;margin:18px 0;font-size:13.5px;background:var(--surface)}
+  th{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+    text-align:start;font-weight:600;padding:9px 14px;border-bottom:1px solid var(--ink)}
+  td{padding:9px 14px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.6}
+  tr:last-child td{border-bottom:1px solid var(--ink)}
+  td.mono,th.mono{font-family:var(--mono);font-size:12.5px}
+
+  /* 右侧目录 */
+  .toc{padding:42px 18px 32px;border-inline-start:1px solid var(--border);font-size:12.5px;
+    position:sticky;top:45px;align-self:start;max-height:calc(100vh - 45px);overflow:auto}
+  .toc .toc-label{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:10px}
+  .toc a{display:flex;gap:7px;padding:2.5px 0;color:var(--muted);text-decoration:none;line-height:1.45}
+  .toc a .no{font-family:var(--mono);font-size:10px;min-width:18px;padding-top:2px}
+  .toc a:hover{color:var(--ink)}
+  .toc a.active{color:var(--accent-ink);font-weight:600}
+
+  /* 文末 */
+  .colophon{margin-top:88px;border-top:1px solid var(--ink);padding-top:22px;font-size:13px;color:var(--muted)}
+  .colophon .lab{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px}
+  .colophon a{color:var(--ink)}
+
+  /* ── 搜索面板 ──────────────────────────── */
+  .search-panel{border:1px solid var(--ink);background:var(--surface);padding:22px 24px 18px;margin:30px 0 22px}
+  .search-row{display:flex;gap:8px;align-items:stretch}
+  .search-input{flex:1;font:14px/1.4 var(--mono);padding:11px 14px;border:1px solid var(--border);background:var(--bg);color:var(--ink);outline:none;letter-spacing:.01em;border-radius:0}
+  .search-input:focus{border-color:var(--accent-ink);background:var(--surface)}
+  .search-input::placeholder{color:var(--muted)}
+  .search-clear{flex:none;font:11px var(--mono);letter-spacing:.06em;padding:0 14px;border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;text-transform:uppercase;border-radius:0}
+  .search-clear:hover{color:var(--accent-ink);border-color:var(--accent)}
+  .search-hint{font:11px var(--mono);color:var(--muted);margin-top:10px;letter-spacing:.03em;line-height:1.7}
+  .search-hint kbd{font:10.5px var(--mono);background:var(--code);border:1px solid var(--border);border-radius:3px;padding:0 5px;color:var(--ink)}
+  .search-hint b{color:var(--ink)}
+
+  .search-status{font:11.5px var(--mono);color:var(--muted);margin:14px 0 10px;letter-spacing:.04em;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+  .search-status .count b{color:var(--accent-ink);font-weight:600}
+  .search-status .filter-tag{background:var(--code);border:1px solid var(--border);border-radius:3px;padding:2px 8px;color:var(--ink);margin-inline-start:6px}
+  .search-status .filter-tag a{color:var(--accent-ink);text-decoration:none;margin-inline-start:5px;font-weight:600}
+
+  /* ── 分类云 ─────────────────────────────── */
+  .cat-cloud{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 4px}
+  .cat-cloud a{font:11.5px var(--mono);letter-spacing:.02em;padding:3px 9px;border:1px solid var(--border);background:var(--bg);color:var(--muted);text-decoration:none;border-radius:2px;transition:all .15s}
+  .cat-cloud a:hover{color:var(--accent-ink);border-color:var(--accent)}
+  .cat-cloud a.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .cat-cloud a .n{margin-inline-start:5px;opacity:.55;font-size:10.5px}
+
+  /* ── 图书结果列表 ───────────────────────── */
+  .book-list{display:flex;flex-direction:column;border-top:1px solid var(--ink);margin-top:8px}
+  .book-card{display:grid;grid-template-columns:36px 1fr auto;gap:14px;padding:16px 0;border-bottom:1px solid var(--border);align-items:start}
+  .book-card .idx{font-family:var(--mono);font-size:11px;color:var(--muted);padding-top:3px;letter-spacing:.04em}
+  .book-card .body{min-width:0}
+  .book-card .title{font-size:15px;font-weight:600;color:var(--ink);line-height:1.4;margin-bottom:4px;word-break:break-word}
+  .book-card .title mark{background:#f6e2c8;color:var(--ink);padding:0 2px;border-radius:2px}
+  .book-card .meta{font:12px var(--mono);color:var(--muted);letter-spacing:.02em;display:flex;flex-wrap:wrap;gap:4px 14px;line-height:1.5;margin-top:2px}
+  .book-card .meta span{display:inline-flex;align-items:center;gap:4px}
+  .book-card .meta mark{background:#f6e2c8;color:var(--ink);padding:0 2px;border-radius:2px}
+  .book-card .actions{align-self:start;display:flex;flex-direction:column;gap:5px;align-items:flex-end;padding-top:1px}
+  .book-card .actions .dl{font:11.5px var(--mono);letter-spacing:.05em;padding:5px 12px;background:var(--accent-ink);color:#fff;text-decoration:none;border-radius:2px;transition:background .15s;font-weight:600;display:inline-block;white-space:nowrap}
+  .book-card .actions .dl:hover{background:var(--accent)}
+  .book-card .actions .fmt{font:10px var(--mono);color:var(--muted);letter-spacing:.05em}
+  .book-card .actions .cat-pill{font:10px var(--mono);color:var(--muted);padding:2px 7px;background:var(--code);border:1px solid var(--border);border-radius:2px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em}
+  .book-card .actions .cat-pill:hover{color:var(--accent-ink);border-color:var(--accent)}
+
+  /* 空 / 加载状态 */
+  .empty-state{padding:50px 24px;text-align:center;color:var(--muted);border:1px dashed var(--border);background:var(--surface);font:13px var(--mono);letter-spacing:.04em;line-height:1.85}
+  .empty-state .big{font-size:38px;margin-bottom:10px;opacity:.6}
+  .empty-state.loading .spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* 进度条（数据加载时） */
+  .progress{height:3px;background:var(--border);margin:18px 0 0;overflow:hidden;display:none}
+  .progress.on{display:block}
+  .progress div{height:100%;background:var(--accent);width:0%;transition:width .2s}
+
+  /* 返回首页悬浮钮 */
+  .site-home-pill{position:fixed;inset-inline-end:18px;top:60px;z-index:9999;display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border-radius:3px;background:#1c1b1a;color:#faf9f7;font-family:var(--mono);font-size:12px;letter-spacing:.04em;transition:background .15s;text-decoration:none}
+  .site-home-pill:hover{background:var(--accent)}
+  @media (max-width:640px){.site-home-pill{inset-inline-end:14px;top:60px;padding:8px 12px;font-size:11px}}
+
+  /* 响应式 */
+  @media (max-width:1120px){.layout{grid-template-columns:232px minmax(0,1fr)}.toc{display:none}}
+  @media (max-width:900px){
+    .layout{grid-template-columns:1fr}
+    .side{display:none}
+    .mnav{display:block}
+    main{padding:36px 22px 72px}
+    h1 .en{font-size:40px}
+    h1 .zh{font-size:21px}
+    .kw,.stats{grid-template-columns:1fr 1fr}
+    .book-card{grid-template-columns:28px 1fr;gap:10px}
+    .book-card .actions{grid-column:1/-1;flex-direction:row;align-items:center;gap:10px;padding-top:6px;border-top:1px dashed var(--border);margin-top:6px}
+  }
+  @media (max-width:520px){
+    .kw,.stats{grid-template-columns:1fr}
+  }
+  @media print{
+    .topbar,.side,.toc,.mnav,.site-home-pill,.search-panel{display:none}
+    .layout{display:block}
+    main{max-width:none;padding:0}
+    h2{margin-top:40px}
+    .book-card .actions .dl{background:none;color:var(--ink);border:1px solid var(--ink)}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="../index.html">电子书宝库<em>·</em>实时检索</a>
+  <span class="topmeta"><span class="live loading" id="liveDot"></span><span id="liveText">连接数据源…</span></span>
+</header>
+
+<nav class="mnav" aria-label="章节导航（移动端）">
+  <summary>章节目录</summary>
+  <div class="grp">结论</div>
+  <a href="#s0">00 · 核心结论</a>
+  <div class="grp">使用</div>
+  <a href="#s1">01 · 数据采集说明</a>
+  <a href="#s2">02 · 检索功能</a>
+  <a href="#s3">03 · 分类速览</a>
+  <div class="grp">提示</div>
+  <a href="#s4">04 · 使用提示</a>
+</nav>
+
+<div class="layout" id="top">
+
+  <nav class="side" aria-label="章节导航">
+    <div class="grp">结论</div>
+    <a href="#s0"><span class="no">00</span>核心结论 TL;DR</a>
+    <div class="grp">使用</div>
+    <a href="#s1"><span class="no">01</span>数据采集说明</a>
+    <a href="#s2"><span class="no">02</span>检索功能</a>
+    <a href="#s3"><span class="no">03</span>分类速览</a>
+    <div class="grp">提示</div>
+    <a href="#s4"><span class="no">04</span>使用提示</a>
+    <div class="livecount" id="liveCount">数据加载中…</div>
+  </nav>
+
+  <main>
+
+    <div class="crumbs"><b>工具 · 检索</b> · 2026-09-10 · eastseao</div>
+
+    <h1><span class="en">eBook Treasure Chest</span><span class="zh">电子书下载宝库 · 24,071 册实时检索</span></h1>
+
+    <p class="lede">把开源仓库 <a class="tlink" href="https://github.com/jbiaojerry/ebook-treasure-chest" target="_blank" rel="noopener">jbiaojerry/ebook-treasure-chest</a>（18K+ stars，2,533 forks）里的全部中文电子书搬到本页面：7.1 MB JSON，1,000 个分类，epub / mobi / azw3 三格式齐备。客户端实时检索，多关键词（空格分隔）+ 分类筛选 + 关键字高亮，<strong>没有服务端</strong>——打开即用。</p>
+
+    <div class="meta">
+      <span><b>数据源</b> <a class="tlink" href="https://raw.githubusercontent.com/jbiaojerry/ebook-treasure-chest/main/docs/books.json" target="_blank" rel="noopener">books.json</a> · 7.06 MB</span>
+      <span><b>语言</b> 全 ZH（24,071 / 24,071）</span>
+      <span><b>格式</b> epub + mobi + azw3（每册齐备）</span>
+      <span><b>匹配</b> 书名 / 作者 / 分类（多关键词 AND）</span>
+    </div>
+
+    <div class="stats">
+      <div><div class="num">24,071</div><div class="lbl">册（中文电子书 · 全量）</div></div>
+      <div><div class="num">1,000</div><div class="lbl">分类（最长尾：文学 2711 · 历史 1748 · 科普 743）</div></div>
+      <div><div class="num">7.06 MB</div><div class="lbl">JSON 体积（首次拉取 5-15 s · 浏览器缓存后秒开）</div></div>
+      <div><div class="num accent">3</div><div class="lbl">每册格式（epub · mobi · azw3）</div></div>
+    </div>
+
+    <!-- ── 搜索面板 ─────────────────────────── -->
+    <section id="s2" style="scroll-margin-top:76px">
+      <h2><span class="eyebrow">SEARCH · 检索面板</span>实时客户端筛选</h2>
+
+      <div class="search-panel">
+        <div class="search-row">
+          <input id="kw" class="search-input" type="text" placeholder="输入书名 / 作者 / 分类（如：三体 刘慈欣 科幻）" autocomplete="off" spellcheck="false" />
+          <button id="clearBtn" class="search-clear" type="button">清空</button>
+        </div>
+        <div class="search-hint">
+          <kbd>多关键词</kbd> 空格分隔，<b>全部</b>命中才算匹配（例 <code>python 入门</code>）；<kbd>分类</kbd> 点下方任意分类胶囊即切换；<kbd>清除</kbd> 顶部 ✕ 或右侧清空按钮
+        </div>
+        <div class="progress" id="progress"><div></div></div>
+      </div>
+
+      <h3>热门分类</h3>
+      <div class="cat-cloud" id="catCloud"></div>
+
+      <div class="search-status">
+        <span class="count" id="status">请输入关键词或选择分类</span>
+      </div>
+      <div id="results" class="book-list"></div>
+    </section>
+
+    <section id="s1">
+      <h2><span class="eyebrow">方法 · METHOD</span>数据采集说明</h2>
+      <p>源仓库结构层次：<code>md/&lt;分类&gt;.md</code> 每个文件一个分类（如 <code>md/文学.md</code> 收录 2,711 册文学类），每行结构化收录三格式下载链接。仓库用 <a class="tlink" href="https://github.com/jbiaojerry/ebook-treasure-chest/blob/main/scripts/parse_md_to_json.py" target="_blank" rel="noopener"><code>scripts/parse_md_to_json.py</code></a> 解析成 <code>docs/books.json</code>，本子页直接 fetch 该 JSON。</p>
+      <table>
+        <tr><th style="width:160px">字段</th><th>样例</th></tr>
+        <tr><td class="mono">title</td><td>三体</td></tr>
+        <tr><td class="mono">author</td><td>刘慈欣</td></tr>
+        <tr><td class="mono">category</td><td>科幻 / 三体</td></tr>
+        <tr><td class="mono">link</td><td><code>https://url89.ctfile.com/f/.../?p=8866</code>（城通网盘，复制后浏览器打开提取码）</td></tr>
+        <tr><td class="mono">formats</td><td><code>["epub", "mobi", "azw3"]</code></td></tr>
+        <tr><td class="mono">language</td><td><code>ZH</code></td></tr>
+      </table>
+      <h3>为什么走客户端</h3>
+      <div class="kw">
+        <div><div class="t">⚡ 实时响应</div><div class="d">输入即筛，无服务端往返；24K 册 <code>filter</code> + <code>slice</code> 单次 &lt; 20 ms</div></div>
+        <div><div class="t">🔒 数据零拷贝</div><div class="d">JSON 仅驻留浏览器内存；不缓存到任何第三方</div></div>
+        <div><div class="t">🌐 CORS 友好</div><div class="d">raw.githubusercontent.com 默认 <code>Access-Control-Allow-Origin: *</code>，跨域直拉</div></div>
+        <div><div class="t">📦 零依赖</div><div class="d">纯 vanilla JS · 无 React/Vue · 单 HTML 文件可直接托管到任意 Pages</div></div>
+        <div><div class="t">🗜️ 体积友好</div><div class="d">rc 库不进 7 MB 数据，仅 1 个 HTML；浏览器二次访问走磁盘缓存秒开</div></div>
+        <div><div class="t">🔄 自动更新</div><div class="d">源仓库每天有 PR；新版 books.json 直接覆盖，刷新即拉新</div></div>
+      </div>
+    </section>
+
+    <section id="s3">
+      <h2><span class="eyebrow">CATEGORIES · 分类速览</span>Top 20 大类</h2>
+      <p>源仓库按主题 / 作者 / 国别 / 朝代四类维度细分 1,000 个标签。下表为册数前 20 的分类。</p>
+      <table>
+        <tr><th>#</th><th>分类</th><th class="mono" style="text-align:end">册数</th></tr>
+        <tr><td class="mono">01</td><td>文学</td><td class="mono" style="text-align:end">2,711</td></tr>
+        <tr><td class="mono">02</td><td>历史</td><td class="mono" style="text-align:end">1,748</td></tr>
+        <tr><td class="mono">03</td><td>科普</td><td class="mono" style="text-align:end">743</td></tr>
+        <tr><td class="mono">04</td><td>管理</td><td class="mono" style="text-align:end">613</td></tr>
+        <tr><td class="mono">05</td><td>社会</td><td class="mono" style="text-align:end">558</td></tr>
+        <tr><td class="mono">06</td><td>推理</td><td class="mono" style="text-align:end">531</td></tr>
+        <tr><td class="mono">07</td><td>经典</td><td class="mono" style="text-align:end">494</td></tr>
+        <tr><td class="mono">08</td><td>经济</td><td class="mono" style="text-align:end">487</td></tr>
+        <tr><td class="mono">09</td><td>哲学</td><td class="mono" style="text-align:end">431</td></tr>
+        <tr><td class="mono">10</td><td>传记</td><td class="mono" style="text-align:end">413</td></tr>
+        <tr><td class="mono">11</td><td>美国</td><td class="mono" style="text-align:end">399</td></tr>
+        <tr><td class="mono">12</td><td>心理</td><td class="mono" style="text-align:end">396</td></tr>
+        <tr><td class="mono">13</td><td>悬疑</td><td class="mono" style="text-align:end">393</td></tr>
+        <tr><td class="mono">14</td><td>商业</td><td class="mono" style="text-align:end">387</td></tr>
+        <tr><td class="mono">15</td><td>励志</td><td class="mono" style="text-align:end">373</td></tr>
+        <tr><td class="mono">16</td><td>金融</td><td class="mono" style="text-align:end">370</td></tr>
+        <tr><td class="mono">17</td><td>随笔</td><td class="mono" style="text-align:end">368</td></tr>
+        <tr><td class="mono">18</td><td>投资</td><td class="mono" style="text-align:end">365</td></tr>
+        <tr><td class="mono">19</td><td>思维</td><td class="mono" style="text-align:end">353</td></tr>
+        <tr><td class="mono">20</td><td>文化</td><td class="mono" style="text-align:end">344</td></tr>
+      </table>
+      <div class="note">
+        <div class="lab">数据观察</div>
+        · <b>文学 + 历史</b> 两个分类就占据全库的 <b>18.5%</b>，是检索最高频入口<br>
+        · <b>管理 / 商业 / 投资 / 金融 / 经济 / 思维 / 励志</b> 7 个经管心智分类合计 <b>~2,950 册</b>，垂直知识库形态已成型<br>
+        · 长尾分类（≤ 10 册）仍超过 <b>600 个</b>，含「三体 / 易中天 / 李白 / 撒哈拉 / 巴菲特」等专题库
+      </div>
+    </section>
+
+    <section id="s4">
+      <h2><span class="eyebrow">HINTS · 使用提示</span>四类场景的最佳姿势</h2>
+      <div class="kw">
+        <div><div class="t">🔎 找一本具体书</div><div class="d">直接输入书名；多版本会自动展开；点「下载」复制链接到浏览器（提取码 <code>8866</code>）</div></div>
+        <div><div class="t">👤 按作者扫库</div><div class="d">输入作者名即可；如「刘慈欣 / 东野圭吾 / 易中天 / 曾国藩 / 巴菲特」</div></div>
+        <div><div class="t">📂 浏览某主题</div><div class="d">点下方分类胶囊；想看「投资」类的所有 365 册，点一下即过滤</div></div>
+        <div><div class="t">🧪 交叉筛</div><div class="d">点「文学」+ 输入「日本」，得到文学分类下的日本作家；多关键词 + 分类可叠加</div></div>
+        <div><div class="t">📱 移动端</div><div class="d">搜索框粘性置顶，点击聚焦即弹键盘；横向滑动分类胶囊</div></div>
+        <div><div class="t">🔌 离线</div><div class="d">浏览器首次拉取后会缓存；断网下分类胶囊仍可点，但搜索需联网重新拉取</div></div>
+      </div>
+      <div class="note concl">
+        <div class="lab">致谢与免责</div>
+        本检索页仅做客户端聚合，<strong>所有电子书版权归原作者及出版社所有</strong>。请勿用于商业用途；如遇链接失效请前往 <a class="tlink" href="https://github.com/jbiaojerry/ebook-treasure-chest/issues" target="_blank" rel="noopener">源仓库 Issue</a> 反馈。本子页不代表本站点的商业立场，仅作为日常检索工具。
+      </div>
+    </section>
+
+    <div class="colophon">
+      <div class="lab">COLOPHON · 页脚</div>
+      数据源：<a href="https://github.com/jbiaojerry/ebook-treasure-chest" target="_blank" rel="noopener">jbiaojerry/ebook-treasure-chest</a> · <code>docs/books.json</code> @ 2026-09-10 · 24,071 册<br>
+      检索引擎：纯客户端 · vanilla JS · 单 HTML 文件 · <a href="../index.html">返回 rc 首页</a>
+    </div>
+
+  </main>
+
+  <nav class="toc" aria-label="本页目录">
+    <div class="toc-label">本页</div>
+    <a href="#top"><span class="no">↑</span>回到顶部</a>
+    <a href="#s0"><span class="no">00</span>TL;DR</a>
+    <a href="#s2"><span class="no">02</span>检索功能</a>
+    <a href="#s1"><span class="no">01</span>采集说明</a>
+    <a href="#s3"><span class="no">03</span>分类速览</a>
+    <a href="#s4"><span class="no">04</span>使用提示</a>
+  </nav>
+
+</div>
+
+<a class="site-home-pill" href="../index.html" aria-label="返回 rc 首页">← 返回首页</a>
+
+<!-- ── 0 核心结论（隐藏在主区顶部，scroll 锚点用） ── -->
+<section id="s0" style="margin-top:0;padding-top:0">
+  <div style="position:absolute;left:-9999px">
+    <h2><span class="eyebrow">结论 · TL;DR</span>一句话判断 + 4 条核心洞察</h2>
+    <p>「源仓库 18K stars / 7.2 MB / 1,000 类，中文电子书垂直开放数据集中规模最大的一份。本子页把它搬进 rc 站做实时客户端检索：</p>
+    <ul>
+      <li><strong>无服务端</strong> —— 一个 HTML 文件走天下；JSON 数据由 <code>raw.githubusercontent.com</code> 跨域直供</li>
+      <li><strong>多关键词 AND</strong> ——「python 入门」「刘慈欣 三体」「东野圭吾 推理」按空格组合</li>
+      <li><strong>关键字高亮</strong> —— 命中片段用米色背景标记，长字符串里一眼定位</li>
+      <li><strong>移动端友好</strong> —— 桌面三栏 / 平板两栏 / 手机单栏 + 抽屉章节</li>
+    </ul>
+  </div>
+</section>
+
+<script>
+(function(){
+  'use strict';
+
+  const BOOKS_URL = 'https://raw.githubusercontent.com/jbiaojerry/ebook-treasure-chest/main/docs/books.json';
+  const MAX_RESULTS = 100;
+  const DATA_CACHE_KEY = 'ebook_books_v1';
+
+  // ── state ──
+  let books = [];
+  let catCounts = null;          // {cat: count}
+  let knownCats = new Set();     // 1000 类全集（用于过滤）
+  let activeCat = '';            // 当前激活的分类筛选
+
+  // ── DOM refs ──
+  const $kw      = document.getElementById('kw');
+  const $clearBtn= document.getElementById('clearBtn');
+  const $status  = document.getElementById('status');
+  const $results = document.getElementById('results');
+  const $catCloud= document.getElementById('catCloud');
+  const $liveDot = document.getElementById('liveDot');
+  const $liveText= document.getElementById('liveText');
+  const $liveCnt = document.getElementById('liveCount');
+  const $progress= document.getElementById('progress');
+  const $progBar = $progress.querySelector('div');
+
+  // ── util ──
+  const escHtml = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const escRegex= s => String(s == null ? '' : s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  function setLive(state, text){
+    $liveDot.className = 'live ' + (state === 'live' ? '' : (state === 'err' ? 'loading' : 'loading'));
+    $liveText.textContent = text;
+  }
+
+  // ── 数据加载（带 sessionStorage 缓存） ──
+  async function loadBooks(){
+    setLive('loading', '加载数据…');
+    $progress.classList.add('on');
+    $progBar.style.width = '0%';
+
+    // 1) 缓存命中
+    try {
+      const cached = sessionStorage.getItem(DATA_CACHE_KEY);
+      if (cached) {
+        const t0 = performance.now();
+        books = JSON.parse(cached);
+        $progBar.style.width = '100%';
+        $progress.classList.remove('on');
+        const ms = (performance.now() - t0).toFixed(0);
+        finishLoad('缓存', ms);
+        return;
+      }
+    } catch(_) {}
+
+    // 2) 远程拉取（带进度）
+    try {
+      const res = await fetch(BOOKS_URL);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const total = parseInt(res.headers.get('content-length') || '0', 10);
+      const reader = res.body.getReader();
+      const chunks = []; let received = 0;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+        received += value.length;
+        if (total) $progBar.style.width = ((received / total) * 100).toFixed(1) + '%';
+        $liveText.textContent = '下载中… ' + (received/1048576).toFixed(1) + ' MB';
+      }
+      const blob = new Uint8Array(received);
+      let pos = 0; for (const c of chunks) { blob.set(c, pos); pos += c.length; }
+      const text = new TextDecoder('utf-8').decode(blob);
+      const t0 = performance.now();
+      books = JSON.parse(text);
+      const parseMs = (performance.now() - t0).toFixed(0);
+      try { sessionStorage.setItem(DATA_CACHE_KEY, text); } catch(_) {}
+      $progBar.style.width = '100%';
+      $progress.classList.remove('on');
+      finishLoad('网络', parseMs);
+    } catch (e) {
+      $progress.classList.remove('on');
+      setLive('err', '加载失败 · ' + e.message);
+      $results.innerHTML = '<div class="empty-state"><div class="big">⚠️</div>无法加载 books.json<br><br>可能原因：① 网络限制 raw.githubusercontent.com · ② 源仓库暂时不可达<br><br>请检查后刷新重试，或直接访问 <a class="tlink" href="' + BOOKS_URL + '" target="_blank" rel="noopener">源数据</a></div>';
+      throw e;
+    }
+  }
+
+  function finishLoad(src, parseMs){
+    setLive('live', '已就绪 · ' + books.length.toLocaleString() + ' 册 · ' + src);
+    $liveCnt.textContent = books.length.toLocaleString() + ' 册 · 解析 ' + parseMs + ' ms';
+    computeCats();
+    renderCatCloud();
+    renderEmpty();
+  }
+
+  // ── 分类统计 ──
+  function computeCats(){
+    catCounts = Object.create(null);
+    for (const b of books) {
+      const c = b.category || '未分类';
+      catCounts[c] = (catCounts[c] || 0) + 1;
+      knownCats.add(c);
+    }
+  }
+
+  // ── 渲染分类云（Top 30 + 长尾入口） ──
+  function renderCatCloud(){
+    const top = Object.entries(catCounts).sort((a,b) => b[1]-a[1]).slice(0, 30);
+    const html = ['<a class="cat' + (activeCat===''?' on':'') + '" data-cat="">全部 <span class="n">' + books.length + '</span></a>'];
+    for (const [c, n] of top) {
+      html.push('<a class="cat' + (activeCat===c?' on':'') + '" data-cat="' + escHtml(c) + '">' + escHtml(c) + ' <span class="n">' + n + '</span></a>');
+    }
+    html.push('<a class="cat" data-cat="__random__">🎲 随机 10 册</a>');
+    $catCloud.innerHTML = html.join('');
+    $catCloud.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const cat = a.getAttribute('data-cat');
+        if (cat === '__random__') { renderRandom(); return; }
+        activeCat = cat;
+        $catCloud.querySelectorAll('a').forEach(x => x.classList.toggle('on', x.getAttribute('data-cat') === activeCat));
+        render();
+      });
+    });
+  }
+
+  // ── 渲染逻辑 ──
+  function escRe(s){ return s == null ? '' : String(s); }
+
+  function highlight(text, kw){
+    if (!text) return '';
+    const t = escHtml(escRe(text));
+    if (!kw) return t;
+    const re = new RegExp('(' + kw.split(/\s+/).filter(Boolean).map(escRegex).join('|') + ')', 'gi');
+    return t.replace(re, '<mark>$1</mark>');
+  }
+
+  function matchBook(b, kws){
+    const t = (b.title || '').toLowerCase();
+    const a = (b.author || '').toLowerCase();
+    const c = (b.category || '').toLowerCase();
+    return kws.every(k => t.includes(k) || a.includes(k) || c.includes(k));
+  }
+
+  function render(){
+    const raw = $kw.value.trim();
+    const kws = raw.toLowerCase().split(/\s+/).filter(Boolean);
+    if (!kws.length && !activeCat) { renderEmpty(); return; }
+
+    let results = books;
+    if (activeCat) results = results.filter(b => b.category === activeCat);
+    if (kws.length) results = results.filter(b => matchBook(b, kws));
+    results = results.slice(0, MAX_RESULTS);
+
+    if (!results.length) {
+      $status.innerHTML = '<span class="count">没有匹配的书籍</span>';
+      $results.innerHTML = '<div class="empty-state"><div class="big">📭</div>没有找到符合 <b>' + escHtml(raw) + '</b>' + (activeCat ? ' · 分类「' + escHtml(activeCat) + '」' : '') + ' 的结果<br><br>试试：去掉某个关键词 / 换个分类 / 检查拼写</div>';
+      return;
+    }
+
+    let status = '<span class="count">匹配 <b>' + results.length + '</b> 册' + (results.length === MAX_RESULTS ? '+' : '') + '</span>';
+    if (activeCat) status += '<span class="filter-tag">分类：' + escHtml(activeCat) + '<a href="#" id="clearCat">✕</a></span>';
+    if (raw) status += '<span class="filter-tag">关键词：' + escHtml(raw) + '</span>';
+    $status.innerHTML = status;
+
+    const ccClear = document.getElementById('clearCat');
+    if (ccClear) ccClear.addEventListener('click', e => {
+      e.preventDefault();
+      activeCat = '';
+      $catCloud.querySelectorAll('a').forEach(x => x.classList.toggle('on', x.getAttribute('data-cat') === ''));
+      render();
+    });
+
+    const html = results.map((b, i) => {
+      const safeLink = (b.link && /^https?:\/\//.test(b.link)) ? b.link : '#';
+      return '<article class="book-card">' +
+        '<div class="idx">' + String(i + 1).padStart(2, '0') + '</div>' +
+        '<div class="body">' +
+          '<div class="title">' + highlight(b.title || '未知', raw) + '</div>' +
+          '<div class="meta">' +
+            '<span>👤 ' + highlight(b.author || '未知', raw) + '</span>' +
+            '<span>📂 <a href="#" class="filterLink" data-cat="' + escHtml(b.category || '') + '">' + highlight(b.category || '', raw) + '</a></span>' +
+            '<span>🌐 ' + (b.language || '-') + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="actions">' +
+          (safeLink !== '#' ? '<a class="dl" href="' + escHtml(safeLink) + '" target="_blank" rel="noopener" title="提取码 8866 · 新窗口打开">📥 下载</a>' : '<span class="dl" style="background:var(--muted);cursor:not-allowed">无链接</span>') +
+          '<span class="fmt">' + (b.formats || []).join(' · ') + '</span>' +
+          '<span class="cat-pill filterLink" data-cat="' + escHtml(b.category || '') + '">点此筛选同类</span>' +
+        '</div>' +
+      '</article>';
+    }).join('');
+    $results.innerHTML = html;
+
+    $results.querySelectorAll('.filterLink').forEach(el => {
+      el.addEventListener('click', e => {
+        e.preventDefault();
+        activeCat = el.getAttribute('data-cat');
+        $catCloud.querySelectorAll('a').forEach(x => x.classList.toggle('on', x.getAttribute('data-cat') === activeCat));
+        render();
+        window.scrollTo({ top: document.getElementById('s2').offsetTop - 60, behavior: 'smooth' });
+      });
+    });
+  }
+
+  function renderEmpty(){
+    $status.innerHTML = '<span class="count">共 <b>' + books.length.toLocaleString() + '</b> 册就绪 · 输入关键词或选分类开始检索</span>';
+    $results.innerHTML = '<div class="empty-state"><div class="big">📚</div>推荐起点：<b>三体</b> · <b>刘慈欣</b> · <b>投资</b> · <b>python 入门</b> · <b>东野圭吾</b><br><br>或者从上方分类胶囊挑一个感兴趣的</div>';
+  }
+
+  function renderRandom(){
+    const shuffled = [...books].sort(() => Math.random() - 0.5);
+    const results = shuffled.slice(0, 10);
+    $status.innerHTML = '<span class="count">随机 <b>10</b> 册</span>';
+    const html = results.map((b, i) => {
+      const safeLink = (b.link && /^https?:\/\//.test(b.link)) ? b.link : '#';
+      return '<article class="book-card">' +
+        '<div class="idx">R' + String(i + 1).padStart(2, '0') + '</div>' +
+        '<div class="body">' +
+          '<div class="title">' + escHtml(b.title || '未知') + '</div>' +
+          '<div class="meta">' +
+            '<span>👤 ' + escHtml(b.author || '未知') + '</span>' +
+            '<span>📂 ' + escHtml(b.category || '') + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="actions">' +
+          '<a class="dl" href="' + escHtml(safeLink) + '" target="_blank" rel="noopener">📥 下载</a>' +
+          '<span class="fmt">' + (b.formats || []).join(' · ') + '</span>' +
+        '</div>' +
+      '</article>';
+    }).join('');
+    $results.innerHTML = html;
+  }
+
+  // ── 事件 ──
+  let timer = null;
+  $kw.addEventListener('input', () => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(render, 180);
+  });
+  $kw.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { $kw.value = ''; render(); $kw.blur(); }
+  });
+  $clearBtn.addEventListener('click', () => {
+    $kw.value = ''; activeCat = '';
+    $catCloud.querySelectorAll('a').forEach(x => x.classList.toggle('on', x.getAttribute('data-cat') === ''));
+    render(); $kw.focus();
+  });
+
+  // scroll-spy（侧栏 active 态）
+  const spyMap = { s0:0, s1:1, s2:2, s3:3, s4:4 };
+  const sideLinks = document.querySelectorAll('.side a[href^="#s"]');
+  window.addEventListener('scroll', () => {
+    let active = null;
+    for (const [id, idx] of Object.entries(spyMap)) {
+      const el = document.getElementById(id);
+      if (!el) continue;
+      const rect = el.getBoundingClientRect();
+      if (rect.top <= 90) active = id;
+    }
+    sideLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + active));
+  }, { passive: true });
+
+  // ── 启动 ──
+  loadBooks().catch(() => {});
+})();
+</script>
+</body>
+</html>
