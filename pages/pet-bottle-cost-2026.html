@@ -1,0 +1,967 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PET 瓶身原料价格走势与单瓶成本测算 — 2026 年 1–9 月</title>
+<meta name="description" content="华南水瓶级 PET 现货价 2026 年 1–9 月走势复盘 + 60g PET 瓶单瓶综合成本测算（原料 / 吹瓶 / 透明盖 / 人工打孔）与敏感性分析。" />
+<!--
+  direction: docs-page（与 skill.html / sams-plant-based-puree-2026.html 同源：暖纸 + terracotta + mono 元数据 + 三栏布局）
+  tokens: --bg #faf9f7 / --ink #1c1b1a / --accent #c96442
+  data: 华南水瓶级 PET 现货（元/吨，现汇自提含税）—— 月度均价来自隆众资讯月报，日度点位来自隆众日评 / 卓创周评
+  note: 6 月、8 月华南无公开月均，以该月公开日度点位的算术平均标注为「估算」；9 月为 1–10 日已公布点位均值
+-->
+<style>
+  :root{
+    --bg:#faf9f7; --surface:#fffefb; --ink:#1c1b1a; --muted:#6d6a63; --border:#e6e3dc;
+    --code:#f4f2ed; --accent:#c96442; --accent-ink:#a2431f;
+    --lvl-a-ink:#3d6b40; --lvl-a-bg:#e7eee7;
+    --lvl-b-ink:#8a6a12; --lvl-b-bg:#f1ead3;
+    --lvl-c-ink:#6d6a63; --lvl-c-bg:#ece9e3;
+    --east:#5b7089;
+    --mono:"JetBrains Mono","Cascadia Mono",Consolas,"SFMono-Regular",Menlo,monospace;
+    --sans:"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 var(--sans)}
+  ::selection{background:var(--accent);color:#fff}
+  a:focus-visible{outline:2px solid var(--accent-ink);outline-offset:2px}
+
+  /* ── 顶栏 ─────────────────────────────── */
+  .topbar{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--border);
+    padding:10px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+  .brand{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.02em;text-decoration:none;color:var(--ink)}
+  .brand em{font-style:normal;color:var(--accent-ink)}
+  .topmeta{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.06em}
+  #pbar{position:fixed;top:0;inset-inline-start:0;height:2px;width:0;background:var(--accent);z-index:30}
+
+  /* ── 三栏布局 ──────────────────────────── */
+  .layout{display:grid;grid-template-columns:250px minmax(0,1fr) 200px;max-width:1420px;margin:0 auto;min-height:calc(100vh - 45px)}
+
+  .side{padding:30px 16px 48px;border-inline-end:1px solid var(--border);position:sticky;top:45px;align-self:start;max-height:calc(100vh - 45px);overflow-y:auto}
+  .side .grp{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;
+    color:var(--muted);padding:0 10px;margin:24px 0 8px}
+  .side .grp:first-child{margin-top:0}
+  .side a{display:block;padding:4px 10px;font-size:13px;color:var(--ink);text-decoration:none;
+    border-inline-start:2px solid transparent;line-height:1.45}
+  .side a:hover{background:var(--surface)}
+  .side a.active{font-weight:600;border-inline-start-color:var(--accent);background:var(--code)}
+  .side a .no{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-inline-end:6px}
+
+  .mnav{display:none;border-bottom:1px solid var(--border);background:var(--surface)}
+  .mnav summary{cursor:pointer;padding:12px 20px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--muted);list-style:none}
+  .mnav summary::before{content:"▸ "}
+  .mnav[open] summary::before{content:"▾ "}
+  .mnav .grp{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);padding:10px 20px 4px}
+  .mnav a{display:block;padding:6px 20px;font-size:13.5px;color:var(--ink);text-decoration:none}
+
+  main{padding:48px 52px 96px;max-width:840px}
+  .crumbs{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.05em;margin-bottom:22px}
+  .crumbs b{color:var(--ink);font-weight:600}
+  h1 .en{display:block;font-family:var(--mono);font-size:46px;font-weight:600;letter-spacing:-.02em;line-height:1.05;margin:0 0 6px}
+  h1 .zh{display:block;font-size:24px;font-weight:600;letter-spacing:.01em;line-height:1.35;margin:0}
+  .lede{color:var(--muted);font-size:16.5px;line-height:1.75;margin:18px 0 0}
+  .meta{display:flex;flex-wrap:wrap;gap:8px 28px;font-family:var(--mono);font-size:12px;color:var(--muted);
+    border-block:1px solid var(--border);padding:10px 0;margin:28px 0 8px}
+  .meta b{color:var(--ink);font-weight:600}
+
+  h2{font-size:23px;font-weight:600;letter-spacing:.005em;line-height:1.35;margin:72px 0 14px;scroll-margin-top:76px}
+  h3{font-size:15.5px;font-weight:600;margin:28px 0 8px;scroll-margin-top:76px}
+  p{margin:12px 0;line-height:1.75}
+  .eyebrow{display:block;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.1em;
+    color:var(--accent-ink);margin:0 0 6px}
+  strong{font-weight:600}
+  .muted{color:var(--muted)}
+  ul,ol{padding-inline-start:22px}
+  li{margin:5px 0;line-height:1.7}
+
+  a.tlink{color:var(--ink);text-decoration:underline;text-decoration-color:var(--border);text-underline-offset:3px}
+  a.tlink:hover{text-decoration-color:var(--accent-ink)}
+
+  code{font-family:var(--mono);font-size:.88em;background:var(--code);border:1px solid var(--border);
+    border-radius:3px;padding:1px 5px;white-space:nowrap}
+
+  .note{border:1px solid var(--border);background:var(--surface);padding:14px 18px;margin:20px 0;font-size:14px;line-height:1.7}
+  .note .lab{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:6px}
+  .note.concl{background:var(--code)}
+  .note.warn{border-color:#e0c9a6;background:#fbf6ec}
+  .note b{display:block;margin-bottom:2px}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin:22px 0 0}
+  .stats>div{background:var(--bg);padding:18px 20px}
+  .stats .num{font-family:var(--mono);font-size:22px;font-weight:600;letter-spacing:-.01em;line-height:1.15;color:var(--ink)}
+  .stats .num.accent{color:var(--accent-ink)}
+  .stats .num.down{color:#3d6b40}
+  .stats .lbl{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.45}
+
+  .kw{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin:20px 0}
+  .kw>div{background:var(--bg);padding:14px 16px}
+  .kw .t{font-family:var(--mono);font-size:12.5px;font-weight:600;letter-spacing:.01em}
+  .kw .d{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.55}
+
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin:18px 0}
+  .grid4>div{background:var(--bg);padding:14px 16px}
+  .grid4 .t{font-weight:600;font-size:13px;margin-bottom:4px}
+  .grid4 .d{font-size:12.5px;color:var(--muted);line-height:1.55}
+
+  table{width:100%;border-collapse:collapse;margin:18px 0;font-size:13.5px;background:var(--surface)}
+  th{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+    text-align:start;font-weight:600;padding:9px 14px;border-bottom:1px solid var(--ink)}
+  td{padding:9px 14px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.6}
+  tr:last-child td{border-bottom:1px solid var(--ink)}
+  td.mono,th.mono{font-family:var(--mono);font-size:12.5px}
+  td.num{font-family:var(--mono);font-size:12.5px;text-align:end;white-space:nowrap}
+  th.num{text-align:end}
+  tr.hl td{background:var(--code)}
+
+  .pq{font-size:20px;font-weight:400;line-height:1.75;margin:30px 0;padding:0;color:var(--ink)}
+  .pq .who{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--muted);margin-top:10px;text-transform:uppercase}
+
+  .toc{padding:42px 18px 32px;border-inline-start:1px solid var(--border);font-size:12.5px;
+    position:sticky;top:45px;align-self:start;max-height:calc(100vh - 45px);overflow:auto}
+  .toc .toc-label{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:10px}
+  .toc a{display:flex;gap:7px;padding:2.5px 0;color:var(--muted);text-decoration:none;line-height:1.45}
+  .toc a .no{font-family:var(--mono);font-size:10px;min-width:18px;padding-top:2px}
+  .toc a:hover{color:var(--ink)}
+  .toc a.active{color:var(--accent-ink);font-weight:600}
+
+  .colophon{margin-top:88px;border-top:1px solid var(--ink);padding-top:22px;font-size:13px;color:var(--muted)}
+  .colophon .lab{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px}
+  .colophon a{color:var(--ink)}
+
+  .series{border-bottom:1px solid var(--border);background:var(--surface)}
+  .series .swrap{max-width:1420px;margin:0 auto;display:flex;align-items:center;gap:7px;padding:7px 16px;overflow-x:auto;scrollbar-width:none}
+  .series .swrap::-webkit-scrollbar{display:none}
+  .series .slab{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);flex:none;margin-inline-end:4px}
+  .series a{flex:none;font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;color:var(--muted);border:1px solid var(--border);border-radius:3px;padding:4px 11px;background:var(--bg);text-decoration:none;transition:color .15s,border-color .15s}
+  .series a:hover{color:var(--accent-ink);border-color:var(--accent)}
+  .series a.on{background:var(--accent);border-color:var(--accent);color:#fff}
+
+  .lvl{font-family:var(--mono);font-size:10.5px;font-weight:600;padding:1px 6px;letter-spacing:.04em;border-radius:2px;display:inline-block;margin-inline-start:4px;vertical-align:1px}
+  .lvl-a{background:var(--lvl-a-bg);color:var(--lvl-a-ink)}
+  .lvl-b{background:var(--lvl-b-bg);color:var(--lvl-b-ink)}
+  .lvl-c{background:var(--lvl-c-bg);color:var(--lvl-c-ink)}
+
+  .site-home-pill{position:fixed;inset-inline-end:18px;top:60px;z-index:9999;display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border-radius:3px;background:#1c1b1a;color:#faf9f7;font-family:var(--mono);font-size:12px;letter-spacing:.04em;transition:background .15s}
+  .site-home-pill:hover{background:var(--accent)}
+  @media (max-width:640px){.site-home-pill{inset-inline-end:14px;top:60px;padding:8px 12px}}
+
+  /* ── 图表通用 ── */
+  figure{margin:24px 0;border:1px solid var(--border);background:var(--surface);padding:0}
+  figure .fig-head{padding:14px 18px 0}
+  figure .fig-t{font-size:14px;font-weight:600}
+  figure .fig-s{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.04em;margin-top:3px}
+  figure svg{display:block;width:100%;height:auto}
+  figure figcaption{padding:10px 18px 15px;font-size:12.5px;color:var(--muted);line-height:1.6;border-top:1px solid var(--border);margin-top:8px}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 20px;padding:10px 18px 0;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+  .legend i{display:inline-block;width:18px;height:0;border-top-width:2px;border-top-style:solid;vertical-align:middle;margin-inline-end:6px}
+  .legend .dot{width:9px;height:9px;border-radius:50%;border-top:0;display:inline-block;vertical-align:middle;margin-inline-end:7px}
+
+  .evlist{margin:14px 0 0;padding:0;list-style:none;border-top:1px solid var(--border)}
+  .evlist li{display:grid;grid-template-columns:26px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13.5px;line-height:1.6}
+  .evlist li:last-child{border-bottom:0}
+  .evlist .ev-no{font-family:var(--mono);font-size:11px;color:#fff;background:var(--accent);border-radius:2px;width:18px;height:18px;line-height:18px;text-align:center;margin-top:3px}
+
+  /* ── 成本构成条 ── */
+  .struct{margin:18px 0;border:1px solid var(--border);background:var(--surface)}
+  .srow{display:grid;grid-template-columns:150px 1fr 92px;align-items:center;border-bottom:1px solid var(--border)}
+  .srow:last-child{border-bottom:0}
+  .srow .sl{padding:11px 16px;font-size:13px;border-inline-end:1px solid var(--border);background:var(--code)}
+  .srow .sl small{display:block;font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.03em}
+  .srow .sb{padding:11px 16px}
+  .srow .sb .bar{height:16px;border-radius:1px}
+  .srow .sv{padding:11px 16px;font-family:var(--mono);font-size:13px;font-weight:600;text-align:end;border-inline-start:1px solid var(--border)}
+
+  .tag{font-family:var(--mono);font-size:10.5px;color:var(--muted);background:var(--code);border:1px solid var(--border);border-radius:3px;padding:1px 6px;white-space:nowrap}
+
+  @media (max-width:1120px){.layout{grid-template-columns:236px minmax(0,1fr)}.toc{display:none}}
+  @media (max-width:900px){
+    .layout{grid-template-columns:1fr}
+    .side{display:none}
+    .mnav{display:block}
+    main{padding:36px 22px 72px}
+    h1 .en{font-size:34px}
+    h1 .zh{font-size:20px}
+    .kw,.grid4,.stats{grid-template-columns:1fr 1fr}
+    .srow{grid-template-columns:112px 1fr 82px}
+    table{font-size:12.5px}
+    td,th{padding:8px 9px}
+  }
+  @media (max-width:520px){
+    .kw,.grid4,.stats{grid-template-columns:1fr}
+    .stats>div{padding:14px 16px}
+  }
+  @media print{
+    .topbar,.side,.toc,.mnav,#pbar,.site-home-pill,.series{display:none}
+    .layout{display:block}
+    main{max-width:none;padding:0}
+    h2{margin-top:40px}
+    figure{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div id="pbar"></div>
+
+<header class="topbar">
+  <a class="brand" href="../index.html">PET 瓶身<em>·</em>原料价格与单瓶成本</a>
+  <span class="topmeta">2026-01 → 2026-09-10 · 华南</span>
+</header>
+
+<nav class="series" aria-label="研究系列导航">
+  <div class="swrap">
+    <span class="slab">采购与成本</span>
+    <a class="on" href="pet-bottle-cost-2026.html">PET 瓶 · 原料价格与单瓶成本</a>
+    <a href="sams-plant-based-puree-2026.html">山姆 · 植物基原浆</a>
+  </div>
+</nav>
+
+<nav class="mnav" aria-label="章节导航（移动端）">
+  <summary>章节目录 · 10 节</summary>
+  <div class="grp">结论</div>
+  <a href="#s0">00 · 核心结论</a>
+  <div class="grp">口径</div>
+  <a href="#s1">01 · 调研口径与数据说明</a>
+  <a href="#s2">02 · 产品规格与成本模型</a>
+  <div class="grp">走势</div>
+  <a href="#s3">03 · PET 原料价格走势</a>
+  <a href="#s4">04 · 关键点位明细</a>
+  <div class="grp">成本</div>
+  <a href="#s5">05 · 单瓶原料成本走势</a>
+  <a href="#s6">06 · 单瓶综合成本拆解</a>
+  <a href="#s7">07 · 敏感性分析</a>
+  <div class="grp">决策</div>
+  <a href="#s8">08 · 复盘与采购启示</a>
+  <a href="#s9">附录 · 数据来源与局限</a>
+</nav>
+
+<div class="layout" id="top">
+
+  <nav class="side" aria-label="章节导航">
+    <div class="grp">结论</div>
+    <a href="#s0"><span class="no">00</span>核心结论 TL;DR</a>
+    <div class="grp">口径</div>
+    <a href="#s1"><span class="no">01</span>调研口径与数据说明</a>
+    <a href="#s2"><span class="no">02</span>产品规格与成本模型</a>
+    <div class="grp">走势</div>
+    <a href="#s3"><span class="no">03</span>PET 原料价格走势</a>
+    <a href="#s4"><span class="no">04</span>关键点位明细</a>
+    <div class="grp">成本</div>
+    <a href="#s5"><span class="no">05</span>单瓶原料成本走势</a>
+    <a href="#s6"><span class="no">06</span>单瓶综合成本拆解</a>
+    <a href="#s7"><span class="no">07</span>敏感性分析</a>
+    <div class="grp">决策</div>
+    <a href="#s8"><span class="no">08</span>复盘与采购启示</a>
+    <a href="#s9"><span class="no">A</span>数据来源与局限</a>
+  </nav>
+
+  <main>
+
+    <div class="crumbs"><b>采购与成本</b> · 2026-09-10 · eastseao</div>
+
+    <h1><span class="en">PET Bottle</span><span class="zh">瓶身原料价格走势与单瓶成本测算</span></h1>
+
+    <p class="lede">对象：<strong>60g 瓶身 PET 瓶</strong>（φ10 × H18 cm，透明盖、无印刷、底部 1mm 人工打孔）。以华南水瓶级 PET 现货价为锚，复盘 2026 年 1 月至 9 月 10 日的原料价格走势，并据此测算单瓶原料成本与含加工综合成本的逐月变化。</p>
+
+    <div class="meta">
+      <span><b>价格口径</b> 华南 · 水瓶级 · 元/吨 · 现汇自提含税</span>
+      <span><b>数据截至</b> 2026-09-10</span>
+      <span><b>原料价可信度</b> <span class="lvl lvl-a">A</span> 多源交叉</span>
+      <span><b>成本参数可信度</b> <span class="lvl lvl-c">C</span> 行业估值</span>
+    </div>
+
+    <div class="stats">
+      <div><div class="num">6,095</div><div class="lbl">1 月华南月均（元/吨）· 年内低点区</div></div>
+      <div><div class="num accent">9,013</div><div class="lbl">5 月华南月均（元/吨）· 年内高点区</div></div>
+      <div><div class="num">8,315</div><div class="lbl">9 月 9 日华南现货（元/吨）</div></div>
+      <div><div class="num down">+21.5%</div><div class="lbl">单瓶综合成本 1 月 → 5 月 涨幅</div></div>
+    </div>
+
+    <!-- ══════════ 00 结论 ══════════ -->
+    <section id="s0">
+      <h2><span class="eyebrow">结论 · TL;DR</span>一句话判断 + 5 条核心洞察</h2>
+      <p class="pq">"今年 PET 走了一轮<strong>地缘驱动的大起大落</strong>：1 月 6,095 元/吨的低位，被 3–5 月的中东局势推到 9,000 元/吨上方，再被地缘缓和砸回 7,000 元/吨区间，9 月又因减产与旺季回到 8,300 元/吨。<em>全年毛利率的波动，一半来自这 2,900 元/吨的价差。</em>"</p>
+
+      <div class="note concl">
+        <div class="lab">给采购与定价决策者的 5 条判断</div>
+        1. <strong>成本波动极值已现，且幅度超两成</strong>：单瓶综合成本从 1 月的 <span class="mono">0.82 元</span> 走到 5 月的 <span class="mono">0.99 元</span>，再回落到 7 月的 <span class="mono">0.88 元</span>，9 月又抬到 <span class="mono">0.95 元</span>。全年振幅 <strong>0.175 元/只</strong>。<br>
+        2. <strong>原料是唯一变量，其余三项基本锁死</strong>：吹瓶成型、透明盖、人工打孔合计约 <span class="mono">0.45 元/只</span>，不随 PET 波动。原料占综合成本比重在 <strong>44.8%（1 月）→ 54.6%（5 月）</strong> 之间摆动。<br>
+        3. <strong>PET 每涨 1,000 元/吨 = 单瓶 +0.06 元</strong>。以月用 10 万只计，单瓶 0.06 元的差异 = <strong>每月 6,000 元</strong>，一年 7.2 万元。<br>
+        4. <strong>供应端已转向「主动减产保利润」</strong>：8 月下旬起行业计划检修产能约 415 万吨（约占总产能 18%），叠加瓶片开工率降至 55% 的历史低位，这是 9 月价格冲高的直接推手。<br>
+        5. <strong>当前（9 月）处于「上有顶、下有底」的高位震荡</strong>：机构给出的短期区间为 8,100–8,600 元/吨。若后续 PTA 继续走弱、检修装置重启，价格有回落空间；建议<strong>不追高锁长单</strong>，以 3 个月滚动采购为宜。
+      </div>
+    </section>
+
+    <!-- ══════════ 01 口径 ══════════ -->
+    <section id="s1">
+      <h2><span class="eyebrow">方法 · METHOD</span>调研口径与数据说明</h2>
+      <p>本次调研的首要原则是<strong>「原料价格必须真实、可追溯，成本参数可用行业估值但须明示」</strong>。因此全篇严格区分两类数据：</p>
+
+      <table>
+        <tr><th>数据类别</th><th>取值口径</th><th>可信度</th></tr>
+        <tr><td><strong>PET 原料价格</strong></td><td>华南市场 · 水瓶级（IV=0.8）· 聚酯瓶片现货 · 元/吨 · 现汇自提含税</td><td><span class="lvl lvl-a">A</span></td></tr>
+        <tr><td>月度均价</td><td>隆众资讯《聚酯瓶片行业月报》华南地区月均价格</td><td><span class="lvl lvl-a">A</span></td></tr>
+        <tr><td>日度 / 周度点位</td><td>隆众资讯日评 · 周评（经我的钢铁网 Mysteel 发布）；卓创资讯周评</td><td><span class="lvl lvl-a">A</span></td></tr>
+        <tr><td>华东对照价</td><td>同源同口径，仅作区域价差参照</td><td><span class="lvl lvl-a">A</span></td></tr>
+        <tr class="hl"><td><strong>吹瓶成型加工费</strong></td><td>行业经验区间 0.12–0.25 元/只（含瓶坯注塑 + 吹瓶 + 能耗 + 人工+折旧）</td><td><span class="lvl lvl-c">C</span></td></tr>
+        <tr class="hl"><td><strong>透明盖单价</strong></td><td>行业经验区间 0.15–0.35 元/只（PP 广口螺纹盖，大批量）</td><td><span class="lvl lvl-c">C</span></td></tr>
+        <tr class="hl"><td><strong>人工打孔（1mm 底孔）</strong></td><td>行业经验区间 0.03–0.10 元/只（计件）</td><td><span class="lvl lvl-c">C</span></td></tr>
+      </table>
+
+      <div class="note warn">
+        <div class="lab">数据缺口 · 必须知悉</div>
+        <strong>6 月与 8 月的「华南」月均价格无公开来源。</strong>隆众月报仅披露这两月的<strong>华东</strong>月均（6 月 7,968 元/吨、8 月 7,513 元/吨）。本页对这两个月采用<strong>当月已公开的华南日度点位的算术平均</strong>作为估算值（6 月 7,745、8 月 7,790），并在所有图表中以<strong>空心点</strong>标示，绝不与实测值混淆。9 月为 1–10 日已公布点位均值（8,322）。
+      </div>
+
+      <h3>1.1 为什么以「华南」为口径</h3>
+      <p>珠三角是国内聚酯瓶片的核心消费与集散地之一，华南价区长期作为外销与内销的交汇定价区。华南与华东的月度价差在 2026 年呈现明显的「上半年华南溢价、下半年华南贴水」特征：</p>
+      <div class="kw">
+        <div><div class="t">3–5 月 · 华南溢价</div><div class="d">华南高华东 132–156 元/吨。原料供应偏紧时，华南因到货成本高、现货流通少，溢价走扩。</div></div>
+        <div><div class="t">6–8 月 · 华南贴水</div><div class="d">华南低于华东 46–277 元/吨。新增产能在华东集中投放，华东供应宽松反而使华南相对坚挺，8 月华南反超。</div></div>
+        <div><div class="t">9 月 · 价差收敛</div><div class="d">9/9 华东 8,350 / 华南 8,315，价差收窄至 35 元/吨，两地同步冲高。</div></div>
+      </div>
+    </section>
+
+    <!-- ══════════ 02 规格与成本模型 ══════════ -->
+    <section id="s2">
+      <h2><span class="eyebrow">模型 · MODEL</span>产品规格与成本模型</h2>
+
+      <div class="grid4">
+        <div><div class="t">瓶身克重</div><div class="d">60 g（净重，不含盖）<br>即 0.00006 吨/只</div></div>
+        <div><div class="t">外形尺寸</div><div class="d">φ10 × H18 cm（含盖）<br>估算容积约 1.4 L</div></div>
+        <div><div class="t">盖子</div><div class="d">透明盖（PP/PE 系）<br>不计入 PET 用量</div></div>
+        <div><div class="t">特殊工艺</div><div class="d">底部 1mm 人工打孔<br>（平衡气压）· 无印刷</div></div>
+      </div>
+
+      <h3>2.1 单瓶成本四要素</h3>
+      <div class="struct">
+        <div class="srow">
+          <div class="sl">PET 原料<small>随行就市 · 唯一变量</small></div>
+          <div class="sb"><div class="bar" style="width:100%;background:var(--accent)"></div></div>
+          <div class="sv" id="mp-pet">—</div>
+        </div>
+        <div class="srow">
+          <div class="sl">吹瓶成型<small>0.12–0.25 元/只 · 估</small></div>
+          <div class="sb"><div class="bar" style="width:36%;background:#c99a6a"></div></div>
+          <div class="sv">0.18</div>
+        </div>
+        <div class="srow">
+          <div class="sl">透明盖<small>0.15–0.35 元/只 · 估</small></div>
+          <div class="sb"><div class="bar" style="width:44%;background:#a8a29e"></div></div>
+          <div class="sv">0.22</div>
+        </div>
+        <div class="srow">
+          <div class="sl">人工打孔<small>0.03–0.10 元/只 · 估</small></div>
+          <div class="sb"><div class="bar" style="width:10%;background:#b8b2a7"></div></div>
+          <div class="sv">0.05</div>
+        </div>
+      </div>
+      <p class="muted" style="font-size:13px">条形长度以 5 月（年内最高）原料成本 0.5408 元为基准的示意比例。固定三项合计 <code>0.45 元/只</code>。</p>
+
+      <h3>2.2 计算式</h3>
+      <div class="note">
+        <div class="lab">公式</div>
+        单瓶 PET 原料成本（元/只） = 华南价（元/吨） × 60 g ÷ 1,000,000 g/t<br>
+        <span class="muted">即：单瓶原料成本 = 单价 × 0.00006</span><br><br>
+        单瓶综合成本（元/只） = 单瓶原料成本 + 0.18（吹瓶）+ 0.22（透明盖）+ 0.05（人工打孔）
+      </div>
+
+      <div class="note warn">
+        <div class="lab">两点必须说明</div>
+        <strong>① 未计损耗。</strong>60 g 按净重计。若计入吹瓶废品与飞边损耗（业界常见 2%–3%），实际粒子用量应按 61.2–61.8 g 折算，单瓶原料成本相应上浮 2%–3%（以 9 月价计，约 +0.01 元/只）。<br>
+        <strong>② 未计模具摊销。</strong>若打孔为模具一体成型则无单只费用；本模型按「人工后道打孔」计，故单列 0.05 元/只。
+      </div>
+    </section>
+
+    <!-- ══════════ 03 原料价格走势 ══════════ -->
+    <section id="s3">
+      <h2><span class="eyebrow">核心 · TREND</span>PET 原料价格走势（2026 年 1 月 – 9 月 10 日）</h2>
+      <p>下图按时间轴绘制华南水瓶级 PET 现货价。<strong>实线圆点</strong>为隆众月报公布的月度均价，<strong>空心点</strong>为基于当月公开点位的估算均值，<strong>小点</strong>为可考据的日度成交/收盘价（真实点位）。同期叠加华东均价作区域对照。</p>
+
+      <figure>
+        <div class="fig-head">
+          <div class="fig-t">华南水瓶级 PET 现货价走势（元/吨）</div>
+          <div class="fig-s">2026-01-01 → 2026-09-10 · 现汇自提含税</div>
+        </div>
+        <div class="legend">
+          <span><i style="border-color:#c96442"></i>华南 · 月度均价</span>
+          <span><i style="border-color:#5b7089;border-top-style:dashed"></i>华东 · 月度均价（对照）</span>
+          <span><span class="dot" style="background:#c96442"></span>华南 · 可考据日度点位</span>
+        </div>
+        <svg id="chart1" viewBox="0 0 720 400" role="img" aria-label="华南水瓶级 PET 现货价 2026 年 1 月至 9 月走势图"></svg>
+        <ul class="evlist" id="events"></ul>
+        <figcaption>数据来源：隆众资讯《聚酯瓶片行业月报》《聚酯瓶片日评/周评》（经 Mysteel 发布）、卓创资讯周评。华东为对照口径，不改变华南结论。</figcaption>
+      </figure>
+
+      <h3>3.1 四个阶段</h3>
+      <div class="grid4" style="grid-template-columns:repeat(2,1fr)">
+        <div><div class="t">① 1–2 月｜低位盘整</div><div class="d">月均 6,095 → 6,289 元/吨，主流区间 5,940–6,500。两套装置突发故障 + 一套 120 万吨装置检修，供应趋紧支撑价格；但下游春节前补库结束后追涨乏力。成本端布油 64 美元/桶、PTA 约 5,000 元/吨。</div></div>
+        <div><div class="t">② 3–5 月｜地缘驱动暴涨</div><div class="d">月均 8,249 → 8,826 → 9,013 元/吨，5 月为年内高点区。美伊冲突升级、霍尔木兹海峡航运受阻，布油冲至 97–120 美元/桶，PTA 涨破 6,500、MEG 涨破 4,800。单月最大涨幅 +31%（2→3 月）。</div></div>
+        <div><div class="t">③ 6–7 月｜溢价回吐</div><div class="d">月均回落至 7,745（估）→ 7,195 元/吨。美伊达成谅解、海峡通航恢复，地缘溢价集中出清；叠加富海、科森、天圣、汉江等多套新产能投放，供应由紧转松。6 月中旬单日最大跌幅约 460 元/吨。</div></div>
+        <div><div class="t">④ 8–9 月｜减产托底 + 旺季冲高</div><div class="d">8 月均价 7,790（估）元/吨震荡，8 月下旬行业宣布计划检修产能约 415 万吨（约占总产能 18%）。9 月减产落地叠加旺季备货，价格快速冲高至 8,325 元/吨（9/2、9/4），9/9 报 8,315 元/吨。</div></div>
+      </div>
+    </section>
+
+    <!-- ══════════ 04 关键点位明细 ══════════ -->
+    <section id="s4">
+      <h2><span class="eyebrow">明细 · DATA</span>关键点位明细</h2>
+      <p>下表为可追溯的价格节点。<span class="tag">月均</span> 为隆众月报公布值；<span class="tag">日度</span> 为隆众/卓创当日发布值。</p>
+
+      <table id="ptable">
+        <tr><th>日期</th><th>类型</th><th class="num">华南（元/吨）</th><th class="num">华东（元/吨）</th><th>说明</th></tr>
+      </table>
+
+      <div class="note">
+        <div class="lab">读数提示</div>
+        <strong>年内价差约 2,918 元/吨</strong>（1 月月均 6,095 → 5 月月均 9,013，+47.9%）。若以可考据的日度极值看，区间进一步拉大：1 月中约 6,090 → 5 月中约 8,950，振幅 46.9%。到 9/9，价格 8,315 元/吨，较 1 月月均仍高 <strong>36.4%</strong>，较 5 月高点回落 <strong>7.7%</strong>。
+      </div>
+    </section>
+
+    <!-- ══════════ 05 单瓶原料成本 ══════════ -->
+    <section id="s5">
+      <h2><span class="eyebrow">成本 · 原料</span>单瓶 PET 原料成本走势</h2>
+      <p>按 60 g/只折算，单瓶原料成本的逐月变化如下。同一套价格序列，换算系数 <code>0.00006</code>。</p>
+
+      <figure>
+        <div class="fig-head">
+          <div class="fig-t">单瓶 PET 原料成本走势（元/只，60 g 瓶身）</div>
+          <div class="fig-s">原料成本 = 华南价 × 0.00006</div>
+        </div>
+        <svg id="chart2" viewBox="0 0 720 330" role="img" aria-label="单瓶 PET 原料成本走势图"></svg>
+        <figcaption>空心点同样代表基于当月公开日度点位估算的月份（6 月、8 月）与 9 月 1–10 日均值。原料成本完全由真实价格推导，未作平滑或插值。</figcaption>
+      </figure>
+
+      <div class="stats">
+        <div><div class="num">0.3657</div><div class="lbl">1 月 · 单瓶原料成本（元）</div></div>
+        <div><div class="num accent">0.5408</div><div class="lbl">5 月 · 年内最高（元）</div></div>
+        <div><div class="num down">0.4317</div><div class="lbl">7 月 · 年内最低（元）</div></div>
+        <div><div class="num">0.4993</div><div class="lbl">9 月 · 当前水平（元）</div></div>
+      </div>
+      <p class="muted" style="font-size:13px;margin-top:10px">注：7 月是<strong>绝对最低</strong>（0.4317 元），低于 1 月（0.3657 元）而非高于——因为 1 月月均 6,095 元/吨低于 7 月月均 7,195 元/吨。① 段落中的「1 月 0.82 元综合成本」为综合成本口径，与此处单列原料成本不冲突。</p>
+    </section>
+
+    <!-- ══════════ 06 综合成本 ══════════ -->
+    <section id="s6">
+      <h2><span class="eyebrow">成本 · 综合</span>单瓶综合成本拆解（含加工）</h2>
+      <p>加入固定三项（吹瓶 0.18 + 透明盖 0.22 + 人工打孔 0.05 = <strong>0.45 元/只</strong>）后，得到单瓶综合成本的时间序列。</p>
+
+      <figure>
+        <div class="fig-head">
+          <div class="fig-t">单瓶综合成本构成（元/只，堆叠）</div>
+          <div class="fig-s">原料随价波动 + 固定三项 0.45 元</div>
+        </div>
+        <div class="legend">
+          <span><span class="dot" style="background:#c96442"></span>PET 原料</span>
+          <span><span class="dot" style="background:#c99a6a"></span>吹瓶成型</span>
+          <span><span class="dot" style="background:#a8a29e"></span>透明盖</span>
+          <span><span class="dot" style="background:#d8d2c8"></span>人工打孔</span>
+        </div>
+        <svg id="chart3" viewBox="0 0 720 340" role="img" aria-label="单瓶综合成本堆叠柱状图"></svg>
+        <figcaption>固定三项为行业估值（可信度 C）。原料占比在 44.8%（1 月）至 54.6%（5 月）之间摆动，说明<strong>包材总成本的一半左右暴露在 PET 价格风险中</strong>。</figcaption>
+      </figure>
+
+      <h3>6.1 当前成本结构（以 2026-09-09 华南 8,315 元/吨计）</h3>
+      <div class="struct">
+        <div class="srow">
+          <div class="sl">PET 原料<small>52.6% · 随行就市</small></div>
+          <div class="sb"><div class="bar" style="width:52.6%;background:var(--accent)"></div></div>
+          <div class="sv">0.499</div>
+        </div>
+        <div class="srow">
+          <div class="sl">吹瓶成型<small>18.9% · 估</small></div>
+          <div class="sb"><div class="bar" style="width:18.9%;background:#c99a6a"></div></div>
+          <div class="sv">0.180</div>
+        </div>
+        <div class="srow">
+          <div class="sl">透明盖<small>23.1% · 估</small></div>
+          <div class="sb"><div class="bar" style="width:23.1%;background:#a8a29e"></div></div>
+          <div class="sv">0.220</div>
+        </div>
+        <div class="srow">
+          <div class="sl">人工打孔<small>5.3% · 估</small></div>
+          <div class="sb"><div class="bar" style="width:5.3%;background:#d8d2c8"></div></div>
+          <div class="sv">0.050</div>
+        </div>
+        <div class="srow" style="background:var(--code)">
+          <div class="sl" style="background:var(--code)"><strong>合计</strong></div>
+          <div class="sb"></div>
+          <div class="sv">0.949</div>
+        </div>
+      </div>
+
+      <h3>6.2 逐月综合成本</h3>
+      <table id="ctable">
+        <tr><th>月份</th><th class="num">华南价（元/吨）</th><th class="num">原料（元/只）</th><th class="num">固定三项</th><th class="num">综合成本</th><th class="num">原料占比</th></tr>
+      </table>
+    </section>
+
+    <!-- ══════════ 07 敏感性 ══════════ -->
+    <section id="s7">
+      <h2><span class="eyebrow">风险 · SENSITIVITY</span>敏感性分析</h2>
+      <p>PET 是唯一随行就市的成本项，因此只需测算它对价格变动的敏感性。</p>
+
+      <figure>
+        <div class="fig-head">
+          <div class="fig-t">PET 价格 → 单瓶综合成本 敏感性</div>
+          <div class="fig-s">每 ±1,000 元/吨 ≈ 单瓶 ±0.06 元</div>
+        </div>
+        <svg id="chart4" viewBox="0 0 720 300" role="img" aria-label="PET 价格对单瓶综合成本的敏感性曲线"></svg>
+      </figure>
+
+      <table>
+        <tr><th>PET 价（元/吨）</th><th class="num">原料成本</th><th class="num">综合成本</th><th class="num">较 9 月基准</th><th>对应情形</th></tr>
+        <tr><td class="mono">6,000</td><td class="num">0.360</td><td class="num">0.810</td><td class="num">−0.139</td><td>回到 1–2 月低位区</td></tr>
+        <tr><td class="mono">7,000</td><td class="num">0.420</td><td class="num">0.870</td><td class="num">−0.079</td><td>7 月低位水平</td></tr>
+        <tr><td class="mono">8,000</td><td class="num">0.480</td><td class="num">0.930</td><td class="num">−0.019</td><td>机构预测区间下沿</td></tr>
+        <tr class="hl"><td class="mono">8,315</td><td class="num">0.499</td><td class="num">0.949</td><td class="num">基准</td><td><strong>2026-09-09 实际</strong></td></tr>
+        <tr><td class="mono">9,000</td><td class="num">0.540</td><td class="num">0.990</td><td class="num">+0.041</td><td>5 月高点水平</td></tr>
+        <tr><td class="mono">10,000</td><td class="num">0.600</td><td class="num">1.050</td><td class="num">+0.101</td><td>极端情形（地缘再度升级）</td></tr>
+      </table>
+
+      <div class="note concl">
+        <div class="lab">量级换算 · 让波动看得见</div>
+        PET 每变动 1,000 元/吨，单瓶成本变动 <strong>0.06 元</strong>。折算到采购规模：<br>
+        · 每 <strong>10 万只</strong>：±6,000 元<br>
+        · 每 <strong>100 万只</strong>：±6 万元<br>
+        · 年用 <strong>1,000 万只</strong>：±60 万元<br>
+        <span class="muted">—— 而从 5 月高点（9,013）到 7 月低点（7,195）的 1,818 元/吨落差，若按年用 1,000 万只计，意味着 <strong>109 万元</strong> 的成本空间。</span>
+      </div>
+    </section>
+
+    <!-- ══════════ 08 启示 ══════════ -->
+    <section id="s8">
+      <h2><span class="eyebrow">决策 · ACTION</span>复盘与采购启示</h2>
+
+      <h3>8.1 这轮行情教会我们什么</h3>
+      <ul>
+        <li><strong>PET 的价格主导权在上游地缘与原油，不在瓶片厂。</strong>3–5 月 43% 的涨幅由霍尔木兹海峡一条航道驱动，与需求无关。任何基于「需求旺季」的价格预测在这类冲击面前都会失效。</li>
+        <li><strong>供应端的「自律」比需求端的「旺季」更管用。</strong>6–7 月的暴跌与新产能投放同步；8 月下旬 415 万吨检修计划一出，9 月立刻反弹。跟踪 <em>装置检修/投产排期</em> 比跟踪饮料产量更有预警价值。</li>
+        <li><strong>加工费是价格的先行指标。</strong>当瓶片加工费被压缩至 400–600 元/吨、生产毛利转负时，工厂减产意愿上升，往往对应价格底部；反之加工费扩张至 1,000 元/吨以上，则价格下行压力累积。</li>
+        <li><strong>基差与期现价差可作短期锚。</strong>9 月上旬瓶片主力合约相对现货仍深度贴水约 400 元/吨，说明市场对远期供给恢复有预期，短期现货偏紧但中期不乐观。</li>
+      </ul>
+
+      <h3>8.2 对采购的四条具体建议</h3>
+      <div class="kw">
+        <div><div class="t">① 不追高锁长单</div><div class="d">当前 8,300 元/吨处于年内中高位（分位约 62%），且机构明确给出「9-10 月再度承压回落」判断。此时签 6 个月以上固定价长单，等于替供应商承担回撤风险。</div></div>
+        <div><div class="t">② 改「季度框架 + 月度点价」</div><div class="d">与吹瓶厂约定以隆众华南月度均价为基准的点价机制，把波动透明化。幅度可按「月均价 ±3%」设双向调节条款，避免单边吃亏。</div></div>
+        <div><div class="t">③ 关注 8,000 元/吨以下的补库窗口</div><div class="d">若 PTA 继续走弱、9 月中下旬检修装置集中重启，价格大概率回到 7,800–8,000 区间。建议在该区间锁定 3 个月用量的瓶坯或成品瓶。</div></div>
+        <div><div class="t">④ 盯三组数据即可</div><div class="d">① 瓶片行业开工率（低于 60% 即供应偏紧）；② 加工费（400–600 元为底部信号）；③ 霍尔木兹海峡通航状态。三组数据足以覆盖大部分价格拐点。</div></div>
+      </div>
+
+      <h3>8.3 一句话结论</h3>
+      <div class="note concl">
+        <div class="lab">结论</div>
+        单瓶 PET 瓶的综合成本目前约 <strong>0.95 元</strong>，其中 <strong>0.499 元（52.6%）</strong> 暴露在 PET 价格风险下；全年这笔风险的实际波动幅度约 <strong>0.175 元/只</strong>。<strong>管住原料，就管住了这个包材 90% 以上的成本不确定性。</strong>其余三项固定成本（0.45 元）的优化空间在于规模化与盖型标准化，而非价格谈判。
+      </div>
+    </section>
+
+    <!-- ══════════ 附录 ══════════ -->
+    <section id="s9">
+      <h2><span class="eyebrow">附录 · SOURCES</span>数据来源与局限</h2>
+
+      <h3>A.1 价格数据来源</h3>
+      <table>
+        <tr><th>来源</th><th>提供内容</th><th>可信度</th></tr>
+        <tr><td>隆众资讯《聚酯瓶片行业月报》<span class="muted">（经我的钢铁网 Mysteel 转载）</span></td><td>华东/华南/华北月度均价、产能利用率、检修损失量、库存天数</td><td><span class="lvl lvl-a">A</span></td></tr>
+        <tr><td>隆众资讯《聚酯瓶片日评 / 周评》</td><td>华南、华东、华北日度收价与涨跌、周均价、加工费</td><td><span class="lvl lvl-a">A</span></td></tr>
+        <tr><td>卓创资讯《聚酯瓶片周评》</td><td>华东/华南/华北每日商谈区间与周均价（交叉验证）</td><td><span class="lvl lvl-a">A</span></td></tr>
+        <tr><td>生意社</td><td>月度行情综述、期货收盘、宏观驱动复盘</td><td><span class="lvl lvl-b">B</span></td></tr>
+        <tr><td>广发期货 / 格林大华 / 华瑞信息 CCF</td><td>现货加工费、开工率、库存天数、出口数据</td><td><span class="lvl lvl-b">B</span></td></tr>
+      </table>
+
+      <h3>A.2 已知局限</h3>
+      <ol>
+        <li><strong>6 月、8 月华南月均缺失</strong>：公开渠道仅披露华东月均，这两月的华南值为当月公开日度点位的算术平均，属估算（图中以空心点标示）。</li>
+        <li><strong>日度点位密度不均</strong>：部分月份（2 月、4 月）未检索到华南公开日度报价，故仅以月均点呈现，曲线在该区间为月度连接而非日度连接。</li>
+        <li><strong>月报数据会被修正</strong>：隆众月报的定义为「截至报告发送日的当月价格算术平均」，属预估值，下期月报会自动更新并修复（例如 3 月华南月均由当期 8,173 修正为 8,249）。本页采用最新修正值。</li>
+        <li><strong>成本参数为行业估值</strong>：吹瓶成型、透明盖、人工打孔三项无实际采购数据，所取基准值（0.18 / 0.22 / 0.05 元）为行业经验中位，仅供结构参考，<strong>不可直接用于对外报价</strong>。建议以实际供应商报价替换后重算。</li>
+        <li><strong>未含税费、运费与账期成本</strong>：现货价为含税自提价，未叠加物流、包装辅材、资金占用等项。</li>
+      </ol>
+
+      <div class="note warn">
+        <div class="lab">免责声明</div>
+        本页为内部采购与成本分析参考材料，价格数据来源于第三方资讯机构公开发布内容，本页不对其准确性、完整性作出保证。成本测算基于公开假设，实际结果受产品设计、订单规模、供应商结构与结算方式影响。据此作出的采购与定价决策风险自负。
+      </div>
+    </section>
+
+    <div class="colophon">
+      <div class="lab">关于本页</div>
+      <p>基于隆众资讯 / 卓创资讯 / 生意社公开价格数据整理，成本模型与参数假设由编者设定。<br>
+      发布于 <a href="../index.html">gervas.wang</a> · 2026-09-10 · 数据截至 2026-09-10。</p>
+    </div>
+
+  </main>
+
+  <aside class="toc" aria-label="目录">
+    <div class="toc-label">On this page</div>
+    <a href="#s0"><span class="no">00</span>核心结论</a>
+    <a href="#s1"><span class="no">01</span>调研口径</a>
+    <a href="#s2"><span class="no">02</span>成本模型</a>
+    <a href="#s3"><span class="no">03</span>原料价格走势</a>
+    <a href="#s4"><span class="no">04</span>关键点位明细</a>
+    <a href="#s5"><span class="no">05</span>单瓶原料成本</a>
+    <a href="#s6"><span class="no">06</span>综合成本拆解</a>
+    <a href="#s7"><span class="no">07</span>敏感性分析</a>
+    <a href="#s8"><span class="no">08</span>采购启示</a>
+    <a href="#s9"><span class="no">A</span>数据来源</a>
+  </aside>
+
+</div>
+
+<a class="site-home-pill" href="../index.html">← 返回首页</a>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   数据区：所有价格均为「华南市场 · 水瓶级 · 元/吨 · 现汇自提含税」
+   src: 来源缩写  LR=隆众资讯  ZC=卓创资讯  SS=生意社
+   est: true 表示该值为基于当月公开日度点位的估算（图中空心点）
+   ═══════════════════════════════════════════════════════════ */
+
+const MONTH_SOUTH = [
+  { label:"1月",  mid:15.5,  v:6095, est:false, src:"隆众月报" },
+  { label:"2月",  mid:45.0,  v:6289, est:false, src:"隆众月报" },
+  { label:"3月",  mid:74.5,  v:8249, est:false, src:"隆众月报(修正值)" },
+  { label:"4月",  mid:105.0, v:8826, est:false, src:"隆众月报(修正值)" },
+  { label:"5月",  mid:135.5, v:9013, est:false, src:"隆众月报" },
+  { label:"6月",  mid:166.0, v:7745, est:true,  src:"基于当月公开点位均值" },
+  { label:"7月",  mid:196.5, v:7195, est:false, src:"隆众月报" },
+  { label:"8月",  mid:227.5, v:7790, est:true,  src:"基于当月公开点位均值" },
+  { label:"9月",  mid:247.5, v:8322, est:true,  src:"9/2·9/4·9/9 三点均值" }
+];
+
+const MONTH_EAST = [
+  { mid:15.5, v:6123 }, { mid:45.0, v:6256 }, { mid:74.5, v:8093 },
+  { mid:105.0, v:8694 }, { mid:135.5, v:8948 }, { mid:166.0, v:7968 },
+  { mid:196.5, v:7241 }, { mid:227.5, v:7513 }, { mid:247.5, v:8237 }
+];
+
+/* 可考据的日度点位：[月, 日, 华南价, 华东价(可空)] */
+const DAILY = [
+  [1,16,6100,6060],[1,19,6090,null],[1,20,6110,null],[1,21,6135,null],[1,22,6255,6225],
+  [3,30,8850,8635],[3,31,8650,8520],
+  [5,15,8950,8920],[5,20,8950,8910],[5,22,8600,8565],[5,25,8400,8380],[5,28,8500,8380],[5,29,8350,8325],
+  [6,8,8300,8285],[6,16,7700,7700],[6,17,7600,7600],[6,22,7550,7525],[6,23,7575,null],
+  [7,31,7580,null],
+  [8,26,7730,7710],[8,28,7850,7675],
+  [9,2,8325,8200],[9,4,8325,8160],[9,9,8315,8350]
+];
+
+/* 关键事件（图上以 ① ② ③ ④ 标注，附 dom 时间点日序） */
+const EVENTS = [
+  { no:"①", dom:21,  title:"1 月下旬 · 装置故障 + 检修", text:"两套装置突发故障、一套 120 万吨/年装置计划检修，现货趋紧，价格由 6,000 元/吨向 6,300 元/吨抬升。" },
+  { no:"②", dom:64,  title:"3 月初 · 美伊冲突升级 / 霍尔木兹海峡受阻", text:"布伦特原油冲至 97–120 美元/桶，PTA、MEG 同步暴涨，瓶片 3 月月均环比 +31%，为全年最强单月涨幅。" },
+  { no:"③", dom:167, title:"6 月中旬 · 美伊达成谅解，地缘溢价出清", text:"海峡通航恢复，原油回吐涨幅，瓶片单日最大跌幅约 460 元/吨；叠加多套新产能投放，6–7 月月均连续回落。" },
+  { no:"④", dom:237, title:"8 月下旬 · 行业自律减产 415 万吨", text:"多家主流厂宣布检修/减产，涉及产能约占总产能 18%；瓶片开工率降至 55% 历史低位，9 月初价格快速冲高至 8,325 元/吨。" }
+];
+
+/* 成本参数（行业估值） */
+const COST = { blow:0.18, cap:0.22, drill:0.05 };
+const FIXED = COST.blow + COST.cap + COST.drill;   /* 0.45 */
+const PER_TON = 0.00006;                            /* 60g → 0.00006 吨 */
+
+/* ═══════════ 工具函数 ═══════════ */
+const YMIN = 5500, YMAX = 9500, DAYS = 252;         /* 1/1 → 9/10 */
+
+/* 月起始日序（2026 非闰年） */
+const MONTH_START = [0,31,59,90,120,151,181,212,243];
+function dayOf(m,d){ return MONTH_START[m-1] + (d-1); }
+
+function money(v){ return v.toLocaleString("en-US"); }
+function f3(v){ return v.toFixed(3); }
+function f4(v){ return v.toFixed(4); }
+
+/* ═══════════ 图 1：价格走势 ═══════════ */
+(function(){
+  const svg = document.getElementById("chart1");
+  const W=720, H=400;
+  const L=54, R=632, T=26, B=356;
+  const x = d => L + (d/DAYS)*(R-L);
+  const y = v => B - ((v-YMIN)/(YMAX-YMIN))*(B-T);
+
+  let s = "";
+
+  /* 网格 + Y 轴刻度 */
+  [6000,7000,8000,9000].forEach(v=>{
+    s += `<line x1="${L}" y1="${y(v).toFixed(1)}" x2="${R}" y2="${y(v).toFixed(1)}" stroke="#e6e3dc" stroke-width="1"/>`;
+    s += `<text x="${L-10}" y="${(y(v)+4).toFixed(1)}" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#6d6a63">${money(v)}</text>`;
+  });
+  /* 基准线：3 月月均 */
+  s += `<line x1="${L}" y1="${y(8249).toFixed(1)}" x2="${R}" y2="${y(8249).toFixed(1)}" stroke="#c96442" stroke-width="1" stroke-dasharray="2 4" opacity=".45"/>`;
+
+  /* X 轴月份刻度 */
+  const mlabel = ["1月","2月","3月","4月","5月","6月","7月","8月","9月"];
+  MONTH_START.forEach((d,i)=>{
+    const px = x(d);
+    if(px > R-2) return;
+    s += `<line x1="${px.toFixed(1)}" y1="${T}" x2="${px.toFixed(1)}" y2="${B}" stroke="#e6e3dc" stroke-width="1" opacity=".55"/>`;
+    if(i < 8) s += `<text x="${px.toFixed(1)}" y="${B+20}" text-anchor="start" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#6d6a63">${mlabel[i]}</text>`;
+  });
+  s += `<text x="${R}" y="${B+20}" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#6d6a63">9/10</text>`;
+
+  /* 事件标注（竖直点线 + 编号圆点） */
+  EVENTS.forEach(e=>{
+    const px = x(e.dom);
+    s += `<line x1="${px.toFixed(1)}" y1="${T+11}" x2="${px.toFixed(1)}" y2="${T+56}" stroke="#c96442" stroke-width="1" stroke-dasharray="3 3" opacity=".55"/>`;
+    s += `<circle cx="${px.toFixed(1)}" cy="${T+2}" r="8.5" fill="#c96442"/>`;
+    s += `<text x="${px.toFixed(1)}" y="${T+5.6}" text-anchor="middle" font-size="9.5" fill="#fff" font-weight="600">${e.no}</text>`;
+  });
+
+  /* 华东虚线（对照） */
+  const eastPts = MONTH_EAST.map(p=>`${x(p.mid).toFixed(1)},${y(p.v).toFixed(1)}`).join(" ");
+  s += `<polyline points="${eastPts}" fill="none" stroke="#5b7089" stroke-width="1.6" stroke-dasharray="5 4" opacity=".8"/>`;
+
+  /* 华南折线 */
+  const southPts = MONTH_SOUTH.map(p=>`${x(p.mid).toFixed(1)},${y(p.v).toFixed(1)}`).join(" ");
+  s += `<polyline points="${southPts}" fill="none" stroke="#c96442" stroke-width="2.2" stroke-linejoin="round"/>`;
+
+  /* 日度散点 */
+  DAILY.forEach(([m,d,sv])=>{
+    const px = x(dayOf(m,d)), py = y(sv);
+    s += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="2.6" fill="#c96442" opacity=".55"><title>${m}月${d}日 华南 ${money(sv)} 元/吨</title></circle>`;
+  });
+
+  /* 月度点 + 数值标签（每个标签的偏移按实测避开曲线与虚线） */
+  const DYS = [-11, -11, -11, -11, -11, 30, 20, -13, 20];
+  MONTH_SOUTH.forEach((p,i)=>{
+    const px = x(p.mid), py = y(p.v);
+    const dy = DYS[i];
+    if(p.est){
+      s += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="4.6" fill="#fffefb" stroke="#c96442" stroke-width="2">`;
+      s += `<title>${p.label} ${money(p.v)} 元/吨（估算 · ${p.src}）</title></circle>`;
+    }else{
+      s += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="4.6" fill="#c96442"><title>${p.label} ${money(p.v)} 元/吨（${p.src}）</title></circle>`;
+    }
+    s += `<text x="${px.toFixed(1)}" y="${(py+dy).toFixed(1)}" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10.5" font-weight="${p.est?400:600}" fill="${p.est?'#a2431f':'#1c1b1a'}" stroke="#fffefb" stroke-width="3.2" stroke-linejoin="round" paint-order="stroke">${money(p.v)}</text>`;
+  });
+
+  /* 标注极值 */
+  const hi = MONTH_SOUTH[4], lo = MONTH_SOUTH[0];
+  s += `<text x="${x(hi.mid).toFixed(1)}" y="${(y(hi.v)-32).toFixed(1)}" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#a2431f" stroke="#fffefb" stroke-width="3" paint-order="stroke">年内高点区</text>`;
+  s += `<text x="${x(lo.mid).toFixed(1)}" y="${(y(lo.v)-26).toFixed(1)}" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#6d6a63" stroke="#fffefb" stroke-width="3" paint-order="stroke">年内低点区</text>`;
+
+  /* 轴 */
+  s += `<line x1="${L}" y1="${B}" x2="${R}" y2="${B}" stroke="#1c1b1a" stroke-width="1"/>`;
+  s += `<line x1="${L}" y1="${T}" x2="${L}" y2="${B}" stroke="#1c1b1a" stroke-width="1"/>`;
+  s += `<text x="${L-10}" y="${T-10}" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#6d6a63">元/吨</text>`;
+
+  svg.innerHTML = s;
+})();
+
+/* ═══════════ 事件列表 ═══════════ */
+(function(){
+  document.getElementById("events").innerHTML = EVENTS.map(e=>
+    `<li><span class="ev-no">${e.no}</span><span><strong>${e.title}</strong><br>${e.text}</span></li>`
+  ).join("");
+})();
+
+/* ═══════════ 图 2：单瓶原料成本 ═══════════ */
+(function(){
+  const svg = document.getElementById("chart2");
+  const W=720, H=330;
+  const L=58, R=632, T=26, B=286;
+  const vmin=0.34, vmax=0.58;
+  const x = d => L + (d/DAYS)*(R-L);
+  const y = v => B - ((v-vmin)/(vmax-vmin))*(B-T);
+
+  let s = "";
+  [0.35,0.40,0.45,0.50,0.55].forEach(v=>{
+    s += `<line x1="${L}" y1="${y(v).toFixed(1)}" x2="${R}" y2="${y(v).toFixed(1)}" stroke="#e6e3dc" stroke-width="1"/>`;
+    s += `<text x="${L-10}" y="${(y(v)+4).toFixed(1)}" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#6d6a63">${v.toFixed(2)}</text>`;
+  });
+  MONTH_START.forEach((d,i)=>{
+    const px=x(d); if(px>R-2) return;
+    s += `<line x1="${px.toFixed(1)}" y1="${T}" x2="${px.toFixed(1)}" y2="${B}" stroke="#e6e3dc" stroke-width="1" opacity=".55"/>`;
+    s += `<text x="${px.toFixed(1)}" y="${B+20}" text-anchor="start" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#6d6a63">${i+1}月</text>`;
+  });
+
+  const pts = MONTH_SOUTH.map(p=>`${x(p.mid).toFixed(1)},${y(p.v*PER_TON).toFixed(1)}`).join(" ");
+  s += `<polyline points="${pts}" fill="none" stroke="#c96442" stroke-width="2.2" stroke-linejoin="round"/>`;
+
+  MONTH_SOUTH.forEach((p,i)=>{
+    const px=x(p.mid), py=y(p.v*PER_TON);
+    const dy = (i===4) ? -12 : (i>=6&&i<=8 ? 19 : -11);
+    if(p.est){
+      s += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="4.6" fill="#fffefb" stroke="#c96442" stroke-width="2"><title>${p.label} ${f4(p.v*PER_TON)} 元/只（估算）</title></circle>`;
+    }else{
+      s += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="4.6" fill="#c96442"><title>${p.label} ${f4(p.v*PER_TON)} 元/只</title></circle>`;
+    }
+    s += `<text x="${px.toFixed(1)}" y="${(py+dy).toFixed(1)}" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10.5" font-weight="${p.est?400:600}" fill="${p.est?'#a2431f':'#1c1b1a'}" stroke="#fffefb" stroke-width="3.2" stroke-linejoin="round" paint-order="stroke">${f4(p.v*PER_TON)}</text>`;
+  });
+
+  s += `<line x1="${L}" y1="${B}" x2="${R}" y2="${B}" stroke="#1c1b1a" stroke-width="1"/>`;
+  s += `<line x1="${L}" y1="${T}" x2="${L}" y2="${B}" stroke="#1c1b1a" stroke-width="1"/>`;
+  s += `<text x="${L-10}" y="${T-10}" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#6d6a63">元/只</text>`;
+  svg.innerHTML = s;
+})();
+
+/* ═══════════ 图 3：综合成本堆叠柱 ═══════════ */
+(function(){
+  const svg = document.getElementById("chart3");
+  const W=720, H=340;
+  const L=58, R=632, T=26, B=292;
+  const vmax=1.05;
+  const x = d => L + (d/DAYS)*(R-L);
+  const y = v => B - (v/vmax)*(B-T);
+
+  let s="";
+  [0.25,0.50,0.75,1.00].forEach(v=>{
+    s += `<line x1="${L}" y1="${y(v).toFixed(1)}" x2="${R}" y2="${y(v).toFixed(1)}" stroke="#e6e3dc" stroke-width="1"/>`;
+    s += `<text x="${L-10}" y="${(y(v)+4).toFixed(1)}" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#6d6a63">${v.toFixed(2)}</text>`;
+  });
+
+  const W_ = 24;
+  MONTH_SOUTH.forEach((p,i)=>{
+    const raw = p.v*PER_TON;
+    const total = raw + FIXED;
+    const cx = Math.min(x(p.mid), R - W_/2);
+    const px = cx - W_/2;
+    const segs = [
+      { v:raw,        c:"#c96442" },
+      { v:COST.blow,  c:"#c99a6a" },
+      { v:COST.cap,   c:"#a8a29e" },
+      { v:COST.drill, c:"#d8d2c8" }
+    ];
+    let acc = 0;
+    segs.forEach(sg=>{
+      const y0 = y(acc + sg.v), y1 = y(acc);
+      s += `<rect x="${px.toFixed(1)}" y="${y0.toFixed(1)}" width="${W_}" height="${(y1-y0).toFixed(1)}" fill="${sg.c}" ${p.est&&sg.c==="#c96442"?'opacity=".55"':''}/>`;
+      acc += sg.v;
+    });
+    /* 顶框描边突出估算月 */
+    if(p.est){
+      s += `<rect x="${px.toFixed(1)}" y="${y(total).toFixed(1)}" width="${W_}" height="${(B-y(total)).toFixed(1)}" fill="none" stroke="#a2431f" stroke-width="1" stroke-dasharray="3 3"/>`;
+    }
+    s += `<text x="${cx.toFixed(1)}" y="${(y(total)-7).toFixed(1)}" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10.5" font-weight="600" fill="#1c1b1a" stroke="#fffefb" stroke-width="3.2" stroke-linejoin="round" paint-order="stroke">${total.toFixed(2)}</text>`;
+    s += `<text x="${cx.toFixed(1)}" y="${B+20}" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#6d6a63">${p.label}${p.est?"*":""}</text>`;
+  });
+
+  s += `<line x1="${L}" y1="${B}" x2="${R}" y2="${B}" stroke="#1c1b1a" stroke-width="1"/>`;
+  s += `<line x1="${L}" y1="${T}" x2="${L}" y2="${B}" stroke="#1c1b1a" stroke-width="1"/>`;
+  s += `<text x="${L-10}" y="${T-10}" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#6d6a63">元/只</text>`;
+  s += `<text x="${R}" y="${B+34}" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#6d6a63">* 该月价格含估算成分</text>`;
+  svg.innerHTML = s;
+})();
+
+/* ═══════════ 图 4：敏感性 ═══════════ */
+(function(){
+  const svg = document.getElementById("chart4");
+  const W=720, H=300;
+  const L=62, R=632, T=26, B=256;
+  const pmin=5800, pmax=10200;
+  const cmin=0.75, cmax=1.10;
+  const x = p => L + ((p-pmin)/(pmax-pmin))*(R-L);
+  const y = c => B - ((c-cmin)/(cmax-cmin))*(B-T);
+
+  let s="";
+  [0.80,0.90,1.00,1.10].forEach(v=>{
+    s += `<line x1="${L}" y1="${y(v).toFixed(1)}" x2="${R}" y2="${y(v).toFixed(1)}" stroke="#e6e3dc" stroke-width="1"/>`;
+    s += `<text x="${L-10}" y="${(y(v)+4).toFixed(1)}" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#6d6a63">${v.toFixed(2)}</text>`;
+  });
+  [6000,7000,8000,9000,10000].forEach(p=>{
+    s += `<line x1="${x(p).toFixed(1)}" y1="${T}" x2="${x(p).toFixed(1)}" y2="${B}" stroke="#e6e3dc" stroke-width="1" opacity=".55"/>`;
+    s += `<text x="${x(p).toFixed(1)}" y="${B+20}" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#6d6a63">${money(p)}</text>`;
+  });
+
+  /* 曲线：综合成本 = p*0.00006 + 0.45 */
+  const line = [];
+  for(let p=pmin; p<=pmax; p+=100) line.push(`${x(p).toFixed(1)},${y(p*PER_TON+FIXED).toFixed(1)}`);
+  s += `<polyline points="${line.join(" ")}" fill="none" stroke="#c96442" stroke-width="2.2"/>`;
+
+  /* 标记点 */
+  const marks = [
+    { p:6000,  lab:"1–2月低位区", dy:-12, ax:"start",  dx:3 },
+    { p:7195,  lab:"7月低点",     dy:-12, ax:"middle", dx:0 },
+    { p:8315,  lab:"当前 9/9",    dy:24,  ax:"middle", dx:0, hl:true },
+    { p:9013,  lab:"5月高点",     dy:-13, ax:"middle", dx:0 }
+  ];
+  marks.forEach(m=>{
+    const px=x(m.p)+(m.dx||0), py=y(m.p*PER_TON+FIXED);
+    const NS = `stroke="#fffefb" stroke-width="3" stroke-linejoin="round" paint-order="stroke"`;
+    if(m.hl){
+      s += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="6" fill="#c96442"/>`;
+      s += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="10" fill="none" stroke="#c96442" stroke-width="1.4" opacity=".5"/>`;
+      s += `<text x="${px.toFixed(1)}" y="${(py+m.dy).toFixed(1)}" text-anchor="${m.ax}" font-family="JetBrains Mono,monospace" font-size="11" font-weight="600" fill="#a2431f" ${NS}>${m.lab} · ${(m.p*PER_TON+FIXED).toFixed(3)}</text>`;
+    }else{
+      s += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="4" fill="#fffefb" stroke="#c96442" stroke-width="2"/>`;
+      s += `<text x="${px.toFixed(1)}" y="${(py+m.dy).toFixed(1)}" text-anchor="${m.ax}" font-family="JetBrains Mono,monospace" font-size="10" fill="#6d6a63" ${NS}>${m.lab}</text>`;
+    }
+  });
+
+  s += `<line x1="${L}" y1="${B}" x2="${R}" y2="${B}" stroke="#1c1b1a" stroke-width="1"/>`;
+  s += `<line x1="${L}" y1="${T}" x2="${L}" y2="${B}" stroke="#1c1b1a" stroke-width="1"/>`;
+  s += `<text x="${L-10}" y="${T-10}" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#6d6a63">元/只</text>`;
+  s += `<text x="${R}" y="${B+34}" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#6d6a63">PET 华南价（元/吨）</text>`;
+  svg.innerHTML = s;
+})();
+
+/* ═══════════ 表格：关键点位 ═══════════ */
+(function(){
+  const tb = document.getElementById("ptable");
+  let rows = "";
+
+  MONTH_SOUTH.forEach((p,i)=>{
+    const e = MONTH_EAST[i];
+    const note = p.est ? `<span class="tag">估</span> ${p.src}` : p.src;
+    rows += `<tr${i===4?' class="hl"':''}><td class="mono">2026-${String(i+1).padStart(2,"0")}（月均）</td><td>月均</td><td class="num">${money(p.v)}</td><td class="num">${money(e.v)}</td><td>${note}</td></tr>`;
+  });
+
+  const dn = m => String(m).padStart(2,"0");
+  DAILY.forEach(([m,d,sv,ev])=>{
+    rows += `<tr><td class="mono">2026-${dn(m)}-${dn(d)}</td><td>日度</td><td class="num">${money(sv)}</td><td class="num">${ev?money(ev):"—"}</td><td>隆众 / 卓创 公开报价</td></tr>`;
+  });
+
+  tb.insertAdjacentHTML("beforeend", rows);
+})();
+
+/* ═══════════ 表格：逐月综合成本 ═══════════ */
+(function(){
+  const tb = document.getElementById("ctable");
+  let rows = "";
+  MONTH_SOUTH.forEach((p,i)=>{
+    const raw = p.v*PER_TON;
+    const total = raw + FIXED;
+    const share = (raw/total*100).toFixed(1);
+    rows += `<tr${i===4?' class="hl"':''}>
+      <td class="mono">${p.label}${p.est?" *":""}</td>
+      <td class="num">${money(p.v)}</td>
+      <td class="num">${f4(raw)}</td>
+      <td class="num">0.450</td>
+      <td class="num"><strong>${f3(total)}</strong></td>
+      <td class="num">${share}%</td>
+    </tr>`;
+  });
+  rows += `<tr style="background:var(--code)"><td><strong>全年区间</strong></td><td class="num">6,095 – 9,013</td><td class="num">0.3657 – 0.5408</td><td class="num">0.450</td><td class="num"><strong>0.816 – 0.991</strong></td><td class="num">44.8% – 54.6%</td></tr>`;
+  tb.insertAdjacentHTML("beforeend", rows);
+})();
+
+/* ═══════════ 2.1 结构条上的原料动态值 ═══════════ */
+(function(){
+  const el = document.getElementById("mp-pet");
+  if(el) el.textContent = f3(9013*PER_TON);
+})();
+
+/* ═══════════ 阅读进度条 + 滚动高亮 ═══════════ */
+(function(){
+  const pbar = document.getElementById("pbar");
+  const links = [...document.querySelectorAll(".side a, .toc a")];
+  const secs = [...document.querySelectorAll("main section")];
+
+  function onScroll(){
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    pbar.style.width = (h>0 ? Math.min(100, window.scrollY/h*100) : 0) + "%";
+
+    let cur = "";
+    for(const s of secs){
+      if(s.getBoundingClientRect().top <= 120) cur = s.id;
+      else break;
+    }
+    links.forEach(a=>a.classList.toggle("active", a.getAttribute("href") === "#"+cur));
+  }
+  window.addEventListener("scroll", onScroll, {passive:true});
+  window.addEventListener("resize", onScroll);
+  onScroll();
+})();
+</script>
+</body>
+</html>
