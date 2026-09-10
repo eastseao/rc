@@ -409,7 +409,7 @@
         <span class="stat" id="abStat"></span>
       </div>
 
-      <div class="cat-list" id="allBooksList"><div class="empty-state"><div class="big">📚</div>索引数据加载中…</div></div>
+      <div class="cat-list" id="allBooksList"><div class="empty-state" id="abPlaceholder" style="opacity:.7"><div class="big">📚</div>索引加载中…<br><span style="font-size:11px;color:var(--muted)">首次需下载 679 KB · 浏览器二次访问走 sessionStorage 缓存秒开</span></div></div>
     </section>
 
     <div class="note concl">
@@ -753,34 +753,63 @@
     loading = true;
     flashProgress('加载索引…');
 
-    // 1) sessionStorage 缓存命中
+    // 1) sessionStorage 缓存命中（强校验：必须是非空 JSON 数组）
     try {
       const cached = sessionStorage.getItem(INDEX_CACHE_KEY);
-      if (cached) {
+      if (cached && cached.length > 100 && cached !== 'undefined' && cached !== 'null') {
         const t0 = performance.now();
-        INDEX = JSON.parse(cached);
-        const ms = (performance.now() - t0).toFixed(0);
-        flashProgress('索引就绪 · 缓存 ' + ms + ' ms');
-        afterIndexLoaded();
-        loading = false;
-        return;
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].c) {
+          INDEX = parsed;
+          const ms = (performance.now() - t0).toFixed(0);
+          flashProgress('索引就绪 · 缓存 ' + ms + ' ms');
+          afterIndexLoaded();
+          loading = false;
+          return;
+        }
       }
-    } catch(_) {}
+    } catch(e) { console.warn('[ebook] cache parse failed, fallback to fetch:', e); }
 
-    // 2) 远程拉取
+    // 2) 远程拉取（带超时 + 流式进度 + 详细错误信息）
+    const ctrl = new AbortController();
+    const timeout = setTimeout(() => ctrl.abort(), 30000);
     try {
-      const res = await fetch(INDEX_URL);
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const text = await res.text();
+      flashProgress('下载索引… 0 KB');
+      const res = await fetch(INDEX_URL + '?v=' + Date.now(), { signal: ctrl.signal, cache: 'no-cache' });
+      if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + res.statusText);
+      const total = parseInt(res.headers.get('content-length') || '0', 10);
+      const reader = res.body.getReader();
+      const chunks = []; let received = 0;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+        received += value.length;
+        if (total) {
+          const pct = ((received / total) * 100).toFixed(0);
+          flashProgress('下载索引… ' + (received/1024).toFixed(0) + ' / ' + (total/1024).toFixed(0) + ' KB (' + pct + '%)');
+        } else {
+          flashProgress('下载索引… ' + (received/1024).toFixed(0) + ' KB');
+        }
+      }
+      clearTimeout(timeout);
+      const blob = new Uint8Array(received);
+      let pos = 0; for (const c of chunks) { blob.set(c, pos); pos += c.length; }
+      const text = new TextDecoder('utf-8').decode(blob);
       const t0 = performance.now();
       INDEX = JSON.parse(text);
       const ms = (performance.now() - t0).toFixed(0);
       try { sessionStorage.setItem(INDEX_CACHE_KEY, text); } catch(_) {}
-      flashProgress('索引就绪 · ' + ms + ' ms');
+      flashProgress('索引就绪 · ' + (text.length/1024).toFixed(0) + ' KB · ' + ms + ' ms');
       afterIndexLoaded();
     } catch (e) {
-      $abList.innerHTML = '<div class="empty-state"><div class="big">⚠️</div>索引加载失败：' + escHtml(e.message) + '<br><br>请检查 <code>assets/ebook/books-index.json</code> 是否可达</div>';
-      flashProgress('加载失败', 3000);
+      clearTimeout(timeout);
+      const isAbort = e.name === 'AbortError';
+      const msg = isAbort ? '请求超时（>30s）' : e.message;
+      console.error('[ebook] index load failed:', e);
+      const clearAndReload = 'try{sessionStorage.removeItem("ebook_index_v1");location.reload()}catch(e){location.reload()}';
+      $abList.innerHTML = '<div class="empty-state"><div class="big">⚠️</div>索引加载失败<br><br><b>' + escHtml(msg) + '</b><br><br>可能原因：<br>① 网络限制 <code>assets/ebook/books-index.json</code><br>② 浏览器缓存了旧版本（试 Ctrl+Shift+R 强刷）<br>③ sessionStorage 缓存了坏数据（试 DevTools → Application → Storage → Clear site data）<br><br><button class="more-btn" onclick='' + clearAndReload + ''>清缓存 + 重试</button></div>';
+      flashProgress('加载失败 · ' + msg, 5000);
     }
     loading = false;
   }
@@ -928,16 +957,16 @@
     $abList.querySelectorAll('details').forEach(d => d.open = false);
   });
 
-  // ── IntersectionObserver：滚到 #s5 才触发 fetch ──
-  const idxObserver = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        idxObserver.disconnect();
-        loadIndex();
-      }
-    });
-  }, { rootMargin: '200px 0px' });
-  idxObserver.observe(document.getElementById('s5'));
+  // ── 启动策略：DOMContentLoaded 后立即异步加载（fetch 异步，不阻塞首屏）
+  //    不依赖 IntersectionObserver——避免 IO 边角问题；fetch 后台执行
+  function kickoff(){
+    setTimeout(() => { loadIndex().catch(e => console.error('[ebook] loadIndex:', e)); }, 50);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', kickoff, { once: true });
+  } else {
+    kickoff();
+  }
 
   // ── 启动 ──
   loadBooks().catch(() => {});
