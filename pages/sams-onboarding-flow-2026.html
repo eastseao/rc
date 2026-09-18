@@ -63,10 +63,11 @@
   .sec-head h2{font-size:21px;font-weight:700}
   .sec-head .hint{font-size:13px;color:var(--ink-soft)}
 
-  /* ===== Flow ===== */
+  /* ===== Flow + Detail Sidebar Layout ===== */
+  .flow-layout{display:flex;gap:24px;align-items:flex-start}
   .flow{
-    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
-    padding:28px 22px;box-shadow:var(--shadow);
+    flex:1 1 auto;min-width:0;background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);padding:28px 22px;box-shadow:var(--shadow);
   }
   .flow-stage{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px 10px}
   .node{
@@ -99,10 +100,12 @@
   .wrap-turn{flex-basis:100%;display:flex;justify-content:center;margin:-2px 0 2px}
   .wrap-turn svg{color:#9fb8b5}
 
-  /* ===== Detail panel ===== */
+  /* ===== Detail panel (right sidebar, sticky) ===== */
   .detail{
-    margin-top:18px;background:linear-gradient(180deg,#f0faf8,#e7f4f1);
+    flex:0 0 320px;position:sticky;top:24px;
+    background:linear-gradient(180deg,#f0faf8,#e7f4f1);
     border:1px solid #bfe3dc;border-radius:12px;padding:18px 20px;
+    max-height:calc(100vh - 48px);overflow-y:auto;
   }
   .detail .dt-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
   .detail .dt-title{font-size:16px;font-weight:700}
@@ -177,6 +180,9 @@
     .risks{grid-template-columns:1fr}
     h1{font-size:24px}
     header.hero{padding:26px 22px}
+    /* stack flow + detail vertically */
+    .flow-layout{flex-direction:column}
+    .detail{flex:1 1 auto;position:static;max-height:none;margin-top:18px}
   }
   @media (max-width:640px){
     .wrap{padding:18px 12px 40px}
@@ -212,9 +218,11 @@
       <span class="hint">点击任意节点查看说明、责任部门与注意事项</span>
     </div>
 
-    <div class="flow">
-      <div class="flow-stage" id="flowStage">
-        <!-- nodes injected by JS -->
+    <div class="flow-layout">
+      <div class="flow">
+        <div class="flow-stage" id="flowStage">
+          <!-- nodes injected by JS -->
+        </div>
       </div>
 
       <div class="detail" id="detail">
@@ -222,7 +230,7 @@
           <span class="dt-tag" id="dtTag" style="background:var(--slate-bg);color:#475569">概览</span>
           <span class="dt-title" id="dtTitle">流程总览</span>
         </div>
-        <p id="dtDesc">上图 22 个节点按先后顺序串联：前段聚焦供应商准入、商务合规、商品建档与包装标签；中段聚焦体系审核、采购验证与试产配方锁定；后段聚焦量产检验、按零售商指令分仓发货、PDQ 组装与 DC 入库，直至门店上架与对账结算。</p>
+        <p id="dtDesc">22 个节点按先后顺序串联：前段聚焦供应商准入、立项选品、样品品尝与配方锁定、商务合同、备案合规与商品建档；中段聚焦包装标签、体系审核、采购验证与试产；后段聚焦量产检验、按零售商指令分仓发货、PDQ 组装与 DC 入库，直至门店上架与对账结算。</p>
         <div class="dt-dept" id="dtDept" style="display:none"><span class="lbl">责任部门：</span></div>
         <div class="dt-notes" id="dtNotes" style="display:none"><b>注意事项</b><span id="dtNotesText"></span></div>
         <div class="dt-meta" id="dtMeta">提示：所有节点当前状态均为"未开始"；点击节点可查看责任部门与关键注意事项。</div>
@@ -244,9 +252,9 @@
           <div class="tl-time">T-3 月<small>准入与立项</small></div>
           <div class="tl-dot"></div>
           <div class="tl-body">
-            <div class="t-name">供应商准入 · 立项 · 签约 · 建档</div>
-            <div class="t-desc">完成供应商注册与资质提交、产品立项选品、商务合同与质量协议签署、产品备案合规，并在零售商系统完成商品建档与条码申请。</div>
-            <div class="tags"><span>供应商准入</span><span>产品立项</span><span>合同与质量协议</span><span>备案合规</span><span>商品建档与条码</span></div>
+            <div class="t-name">供应商准入 · 立项 · 样品品尝与配方锁定 · 签约 · 建档</div>
+            <div class="t-desc">完成供应商注册与资质提交、产品立项选品、样品品尝与配方锁定；签署商务合同与质量协议，完成产品备案合规，并在零售商系统完成商品建档与条码申请。</div>
+            <div class="tags"><span>供应商准入</span><span>产品立项</span><span>样品品尝与配方锁定</span><span>合同与质量协议</span><span>备案合规</span><span>商品建档与条码</span></div>
           </div>
         </div>
 
@@ -271,12 +279,12 @@
         </div>
 
         <div class="tl-row">
-          <div class="tl-time">T-1.5 月<small>试产与配方锁定</small></div>
+          <div class="tl-time">T-1.5 月<small>试产与首件</small></div>
           <div class="tl-dot"></div>
           <div class="tl-body">
-            <div class="t-name">小试 · 样品品尝与配方锁定 · 中试 · 首件确认</div>
-            <div class="t-desc">完成实验室小试，送零售商品尝并锁定配方；随后在量产设备完成中试试产与首件全项确认。</div>
-            <div class="tags"><span>小试</span><span>样品品尝与配方锁定</span><span>中试试产</span><span>首件确认</span></div>
+            <div class="t-name">小试 · 中试 · 首件确认</div>
+            <div class="t-desc">完成实验室小试与中试试产，验证工艺稳定性与良率；量产前对首件产品进行全项确认并留档。</div>
+            <div class="tags"><span>小试</span><span>中试试产</span><span>首件确认</span></div>
           </div>
         </div>
 
@@ -399,6 +407,7 @@
 <script>
 (function(){
   // Node data — generic wording only, all status reset to pending
+  // Reordered: 样品品尝与配方锁定 moved to position 3 (after 产品立项与选品)
   var NODES = [
     {n:1,  name:"供应商准入与资质提交", st:"pending", tag:"未开始",
      desc:"在目标零售商供应商门户完成注册，提交营业执照、食品生产许可、GFSI 认可体系认证或 HACCP、保险凭证等资质，通过准入审核。",
@@ -410,70 +419,70 @@
      dept:["渠道/销售部","研发部"],
      notes:"选品须与零售商现有品类结构与价格带匹配，提前沟通试销区域与首期订单量级，避免立项后才发现定位错位。",
      meta:"阶段：准入"},
-    {n:3,  name:"合同与质量协议签署", st:"pending", tag:"未开始",
+    {n:3,  name:"样品品尝与配方锁定", st:"pending", tag:"未开始",
+     desc:"将初版样品送零售商品尝确认，双方确认口味、风味与规格后正式锁定配方，作为后续合同、备案与量产的基准。",
+     dept:["研发部","渠道/销售部"],
+     notes:"送样需留存备份样；配方锁定后任何变更（含配料、工艺、产地）须走正式变更流程并重新送样确认。",
+     meta:"阶段：立项与配方确认"},
+    {n:4,  name:"合同与质量协议签署", st:"pending", tag:"未开始",
      desc:"签署商务合同（MSA/采购条款）与质量/食品安全协议，明确质量标准、召回机制、不合格品处置与违约责任。",
      dept:["渠道/销售部","质量部/品控","法规合规部"],
      notes:"商务合同与质量协议须同步签署；召回、赔偿与变更条款建议法务审核，质量协议要覆盖工厂与关键原料供应商。",
      meta:"阶段：准入"},
-    {n:4,  name:"产品备案与合规", st:"pending", tag:"未开始",
+    {n:5,  name:"产品备案与合规", st:"pending", tag:"未开始",
      desc:"确认产品执行标准、配料表、营养标签与添加剂使用符合现行食品法规；特殊品类按要求完成注册或备案。",
      dept:["法规合规部","研发部"],
      notes:"先锁定配料与执行标准再启动包装设计；标签声称须有依据，特殊膳食/保健食品等品类须先取得注册或备案号。",
      meta:"阶段：准入"},
-    {n:5,  name:"商品建档与条码", st:"pending", tag:"未开始",
+    {n:6,  name:"商品建档与条码", st:"pending", tag:"未开始",
      desc:"申请 GS1 厂商识别码，取得 GTIN/EAN-13 及箱码、托盘码，在零售商供应商系统完成商品建档与商品信息录入。",
      dept:["渠道/销售部","供应链/物流部"],
      notes:"提前申请 GS1 厂商前缀；箱码（GTIN 层级）与 SSCC 托盘码规则须符合零售商包装指南，建档信息错误会导致 DC 无法收货。",
      meta:"阶段：准入"},
-    {n:6,  name:"包装设计", st:"pending", tag:"未开始",
+    {n:7,  name:"包装设计", st:"pending", tag:"未开始",
      desc:"完成零售商标识、运输包装与陈列包装的整体设计定稿，兼顾品牌视觉、运输防护与 PDQ 陈列尺寸。",
      dept:["包装设计部","渠道/销售部"],
      notes:"设计阶段即纳入零售商标识规范、陈列排面尺寸与运输防护要求，预留标签、条码与保质期喷码区位置。",
      meta:"阶段：包装"},
-    {n:7,  name:"标签样张审核", st:"pending", tag:"未开始",
+    {n:8,  name:"标签样张审核", st:"pending", tag:"未开始",
      desc:"将标签样张（配料表、营养成分表、警示语、净含量、生产商信息等）提交零售商审核并取得书面确认。",
      dept:["包装设计部","法规合规部"],
      notes:"标签文字、配料表与营养成分表须经零售商书面确认；定稿后任何改动（含配料、产地、生产商）都必须重新走审核。",
      meta:"阶段：包装"},
-    {n:8,  name:"包装打样", st:"pending", tag:"未开始",
+    {n:9,  name:"包装打样", st:"pending", tag:"未开始",
      desc:"定制包装打样制作，供零售商确认材质、印刷效果、工艺细节与陈列适配性。",
      dept:["包装设计部","采购部"],
      notes:"打样须覆盖零售商标识与陈列规格；确认材质、色差与工艺后再正式下单，避免批量返工。",
      meta:"阶段：包装"},
-    {n:9,  name:"验厂", st:"pending", tag:"未开始",
+    {n:10, name:"验厂", st:"pending", tag:"未开始",
      desc:"目标零售商对生产工厂进行现场食品安全与质量体系审核（GFSI 认可方案或零售商替代审核标准）。",
      dept:["质量部/品控"],
      notes:"提前按零售商审核标准自查整改，备好文件记录与现场标识，预留整改缓冲期；首次验厂建议安排第三方预审核。",
      meta:"阶段：审核"},
-    {n:10, name:"验原料厂", st:"pending", tag:"未开始",
+    {n:11, name:"验原料厂", st:"pending", tag:"未开始",
      desc:"关键原料供应商同步接受零售商资质与现场审核，确保源头食品安全可控。",
      dept:["质量部/品控","采购部"],
      notes:"提前向原料厂下达资料与现场整改清单；审核窗口须前移至排产之前，原料厂审核不通过将直接阻断量产。",
      meta:"阶段：审核"},
-    {n:11, name:"采购原料与包材", st:"pending", tag:"未开始",
+    {n:12, name:"采购原料与包材", st:"pending", tag:"未开始",
      desc:"原料与定制包材正式下单，锁定供应商、数量与到货交期，确保物料齐套支撑排产。",
      dept:["采购部"],
      notes:"下单须锁定书面到货承诺，关键包材保留备选供应商；按周跟踪关键路径，物料延误是量产延期最常见原因。",
      meta:"阶段：采购"},
-    {n:12, name:"运输测试", st:"pending", tag:"未开始",
+    {n:13, name:"运输测试", st:"pending", tag:"未开始",
      desc:"完成模拟运输、跌落、振动与温湿度等包装可靠性验证，确认运输风险可控。",
      dept:["质量部/品控","包装设计部"],
      notes:"按目标物流链路况与多温层条件测试；运输破损率超标须在打样阶段整改，不要留到量产。",
      meta:"阶段：验证"},
-    {n:13, name:"排产计划", st:"pending", tag:"未开始",
+    {n:14, name:"排产计划", st:"pending", tag:"未开始",
      desc:"结合目标交付期与物料齐套时间，锁定产线排产计划，明确首批量产批次、数量与时间窗口。",
      dept:["生产部","供应链/物流部"],
      notes:"排产须倒推物料到厂、中试、首件确认与发货窗口；预留换线与清洁验证时间，避免与其他订单冲突。",
      meta:"阶段：生产准备"},
-    {n:14, name:"小试", st:"pending", tag:"未开始",
+    {n:15, name:"小试", st:"pending", tag:"未开始",
      desc:"在实验室或中试线进行配方与工艺小试验证，记录批次数据，为放大生产提供依据。",
      dept:["研发部","生产部"],
      notes:"小试须验证关键工艺参数与稳定性，保留多批次数据；小试数据将作为中试与量产的基准。",
-     meta:"阶段：研发试产"},
-    {n:15, name:"样品品尝与配方锁定", st:"pending", tag:"未开始",
-     desc:"将小试样品送零售商品尝确认，双方确认口味、风味与规格后正式锁定配方。",
-     dept:["研发部","渠道/销售部"],
-     notes:"送样需留存备份样；配方锁定后任何变更（含配料、工艺、产地）须走正式变更流程并重新送样确认。",
      meta:"阶段：研发试产"},
     {n:16, name:"中试 / 试产", st:"pending", tag:"未开始",
      desc:"在量产设备上进行中试试产，验证工艺稳定性、良率与零售商标识符合度。",
@@ -516,8 +525,9 @@
   var rightSvg = '<svg width="22" height="14" viewBox="0 0 22 14" fill="none"><path d="M1 7h17M14 2l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var downSvg  = '<svg width="16" height="22" viewBox="0 0 16 22" fill="none"><path d="M8 1v17M3 14l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
-  // break points: after node 5 (i===4), node 10 (i===9), node 15 (i===14) → rows of 5,5,5,5,2
-  var BREAK_AT = [4, 9, 14];
+  // flow area is narrower (sidebar layout): 4 nodes per row → breaks after i===3,7,11,15
+  // rows: 1-4, 5-8, 9-12, 13-16, 17-20, 21-22
+  var BREAK_AT = [3, 7, 11, 15];
 
   var frag = document.createDocumentFragment();
   NODES.forEach(function(d, i){
@@ -573,7 +583,6 @@
 
     // dept chips
     if(d.dept && d.dept.length){
-      // clear old chips but keep the label
       dtDept.querySelectorAll(".dchip").forEach(function(c){ c.remove(); });
       d.dept.forEach(function(dep){
         var chip = document.createElement("span");
