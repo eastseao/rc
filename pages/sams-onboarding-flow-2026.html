@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230F766E'/%3E%3Cpath d='M18 44V20l14 14 14-14v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>食品品牌入驻大型会员制商超 · 全流程概览</title>
+<style>
+  :root{
+    --primary:#0f766e;
+    --primary-dark:#115e59;
+    --primary-light:#ccfbf1;
+    --ink:#0f2a2a;
+    --ink-soft:#4b6161;
+    --line:#d7e4e2;
+    --bg:#f4f9f8;
+    --card:#ffffff;
+    --green:#16a34a; --green-bg:#dcfce7; --green-line:#86efac;
+    --amber:#d97706;  --amber-bg:#fef3c7; --amber-line:#fcd34d;
+    --red:#dc2626;    --red-bg:#fee2e2;    --red-line:#fca5a5;
+    --shadow:0 1px 2px rgba(15,42,42,.06),0 8px 24px rgba(15,42,42,.08);
+    --radius:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB","Source Han Sans SC",system-ui,-apple-system,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:32px 24px 56px}
+
+  /* ===== Header ===== */
+  header.hero{
+    background:linear-gradient(135deg,#0f766e 0%,#0e7490 55%,#155e75 100%);
+    color:#fff;border-radius:20px;padding:36px 40px;box-shadow:var(--shadow);
+    position:relative;overflow:hidden;
+  }
+  header.hero::after{
+    content:"";position:absolute;right:-80px;top:-80px;width:320px;height:320px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,255,255,.18),transparent 70%);
+  }
+  .eyebrow{font-size:13px;letter-spacing:3px;opacity:.85;text-transform:uppercase;margin-bottom:10px}
+  h1{font-size:30px;line-height:1.3;font-weight:700;margin-bottom:10px}
+  .sub{font-size:15px;opacity:.9;max-width:720px}
+  .legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+  .legend .chip{
+    display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.14);
+    border:1px solid rgba(255,255,255,.25);padding:6px 12px;border-radius:999px;font-size:13px;
+  }
+  .dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
+  .dot.g{background:#4ade80}.dot.a{background:#fbbf24}.dot.r{background:#f87171}
+
+  /* ===== Sections ===== */
+  section{margin-top:36px}
+  .sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:16px}
+  .sec-head .idx{
+    font-size:13px;font-weight:700;color:var(--primary);
+    background:var(--primary-light);border:1px solid #99f6e4;
+    padding:3px 10px;border-radius:8px;letter-spacing:1px;
+  }
+  .sec-head h2{font-size:21px;font-weight:700}
+  .sec-head .hint{font-size:13px;color:var(--ink-soft)}
+
+  /* ===== Flow ===== */
+  .flow{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:28px 22px;box-shadow:var(--shadow);
+  }
+  .flow-stage{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px 10px}
+  .node{
+    position:relative;width:150px;min-height:96px;background:#fff;border:1.5px solid var(--line);
+    border-radius:12px;padding:12px 12px 10px;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease;
+    border-top:4px solid var(--line);
+  }
+  .node:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(15,42,42,.12)}
+  .node.active{box-shadow:0 0 0 3px rgba(15,118,110,.25);border-color:var(--primary)}
+  .node .num{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;
+    background:var(--primary-light);color:var(--primary-dark);margin-bottom:6px;
+  }
+  .node .name{font-size:13.5px;font-weight:600;line-height:1.35;min-height:36px}
+  .node .pill{
+    display:inline-flex;align-items:center;gap:5px;margin-top:7px;
+    font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;
+  }
+  .pill .cdot{width:7px;height:7px;border-radius:50%}
+  /* status themes */
+  .node.s-done{border-top-color:var(--green)}
+  .node.s-done .num{background:var(--green-bg);color:#15803d}
+  .node.s-done .pill{background:var(--green-bg);color:#15803d}
+  .node.s-done .pill .cdot{background:var(--green)}
+  .node.s-todo{border-top-color:var(--amber)}
+  .node.s-todo .num{background:var(--amber-bg);color:#b45309}
+  .node.s-todo .pill{background:var(--amber-bg);color:#b45309}
+  .node.s-todo .pill .cdot{background:var(--amber)}
+  .node.s-risk{border-top-color:var(--red)}
+  .node.s-risk .num{background:var(--red-bg);color:#b91c1c}
+  .node.s-risk .pill{background:var(--red-bg);color:#b91c1c}
+  .node.s-risk .pill .cdot{background:var(--red)}
+  .node.s-mixed{border-top-color:var(--amber)}
+  .node.s-mixed .num{background:var(--amber-bg);color:#b45309}
+  .node.s-mixed .pill{background:linear-gradient(90deg,var(--amber-bg),var(--red-bg));color:#9a3412}
+  .node.s-mixed .pill .cdot{background:var(--red)}
+
+  .conn{display:flex;align-items:center;justify-content:center;color:#9fb8b5;flex:0 0 auto}
+  .conn svg{display:block}
+  .wrap-break{flex-basis:100%;height:8px}
+  .wrap-turn{flex-basis:100%;display:flex;justify-content:center;margin:-2px 0 2px}
+  .wrap-turn svg{color:#9fb8b5}
+
+  /* ===== Detail panel ===== */
+  .detail{
+    margin-top:18px;background:linear-gradient(180deg,#f0faf8,#e7f4f1);
+    border:1px solid #bfe3dc;border-radius:12px;padding:18px 20px;
+  }
+  .detail .dt-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .detail .dt-title{font-size:16px;font-weight:700}
+  .detail .dt-tag{font-size:12px;font-weight:600;padding:2px 10px;border-radius:999px}
+  .detail p{font-size:14px;color:var(--ink-soft)}
+  .detail .dt-meta{margin-top:8px;font-size:12.5px;color:var(--ink-soft)}
+
+  /* ===== Timeline ===== */
+  .tl-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px 26px 10px;box-shadow:var(--shadow)}
+  .tl{display:grid;grid-template-columns:118px 30px 1fr;position:relative}
+  .tl::before{
+    content:"";position:absolute;left:calc(118px + 14px);
+    top:6px;bottom:6px;width:2px;
+    background:linear-gradient(180deg,var(--green-line),var(--amber-line) 60%,var(--red-line));
+  }
+  .tl-row{display:contents}
+  .tl-time{
+    text-align:right;padding:14px 14px 14px 0;font-size:13px;font-weight:600;color:var(--primary-dark);
+    align-self:start;padding-top:18px;
+  }
+  .tl-time small{display:block;font-weight:500;color:var(--ink-soft);font-size:11.5px}
+  .tl-dot{align-self:center;justify-self:center;width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid var(--primary);z-index:1}
+  .tl-row.now .tl-dot{background:var(--primary);box-shadow:0 0 0 5px rgba(15,118,110,.18)}
+  .tl-row.final .tl-dot{background:var(--green);border-color:var(--green)}
+  .tl-body{padding:6px 0 22px 18px}
+  .tl-body .t-name{font-size:14.5px;font-weight:600;margin-bottom:2px}
+  .tl-body .t-desc{font-size:13px;color:var(--ink-soft)}
+  .tl-body .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .tl-body .tags span{
+    font-size:12px;background:#f0f7f6;border:1px solid var(--line);color:var(--ink-soft);
+    padding:2px 9px;border-radius:6px;
+  }
+
+  /* ===== Risks ===== */
+  .risks{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  .risk{
+    background:var(--card);border:1px solid var(--line);border-left:4px solid var(--red);
+    border-radius:12px;padding:18px 20px;box-shadow:var(--shadow);
+  }
+  .risk .r-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .risk .r-ic{
+    width:32px;height:32px;border-radius:8px;background:var(--red-bg);color:var(--red);
+    display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+  }
+  .risk h3{font-size:15px;font-weight:700}
+  .risk p{font-size:13.5px;color:var(--ink-soft);margin-bottom:10px}
+  .risk .plan{font-size:13px;background:#f0f7f6;border-radius:8px;padding:9px 12px}
+  .risk .plan b{color:var(--primary-dark)}
+
+  /* ===== Footer ===== */
+  footer{
+    margin-top:40px;padding-top:20px;border-top:1px dashed var(--line);
+    font-size:12.5px;color:var(--ink-soft);line-height:1.7;
+  }
+  footer .f-title{font-weight:700;color:var(--ink);margin-bottom:4px}
+
+  /* ===== Responsive ===== */
+  @media (max-width:900px){
+    .risks{grid-template-columns:1fr}
+    h1{font-size:24px}
+    header.hero{padding:26px 22px}
+  }
+  @media (max-width:640px){
+    .wrap{padding:18px 12px 40px}
+    .node{width:100%;max-width:340px}
+    /* rotate connectors to vertical arrows */
+    .conn{transform:rotate(90deg)}
+    .wrap-turn{margin:0}
+    .tl{grid-template-columns:78px 24px 1fr}
+    .tl::before{left:calc(78px + 11px)}
+    .tl-time{font-size:12px;padding-right:10px}
+    .tl-body{padding-left:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== Hero ===== -->
+  <header class="hero">
+    <div class="eyebrow">Vendor Onboarding · Process Overview</div>
+    <h1>食品品牌入驻大型会员制商超 · 全流程概览</h1>
+    <p class="sub">本页面以通用视角梳理一家食品供应商从产品立项到终端上架的关键路径、当前进度、倒排里程碑与主要风险，供外部快速了解整体节奏。</p>
+    <div class="legend">
+      <span class="chip"><span class="dot g"></span>已完成 / 进行中</span>
+      <span class="chip"><span class="dot a"></span>待办事项</span>
+      <span class="chip"><span class="dot r"></span>风险点</span>
+    </div>
+  </header>
+
+  <!-- ===== Section 1: Flow ===== -->
+  <section>
+    <div class="sec-head">
+      <span class="idx">01</span>
+      <h2>全流程节点图</h2>
+      <span class="hint">点击任意节点查看说明</span>
+    </div>
+
+    <div class="flow">
+      <div class="flow-stage" id="flowStage">
+        <!-- nodes injected by JS -->
+      </div>
+
+      <div class="detail" id="detail">
+        <div class="dt-head">
+          <span class="dt-tag" id="dtTag" style="background:var(--primary-light);color:var(--primary-dark)">概览</span>
+          <span class="dt-title" id="dtTitle">流程总览</span>
+        </div>
+        <p id="dtDesc">上图 14 个节点按先后顺序串联：前半段聚焦立项、合规、包装与体系审核；中段聚焦采购、运输验证与排产；后半段聚焦生产、按零售商指令分仓发货、PDQ 组装与 DC 入库，直至门店上架。彩色顶边与标签标示各节点当前状态。</p>
+        <div class="dt-meta" id="dtMeta">提示：绿色＝已完成/进行中，橙色＝待办，红色＝风险点。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Section 2: Timeline ===== -->
+  <section>
+    <div class="sec-head">
+      <span class="idx">02</span>
+      <h2>倒排时间线</h2>
+      <span class="hint">以目标交付期 T0 为基准，按相对时间倒排</span>
+    </div>
+
+    <div class="tl-card">
+      <div class="tl">
+        <div class="tl-row now">
+          <div class="tl-time">当前<small>T-3 月</small></div>
+          <div class="tl-dot"></div>
+          <div class="tl-body">
+            <div class="t-name">前期工作收口</div>
+            <div class="t-desc">产品立项完成、备案合规完成、包装设计定稿、运输测试完成、排产计划制定。</div>
+            <div class="tags"><span>产品立项</span><span>备案合规</span><span>包装设计定稿</span><span>运输测试</span><span>排产计划</span></div>
+          </div>
+        </div>
+
+        <div class="tl-row">
+          <div class="tl-time">T-2.5 月<small>审核与下单</small></div>
+          <div class="tl-dot"></div>
+          <div class="tl-body">
+            <div class="t-name">包装打样完成 · 验厂窗口</div>
+            <div class="t-desc">定制包装打样交付零售商确认；执行工厂验厂与原料厂审核；定制包材正式下单并锁定到货时间。</div>
+            <div class="tags"><span>包装打样</span><span>验厂</span><span>验原料厂</span><span>包材下单</span></div>
+          </div>
+        </div>
+
+        <div class="tl-row">
+          <div class="tl-time">T-2 月<small>到货与试产</small></div>
+          <div class="tl-dot"></div>
+          <div class="tl-body">
+            <div class="t-name">包材到货 · 小试 / 试产</div>
+            <div class="t-desc">定制包材与原料到货齐套，完成小试与试产，验证工艺稳定性与零售商标识符合度。</div>
+            <div class="tags"><span>包材到货</span><span>小试试产</span></div>
+          </div>
+        </div>
+
+        <div class="tl-row">
+          <div class="tl-time">T-1.5 月<small>量产</small></div>
+          <div class="tl-dot"></div>
+          <div class="tl-body">
+            <div class="t-name">量产 · 出厂检验</div>
+            <div class="t-desc">按排产计划量产首批订单，完成第三方检测与出厂检验，留存批次记录。</div>
+            <div class="tags"><span>量产</span><span>出厂检验</span><span>第三方检测</span></div>
+          </div>
+        </div>
+
+        <div class="tl-row">
+          <div class="tl-time">T-1 月<small>分仓发货</small></div>
+          <div class="tl-dot"></div>
+          <div class="tl-body">
+            <div class="t-name">等待发货指令 · 发往前置仓</div>
+            <div class="t-desc">等待零售商下达发货指令，按指令将首批货品分批发往多城市前置仓。</div>
+            <div class="tags"><span>发货指令</span><span>多城市前置仓</span></div>
+          </div>
+        </div>
+
+        <div class="tl-row">
+          <div class="tl-time">T-0.5 月<small>进店准备</small></div>
+          <div class="tl-dot"></div>
+          <div class="tl-body">
+            <div class="t-name">PDQ 组装 · 送入 DC 仓</div>
+            <div class="t-desc">按零售商陈列标准完成 PDQ 组装，整体交付至零售商配送中心（DC）。</div>
+            <div class="tags"><span>PDQ 组装</span><span>送入 DC 仓</span></div>
+          </div>
+        </div>
+
+        <div class="tl-row final">
+          <div class="tl-time">交付期<small>T0 · 上架</small></div>
+          <div class="tl-dot"></div>
+          <div class="tl-body">
+            <div class="t-name">正式上架销售</div>
+            <div class="t-desc">货品由 DC 仓分发至各门店，完成价签、陈列与补货交接，正式对外销售。</div>
+            <div class="tags"><span>正式上架</span><span>门店陈列</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Section 3: Risks ===== -->
+  <section>
+    <div class="sec-head">
+      <span class="idx">03</span>
+      <h2>主要风险与应对方向</h2>
+      <span class="hint">通用表述，具体阈值以零售商与合同为准</span>
+    </div>
+
+    <div class="risks">
+      <div class="risk">
+        <div class="r-head">
+          <span class="r-ic">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </span>
+          <h3>首次大型零售商验厂，无既往通过记录</h3>
+        </div>
+        <p>本次为首次接受会员制商超现场验厂，缺乏同类体系审核的历史通过背书，审核尺度与整改项存在不确定性。</p>
+        <div class="plan"><b>应对方向：</b>提前对标零售商食品质量与安全体系标准，补齐文件与现场记录，安排预演审核，预留整改缓冲期。</div>
+      </div>
+
+      <div class="risk">
+        <div class="r-head">
+          <span class="r-ic">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </span>
+          <h3>定制包材交付周期长，尚未正式下单</h3>
+        </div>
+        <p>零售商标识与陈列要求对应的定制包材打样确认后仍需正式下单，生产与物流周期直接影响量产与交付期。</p>
+        <div class="plan"><b>应对方向：</b>打样一经确认立即锁单，要求供应商书面承诺到货日期并保留备选包材供应商，按周跟踪关键路径。</div>
+      </div>
+
+      <div class="risk">
+        <div class="r-head">
+          <span class="r-ic">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </span>
+          <h3>原料供应商需同步通过零售商审核</h3>
+        </div>
+        <p>除生产工厂外，关键原料供应商也需接受零售商资质与现场审核，审核进度不在品牌方完全掌控之内。</p>
+        <div class="plan"><b>应对方向：</b>提前向原料厂下达资料与现场整改清单，必要时安排第三方预审，将审核窗口前移至排产之前。</div>
+      </div>
+
+      <div class="risk">
+        <div class="r-head">
+          <span class="r-ic">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          </span>
+          <h3>按指令分仓发货与多城市协同</h3>
+        </div>
+        <p>货品需按零售商指令分批发往多城市前置仓，并在指定窗口完成 PDQ 组装与 DC 交接，时效与单证要求严格。</p>
+        <div class="plan"><b>应对方向：</b>提前与物流商及前置仓对接收货规则与预约窗口，首批发货预留缓冲，并指定专人盯控单据与在途状态。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Footer ===== -->
+  <footer>
+    <div class="f-title">说明与来源</div>
+    <p>本页面为通用流程示意，具体细节因产品和零售商要求而异；页面中节点、时间比例与风险描述均为通用化表述，不构成任何具体产品、供应商或合作方的信息披露。</p>
+    <p style="margin-top:6px">参考行业通行实践整理：大型会员制商超/零售商对食品供应商通常要求资质与食品安全体系审核（含工厂与原料环节）、第三方产品测试、按其规格完成包装与标签、凭正式采购订单与配送指令发货并交付配送中心（DC）后上架；不同零售商的具体流程、审核标准与时间窗口以其官方供应商要求为准。</p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  // Node data — generic wording only
+  var NODES = [
+    {n:1,  name:"产品立项",          st:"done",  tag:"已完成", desc:"完成目标零售商与品类定位确认，明确首期供货目标与商业计划。", meta:"阶段：前期准备"},
+    {n:2,  name:"产品备案 / 合规",   st:"done",  tag:"已完成", desc:"完成产品标准、标签标识合规及必要的备案文件，满足食品法规与零售商准入要求。", meta:"阶段：前期准备"},
+    {n:3,  name:"包装设计",          st:"done",  tag:"已完成", desc:"完成零售商标识、运输包装与陈列包装的整体设计定稿。", meta:"阶段：前期准备"},
+    {n:4,  name:"包装打样",          st:"todo",  tag:"进行中", desc:"定制包装打样制作中，待零售商确认样品效果与工艺细节。", meta:"阶段：设计落地"},
+    {n:5,  name:"验厂",              st:"risk",  tag:"风险点", desc:"首次接受大型零售商现场验厂，无既往通过记录，需按其体系标准准备现场与文件。", meta:"风险：首次大型零售商验厂"},
+    {n:6,  name:"验原料厂",          st:"risk",  tag:"风险点", desc:"关键原料供应商同步接受零售商资质与现场审核，进度需密切跟踪。", meta:"风险：原料厂审核窗口"},
+    {n:7,  name:"采购原料和包材",    st:"mixed", tag:"进行中 · 风险", desc:"原料与包材供应商已选定；定制包材尚未正式下单，需尽快锁定到货时间以保障排产。", meta:"进行中：供应商已选定｜风险：包材待下单"},
+    {n:8,  name:"运输测试",          st:"done",  tag:"已完成", desc:"完成模拟运输、跌落与振动等包装可靠性验证，确认运输风险可控。", meta:"阶段：验证"},
+    {n:9,  name:"排产",              st:"done",  tag:"已完成", desc:"结合目标交付期锁定产线排产计划，明确量产批次与时间窗口。", meta:"阶段：生产准备"},
+    {n:10, name:"生产",              st:"todo",  tag:"待办",   desc:"按排产计划量产首批订单，并完成第三方检测与出厂检验。", meta:"阶段：量产"},
+    {n:11, name:"按指令发货至前置仓",st:"todo",  tag:"待办",   desc:"等待零售商下达发货指令后，将货品分批发往多城市前置仓。", meta:"阶段：物流分仓"},
+    {n:12, name:"PDQ 组装",          st:"todo",  tag:"待办",   desc:"按零售商陈列标准完成 PDQ（促销陈列盒）组装，便于门店直接上架。", meta:"阶段：物流分仓"},
+    {n:13, name:"送入 DC 仓",        st:"todo",  tag:"待办",   desc:"将组装完成的货品按预约窗口交付至零售商配送中心（DC）。", meta:"阶段：物流分仓"},
+    {n:14, name:"正式上架",          st:"todo",  tag:"待办",   desc:"货品由 DC 仓分发至各门店，完成价签与陈列，正式对外销售。", meta:"阶段：上架"}
+  ];
+
+  var stage = document.getElementById("flowStage");
+  var rightSvg = '<svg width="22" height="14" viewBox="0 0 22 14" fill="none"><path d="M1 7h17M14 2l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var downSvg  = '<svg width="16" height="22" viewBox="0 0 16 22" fill="none"><path d="M8 1v17M3 14l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  var frag = document.createDocumentFragment();
+  NODES.forEach(function(d, i){
+    var el = document.createElement("div");
+    el.className = "node s-" + d.st;
+    el.setAttribute("role","button");
+    el.setAttribute("tabindex","0");
+    el.setAttribute("aria-label", d.name);
+    el.innerHTML =
+      '<span class="num">' + d.n + '</span>' +
+      '<div class="name">' + d.name + '</div>' +
+      '<span class="pill"><span class="cdot"></span>' + d.tag + '</span>';
+    el.addEventListener("click", function(){ showDetail(d); setActive(el); });
+    el.addEventListener("keydown", function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); showDetail(d); setActive(el);} });
+    frag.appendChild(el);
+
+    if(i < NODES.length - 1){
+      if(i === 6){
+        // turn after node 7
+        var brk = document.createElement("div");
+        brk.className = "wrap-break";
+        frag.appendChild(brk);
+        var turn = document.createElement("div");
+        turn.className = "wrap-turn";
+        turn.innerHTML = downSvg;
+        frag.appendChild(turn);
+      } else {
+        var c = document.createElement("div");
+        c.className = "conn";
+        c.innerHTML = rightSvg;
+        frag.appendChild(c);
+      }
+    }
+  });
+  stage.appendChild(frag);
+
+  var dtTag = document.getElementById("dtTag");
+  var dtTitle = document.getElementById("dtTitle");
+  var dtDesc = document.getElementById("dtDesc");
+  var dtMeta = document.getElementById("dtMeta");
+
+  var STYLES = {
+    done:{bg:"var(--green-bg)",fg:"#15803d"},
+    todo:{bg:"var(--amber-bg)",fg:"#b45309"},
+    risk:{bg:"var(--red-bg)",fg:"#b91c1c"},
+    mixed:{bg:"linear-gradient(90deg,var(--amber-bg),var(--red-bg))",fg:"#9a3412"}
+  };
+
+  function showDetail(d){
+    var s = STYLES[d.st] || STYLES.done;
+    dtTag.textContent = "节点 " + d.n + " · " + d.tag;
+    dtTag.style.background = s.bg;
+    dtTag.style.color = s.fg;
+    dtTitle.textContent = d.name;
+    dtDesc.textContent = d.desc;
+    dtMeta.textContent = d.meta;
+  }
+  function setActive(el){
+    var all = stage.querySelectorAll(".node");
+    for(var k=0;k<all.length;k++) all[k].classList.remove("active");
+    el.classList.add("active");
+  }
+})();
+</script>
+</body>
+</html>
