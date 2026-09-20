@@ -42,57 +42,80 @@
 ```text
 rc/
 ├── index.html                  # 首页：PAGES 登记表驱动的卡片目录（搜索 / 分类 / 统计 / 标签筛选）
+├── theme.css                   # ★ 全站主题：token + 变量别名层 + 统一返回浮钮（子页共用）
 ├── CNAME                       # 自定义域名 gervas.wang（GitHub Pages 要求保留在根）
 ├── README.md                   # 本文件
-├── assets/                     # 首页头像等公共静态资源
+├── assets/                     # 首页精选配图等公共静态资源
 │
 └── pages/                      # 全部子页面与数据文件
-    ├── sams-plant-based-puree-2026.html
-    ├── skill.html              # SKILL 系列 ① 概念手册（33 节）
-    ├── skill-spec.html         # SKILL 系列 ② 生产级架构规范（35 节）
-    ├── skill-diy.html          # SKILL 系列 ③ 制作适合自己的 Skill（七步法 13 节）
-    ├── el-nino-2027-impact.html
-    ├── el-nino-a-share-2026.html   # 存档
-    ├── ai-agent-training.html
-    ├── zhihu-juzi.html             # 存档
-    ├── yijing.html                 # 存档
-    ├── prompt.html                 # Prompt 库（搜索 / 分类 / 收藏 / GitHub 写入）
-    └── prompts.json                # Prompt 库数据文件
+    ├── sams-onboarding-sop-2026.html      # 山姆入驻全流程 SOP（5 阶段 21 节点）
+    ├── sams-onboarding-flow-2026.html     # 山姆入驻全流程概览
+    ├── sams-plant-based-puree-2026.html   # 山姆植物基原浆调研
+    ├── ai-daily-2026-09-16.html           # AI 日报晨报仪表盘
+    ├── pet-bottle-cost-2026.html          # PET 瓶身成本测算
+    ├── el-nino-2027-impact.html           # 厄尔尼诺 14 维影响
+    ├── el-nino-a-share-2026.html          # 厄尔尼诺 A 股板块映射
+    ├── skill.html                         # SKILL 系列 ① 概念手册（33 节）
+    ├── skill-spec.html                    # SKILL 系列 ② 生产级架构规范（35 节）
+    ├── skill-diy.html                     # SKILL 系列 ③ 制作适合自己的 Skill（七步法 13 节）
+    ├── ai-agent-training.html             # Agent 提效培训课件
+    ├── ebook-treasure-chest.html          # 电子书检索工具
+    ├── yijing.html                        # 每日卜卦小工具
+    ├── zhihu-juzi.html                    # 知乎句子七卷本
+    ├── prompt.html                        # Prompt 库（搜索 / 分类 / 收藏 / GitHub 写入）
+    └── prompts.json                       # Prompt 库数据文件
 ```
 
-**根目录只保留三件东西**：`index.html`（首页入口）、`CNAME`（Pages 域名绑定，平台机制要求必须留在根）、`README.md`（仓库说明）。`dictn/` 是独立的离线子项目，不参与 Pages 构建。
+**根目录只保留四件东西**：`index.html`（首页入口）、`theme.css`（全站主题）、`CNAME`（Pages 域名绑定，平台机制要求必须留在根）、`README.md`（仓库说明）。
 
 ---
 
-## 设计系统：docs-page 美学
+## 设计系统：theme.css 单一色源
 
-全部 docs 类子页（SKILL 系列 / 山姆调研 / 厄尔尼诺等）共享同一套视觉规范：
+**2026-09-20 起全站统一**。所有配色 / 字体 / 圆角 / 阴影只在本仓库根目录的 [`theme.css`](theme.css) 里定义一次，首页与 15 个子页全部 `@import` 式引入：
+
+```html
+<link rel="stylesheet" href="../theme.css">   <!-- 子页；首页为 href="theme.css" -->
+```
+
+**必须放在各页自身 `<style>` 之前**。子页 `:root` 里只保留页面特有的语义色（涨跌色 `--up`/`--down`、分级色、体例变量），主题色一律由 theme.css 提供。
 
 | Token | 值 | 用途 |
 |-------|------|------|
-| `--bg` | `#faf9f7` | 暖纸背景 |
-| `--ink` | `#1c1b1a` | 正文墨色 |
-| `--accent` | `#c96442` | 陶土红单 accent（链接 / 强调 / hover） |
-| `--mono` | JetBrains Mono / Cascadia Mono | 元数据 / 编号 / eyebrow / 按钮 |
+| `--bg` | `#f7f8fa` | 雾面底 |
+| `--band` | `#eef1f5` | 分带 / 次级底 |
+| `--card` / `--surface` | `#ffffff` | 卡片面 |
+| `--ink` | `#0f172a` | 标题墨色 |
+| `--line` / `--border` | `#dfe6ef` | 描边 hairline |
+| `--accent` | `#0d9488` | 青单 accent（链接 / 强调 / 徽章 / hover） |
+| `--accent-ink` | `#0f766e` | accent 深阶（hover / 小字号强调） |
+| `--accent-soft` | `#e3f5f2` | accent 浅底（徽章 / 选中态） |
+| `--warn` / `--danger` / `--ok` | `#b45309` / `#b91c1c` / `#047857` | 语义色 |
+| `--radius` / `--radius-sm` | `8px` / `5px` | 圆角 |
+| `--mono` | JetBrains Mono / Cascadia Mono | 元数据 / 编号 / 代码 |
 | `--sans` | Segoe UI / PingFang SC / Microsoft YaHei | 正文 |
-| 布局 | 三栏 250px / 772px / 218px | sticky 侧栏 + 主区 + sticky 右 TOC |
-| 边框 | `1px solid var(--border)` hairline | 无圆角无阴影，靠分隔留白 |
 
-首页（`index.html`）和 Prompt 库采用同套 token，首页额外用 hairline 横条做统计、轻量 grid 卡片陈列。
+**别名层**：theme.css 同时把各页历史变量名（`--primary` `--brand` `--brand2` `--text` `--paper` `--hairline` `--ink2` `--ink3` `--r` `--r2` `--sh` `--red` `--green` `--amber` `--slate` …）映射到上表同一批值 —— 所以旧页面的组件 CSS 一行都不用改，只需删掉自己 `:root` 里的同名声明即可收编。
+
+**保留的例外**（有意不统一）：各页 hero 大色块的写死渐变、`sams-onboarding-sop` 的五阶段专属色 `--s1..--s5`、`el-nino` 系列的涨跌色 `--up`/`--down`、`yijing`/`zhihu-juzi` 的古典字体 `--serif`/`--kai`。它们是内容层级的视觉锚点，不属于「风格不一致」。
+
+**统一返回浮钮**：theme.css 提供 `.g-pill`（墨底青 hover），子页直接挂类名，页面内不再重复定义。
 
 ### 移动端适配
 
-- 断点 `@media (max-width:1120px)`：右 TOC 隐藏，主区扩宽。
-- 断点 `@media (max-width:900px)`：侧栏/抽屉切换为 `<details>` 折叠，主区 padding 收紧。
-- 断点 `@media (max-width:640px)`（**首页搜索框紧凑化**）：`.search{padding:6px 11px}`、svg 14×14、input font-size 13px、`.cat{padding:4px 10px;font-size:11.5px}`；统计数字 / 标题字号同步下调。
-- 断点 `@media (max-width:420px)`：统计 4 格改为竖排。
+- 断点 `@media (max-width:1120px)`：长文页右 TOC 隐藏，主区扩宽。
+- 断点 `@media (max-width:900px)`：侧栏折叠为 `<details>`；首页卡片网格 3 列 → 2 列，精选大卡改单列（配图移到文字上方）。
+- 断点 `@media (max-width:640px)`：首页顶栏导航隐藏分类计数、工具条 chips 换行占满整行、卡片网格 1 列；浮钮内缩。
 
 ---
 
 ## 技术要点
 
-- **PAGES 登记表驱动首页** —— `index.html` 内的 `PAGES` 数组是唯一需要维护的数据源：分类筛选、关键词搜索、统计数字、标签筛选、卡片渲染全部自动完成。增删页面只需在数组里加一条记录。
-- **Prompt 库 GitHub 同步** —— `pages/prompt.html` 数据源为 [`pages/prompts.json`](pages/prompts.json)；在页内配置 Fine-grained Token 后，添加 / 编辑 / 删除 / 收藏会以独立提交直接写回本仓库。`FILE` 常量在 `pages/prompt.html` 第 370 行，路径与实际文件位置一致才能读 / 写成功。
+- **PAGES 登记表驱动首页** —— `index.html` 内的 `PAGES` 数组是唯一需要维护的数据源：分类筛选、关键词搜索、统计数字、分类计数、页脚「最近更新」全部自动派生。增删页面只需在数组里加一条记录。
+- **精选大卡参与筛选** —— `featured()` 只在**当前筛选结果**里找带 `feature:true` 的条目；该分类没有精选条目时整块隐藏。这样切分类不会出现「行业研究筛选态里挂着金融分析精选卡」的矛盾。
+- **分类工具条 sticky** —— 分类 chips 与内容紧邻并吸附在顶栏下方（`top:var(--bar-h)`），点分类立即看到结果，不再出现「筛选器在上面、结果隔着一个精选区在下面」的断裂。
+- **theme.css 单一色源** —— 见上「设计系统」；改一处全站生效。
+- **Prompt 库 GitHub 同步** —— `pages/prompt.html` 数据源为 [`pages/prompts.json`](pages/prompts.json)；在页内配置 Fine-grained Token 后，添加 / 编辑 / 删除 / 收藏会以独立提交直接写回本仓库。
 - **三栏 docs 视觉** —— SKILL 系列等长文采用 sticky 左导航 + 主区 + sticky 右 TOC + 顶部进度条 + scrollspy，章节带 + 阅读地图。
 - **自定义域名** —— 仓库根目录 [`CNAME`](CNAME) 绑定 `gervas.wang`，推送 `main` 分支后 GitHub Pages 自动构建发布。
 - **零依赖** —— 所有页面纯 HTML + CSS + 少量原生 JS，无构建工具、无打包、无第三方 CDN。
@@ -102,23 +125,40 @@ rc/
 ## 如何新增一个子网页
 
 1. 生成 HTML 文件，**放入 `pages/` 子目录**（建议语义化命名，如 `topic-2026-09-10.html`）。
-2. 子页内所有指向首页的链接写成 `../index.html`（在 `pages/` 子目录下相对于根）。
-3. 在 `index.html` 的 `PAGES` 数组中新增一条记录（`url` 字段必须带 `pages/` 前缀）：
+2. 子页 `<head>` 里加一行主题引用，**放在自身 `<style>` 之前**：
+   ```html
+   <link rel="stylesheet" href="../theme.css">
+   ```
+   然后把该页 `:root` 里与 theme.css 同名的 token 声明**删掉**（配色由全站统一），只保留页面特有的语义色。
+3. 子页内所有指向首页的链接写成 `../index.html`；返回浮钮直接挂全站统一的类名，页面内不要再写它的样式：
+   ```html
+   <a class="g-pill" href="../index.html">返回首页</a>
+   ```
+4. 在 `index.html` 的 `PAGES` 数组中新增一条记录（`url` 字段必须带 `pages/` 前缀）：
 
 ```js
 {
   title: "页面标题",
-  desc: "一句话描述（显示在卡片上）",
+  desc: "一句话描述（显示在卡片上，建议 45 字内，超了会被 3 行截断）",
+  kind: "长文",                       // 手册 / 长文 / 工具 / 仪表盘 / 收藏
   url: "pages/your-page.html",       // 注意 pages/ 前缀
-  date: "2026-09-10",                // 日期决定首页排序
-  category: "金融分析",               // 分类，用于顶部筛选
-  tags: ["标签一", "标签二"]           // 标签
+  date: "2026-09-10",                // 日期决定首页排序（倒序）
+  category: "行业研究",               // 行业研究 / 效率工具 / 金融分析 / 生活
+  tags: ["标签一", "标签二"],          // 卡片只显示前 3 个
+  // 可选：feature:true 提升为顶部深色精选大卡（同时需 image:"assets/xxx.webp"）
+  //       feature 条目从网格中排除，不会重复出现
+  // 可选：personal:true 标记「关于」类卡片，不参与列表与筛选
 }
 ```
 
-4. 推送后首页自动完成分类统计、搜索与卡片渲染，无需改动其他代码。
+5. 推送后首页自动完成分类统计、计数、搜索与卡片渲染，**无需改动其他代码**。
 
 > `gradient` / `glyph` 字段为历史遗留数据，已不再渲染，可省略。
+
+### 维护提醒
+
+- 新增子页若引入了**新的分类**，把它加进 `index.html` 的 `CAT_ORDER` 数组可固定其在导航中的位置；不加则自动追加到末尾。
+- 精简配图：首页精选大卡配图统一用 WebP 并限制在 1344px 宽以内（`assets/pet-hero.webp` 为 40 KB，原 PNG 为 996 KB）。
 
 ---
 
