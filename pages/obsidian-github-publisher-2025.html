@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Obsidian 自动发布 GitHub Pages 与 Git 同步</title>
+<meta name="description" content="从 Obsidian 写文章到 GitHub Pages 自动发布的完整手册：三套方案（Obsidian Git 全库同步 / GitHub Publisher 选择性发布 / Hexo Auto Updater）怎么选，两个核心插件的安装（社区市场、手动、BRAT 三条路）、Personal Access Token 生成、Frontmatter 发布标记、发布命令与常见排错，外加 Obsidian 优缺点与商用许可价格。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent); --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:130px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+
+.code{font-family:var(--mono);font-size:12.5px;background:var(--code);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;margin:12px 0;color:var(--ink-2);line-height:1.7;white-space:pre}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul,details.acc ol{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:580px;font-size:12.5px}th,td{padding:9px 11px}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 方案选型</a>
+      <a href="#s1" data-sec="s1">01 建仓取 Token</a>
+      <a href="#s2" data-sec="s2">02 装插件</a>
+      <a href="#s3" data-sec="s3">03 Publisher 配置</a>
+      <a href="#s4" data-sec="s4">04 Git 全库同步</a>
+      <a href="#s5" data-sec="s5">05 排错验证</a>
+      <a href="#s6" data-sec="s6">06 Obsidian 本身</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 静态博客</span>
+  <h1>Obsidian 自动发布 GitHub Pages 与 Git 同步</h1>
+  <p class="s-lede">在手机或电脑上用 Obsidian 写文章，然后自动推送到 GitHub Pages。本手册把「怎么选方案、怎么装插件、怎么取 Token、怎么标发布、怎么排错」串成一条可照做的流程：Obsidian Git 全库同步、GitHub Publisher 选择性发布、Hexo Auto Updater 三套方案并列，BRAT 装插件与重新加载的坑逐一标注，仓库地址、manifest、命令名照录原笔记。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-04-07</b></span>
+    <span>收录笔记 <b>6 篇</b></span>
+    <span>方案数 <b>3 套</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">Obsidian</span>
+    <span class="s-chip">GitHub Pages</span>
+    <span class="s-chip">GitHub Publisher</span>
+    <span class="s-chip">Obsidian Git</span>
+    <span class="s-chip">BRAT</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00206-2025-10-10 Obsidian 自动发布 GitHub Pages 博客方案</li>
+      <li>00209-2025-10-10 GitHub Publisher 选择性发布流程指南</li>
+      <li>00210-2025-10-10 Obsidian Git 全库同步方案</li>
+      <li>00211-2025-10-10 BRAT 安装 GitHub Publisher 流程</li>
+      <li>00327-2025-10-25 Obsidian 安装 Git 插件教程</li>
+      <li>00864-2026-04-07 Obsidian 功能优缺点介绍</li>
+    </ol>
+  </div>
+
+  <!-- 00 方案选型 -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>三套发布方案，先对号入座</h2><span class="hint">00206 / 00210</span></div>
+    <p class="lede">核心区别在于「你对 Git 操作和网站生成流程的参与程度」：全库同步最省心，选择性发布最精细，Hexo 集成自动化最高。</p>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">方案</th><th>核心插件</th><th>做什么</th><th>优点 / 适合谁</th></tr></thead>
+      <tbody>
+        <tr><td><b>方案一 全库同步</b></td><td>Obsidian Git</td><td>自动把整个笔记库同步到 GitHub（建议私有仓库保护内容）；博客生成另行交给 Hugo / Jekyll 或 GitHub Pages。</td><td>多设备同步简单；适合先解决笔记备份、博客生成独立的人。</td></tr>
+        <tr><td><b>方案二 选择性发布</b></td><td>GitHub Publisher</td><td>只把带 <code>published: true</code> 标记的笔记发布到指定仓库；可单篇或批量发布。</td><td>内容管理灵活；适合精细控制哪些笔记成为公开博客。</td></tr>
+        <tr><td><b>方案三 Hexo 集成</b></td><td>Hexo Auto Updater</td><td>监控 <code>_posts</code> 文件夹变更，自动提交推送 Hexo 源仓库，触发 GitHub Actions 构建并部署到 Pages。</td><td>发布流程自动化；适合已经用 Hexo、追求写作到部署全自动的人（配置也最复杂）。</td></tr>
+      </tbody>
+    </table></div>
+    <div class="srcnote" style="margin-bottom:0"><b>选法</b>：只想整库备份或博客流程独立 → Obsidian Git；要控制哪些笔记公开 → GitHub Publisher；已用 Hexo 要全自动 → Hexo Auto Updater。无论哪套，建议根目录建 <code>.gitignore</code> 忽略 <code>.obsidian/</code>、<code>.DS_Store</code>、<code>Thumbs.db</code>；大量图片用 Git LFS 管理避免仓库膨胀。</div>
+  </section>
+
+  <!-- 01 建仓取 Token -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>准备：建仓库 + 生成 Personal Access Token</h2><span class="hint">00206 / 00327</span></div>
+    <p class="lede">两条路（GitHub Publisher 与 Obsidian Git）都要 GitHub 凭证。先建仓库，再拿令牌。</p>
+    <div class="card st2">
+      <div class="card-h"><span class="tag">建仓库</span><h3>仓库怎么建</h3></div>
+      <div class="card-b">
+        <dl class="kv">
+          <dt>Pages 仓库</dt><dd>建 <code>你的用户名.github.io</code> 作为 User 站点；或任意命名仓库，在 Settings → Pages 里开启。博客公开就设为 <b>public</b>；笔记整库备份建议设为 <b>私有</b>。</dd>
+          <dt>本地关联</dt><dd>把远程仓库克隆到本地，或把本地笔记文件夹 <code>git init</code> 后关联远程。</dd>
+          <dt>Git 身份</dt><dd>首次提交前先配全局身份：<code>git config --global user.name '你的用户名'</code> 与 <code>git config --global user.email '你的邮箱'</code>。</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="card st2">
+      <div class="card-h"><span class="tag">Token</span><h3>生成 Personal Access Token（classic）</h3></div>
+      <div class="card-b">
+        <ol style="padding-left:18px;color:var(--ink-2);font-size:13.5px;line-height:1.8">
+          <li>登录 GitHub，点右上角头像 → <b>Settings</b>。</li>
+          <li>页面一直<b>滚到最底部左下角</b>，进 <b>Developer settings</b>（不在左侧导航显眼处）。</li>
+          <li>选 <b>Personal access tokens → Tokens (classic)</b> → <b>Generate new token (classic)</b>。</li>
+          <li>起个好认的名字（如 <code>Obsidian Sync</code>），设过期时间；权限务必勾 <b>repo</b>（至少 Contents 读写）。</li>
+          <li>生成后<b>立即复制保存</b>——关掉页面就再也看不到，只能重生成。令牌以 <code>ghp_</code> 开头。</li>
+        </ol>
+        <div class="code">用户名：你的 GitHub 用户名（不带 @）
+Password / Token 栏：粘贴上一步的 Personal Access Token（以 ghp_ 开头）
+  ↳ 这里显示 "Password"，但填的是令牌，不是 GitHub 登录密码。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 装插件 -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>安装插件：三条路</h2><span class="hint">00206 / 00211 / 00327</span></div>
+    <p class="lede">找不到「GitHub Publisher」是最常见的卡点。社区市场、手动、BRAT 三条路，按可用性依次试。</p>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">安装方式</th><th>操作</th><th>适用</th></tr></thead>
+      <tbody>
+        <tr><td><b>社区市场（首选）</b></td><td>设置 → 第三方插件，<b>关闭安全模式</b> → 浏览 → 搜 <code>GitHub Publisher</code> → 安装 → 启用。</td><td>网络正常、插件已上架。</td></tr>
+        <tr><td><b>BRAT（最可靠）</b></td><td>装 <code>Beta Reviewer's Auto-update Tool</code>（作者 TfTHacker）→ <code>Ctrl+P</code> → <code>BRAT: Add a beta plugin</code> → 粘贴 <code>https://github.com/ObsidianPublisher/obsidian-github-publisher</code> → <code>Ctrl+R</code> 重载 → 启用。</td><td>市场搜不到、装测试版。</td></tr>
+        <tr><td><b>手动</b></td><td>从 releases 下 zip，解压到 <code>你的库/.obsidian/plugins/obsidian-github-publisher/</code>，确保含 <code>main.js</code>、<code>manifest.json</code>、<code>styles.css</code>，重启后启用。</td><td>BRAT 也失败时。</td></tr>
+      </tbody>
+    </table></div>
+    <div class="srcnote" style="margin-bottom:0"><b>Obsidian Git 插件同理</b>：市场搜全称 <code>Obsidian Git</code>（不是「Git」）；BRAT 里填 <code>https://github.com/Vinzent03/obsidian-git</code>。BRAT 需 Obsidian 0.13.8+，GitHub Publisher 需 0.15.0+。</div>
+  </section>
+
+  <!-- 03 Publisher 配置 -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>GitHub Publisher 配置与发布</h2><span class="hint">00206 / 00209</span></div>
+    <p class="lede">配置分两层：插件设置面板填全局规则，每篇笔记的 Frontmatter 决定这篇发不发。</p>
+    <div class="card st4">
+      <div class="card-h"><span class="tag">插件面板</span><h3>必须填的四项 + 发布行为</h3></div>
+      <div class="card-b">
+        <div class="code">GitHub Username:  你的用户名
+GitHub Repository: 你的仓库名（如 username.github.io）
+GitHub Branch:     main（旧仓库可能是 master）
+GitHub Token:      粘贴 ghp_ 开头的令牌
+
+☑ Upload images        ☑ Upload attachments
+  Image folder: images    Attachment folder: attachments
+☑ Convert wikilinks to markdown links
+☑ Automatically clean the title
+Frontmatter key to publish:  published
+Value to publish:            true</div>
+      </div>
+    </div>
+    <div class="card st4">
+      <div class="card-h"><span class="tag">Frontmatter</span><h3>单篇发布标记</h3></div>
+      <div class="card-b">
+        <p class="lede" style="margin-bottom:8px">笔记开头 YAML 里写上 <code>published: true</code> 才会被发布；草稿就写 <code>false</code>。</p>
+        <div class="code">---
+title: "我的第一篇博客文章"
+date: 2024-01-15
+published: true
+tags:
+  - 教程
+  - Obsidian
+---</div>
+      </div>
+    </div>
+    <div class="card st4">
+      <div class="card-h"><span class="tag">发布动作</span><h3>怎么触发发布</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:180px">方式</th><th>命令 / 操作</th></tr></thead>
+          <tbody>
+            <tr><td><b>单篇发布</b></td><td><code>Ctrl+P</code> → <code>GitHub Publisher: Publish active file</code>；或编辑器右键 <code>Publish this file</code>。</td></tr>
+            <tr><td><b>批量发布</b></td><td><code>GitHub Publisher: Publish all changed shared files</code>（发布所有 <code>published: true</code> 且有改动的笔记）。</td></tr>
+            <tr><td><b>查看/取消</b></td><td><code>Show shared settings</code> 看状态；<code>Unpublish active file</code> 或把 <code>published</code> 改 <code>false</code> 取消。</td></tr>
+          </tbody>
+        </table></div>
+        <p class="lede" style="margin-bottom:0">发布后去仓库刷新看文件是否出现；若用 Jekyll 会自动构建，访问 <code>https://你的用户名.github.io</code> 看效果。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 Git 全库同步 -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>Obsidian Git 全库同步配置</h2><span class="hint">00210 / 00327</span></div>
+    <p class="lede">走方案一：装 Obsidian Git 后，把自动提交/拉/推的间隔打开，让它定期帮你备份整个库。</p>
+    <div class="card st5">
+      <div class="card-h"><span class="tag">自动同步</span><h3>核心开关</h3></div>
+      <div class="card-b">
+        <dl class="kv">
+          <dt>自动提交同步</dt><dd>开 <code>Auto commit-and-sync interval(minutes)</code>，设间隔（如 5 / 20 / 30 分钟）；开 <code>Auto pull interval</code>。</dd>
+          <dt>启动拉取</dt><dd>开 <code>Pull updates on startup</code>，每次打开 Obsidian 先拿远程最新。</dd>
+          <dt>自动推送</dt><dd>开 <code>Auto push</code>，每次提交后自动推到远程。</dd>
+          <dt>Git 路径</dt><dd>报「找不到 Git」时，终端 <code>where git</code>（Windows）查路径，填进 <code>Custom Git binary path</code>。</dd>
+          <dt>首次提交</dt><dd>先 <code>Ctrl+P</code> 跑一次 <code>Obsidian Git: Create backup</code> 做初始提交，再开自动同步。</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="srcnote" style="margin-bottom:0"><b>移动端注意</b>：手机端也要装并配同款插件，多为手动 Pull/Push；不支持 SSH 认证，大库性能差，建议移动端关自动提交改手动。遇 Git 安全目录错误，终端跑 <code>git config --global --add safe.directory "你的笔记库完整路径"</code>。</div>
+  </section>
+
+  <!-- 05 排错验证 -->
+  <section id="s5" class="st1">
+    <div class="sec-h"><span class="idx st1">06</span><h2>排错与验证</h2><span class="hint">00206 / 00211</span></div>
+    <p class="lede">这套流程最大的坑是「装了插件却没有命令」。按顺序排。</p>
+
+    <details class="acc st1" open>
+      <summary>命令不出现：先重载，再彻底重装<span class="cnt">高频</span></summary>
+      <div class="body">
+        <ul>
+          <li><b>第一动作永远是重载</b>：<code>Ctrl+R</code>（Mac <code>Cmd+R</code>）。装插件后、启用后、改配置后都要重载一次。笔记内容自动保存，不会丢。</li>
+          <li><b>确认开关是蓝色开启</b>，且在「已安装的插件」列表里找（不要在「浏览」里找），按 G 开头排序。</li>
+          <li><b>仍没有命令</b>：<code>BRAT: Remove a beta plugin</code> 移除 → 删掉 <code>.obsidian/plugins/obsidian-github-publisher</code> 残留文件夹 → 完全重启 → 重新 BRAT 添加仓库地址 → 启用 → 再 <code>Ctrl+R</code>。</li>
+          <li><b>BRAT 命令也不出现</b>：说明 BRAT 本身没加载——确认它已启用、关安全模式、<code>Ctrl+R</code>；必要时备份并删除 <code>.obsidian/community-plugins.json</code> 与 <code>plugins.json</code> 后重启。</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="acc st1">
+      <summary>加载失败 / 启动即崩：查清单与冲突<span class="cnt">manifest</span></summary>
+      <div class="body">
+        <ul>
+          <li><b>文件齐全</b>：插件目录必须含 <code>main.js</code>、<code>manifest.json</code>、<code>styles.css</code>。</li>
+          <li><b>manifest 正常</b>：<code>id</code> 应为 <code>obsidian-github-publisher</code>，<code>name</code> 为 <code>GitHub Publisher</code>，<code>minAppVersion</code> 不高于你的版本。</li>
+          <li><b>版本</b>：设置 → 关于，确认 Obsidian 版本够新（Publisher 需 0.15.0+）。</li>
+          <li><b>冲突</b>：除 Publisher 与 BRAT 外禁用其他插件，重载后看命令是否出现；出现则逐个启用定位冲突。</li>
+          <li><b>看控制台</b>：<code>Ctrl+Shift+I</code> → Console 看红色报错。</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="acc st1">
+      <summary>发布报错对照表<span class="cnt">认证/路径</span></summary>
+      <div class="body">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:200px">现象</th><th>解决</th></tr></thead>
+          <tbody>
+            <tr><td><b>Bad credentials</b></td><td>Token 失效或没勾 repo 权限，重生成。</td></tr>
+            <tr><td><b>Not Found / 仓库不存在</b></td><td>核对仓库名拼写与访问权限。</td></tr>
+            <tr><td><b>笔记没发布</b></td><td>Frontmatter 缺 <code>published: true</code>。</td></tr>
+            <tr><td><b>图片不显示</b></td><td>勾了 Upload images、图片路径正确、文件别太大。</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </details>
+
+    <details class="acc st1">
+      <summary>最终验证清单<span class="cnt">打勾</span></summary>
+      <div class="body">
+        <ul>
+          <li>插件在已安装列表、开关蓝色、重载后保持蓝色；设置左侧出现插件项。</li>
+          <li><code>Ctrl+P</code> 输入 <code>GitHub Publisher</code> 能看到 <code>Publish active file</code> / <code>Publish all changed shared files</code> / <code>Unpublish active file</code> / <code>Edit settings</code> / <code>Show shared settings</code>。</li>
+          <li>发一篇带 <code>published: true</code> 的测试笔记，仓库里能看到文件，Pages 能打开。</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- 06 Obsidian 本身 -->
+  <section id="s6" class="st2">
+    <div class="sec-h"><span class="idx st2">07</span><h2>顺带：Obsidian 的功能、代价与价格</h2><span class="hint">00864</span></div>
+    <p class="lede">选这套工作流前，先知道 Obsidian 本身的长短板和收费——核心功能免费商用也免费。</p>
+    <div class="grid g2">
+      <div class="panel"><h3 style="font-size:15px;font-weight:700;margin-bottom:10px">优点</h3>
+        <p style="font-size:13.5px;color:var(--ink-2)">本地优先纯 Markdown、数据归你所有；双向链接 + 知识图谱串起知识；超千款社区插件生态；启动搜索都快；核心功能个人完全免费。</p></div>
+      <div class="panel"><h3 style="font-size:15px;font-weight:700;margin-bottom:10px">缺点</h3>
+        <p style="font-size:13.5px;color:var(--ink-2)">有学习曲线；无原生实时协作，不适合团队；移动端体验弱（Android 偶有乱插字符、键盘失灵）；高级功能高度依赖插件，存在插件失维风险。</p></div>
+    </div>
+    <div class="tblwrap" style="margin-top:16px"><table>
+      <thead><tr><th>许可证 / 服务</th><th>价格</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>免费使用</b></td><td>$0</td><td>所有核心功能，含商用。</td></tr>
+        <tr><td><b>Catalyst</b></td><td>$25 一次性</td><td>抢先体验测试版、社区徽章。</td></tr>
+        <tr><td><b>商业许可证</b></td><td>$50 / 用户 / 年</td><td>功能与免费版完全相同，性质是支持性徽章；按席位不按设备。</td></tr>
+        <tr><td><b>Obsidian Sync</b></td><td>$4 / 用户 / 月（按年）</td><td>跨设备同步、端到端加密、版本历史。</td></tr>
+        <tr><td><b>Obsidian Publish</b></td><td>$8 / 站点 / 月（按年）</td><td>把笔记库发布为网站（官方付费方案；本页讲的是用 GitHub Publisher 免费替代）。</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>Obsidian 发布手册 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自个人博客搭建笔记，仓库地址、Token 格式、插件命令与价格均照录原笔记实例，仅作技术记录；价格随官方政策变动，请以 Obsidian / GitHub 官网为准。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4','s5','s6'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){for(var i=0;i<secLinks.length;i++){secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);}}
+  function spy(){var y=window.scrollY+130, cur=SECS[0];for(var i=0;i<SECS.length;i++){var s=document.getElementById(SECS[i]);if(!s)continue;var top=s.getBoundingClientRect().top+window.scrollY;if(top<=y)cur=SECS[i];}mark(cur);}
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

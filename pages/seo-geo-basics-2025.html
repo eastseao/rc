@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>SEO 与 GEO 基础及语料投喂 Skill</title>
+<meta name="description" content="从个人博客 SEO 三步法（技术地基 / 页面优化 / 站外推广）到生成式引擎优化 GEO：AI 如何理解与引用内容、GEO 与 SEO 的核心区别、五条实施策略，再到一个按月循环的 GEO 语料投喂 OpenClaw Skill 完整设计——四周流程、语料库目录结构、YAML 元数据头、问答对与监测指标，关键百分比数字照录。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent); --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+
+.code{font-family:var(--mono);font-size:12.5px;background:var(--code);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;margin:12px 0;color:var(--ink-2);line-height:1.7;white-space:pre}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.numgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:6px 0 18px}
+.numgrid .n{background:#fbfcfd;border:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));border-radius:var(--radius);padding:14px 14px}
+.numgrid .n b{display:block;font-family:var(--mono);font-size:22px;font-weight:700;color:var(--sc,var(--accent));line-height:1.1}
+.numgrid .n span{display:block;font-size:12px;color:var(--ink-2);margin-top:6px;line-height:1.5}
+@media(max-width:760px){.numgrid{grid-template-columns:repeat(2,1fr)}}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:560px;font-size:12.5px}th,td{padding:9px 11px}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 博客 SEO 三步</a>
+      <a href="#s1" data-sec="s1">01 GEO 原理</a>
+      <a href="#s2" data-sec="s2">02 GEO vs SEO</a>
+      <a href="#s3" data-sec="s3">03 五条策略</a>
+      <a href="#s4" data-sec="s4">04 语料 Skill</a>
+      <a href="#s5" data-sec="s5">05 关键数字</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 搜索优化</span>
+  <h1>SEO 与 GEO 基础及语料投喂 Skill</h1>
+  <p class="s-lede">先把传统 SEO 的三件事做对——技术地基、页面优化、站外推广；再理解生成式引擎优化 GEO：AI 怎么检索与引用、GEO 与 SEO 的五维区别、五条实施策略。最后落到一个可直接用的 OpenClaw「GEO 语料投喂」Skill：按月循环、四周围跑、语料库五目录、YAML 元数据头与问答对，把"让 AI 引用你"变成可重复的流水线。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-04-12</b></span>
+    <span>收录笔记 <b>3 篇</b></span>
+    <span>策略 <b>5 条 + 4 周循环</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">SEO</span>
+    <span class="s-chip">GEO</span>
+    <span class="s-chip">Schema</span>
+    <span class="s-chip">语料投喂</span>
+    <span class="s-chip">OpenClaw Skill</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00243-2025-10-14 个人博客 SEO 优化指南</li>
+      <li>00298-2025-10-24 生成式引擎优化（GEO）全面解读</li>
+      <li>00906-2026-04-12 GEO 语料投喂 Skill 设计</li>
+    </ol>
+  </div>
+
+  <!-- 00 博客 SEO 三步 -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>个人博客 SEO 三步：地基、页面、推广</h2><span class="hint">00243</span></div>
+    <p class="lede">核心思想：SEO 不是一次性工作，而是与写博客相伴的习惯。三步依次为技术地基、页面内容优化、站外推广。</p>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">阶段</th><th>关键动作</th></tr></thead>
+      <tbody>
+        <tr><td><b>① 技术地基</b></td><td>确认 <code>robots.txt</code> 不误拦；生成 XML 站点地图并在 Google Search Console、Bing Webmaster Tools 提交；装 GSC + GA 看排名与读者行为。关键词先研究再写：新博客主攻<b>长尾词</b>（"新手在家如何徒手健身"而非"健身"）。内容专题化 + 写几篇支柱级"终极指南"。</td></tr>
+        <tr><td><b>② 页面优化</b></td><td>标题前半放关键词、50–60 字符内；一篇一个 H1，用 H2/H3 结构化；关键词自然分布不堆砌；正文 1500 字以上才有价值地写；URL 简洁含词；图片改描述性文件名 + ALT 文本；新文章链到 2–3 篇相关旧文做内链。</td></tr>
+        <tr><td><b>③ 站外推广</b></td><td>外链是权威度最重要信号：先靠卓越内容被自然引用，再礼貌 outreach（禁群发），在知乎/Reddit/专业论坛真诚参与；提速度（PageSpeed Insights）、做响应式、上 HTTPS；社交信号间接带来初始曝光。</td></tr>
+      </tbody>
+    </table></div>
+    <div class="srcnote" style="margin-bottom:0"><b>一句话</b>：内容为王，外链为皇，用户体验为后。建站时配 GSC/GA 与站点地图；写作前花 10 分钟定关键词；写作中优化标题/结构/图片/内链；发布后分享并持续观察 GSC、定期更新旧文。</div>
+  </section>
+
+  <!-- 01 GEO 原理 -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>GEO 是什么：AI 怎么"想"和"引用"</h2><span class="hint">00298</span></div>
+    <p class="lede">生成式引擎优化（GEO）是为 ChatGPT、Copilot、Gemini、Claude 这类生成式 AI 引擎出现的内容优化策略，目标是让你的内容成为 AI 对话式答案里的"唯一"或"主要"来源。用户不再点十个蓝链，而是直接拿到一段整合答案——几乎 100% 零点击。</p>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:60px">步</th><th>AI 工作流</th><th>GEO 在哪步赢</th></tr></thead>
+      <tbody>
+        <tr><td><b>1</b></td><td>理解用户意图（解析提示词深层需求）</td><td>—</td></tr>
+        <tr><td><b>2</b></td><td>检索相关信息（训练数据或联网搜索找相关片段）</td><td style="background:var(--scs)">胜出点：结构化、权威、语义相关的内容更易被检索到</td></tr>
+        <tr><td><b>3</b></td><td>综合与生成（理解、整合、重述成连贯答案）</td><td>—</td></tr>
+        <tr><td><b>4</b></td><td>引用来源（Copilot、Perplexity 等标出资料链接）</td><td style="background:var(--scs)">胜出点：成为被标注的那一条来源</td></tr>
+      </tbody>
+    </table></div>
+    <p class="lede" style="margin-bottom:0">GEO 的目标就是在第 2 步（检索）和第 4 步（引用）中胜出，向 AI 证明你就是该领域最值得信赖的专家。</p>
+  </section>
+
+  <!-- 02 GEO vs SEO -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>GEO 与 SEO 的五维区别</h2><span class="hint">00298</span></div>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:110px">维度</th><th>传统 SEO</th><th>GEO</th></tr></thead>
+      <tbody>
+        <tr><td><b>目标</b></td><td>在 SERP 排名靠前，吸引点击</td><td>成为 AI 答案的<b>直接信息来源</b>，可能无需点击</td></tr>
+        <tr><td><b>结果形式</b></td><td>10 个蓝链、精选摘要、知识图谱</td><td>一段整合的自然语言文本 + 引用链接</td></tr>
+        <tr><td><b>优化对象</b></td><td>搜索引擎排名算法</td><td>生成式 AI 的理解、整合与引用偏好</td></tr>
+        <tr><td><b>内容重点</b></td><td>关键词密度、外链数量、页面权重</td><td>权威性、全面性、可信度、结构化</td></tr>
+        <tr><td><b>交互模式</b></td><td>人机交互（用户自筛结果）</td><td>人机对话（用户与 AI 直接交互）</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- 03 五条策略 -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>GEO 五条实施策略</h2><span class="hint">00298</span></div>
+    <div class="grid g3">
+      <div class="card st4"><div class="card-h"><span class="tag">1</span><h3>成为权威信源</h3></div><div class="card-b" style="font-size:13.5px;color:var(--ink-2)">
+        展示专家背景、认证、获奖；拿政府/知名媒体/高校的高质量外链；被维基百科、行业白皮书、权威期刊引用——这些都是 AI 的"信任票"。</div></div>
+      <div class="card st4"><div class="card-h"><span class="tag">2</span><h3>极致内容深度</h3></div><div class="card-b" style="font-size:13.5px;color:var(--ink-2)">
+        写"一篇解决所有问题"的终极指南；用 H1/H2/H3、列表、表格、摘要把结构摆清楚；对复杂问题给多角度分析、步骤、利弊对比。</div></div>
+      <div class="card st4"><div class="card-h"><span class="tag">3</span><h3>语义与实体</h3></div><div class="card-b" style="font-size:13.5px;color:var(--ink-2)">
+        写"咖啡"时自然带上"咖啡因/烘焙/手冲/意式"；像跟专家对话一样写，不堆关键词；让内容融入更大的知识网络。</div></div>
+      <div class="card st4"><div class="card-h"><span class="tag">4</span><h3>技术与可访问</h3></div><div class="card-b" style="font-size:13.5px;color:var(--ink-2)">
+        清晰 URL 与内链；用 <code>Article / HowTo / FAQPage / Person / Organization</code> 等 Schema 结构化数据给 AI 一份"内容说明书"；提速；<code>robots.txt</code> 别误封爬虫。</div></div>
+      <div class="card st4"><div class="card-h"><span class="tag">5</span><h3>针对提示词优化</h3></div><div class="card-b" style="font-size:13.5px;color:var(--ink-2)">
+        设 FAQ 用"是什么/为什么/怎么做"句式直接回答；答完主问题后预判后续问题（冲煮咖啡后接着讲选豆与器具清洁）。</div></div>
+      <div class="card st4"><div class="card-h"><span class="tag">×</span><h3>挑战与流量悖论</h3></div><div class="card-b" style="font-size:13.5px;color:var(--ink-2)">
+        AI 引用机制不透明、模型偏好一直在变；被成功引用也可能不带直接点击，需另找品牌曝光与变现。GEO 是持续迭代，不是一次性。</div></div>
+    </div>
+  </section>
+
+  <!-- 04 语料 Skill -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>GEO 语料投喂 Skill：按月循环的流水线</h2><span class="hint">00906</span></div>
+    <p class="lede">把上面的策略落成一个 OpenClaw Skill：<code>geo-corpus-feeder</code>，纯 Markdown、按月跑一轮"收集→结构化→优化→投喂→监测"闭环，目标平台 DeepSeek / Kimi / 豆包。</p>
+
+    <div class="card st5">
+      <div class="card-h"><span class="tag">目录结构</span><h3>Skill 文件怎么摆</h3></div>
+      <div class="card-b">
+        <div class="code">geo-corpus-feeder/
+├── SKILL.md            # 触发词 + 四周围流程 + 交互命令
+├── corpus/             # 语料库（自行填充）
+│   ├── brand/          # 品牌故事、定位、价值主张
+│   ├── product/        # 产品特性、规格、使用场景
+│   ├── faq/            # 常见问答
+│   ├── case/           # 客户案例、评价
+│   └── knowledge/      # 行业白皮书、研究报告
+├── schedule/           # 调度记录（自动维护）
+│   ├── current_month.json
+│   ├── cycle_log.json
+│   └── history/YYYY-MM/
+└── templates/
+    └── corpus_template.md</div>
+      </div>
+    </div>
+
+    <div class="card st5">
+      <div class="card-h"><span class="tag">四周循环</span><h3>每月四周围跑什么</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:90px">周次</th><th>阶段</th><th>做什么</th></tr></thead>
+          <tbody>
+            <tr><td><b>第1周</b></td><td>收集与清洗</td><td>扫 <code>corpus/</code> 找新增/修改；查标题正文元数据是否齐全；标重复、过时、逻辑矛盾的低质语料。</td></tr>
+            <tr><td><b>第2周</b></td><td>结构化与 Schema</td><td>每条加 YAML 元数据头；按类型建议 FAQPage / Product / Article / HowTo Schema；做逻辑一致性校验，列"逻辑冲突报告"。</td></tr>
+            <tr><td><b>第3周</b></td><td>AI 友好化优化</td><td>长文拆成可独立引用的模块；去掉模糊指代补主体；每条生成 3–5 个问答对；按 1–10 打 GEO 友好度分，低于 6 分人工复审。</td></tr>
+            <tr><td><b>第4周</b></td><td>投喂与监测</td><td>按优先级列投喂清单（在各平台手动/API 发布，Skill 只记录）；建 <code>corpus_published / ai_citation_rate / exposure_rate / first_recommendation_rate</code> 基线；归档历史、生成下月配置。</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <div class="card st5">
+      <div class="card-h"><span class="tag">元数据头</span><h3>每条语料的标准 YAML 头</h3></div>
+      <div class="card-b">
+        <div class="code">---
+id: brand_001
+type: brand | product | faq | case | knowledge
+priority: high | medium | low
+keywords: [关键词1, 关键词2, 关键词3]
+target_platforms: [deepseek, kimi, doubao, chatgpt]
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+version: 1.0
+---</div>
+        <p class="lede" style="margin:8px 0 0">正文用"核心信息摘要（1–2 句可直接引用）→ 背景/场景 → 关键信息 → 数据/证据 → 3 个问答对 → 10–15 个语义关键词"的模板写。触发词：<code>GEO优化 / 语料投喂 / 开始本月GEO循环 / 查看GEO进度 / GEO月度报告 / 检查语料质量 / 重置本月循环</code>。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 关键数字 -->
+  <section id="s5" class="st1">
+    <div class="sec-h"><span class="idx st1">06</span><h2>四条被反复引用的 GEO 数字</h2><span class="hint">00906 · 照录</span></div>
+    <p class="lede">这些数字在原笔记里被当作 GEO 效果依据反复引用，照录于此——用于说服自己"结构化、持续循环"值得做，不必当作严格可复现的实验结论。</p>
+    <div class="numgrid">
+      <div class="n"><b>+320%</b><span>具备高度逻辑关联的结构化语料，被 AI 引用概率比碎片化文本高。</span></div>
+      <div class="n"><b>+40%</b><span>结构化数据（Schema）标记可使 AI 检索效率提升。</span></div>
+      <div class="n"><b>3%→-80%</b><span>品牌信息存在 3% 以上逻辑冲突时，AI 会把其权重调降 80% 以上。</span></div>
+      <div class="n"><b>180 天</b><span>深度 GEO 优化的语义资产半衰期；热点式灌输内容 3 天内就被新模型权重覆盖。</span></div>
+    </div>
+    <div class="srcnote" style="margin-bottom:0"><b>合规底线</b>：不投虚假内容、不用非法爬取的信源；每月复盘 AI 引用率、跟住主流平台算法更新。原笔记另提到"系统化 GEO 部署后品牌被提及率平均提升 280% 以上"，同样作参考而非承诺。</div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>SEO / GEO 基础 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自个人笔记，百分比数字均照录原笔记引用，用于说明 GEO 实践方向，不构成对任何平台效果的承诺。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4','s5'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){for(var i=0;i<secLinks.length;i++){secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);}}
+  function spy(){var y=window.scrollY+130, cur=SECS[0];for(var i=0;i<SECS.length;i++){var s=document.getElementById(SECS[i]);if(!s)continue;var top=s.getBoundingClientRect().top+window.scrollY;if(top<=y)cur=SECS[i];}mark(cur);}
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

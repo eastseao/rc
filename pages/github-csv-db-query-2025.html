@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>GitHub 前端 CSV/数据库查询与名片页面</title>
+<meta name="description" content="围绕 gervasw.github.io 上两个真实小项目整理：一是把包材物料台账做成前端在线查询系统——Excel 转 data.json、index.html+三输入框模糊查询+金额总计、fetch 相对路径加载排错、脱敏与性能提醒；二是 IndexedDB 纯前端本地数据库增删改查示例；三是个人名片页面从初版到红色主题、点击头像放大、复制微信/拨号、移动端一行的迭代全过程；最后附一个全国行政区划逐级树形查询网站的数据源与表结构方案。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent); --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.code{font-family:var(--mono);font-size:12.5px;background:var(--code);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;margin:12px 0;color:var(--ink-2);line-height:1.7;white-space:pre}
+
+ol.steps{margin:6px 0 16px;padding-left:22px}
+ol.steps li{margin-bottom:7px;font-size:14px;color:var(--ink-2);line-height:1.75}
+ol.steps b{color:var(--ink)}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:560px;font-size:12.5px}th,td{padding:9px 11px}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 物料台账查询</a>
+      <a href="#s1" data-sec="s1">01 加载排错</a>
+      <a href="#s2" data-sec="s2">02 名片页面</a>
+      <a href="#s3" data-sec="s3">03 IndexedDB</a>
+      <a href="#s4" data-sec="s4">04 行政区划</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 数据查询实战</span>
+  <h1>GitHub 前端 CSV/数据库查询与名片页面</h1>
+  <p class="s-lede">这一页记录两个真实做出来的小工具：把包材物料台账（Excel）转成 data.json，用一个 index.html 部署在 gervasw.github.io/tz/ 上做供应商/项目号/项目名模糊查询，并附踩过的「数据加载失败」排错全过程；以及个人名片页面从初版到红色主题、点击头像放大、一键复制微信/拨号的迭代。另附 IndexedDB 纯前端本地数据库示例与全国行政区划树形查询方案。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2025-12-30</b></span>
+    <span>收录笔记 <b>5 篇</b></span>
+    <span>查询页面 <b>tz / mycard</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">data.json</span>
+    <span class="s-chip">模糊查询</span>
+    <span class="s-chip">fetch</span>
+    <span class="s-chip">IndexedDB</span>
+    <span class="s-chip">个人名片</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号）：
+    <ol>
+      <li>00334-2025-10-26 GitHub 构建包材物料查询工具指南</li>
+      <li>00337-2025-10-26 GitHub 个人名片页面设计代码</li>
+      <li>00341-2025-10-27 GitHub 前端实现 CSV 数据查询</li>
+      <li>00367-2025-10-31 前端查询本地数据库实现方案</li>
+      <li>00510-2025-12-30 建立全国行政区划查询网站步骤</li>
+    </ol>
+  </div>
+
+  <!-- 00 物料台账查询 -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>把 Excel 台账做成在线查询：包材物料</h2><span class="hint">00334</span></div>
+    <p class="lede">目标：把近两年包材台账做成可在线查询的前端工具。仓库 <code>gervasw.github.io</code>，根目录建 <code>tz/</code> 文件夹，绑域名后访问 <code>https://gervas.wang/tz/</code>。</p>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:140px">对比</th><th>方案一：静态站 + 前端筛选</th><th>方案二：现成组件库</th></tr></thead>
+      <tbody>
+        <tr><td><b>难度</b></td><td>较低，适合初学者</td><td>中等，需少量代码</td></tr>
+        <tr><td><b>核心思路</b></td><td>数据转 JSON 嵌进网页，JS 在浏览器内筛选</td><td>用 element-advanced-search 类组件做复杂多条件筛选</td></tr>
+        <tr><td><b>技术栈</b></td><td>index.html + style.css + script.js + data.json 四件套</td><td>Vue3 + Element Plus，<code>searchConfig</code> 定义筛选项</td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-size:14px;color:var(--ink-2);margin-bottom:8px"><b style="color:var(--ink)">data.json 字段</b>（照录实际结构）：合同编号、采购订单号、供应商编码、供应商名称、项目号、项目名称、数量、单位、采购单价、订单总额。转换工具：Table Convert Online 或 ConvertCSV.com。</p>
+    <div class="srcnote" style="margin-bottom:0"><b>三条硬提醒</b>：① 公开仓库前<b>务必脱敏</b>，去掉内部成本价、供应商联系方式等敏感信息；② 数据超过数万行纯前端会变慢，届时才需上数据库+后端 API，两年量前端方案足够；③ 绑自定义域名需在仓库根目录放 CNAME 文件，内容为 gervas.wang。</div>
+  </section>
+
+  <!-- 01 加载排错 -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>物料查询系统：三输入框模糊查询与加载排错</h2><span class="hint">00341</span></div>
+    <p class="lede">实际需求：页面名「物料查询系统」，三个输入框（供应商名称、项目号、项目名称），供应商与项目名支持模糊查询，只输一项也能查；查询按钮后表格列出八个字段，下方带金额总计。</p>
+    <ol class="steps">
+      <li><b>数据格式</b>：中文键名 JSON 数组（<code>{"合同编号":"SC2022-1-4-04","供应商名称":"四川鼎晟塑料制品有限公司",...}</code>），用 <code>fetch('data.json')</code> 加载。</li>
+      <li><b>不查询不显示</b>：进页面表格先显示「请输入查询条件后点击查询」，无任何条件时不渲染数据。</li>
+      <li><b>模糊查询</b>：<code>includes()</code> 子串匹配，三条件 AND 组合，空条件自动跳过；结果合计 <code>parseFloat(订单总额)</code> 并加千分位。</li>
+      <li><b>金额总计</b>：查询结果实时累加，<code>toLocaleString()</code> 千分位显示。</li>
+    </ol>
+    <p class="lede" style="margin-bottom:8px">「数据加载失败 / 无法从 tz/data.json 加载」的排错链条：</p>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:200px">现象</th><th>处理</th></tr></thead>
+      <tbody>
+        <tr><td>index.html + 同目录 data.json 能否查</td><td>可以，纯静态即可；CSV 也能解析，但 JSON 更省事</td></tr>
+        <tr><td>加了 mock 兜底但仍不引用真数据</td><td>用全局变量 <code>allData</code> 在 <code>DOMContentLoaded</code> 时一次性加载，查询时读内存，不重复请求</td></tr>
+        <tr><td>fetch 路径写 tz/data.json 仍失败</td><td>index.html 与 data.json 同在 tz 目录，用相对路径 <code>fetch('data.json')</code>；去掉 URL 上的时间戳参数；本地双击 file:// 打开会受跨域限制，须走 http（Pages 上正常）</td></tr>
+        <tr><td>反复加载失败</td><td>打开浏览器控制台看真实报错；确认 data.json 是合法 JSON（逗号、引号闭合）；先去掉 mock 与「正在加载…」提示，让报错直接暴露</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- 02 名片页面 -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>个人名片页面：八轮迭代全过程</h2><span class="hint">00337 · mycard</span></div>
+    <p class="lede">名片信息：王维，北京同仁堂健康药业（青海）有限公司，采购 / 包装方案解决专员，目标「稳定供货、保证质量、降本增效」。放在 <code>mycard/</code> 文件夹，访问 <code>https://gervasw.github.io/mycard</code>。迭代顺序照录：</p>
+    <ol class="steps">
+      <li><b>初版</b>：卡片式布局、头像居中、联系信息展示。</li>
+      <li><b>头像路径</b>：统一为 <code>assets/img/avatar.jpg</code>（相对名片页）。</li>
+      <li><b>交互</b>：点击微信号复制到剪贴板（navigator.clipboard + 传统 execCommand 兜底）；点击电话——手机拨号、桌面复制。</li>
+      <li><b>移动端</b>：「主要目标」在小屏一行显示，不换行。</li>
+      <li><b>头像放大 + 红色主题</b>：点头像灯箱放大；背景深红渐变。</li>
+      <li><b>回首页按钮</b>：「感谢访问我的个人名片页面」上方加低调按钮，指向 https://www.gervas.wang。</li>
+      <li><b>重排顺序</b>：先工作信息（公司/职位/主要工作），再联系信息（电话/微信），最后是目标；职位定为「采购」，保留包装方案解决内容。</li>
+    </ol>
+  </section>
+
+  <!-- 03 IndexedDB -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>不要后端：IndexedDB 纯前端本地数据库</h2><span class="hint">00367</span></div>
+    <p class="lede">若数据不想放公网、想存在浏览器本地，用 IndexedDB 即可。示例库 <code>LocalDB</code>、表 <code>employees</code>，字段 id（自增主键）、姓名、邮箱（唯一索引）、电话、部门。</p>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">能力</th><th>实现</th></tr></thead>
+      <tbody>
+        <tr><td><b>建库建表</b></td><td><code>indexedDB.open(dbName, version)</code>，<code>onupgradeneeded</code> 里 createObjectStore（keyPath id、autoIncrement）并对 name/email/department 建索引</td></tr>
+        <tr><td><b>增删改查</b></td><td>readwrite 事务 add/delete/clear；readonly 事务 getAll，再前端 filter 关键词</td></tr>
+        <tr><td><b>UI</b></td><td>左侧表单添加记录、右侧表格展示、顶部搜索框、右上角 toast 提示</td></tr>
+      </tbody>
+    </table></div>
+    <p class="lede" style="margin-bottom:0">优势：纯前端无需服务器，数据持久化在浏览器；局限：数据只在本机当前浏览器，不适合多人间共享，公开台账查询仍走 data.json 方案。</p>
+  </section>
+
+  <!-- 04 行政区划 -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>不做地图：全国行政区划逐级树形查询</h2><span class="hint">00510</span></div>
+    <p class="lede">需求是逐级查「省→市→区/县→镇→村」，不要地图。本质是树形数据查询，关键在数据。</p>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:140px">层级</th><th>数据源</th></tr></thead>
+      <tbody>
+        <tr><td><b>省/市/县/乡镇</b></td><td>国家统计局《统计用区划和城乡划分代码》，每年发布、公开结构化，是主干</td></tr>
+        <tr><td><b>村/社区</b></td><td>最大难点：国家无统一公开库，需从各省/市数据开放平台零散整合；或用百度/高德 API 补充（可能不全、需商用授权）</td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-size:14px;color:var(--ink-2);margin-bottom:8px"><b style="color:var(--ink)">表结构</b>：id 主键、parent_id 自关联、name、full_name、code（12 位统计用区划代码，唯一索引）、level（1 省/2 市/3 县区/4 乡镇/5 村）。API：<code>GET /api/divisions?parent_code=110000</code> 查子级；<code>/api/search?name=海淀&level=3</code> 模糊搜；<code>/api/tree?code=110000&depth=3</code> 取子树。前端用级联选择器逐级加载。</p>
+    <div class="srcnote" style="margin-bottom:0"><b>关键判断</b>：70% 精力花在数据获取、清洗、年度更新上；全国 50 万+ 村级单位，初期先做到乡镇级更现实；用第三方 API 商用前须读服务条款、申请授权。</div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>CSV 查询 · 名片 · 行政区划 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自建站与小工具开发笔记，代码与字段照录原文示例；真实部署时请按数据脱敏、版权与授权要求处理。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){for(var i=0;i<secLinks.length;i++){secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);}}
+  function spy(){var y=window.scrollY+130, cur=SECS[0];for(var i=0;i<SECS.length;i++){var s=document.getElementById(SECS[i]);if(!s)continue;var top=s.getBoundingClientRect().top+window.scrollY;if(top<=y)cur=SECS[i];}mark(cur);}
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
