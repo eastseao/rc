@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Win11 版本区别·BitLocker·硬盘分区 · 2026-06-26</title>
+<meta name="description" content="合并六篇笔记：Win11 家庭版/专业版/企业版区别详解、BitLocker 设备加密功能、2T 硬盘 BitLocker 加密时间实测、硬盘分区命名建议、存储芯片与硬盘区别。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 Win11 版本区别</a>
+      <a href="#s1" data-sec="s1">01 BitLocker 加密</a>
+      <a href="#s2" data-sec="s2">02 加密耗时实测</a>
+      <a href="#s3" data-sec="s3">03 分区命名建议</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 系统与存储长文</span>
+  <h1>Win11 版本区别 · BitLocker · 硬盘分区</h1>
+  <p class="s-lede">六篇系统与存储笔记合并：Win11 家庭版 / 专业版 / 企业版到底差在哪；BitLocker 设备加密是什么、怎么用；2T 硬盘开启 BitLocker 到底要等多久；分区盘符怎么命名更合理；以及存储芯片（SSD）与机械硬盘的区别。00723 与 01348 两篇同题笔记已合并为一节。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-06-26</b></span>
+    <span>收录笔记 <b>6 篇</b></span>
+    <span>主题 <b>Windows / 存储</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">Win11 版本</span>
+    <span class="s-chip">BitLocker</span>
+    <span class="s-chip">硬盘分区</span>
+    <span class="s-chip">SSD / HDD</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>：
+    <ol>
+      <li>00723-2026-03-14 Win11 版本区别详解（与 01348 同题合并）</li>
+      <li>01348-2026-06-26 WIN11 版本区别详解（与 00723 同题合并）</li>
+      <li>00657-2026-03-06 BitLocker 加密功能介绍</li>
+      <li>00775-2026-03-20 2T 硬盘 BitLocker 加密时间</li>
+      <li>00655-2026-03-06 硬盘分区命名建议</li>
+      <li>00625-2026-03-01 存储芯片与硬盘区别</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 Win11 版本区别 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>Win11 家庭版 / 专业版 / 企业版区别</h2><span class="hint">00723 + 01348 合并</span></div>
+    <p class="lede">Win11 不同版本的内核完全相同，差别集中在<b>功能权限、安全能力和管理方式</b>。普通用户家庭版足够；需要远程桌面客户端以外的能力、Hyper-V、组策略的选专业版；企业批量部署、域管理、高级安全策略的才上企业版。</p>
+
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th style="width:150px">对比项</th><th>家庭版 Home</th><th>专业版 Pro</th><th>企业版 Enterprise</th></tr></thead>
+        <tbody>
+          <tr><td><b>定位</b></td><td>普通个人用户、日常办公娱乐</td><td>中小企业、进阶个人用户、开发者</td><td>大型企业、组织批量部署</td></tr>
+          <tr><td><b>远程桌面</b></td><td>只能作为客户端被连接，<b>不能被远程接入</b></td><td>可作为被控端，接受专业版/企业版远程桌面连接</td><td>完整支持</td></tr>
+          <tr><td><b>Hyper-V 虚拟机</b></td><td>不支持</td><td>支持，可直接创建虚拟机</td><td>支持</td></tr>
+          <tr><td><b>组策略 gpedit</b></td><td>不支持</td><td>支持，可统一定义系统/软件/安全策略</td><td>支持并可域内批量下发</td></tr>
+          <tr><td><b>加入域 Azure AD</b></td><td>不支持</td><td>支持，可加入本地域和 Azure AD</td><td>核心功能，域管理 + MDM 设备管理</td></tr>
+          <tr><td><b>BitLocker 加密</b></td><td>无（仅有简化版设备加密）</td><td>完整 BitLocker 驱动器加密</td><td>完整 BitLocker + 企业级密钥管理</td></tr>
+          <tr><td><b>更新策略</b></td><td>强制接收更新，只能延期少数天数</td><td>可延迟更新、暂停更新，选择更新通道</td><td>最长可延迟 365 天更新， LTSC 长期服务通道</td></tr>
+          <tr><td><b>授权方式</b></td><td>随设备零售/OEM，绑定一台设备</td><td>零售/OEM 或批量授权</td><td>仅企业批量授权（VL），不零售</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid g3">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">家庭版</h3>
+        <p style="font-size:13.5px;color:var(--ink-2)">预装在绝大多数品牌笔记本/台式机上，日常使用体验与专业版几乎无差别。<b>不要为用不上的功能多花钱</b>，普通用户选家庭版即可。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">专业版</h3>
+        <p style="font-size:13.5px;color:var(--ink-2)">需要 Hyper-V 跑虚拟机、要被远程桌面接入、要改组策略、要 BitLocker 全盘加密的用户，一步到位选专业版，性价比最高。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">企业版</h3>
+        <p style="font-size:13.5px;color:var(--ink-2)">面向 IT 管理员和大规模部署：域加入、组策略批量推送、企业级安全与更新通道。个人用户没有购买渠道，也用不上这些能力。</p>
+      </div>
+    </div>
+    <p class="lede" style="margin-top:14px">版本升级路径：家庭版 → 专业版可在「设置 → 系统 → 激活」中输入专业版密钥直接升级，<b>文件和软件全部保留</b>，无需重装；专业版 → 企业版需企业授权重新激活。</p>
+  </section>
+
+  <!-- ══ 01 BitLocker ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>BitLocker 设备加密功能</h2><span class="hint">00657 · 2026-03-06</span></div>
+    <p class="lede">BitLocker 是 Windows 专业版/企业版自带的<b>全盘加密功能</b>：把整颗硬盘（或某个分区）上的数据用 AES 算法加密，别人把你的硬盘拆下来挂到别的电脑上也读不出内容。普通用户听到「加密」容易害怕，实际它就是后台自动工作，日常使用几乎无感。</p>
+
+    <div class="grid g2">
+      <div class="card st2" style="margin-bottom:0">
+        <div class="card-h"><span class="tag">是什么 · 解决什么问题</span><h3>设备丢失 / 被拆硬盘时保护数据</h3></div>
+        <div class="card-b">
+          <p style="font-size:13.5px;color:var(--ink-2);margin-bottom:10px">不加密的硬盘，拆下来挂到别的电脑就是一块普通盘，任何文件直接可见。开了 BitLocker 后，数据在磁盘上是密文，只有本机（或恢复密钥）能解开。适合笔记本、存敏感资料的台式机。</p>
+          <ul style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2)">
+            <li style="margin-bottom:6px"><b>加密对象</b>：整个系统盘（C 盘），也可以单独加密数据分区；U盘可用「BitLocker  To Go」加密。</li>
+            <li style="margin-bottom:6px"><b>工作方式</b>：开机时 TPM 芯片（或要求输入密码）自动解锁，进系统后完全无感，性能损失很小。</li>
+            <li><b>家庭版说明</b>：Win11 家庭版没有完整 BitLocker，但现代笔记本默认开启「设备加密」（设置里搜「设备加密」），效果类似。</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card st2" style="margin-bottom:0">
+        <div class="card-h"><span class="tag">怎么开 · 三步</span><h3>开启与备份恢复密钥</h3></div>
+        <div class="card-b">
+          <dl class="kv">
+            <dt>第一步</dt><dd>「设置 → 隐私和安全性 → 设备加密」（或控制面板搜「BitLocker」），点「管理 BitLocker → 启用 BitLocker」。</dd>
+            <dt>第二步</dt><dd>选择恢复密钥保存位置：<b>务必存到 Microsoft 账户 / U 盘 / 打印出来</b>，不要只留在本机——这是唯一解锁的凭证。</dd>
+            <dt>第三步</dt><dd>选择「加密整个驱动器」或「仅已用空间」，开始加密，期间可正常用电脑，跑完后自动完成。</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <div class="warnbox" style="margin-top:14px">
+      <h5>三条红线</h5>
+      <ul>
+        <li><b>恢复密钥必须备份</b>：没有恢复密钥、TPM 校验失败时，磁盘数据无法恢复，只能格式化重装。</li>
+        <li><b>不要中途断电拔盘</b>：加密进行中强制断电可能导致分区损坏，插电操作。</li>
+        <li><b>重装系统前先解密</b>：否则旧盘可能因密钥不匹配而无法读取。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ 02 加密耗时 + 存储芯片 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>2T 硬盘加密耗时实测 · SSD 与 HDD 区别</h2><span class="hint">00775 / 00625</span></div>
+    <p class="lede">很多人开 BitLocker 前最关心的问题：<b>2T 硬盘加密要多久？要不要通宵？</b>答案取决于你选「仅加密已用空间」还是「加密整个驱动器」，以及硬盘是 SSD 还是机械盘——这正好带出存储芯片与机械硬盘的区别。</p>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">2T 加密要等多久</h3>
+        <ul style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2)">
+          <li style="margin-bottom:6px"><b>仅加密已用空间</b>：只加密你已经存了数据的部分。2T 盘如果只用了几百 GB，通常几十分钟到一两小时完成——<b>新盘或空盘几分钟就完事</b>，这是官方推荐的默认选项。</li>
+          <li style="margin-bottom:6px"><b>加密整个驱动器</b>：对整颗盘逐扇区加密。2T 满盘时，SSD 大约 1–3 小时；机械 HDD 慢很多，<b>可能 6–12 小时甚至更久</b>，建议睡前挂机插电跑。</li>
+          <li><b>过程可暂停可继续</b>：加密进度可以中断后重启续跑，期间电脑照常使用，只是加密期间硬盘占用率高、略卡。</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">存储芯片 vs 机械硬盘</h3>
+        <ul style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2)">
+          <li style="margin-bottom:6px"><b>SSD（固态硬盘 / 存储芯片）</b>：纯电子芯片，没有机械运动部件。读写速度快（NVMe SSD 可达 3000–7000MB/s）、抗震、安静、开机几秒。缺点是同容量比 HDD 贵。</li>
+          <li style="margin-bottom:6px"><b>HDD（机械硬盘）</b>：盘片旋转 + 磁头读写。容量大、单位便宜、适合冷数据仓库；速度慢（约 100–200MB/s）、怕摔怕震动、有噪音发热。</li>
+          <li><b>组合用法</b>：系统和软件装 SSD 求速度，仓库盘、备份盘用 HDD 求容量；BitLocker 加密 HDD 时耐心挂机即可。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 03 分区命名 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>硬盘分区命名建议</h2><span class="hint">00655 · 2026-03-06</span></div>
+    <p class="lede">盘符字母（C: D: E:）只是个「标签」，命名规范的目的是<b>看着不乱、换机器不懵、备份不搞错</b>。没有标准答案，下面是原笔记总结的一套实用约定。</p>
+
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th style="width:170px">约定</th><th>建议</th></tr></thead>
+        <tbody>
+          <tr><td><b>盘符顺序</b></td><td>C: 系统盘固定不动；从 D: 开始按用途顺排。<b>不要随意改已有盘符</b>，改了会导致软件快捷方式、快捷路径失效。</td></tr>
+          <tr><td><b>用途分区</b></td><td>D: 常用软件 / 游戏；E: 工作文档；F: 影音素材；G: 备份。一眼看出每个盘是干嘛的。</td></tr>
+          <tr><td><b>卷标命名</b></td><td>除了盘符，给每个分区起卷标（此电脑里显示在盘符旁）：如「工作盘」「素材库」「备份盘」。卷标随便改不影响软件，推荐用中文短词。</td></tr>
+          <tr><td><b>多盘 / 移动盘</b></td><td>外置硬盘固定分配一个盘符（如 Z:），避免每次插上盘符乱跑；同一类盘保持同一盘符习惯，换机时照着对。</td></tr>
+          <tr><td><b>避坑</b></td><td>系统恢复分区、EFI 分区不要动也不要命名；不要把个人数据全塞 C 盘，重装系统会被清空。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="lede" style="margin-top:4px">一句话：<b>C 盘只放系统，数据按用途分卷、起中文卷标、外置盘固定盘符</b>——十年后自己都看得懂。</p>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>Win11 版本区别 · BitLocker · 硬盘分区 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页内容整理自 Windows 与存储工作笔记。BitLocker 与磁盘分区操作存在数据丢失风险，请务必备份恢复密钥、重要数据后再操作；版本功能与加密耗时随硬件和系统版本变化，文中数据为原笔记记录的参考值。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

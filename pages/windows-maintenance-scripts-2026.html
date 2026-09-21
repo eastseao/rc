@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Windows 维护批处理与注册表清理 · 2026-06-21</title>
+<meta name="description" content="六篇 Windows 维护笔记合并：一键清理系统垃圾 bat、强力删除顽固文件夹、NUL 保留名文件删除、WinSxS 组件存储 DISM 清理、注册表清理脚本与 .reg 关联修改。脚本全部照录原笔记。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+/* 顶栏 */
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+/* 文档头部 */
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+/* 主体 */
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+/* 章节 */
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+/* 代码块 */
+pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius-sm);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2);margin-bottom:16px;white-space:pre;word-wrap:normal}
+code{font-family:var(--mono);font-size:12.5px;background:var(--code);border:1px solid var(--line);border-radius:4px;padding:1px 6px;color:var(--accent-ink)}
+
+/* 表格 */
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+/* 手风琴 */
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+/* 页脚 */
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+/* 板块主题色开关 */
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 垃圾清理脚本</a>
+      <a href="#s1" data-sec="s1">01 顽固文件删除</a>
+      <a href="#s2" data-sec="s2">02 WinSxS 清理</a>
+      <a href="#s3" data-sec="s3">03 注册表清理</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 系统维护手册</span>
+  <h1>Windows 维护批处理与注册表清理</h1>
+  <p class="s-lede">把六篇 Windows 维护笔记合并成一本可照抄的操作手册：从一键清理系统垃圾的 bat 脚本（基础版 / 深度版 / 全能菜单版），到强力删除顽固文件夹与 NUL 保留名文件，再到 WinSxS 组件存储的 DISM 安全清理与注册表清理脚本。所有批处理代码均照录原笔记，未作改写；运行前请务必阅读每节的安全提示。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-06-21</b></span>
+    <span>收录笔记 <b>6 篇</b></span>
+    <span>适用系统 <b>Windows 10 / 11</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">批处理 .bat</span>
+    <span class="s-chip">DISM 清理</span>
+    <span class="s-chip">注册表</span>
+    <span class="s-chip">顽固文件</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00753-2026-03-17 清除电脑垃圾 bat 文件代码</li>
+      <li>01307-2026-06-15 强力删除文件夹批处理</li>
+      <li>01308-2026-06-15 删除 NUL 文件方法</li>
+      <li>01322-2026-06-17 WinSxS 清理 BAT 脚本</li>
+      <li>01329-2026-06-21 注册表清理脚本</li>
+      <li>00924-2026-04-14 注册表文件修改咨询</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 一键清理系统垃圾 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>一键清理系统垃圾的 bat 脚本</h2><span class="hint">00753 · 2026-03-17</span></div>
+    <p class="lede">原笔记给出了从简到繁四个版本：<b>基础版</b>只删临时文件；<b>全面深度版</b>加入 DISM 组件清理、更新缓存、DNS 与浏览器缓存；<b>专项版</b>专治 C 盘被 Windows 更新文件占用；<b>极简版</b>只释放空闲内存；最后再把全部功能整合成一个<b>菜单版全能脚本</b>。创建方法统一：记事本粘贴代码 → 另存为时「保存类型」选「所有文件」→ 文件名以 <code>.bat</code> 结尾 → 右键「以管理员身份运行」。</p>
+
+    <div class="rl">
+      <h4>红线 · 批处理安全</h4>
+      <div class="mid">脚本会批量执行删除命令，一个笔误就可能误删文件</div>
+      <p>粘贴时确保括号、引号、符号均为英文半角；运行前保存并关闭所有工作文档；脚本主要清理临时文件，无法取代专业清理软件；深度版中的 DISM 清理执行后无法回退已安装的系统更新。</p>
+    </div>
+
+    <div class="card st1">
+      <div class="card-h"><span class="tag">版本一 · 基础版</span><h3>经典一键清理（照录）</h3></div>
+      <div class="card-b">
+<pre>@echo off
+echo 正在清除系统垃圾文件，请稍等......
+
+:: 删除系统盘根目录下的特定临时文件
+del /f /s /q "%systemdrive%\*.tmp"
+del /f /s /q "%systemdrive%\*._mp"
+del /f /s /q "%systemdrive%\*.log"
+del /f /s /q "%systemdrive%\*.gid"
+del /f /s /q "%systemdrive%\*.chk"
+del /f /s /q "%systemdrive%\*.old"
+
+:: 清空回收站 (适配NTFS文件系统)
+del /f /s /q "%systemdrive%\recycled\*.*"
+
+:: 删除Windows目录下的备份文件和预读文件
+del /f /s /q "%windir%\*.bak"
+del /f /s /q "%windir%\prefetch\*.*"
+
+:: 清空Windows临时文件夹，然后重新创建它
+rd /s /q "%windir%\temp" 2&gt;nul
+md "%windir%\temp"
+
+:: 删除当前用户的个人临时文件和浏览器缓存
+del /f /q "%userprofile%\cookies\*.*"
+del /f /s /q "%userprofile%\Local Settings\Temporary Internet Files\*.*"
+del /f /s /q "%userprofile%\Local Settings\Temp\*.*"
+del /f /s /q "%userprofile%\recent\*.*"
+
+echo 清除系统垃圾完成！
+echo. &amp; pause</pre>
+      </div>
+    </div>
+
+    <div class="card st1">
+      <div class="card-h"><span class="tag">版本二 · 全面深度版</span><h3>加入 DISM、更新缓存与浏览器缓存（照录）</h3></div>
+      <div class="card-b">
+<pre>@echo off
+title 系统垃圾清理工具
+color 0a
+echo 正在清理系统垃圾文件，请稍候...
+echo.
+
+:: 清理临时文件（基础部分）
+echo 清理临时文件...
+del /f /s /q %systemdrive%\*.tmp
+del /f /s /q %systemdrive%\*._mp
+del /f /s /q %systemdrive%\*.log
+del /f /s /q %systemdrive%\*.gid
+del /f /s /q %systemdrive%\*.chk
+del /f /s /q %systemdrive%\*.old
+del /f /s /q %windir%\*.bak
+del /f /s /q %windir%\prefetch\*.*
+rd /s /q %windir%\temp &amp; md %windir%\temp
+del /f /q %userprofile%\recent\*.*
+del /f /s /q "%userprofile%\Local Settings\Temporary Internet Files\*.*"
+del /f /s /q "%userprofile%\Local Settings\Temp\*.*"
+
+:: 清理系统缓存 (DISM命令，用于缩小系统体积)
+echo 清理系统缓存...
+Dism /Online /Cleanup-Image /StartComponentCleanup /ResetBase
+
+:: 清理Windows更新缓存
+echo 清理Windows更新缓存...
+net stop wuauserv
+rd /s /q %windir%\SoftwareDistribution
+net start wuauserv
+
+:: 清理回收站
+echo 清理回收站...
+rd /s /q %systemdrive%\$Recycle.bin
+
+:: 清理DNS缓存
+echo 清理DNS缓存...
+ipconfig /flushdns
+
+:: 清理缩略图缓存
+echo 清理缩略图缓存...
+del /f /s /q "%userprofile%\AppData\Local\Microsoft\Windows\Explorer\thumbcache_*.db"
+
+:: 清理浏览器缓存(Chrome, Edge)
+echo 清理浏览器缓存...
+del /f /s /q "%userprofile%\AppData\Local\Google\Chrome\User Data\Default\Cache\*.*" 2&gt;nul
+del /f /s /q "%userprofile%\AppData\Local\Microsoft\Edge\User Data\Default\Cache\*.*" 2&gt;nul
+
+echo.
+echo 系统垃圾清理完成!
+pause</pre>
+      </div>
+    </div>
+
+    <div class="grid g2">
+      <div class="card st1" style="margin-bottom:0">
+        <div class="card-h"><span class="tag">版本三 · 专项版</span><h3>强制清理 Windows 更新残留（照录）</h3></div>
+        <div class="card-b">
+<pre>@echo off
+echo 正在强制清理Windows更新残留文件...
+echo.
+
+:: 停止Windows更新相关服务
+echo 正在停止更新服务...
+net stop wuauserv
+net stop bits
+
+:: 删除更新缓存文件夹
+echo 正在删除更新缓存...
+del /f /s /q "%systemroot%\SoftwareDistribution\Download\*.*"
+rd /s /q "%systemroot%\SoftwareDistribution\Download"
+
+:: 重启服务
+echo 重启服务...
+net start wuauserv
+net start bits
+
+echo Windows更新缓存清理完成！
+pause</pre>
+        </div>
+      </div>
+      <div class="card st1" style="margin-bottom:0">
+        <div class="card-h"><span class="tag">版本四 · 极简版</span><h3>只释放空闲内存（照录）</h3></div>
+        <div class="card-b">
+<pre>@echo off
+echo 正在释放空闲内存，请稍等......
+%windir%\system32\rundll32.exe advapi32.dll,ProcessIdleTasks
+echo 内存清理完成！
+pause</pre>
+          <p style="font-size:13.5px;color:var(--ink-2);margin-top:4px">作用：强制系统释放当前未被使用、处于空闲状态的物理内存（RAM），不影响正在运行的程序，可随时执行。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card st1" style="margin-top:14px">
+      <div class="card-h"><span class="tag">整合版 · 菜单版</span><h3>全能系统垃圾清理工具（照录）</h3></div>
+      <div class="card-b">
+        <p class="lede" style="margin-bottom:12px">保存为 <code>全能清理.bat</code>，右键管理员运行后按菜单数字选择。1 基础清理、2 深度清理、3 释放内存、4 全部执行、0 退出。</p>
+<pre>@echo off
+chcp 65001 &gt;nul  :: 设置控制台编码为UTF-8，避免中文乱码
+title 全能系统垃圾清理工具
+color 0a
+
+:: 检查是否以管理员权限运行
+net session &gt;nul 2&gt;&amp;1
+if %errorlevel% neq 0 (
+    echo 请右键选择“以管理员身份运行”此脚本。
+    pause
+    exit /b
+)
+
+:menu
+cls
+echo ============================================
+echo        全能系统垃圾清理工具
+echo ============================================
+echo  1. 基础垃圾清理（临时文件、回收站等）
+echo  2. 深度系统清理（DISM、更新缓存、DNS、缩略图、浏览器缓存）
+echo  3. 释放空闲内存
+echo  4. 执行全部清理（1+2+3）
+echo  0. 退出
+echo ============================================
+set /p choice=请输入数字选择要执行的操作：
+
+if "%choice%"=="1" goto base
+if "%choice%"=="2" goto deep
+if "%choice%"=="3" goto memory
+if "%choice%"=="4" goto all
+if "%choice%"=="0" exit
+echo 输入无效，请重新输入。
+pause
+goto menu
+
+:base
+cls
+echo 开始基础垃圾清理...
+call :clean_base
+echo 基础清理完成！
+pause
+goto menu
+
+:deep
+cls
+echo 开始深度系统清理...
+call :clean_deep
+echo 深度清理完成！
+pause
+goto menu
+
+:memory
+cls
+echo 开始释放空闲内存...
+call :clean_memory
+echo 内存释放完成！
+pause
+goto menu
+
+:all
+cls
+echo 开始执行全部清理...
+call :clean_base
+call :clean_deep
+call :clean_memory
+echo 全部清理完成！
+pause
+goto menu
+
+:: ---------- 以下是各个清理模块 ----------
+
+:clean_base
+echo 清理临时文件...
+del /f /s /q %systemdrive%\*.tmp 2&gt;nul
+del /f /s /q %systemdrive%\*._mp 2&gt;nul
+del /f /s /q %systemdrive%\*.log 2&gt;nul
+del /f /s /q %systemdrive%\*.gid 2&gt;nul
+del /f /s /q %systemdrive%\*.chk 2&gt;nul
+del /f /s /q %systemdrive%\*.old 2&gt;nul
+del /f /s /q %windir%\*.bak 2&gt;nul
+del /f /s /q %windir%\prefetch\*.* 2&gt;nul
+rd /s /q %windir%\temp 2&gt;nul &amp; md %windir%\temp 2&gt;nul
+del /f /q %userprofile%\recent\*.* 2&gt;nul
+del /f /s /q "%userprofile%\Local Settings\Temporary Internet Files\*.*" 2&gt;nul
+del /f /s /q "%userprofile%\Local Settings\Temp\*.*" 2&gt;nul
+echo 清理回收站...
+rd /s /q %systemdrive%\$Recycle.bin 2&gt;nul
+echo 基础垃圾清理模块执行完毕。
+exit /b
+
+:clean_deep
+echo 清理系统组件缓存 (DISM)...
+Dism /Online /Cleanup-Image /StartComponentCleanup /ResetBase /Quiet
+echo 停止Windows更新服务...
+net stop wuauserv /y &gt;nul 2&gt;&amp;1
+net stop bits /y &gt;nul 2&gt;&amp;1
+echo 清理Windows更新缓存...
+rd /s /q %windir%\SoftwareDistribution 2&gt;nul
+echo 重启Windows更新服务...
+net start wuauserv &gt;nul 2&gt;&amp;1
+net start bits &gt;nul 2&gt;&amp;1
+echo 清理DNS缓存...
+ipconfig /flushdns &gt;nul
+echo 清理缩略图缓存...
+del /f /s /q "%userprofile%\AppData\Local\Microsoft\Windows\Explorer\thumbcache_*.db" 2&gt;nul
+echo 清理浏览器缓存(Chrome, Edge)...
+del /f /s /q "%userprofile%\AppData\Local\Google\Chrome\User Data\Default\Cache\*.*" 2&gt;nul
+del /f /s /q "%userprofile%\AppData\Local\Microsoft\Edge\User Data\Default\Cache\*.*" 2&gt;nul
+echo 深度清理模块执行完毕。
+exit /b
+
+:clean_memory
+echo 正在释放空闲内存，请稍等......
+%windir%\system32\rundll32.exe advapi32.dll,ProcessIdleTasks
+echo 内存释放模块执行完毕。
+exit /b</pre>
+        <div class="warnbox">
+          <h5>中文乱码怎么办（原笔记排障）</h5>
+          <ul>
+            <li>原因：中文 Windows 控制台默认代码页是 GBK（936），脚本开头 <code>chcp 65001</code> 强制切 UTF-8，字体不支持就会乱码。</li>
+            <li>解法：用记事本打开 .bat →「文件 → 另存为」→ 底部「编码」从 UTF-8 改为 <b>ANSI</b>（中文系统即 GBK）→ 覆盖保存 → 重新管理员运行。</li>
+            <li>兜底：原笔记另附一份纯英文版菜单脚本，去掉全部中文字符，任何系统运行都不会乱码。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 01 顽固文件删除 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>强力删除顽固文件夹与 NUL 文件</h2><span class="hint">01307 / 01308</span></div>
+    <p class="lede">两类删不掉的文件：一是<b>权限或属性导致的顽固文件夹</b>（需要先夺取所有权、重置权限、清除只读/隐藏属性）；二是名为 <code>NUL</code> 的特殊文件——<code>NUL</code> 是 Windows 保留设备名，系统会被这个名字「迷惑」，普通删除会报权限错误。</p>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">01307 · 2026-06-15</span><h3>强力删除文件夹批处理（照录）</h3></div>
+      <div class="card-b">
+        <p class="lede" style="margin-bottom:12px">脚本自带系统目录保护：Windows、Program Files 等关键路径禁止删除；非管理员运行会自动请求提权；可把文件夹拖到 .bat 图标上执行。</p>
+<pre>@echo off
+title 强力删除文件夹工具
+setlocal enabledelayedexpansion
+
+:: 检查管理员权限
+net session &gt;nul 2&gt;&amp;1
+if %errorlevel% neq 0 (
+    echo 正在请求管理员权限...
+    powershell start -verb runas '%0' %*
+    exit /b
+)
+
+:: 获取要删除的文件夹路径
+:input
+set "folder=%~1"
+if "%folder%"=="" (
+    set /p "folder=请输入要删除的文件夹完整路径: "
+    if "!folder!"=="" echo 未输入路径，退出。 &amp; pause &amp; exit /b
+)
+set "folder=!folder:"=!"
+
+:: 移除路径末尾可能存在的反斜杠
+if "!folder:~-1!"=="\" set "folder=!folder:~0,-1!"
+
+:: 检查路径是否存在
+if not exist "!folder!" (
+    echo 文件夹 "!folder!" 不存在。
+    pause
+    exit /b
+)
+
+:: 重要系统目录保护（避免误删）
+set "protected=0"
+for %%d in (
+    "%SystemRoot%"
+    "%SystemRoot%\System32"
+    "%ProgramFiles%"
+    "%ProgramFiles(x86)%"
+    "C:\Windows"
+    "C:\Program Files"
+    "C:\Program Files (x86)"
+    "C:\System Volume Information"
+    "C:\Recovery"
+) do (
+    if /i "!folder!"=="%%~d" set protected=1
+)
+if %protected% equ 1 (
+    echo 警告：检测到系统关键目录，禁止删除以保护系统！
+    pause
+    exit /b
+)
+
+echo.
+echo 准备强力删除文件夹: "!folder!"
+echo 警告：删除后无法恢复！
+set /p confirm=确认删除？(Y/N):
+if /i not "!confirm!"=="Y" (
+    echo 操作已取消。
+    pause
+    exit /b
+)
+
+echo.
+echo 正在获取文件夹所有权（可能需要一段时间）...
+takeown /f "!folder!" /r /d y &gt;nul 2&gt;&amp;1
+
+echo 正在修改权限，授予管理员完全控制...
+icacls "!folder!" /grant administrators:F /t /q &gt;nul 2&gt;&amp;1
+
+echo 正在去除只读、隐藏、系统属性...
+attrib -r -s -h "!folder!" /s /d &gt;nul 2&gt;&amp;1
+
+echo 正在强制删除文件夹及其所有内容...
+rd /s /q "!folder!" 2&gt;nul
+
+if exist "!folder!" (
+    echo 第一次删除失败，尝试更彻底的方式...
+    del /f /q "!folder!\*" 2&gt;nul
+    for /d %%i in ("!folder!\*") do rd /s /q "%%i" 2&gt;nul
+    rd /s /q "!folder!" 2&gt;nul
+    if exist "!folder!" (
+        echo.
+        echo 删除失败！可能有文件正在被占用。
+        echo 建议使用工具（如 LockHunter、Process Explorer）关闭占用进程后重试。
+        echo 或重启电脑后再尝试删除。
+    ) else (
+        echo 删除成功！
+    )
+) else (
+    echo 删除成功！
+)
+
+pause
+exit /b</pre>
+        <div class="tblwrap" style="margin-top:6px">
+          <table>
+            <thead><tr><th style="width:150px">脚本步骤</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><b>自动提权</b></td><td>非管理员身份时，自动通过 PowerShell 以管理员重新运行</td></tr>
+              <tr><td><b>路径处理</b></td><td>自动去除引号和末尾反斜杠，支持把文件夹拖到图标上执行</td></tr>
+              <tr><td><b>系统目录保护</b></td><td>禁止删除 Windows、Program Files 等系统关键目录</td></tr>
+              <tr><td><b>takeown /r</b></td><td>递归获取文件夹及所有文件的所有权</td></tr>
+              <tr><td><b>icacls /grant</b></td><td>为 Administrators 组授予完全控制权限</td></tr>
+              <tr><td><b>attrib /s /d</b></td><td>清除只读、系统、隐藏属性</td></tr>
+              <tr><td><b>rd /s /q + 降级清理</b></td><td>先标准强制删除，失败后再精细清理文件与子目录</td></tr>
+              <tr><td><b>失败提示</b></td><td>文件被进程锁定时，建议用 LockHunter / Process Explorer 关闭占用进程或重启后重试</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">01308 · 2026-06-15</span><h3>删除名为 NUL 的保留名文件</h3></div>
+      <div class="card-b">
+        <p class="lede" style="margin-bottom:12px">先放心：<b>这不是病毒或恶意软件</b>。NUL 在 Windows 中是留作特殊用途的设备名（相当于「黑洞」「空设备」），普通文件被命名为 NUL 时系统会被迷惑。按从易到难尝试：</p>
+        <div class="tblwrap">
+          <table>
+            <thead><tr><th style="width:170px">方案</th><th style="width:120px">成功率</th><th>操作</th></tr></thead>
+            <tbody>
+              <tr><td><b>Git Bash</b>（最推荐）</td><td>高，几乎不报错</td><td>在 nul 文件所在文件夹空白处右键「Git Bash Here」，输入 <code>rm nul</code> 回车；有空格则 <code>rm "nul"</code>。底层直接调用 Windows 删除 API，不对保留设备名做特殊处理。装了 WSL 的话，进入子系统后 <code>rm nul</code> 同样有效。</td></tr>
+              <tr><td><b>CMD 设备路径法</b></td><td>中</td><td>以管理员打开命令提示符，用特殊前缀强制按普通路径处理：<code>del \\?\C:\Users\你的用户名\Desktop\nul</code>（换成你自己的真实完整路径）。</td></tr>
+              <tr><td><b>PowerShell</b>（适合批量）</td><td>备选</td><td>单文件：<code>Remove-Item -LiteralPath "\\?\C:\Users\你的用户名\Desktop\nul"</code>，<code>-LiteralPath</code> 禁用通配符解析。批量递归删除当前目录及所有子目录的 nul 文件（CMD 中运行）：<code>cmd /c del /s /f /q "\\?\%cd%\nul"</code>，执行前确认确实要递归删除。</td></tr>
+              <tr><td><b>第三方工具</b>（终极手段）</td><td>兜底</td><td>火绒安全「文件粉碎」；或 LockHunter / Unlocker 这类解除文件锁定的强制删除工具。</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="srcnote" style="margin-bottom:0"><b>为什么会生成 nul 文件</b>：大概率是某些开发脚本或软件 Bug 错误地在当前目录创建了它——比如 Python 程序本想丢弃输出，却写成了 <code>"nul"</code> 而不是专用的 <code>os.devnull</code>，或配置文件误把路径硬编码成 nul。要根治需修改生成该文件的源代码或配置。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 02 WinSxS 清理 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>WinSxS 组件存储与 C 盘空间清理</h2><span class="hint">01322 · 2026-06-17</span></div>
+    <p class="lede">WinSxS 是 Windows 系统核心目录，<b>绝不能直接用 del / rd 删除</b>，否则会导致系统崩溃。原笔记的脚本只调用 Windows 官方自带的 DISM 工具做安全清理：先分析可回收空间，再标准清理（保留更新回滚能力），深度清理（/ResetBase）可选。</p>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">脚本 · 照录</span><h3>WinSxS 安全清理工具（基于 DISM）</h3></div>
+      <div class="card-b">
+<pre>@echo off
+title WinSxS 安全清理工具 (基于DISM)
+color 0E
+
+:: 检查是否以管理员权限运行
+echo 正在检测管理员权限...
+net session &gt;nul 2&gt;&amp;1
+if %errorlevel% neq 0 (
+    echo 错误：此脚本需要以管理员身份运行！
+    echo 请右键点击本文件，选择“以管理员身份运行”。
+    pause
+    exit /b
+)
+
+cls
+echo ===============================================
+echo       WinSxS 组件存储安全清理工具 v1.0
+echo ===============================================
+echo.
+echo 注意：本工具仅调用 Windows 官方 DISM 命令，
+echo       不会强制删除任何系统文件，相对安全。
+echo ===============================================
+echo.
+
+:: 第一步：分析 WinSxS 文件夹的实际大小和可回收空间
+echo [1/3] 正在分析 WinSxS 组件存储，请稍候...
+echo -----------------------------------------------------------------
+Dism /Online /Cleanup-Image /AnalyzeComponentStore
+echo -----------------------------------------------------------------
+echo.
+echo 请查看上方报告中 "推荐使用组件存储清理" 的状态。
+echo 如果显示 "是"，则建议进行清理；如果显示 "否"，则无需清理。
+echo.
+
+:: 第二步：询问用户是否继续
+set /p confirm="是否立即执行标准清理？(输入 Y 并回车确认，其他任意键退出): "
+if /i not "%confirm%"=="Y" (
+    echo 操作已取消。
+    pause
+    exit /b
+)
+
+echo.
+echo [2/3] 正在执行标准清理（保留最近安装的更新备份）...
+echo -----------------------------------------------------------------
+Dism /Online /Cleanup-Image /StartComponentCleanup
+echo -----------------------------------------------------------------
+echo.
+echo 标准清理已完成！
+echo.
+
+:: 第三步：高级深度清理（可选）
+echo ===============================================
+echo 警告：深度清理选项 (/ResetBase)
+echo 此操作将移除所有旧版本的组件，导致已安装的
+echo Windows 更新无法卸载，但可以最大程度释放空间。
+echo ===============================================
+set /p deep="是否执行深度清理 (ResetBase)？(输入 Y 并回车确认，其他任意键跳过): "
+if /i "%deep%"=="Y" (
+    echo.
+    echo [3/3] 正在执行深度清理（重置基础版本），请耐心等待...
+    echo -----------------------------------------------------------------
+    Dism /Online /Cleanup-Image /StartComponentCleanup /ResetBase
+    echo -----------------------------------------------------------------
+    echo 深度清理已完成！
+) else (
+    echo [3/3] 已跳过深度清理。
+)
+
+echo.
+echo ===============================================
+echo 所有操作执行完毕！建议重启计算机。
+echo ===============================================
+pause</pre>
+        <div class="tblwrap" style="margin-top:6px">
+          <table>
+            <thead><tr><th style="width:220px">清理模式</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td><b>/AnalyzeComponentStore</b>（前置分析）</td><td>先跑分析，报告里「推荐使用组件存储清理」显示「是」才建议清理；显示「否」说明系统已较精简，强行清理收益不大。</td></tr>
+              <tr><td><b>/StartComponentCleanup</b>（标准清理）</td><td>安全级别高：清理被取代的旧版本组件，同时<b>保留近期安装的更新回滚能力</b>，强烈建议首选。</td></tr>
+              <tr><td><b>/ResetBase</b>（深度清理）</td><td>激进模式：移除所有被取代的组件版本，清理后<b>无法从控制面板卸载任何已安装的 Windows 累计更新</b>，仅在确定不需要回滚更新时使用。</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:13.5px;color:var(--ink-2)">清理过程可能需要数分钟甚至更久，期间 CPU 占用较高属正常现象，不要强制关闭命令行窗口。</p>
+      </div>
+    </div>
+
+    <details class="acc st3" open>
+      <summary>C 盘用户文件夹太大怎么办（同篇笔记后续问答）<span class="cnt">诊断 + 清理 + 迁移</span></summary>
+      <div class="body">
+        <div class="rl" style="margin-bottom:14px">
+          <h4>红线 · 千万不要做</h4>
+          <div class="mid">不要直接删除 C:\Users，也不要把整个用户文件夹搬到别的盘</div>
+          <p>用户文件夹是系统核心，直接删除会导致数据丢失或无法登录；整个文件夹强行移动会损坏用户配置文件。处理思路是「疏」而不是「堵」：先清理缓存，再迁移个人文件夹。</p>
+        </div>
+        <div class="grid g2">
+          <div class="panel">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">第一步：先「诊断」再清理</h3>
+            <dl class="kv">
+              <dt>定位空间杀手</dt><dd>用 WizTree（免费绿色）或 TreeSize Free 扫描 <code>C:\Users\你的用户名</code>，通常是 <code>AppData</code>（程序缓存、游戏存档、浏览器数据）或「下载」文件夹占比最大。</dd>
+              <dt>系统临时文件</dt><dd>Win+R 输入 <code>%temp%</code> 回车，Ctrl+A 全选删除（正在用的跳过），再清空回收站。</dd>
+              <dt>磁盘清理（重点）</dt><dd>搜索打开「磁盘清理」→ 选 C 盘 →「清理系统文件」，重点勾选「以前的 Windows 安装」或「Windows 更新清理」、「临时文件」、「回收站」——这是单次释放空间最多的操作之一。</dd>
+              <dt>第三方缓存</dt><dd>浏览器：用设置里的「清除浏览数据」，不要手动删文件夹。微信/QQ：在 PC 版「设置 → 文件管理」把保存路径迁到 D 盘后再删原缓存。开发工具：npm 跑 <code>npm cache clean --force</code>，pip 跑 <code>pip cache purge</code>。</dd>
+            </dl>
+          </div>
+          <div class="panel">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">第二步：迁移 + 系统优化</h3>
+            <dl class="kv">
+              <dt>迁移个人文件夹</dt><dd>右键「桌面 / 文档 / 下载 / 图片 / 视频 / 音乐」→「属性 → 位置 → 移动」→ 选 D 盘新文件夹 → 确认移动。快捷入口不变，最官方安全。</dd>
+              <dt>关闭休眠</dt><dd>管理员命令提示符运行 <code>powercfg /h off</code>，可释放约内存大小 75% 的空间。</dd>
+              <dt>存储感知</dt><dd>「设置 → 系统 → 存储」打开存储感知，如设定回收站文件超过 30 天自动删除。</dd>
+              <dt>进阶（仅限熟手）</dt><dd>巨大缓存文件夹可剪切到 D 盘后 <code>mklink /J "C:\原路径" "D:\新路径"</code> 建目录链接；软件升级或系统更新后可能报错，不熟练不建议操作。Program Files 不能直接移动，系统盘不建议压缩。</dd>
+            </dl>
+          </div>
+        </div>
+        <p style="margin-top:12px;font-size:13.5px;color:var(--ink-2)">三板斧：WizTree 扫描 → 清微信/浏览器/开发工具缓存 → 迁移「下载/桌面」到 D 盘，通常能释放 20GB–50GB 甚至更多。</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ══ 03 注册表清理 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>注册表清理脚本与 .reg 关联修改</h2><span class="hint">01329 / 00924</span></div>
+    <p class="lede">最后落到注册表：一篇给出了<b>注册表垃圾清理 bat</b>（照录原脚本），另一篇是 <b>.md 文件右键新建关联的 .reg 写法</b>。注册表操作风险最高——改坏可能导致软件无法运行甚至系统异常，运行前务必创建系统还原点或导出备份。</p>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">01329 · 2026-06-21</span><h3>注册表垃圾清理脚本（照录）</h3></div>
+      <div class="card-b">
+        <p class="lede" style="margin-bottom:12px">原笔记说明该脚本用于清理常见注册表无效项：无效的 ActiveX/COM 组件、应用程序路径、字体缓存、卸载信息、共享 DLL 引用等。保存为 <code>CleanRegistry.bat</code>，右键管理员运行。</p>
+<pre>@echo off
+title 注册表垃圾清理工具
+color 0a
+echo ========================================
+echo       注册表垃圾清理脚本
+echo   适用于 Windows 7 / 8 / 10 / 11
+echo ========================================
+echo.
+echo 注意：建议先创建系统还原点！
+echo 按任意键继续，或关闭窗口取消...
+pause &gt; nul
+
+echo.
+echo 正在扫描并清理无效注册表项...
+
+:: 清理无效的 ActiveX/COM 组件
+reg delete "HKCR\CLSID" /f /va &gt; nul 2&gt;&amp;1
+reg delete "HKCR\Interface" /f /va &gt; nul 2&gt;&amp;1
+reg delete "HKCR\TypeLib" /f /va &gt; nul 2&gt;&amp;1
+
+:: 清理无效的应用程序路径
+reg delete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths" /f /va &gt; nul 2&gt;&amp;1
+
+:: 清理无效的字体缓存
+reg delete "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts" /f /va &gt; nul 2&gt;&amp;1
+
+:: 清理无效的卸载信息
+reg delete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" /f /va &gt; nul 2&gt;&amp;1
+reg delete "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" /f /va &gt; nul 2&gt;&amp;1
+
+:: 清理无效的共享 DLL 引用
+reg delete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\SharedDLLs" /f /va &gt; nul 2&gt;&amp;1
+
+:: 清理无效的 MRU 列表（最近使用）
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU" /f /va &gt; nul 2&gt;&amp;1
+
+:: 清理临时注册表键
+reg delete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" /f /va &gt; nul 2&gt;&amp;1
+reg delete "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" /f /va &gt; nul 2&gt;&amp;1
+
+echo.
+echo 清理完成！
+echo 建议重启电脑以使更改生效。
+pause</pre>
+        <div class="warnbox">
+          <h5>使用注意（原笔记照录）</h5>
+          <ul>
+            <li>务必以管理员身份运行，否则无法修改系统级注册表项。</li>
+            <li>运行前创建系统还原点或备份注册表；有重要软件时谨慎使用，或先测试。</li>
+            <li>原笔记称该脚本仅清理常见无效项、不会删除有效软件配置——照录供参考，实际执行前请自行权衡风险。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">00924 · 2026-04-14</span><h3>.md 文件右键新建关联的 .reg 写法</h3></div>
+      <div class="card-b">
+        <p class="lede" style="margin-bottom:12px">用户提供的一段 Typora 关联 .reg：把 <code>.md</code> 扩展名关联到 Typora，并在右键「新建」菜单加入 Markdown 文件。原笔记围绕「文件名是否要加当日日期」展开讨论，结论是按实际需求确认——这里照录用户给出的注册表内容：</p>
+<pre>Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\.md]
+@="MarkdownFile"
+"Content Type"="text/markdown"
+"PerceivedType"="text"
+
+[HKEY_CLASSES_ROOT\.md\ShellNew]
+"NullFile"=""
+
+[HKEY_CLASSES_ROOT\MarkdownFile]
+@="Markdown 文件"
+
+[HKEY_CLASSES_ROOT\MarkdownFile\DefaultIcon]
+@="\"C:\\Program Files\\Typora\\Typora.exe\",0"
+
+[HKEY_CLASSES_ROOT\MarkdownFile\shell\open\command]
+@="\"C:\\Program Files\\Typora\\Typora.exe\" \"%1\""</pre>
+        <div class="srcnote" style="margin-bottom:0"><b>三种可能的理解</b>（原笔记整理）：① 把这个 .reg 文件本身重命名为带当日日期的文件名，如 <code>Markdown关联_20260414.reg</code>；② 修改文件内部某个键值字符串；③ 把 <code>ShellNew</code> 下的 <code>"NullFile"=""</code> 改为 <code>"FileName"="XXXX20260414.md"</code> 指定新建模板。实际改哪一处，取决于「XXXX」到底代表固定字符串、原文件名还是变量。</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>Windows 维护批处理与注册表清理 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页内容整理自系统维护工作笔记，所有批处理与注册表代码均照录原文。批处理与注册表操作不可逆，请在备份数据、创建系统还原点后谨慎执行；脚本版本随系统更新可能需要调整，不构成任何技术支持承诺。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

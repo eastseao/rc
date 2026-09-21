@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>显卡内存解读·ZImage Turbo·配置查询·C++修复 · 2026-06-28</title>
+<meta name="description" content="合并四篇笔记：5966MB 显存与 10010MB 总显存解读、6GB 显存能跑哪些 AI 模型、Windows ComfyUI 安装 Z-Image Turbo 完整教程、三平台电脑配置查询命令、Visual C++ 运行库修复多次无效的根治流程。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius-sm);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2);margin-bottom:16px;white-space:pre;word-wrap:normal}
+code{font-family:var(--mono);font-size:12.5px;background:var(--code);border:1px solid var(--line);border-radius:4px;padding:1px 6px;color:var(--accent-ink)}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 显卡内存解读</a>
+      <a href="#s1" data-sec="s1">01 Z-Image Turbo 安装</a>
+      <a href="#s2" data-sec="s2">02 配置查询命令</a>
+      <a href="#s3" data-sec="s3">03 C++ 组件修复</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 硬件与 AI 部署长文</span>
+  <h1>显卡内存解读 · ZImage Turbo · 配置查询 · C++ 修复</h1>
+  <p class="s-lede">四篇硬件与 AI 部署笔记合并：5966MB 专用显存 + 10010MB 总显存到底代表什么配置、6GB 显存能跑哪些 AI 模型；Windows 上用 ComfyUI 部署 Z-Image Turbo 的完整教程（含 GGUF 排障）；Windows / macOS / Linux 三平台查配置命令；以及 Visual C++ 运行库修复多次无效时的根治流程。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-06-28</b></span>
+    <span>收录笔记 <b>4 篇</b></span>
+    <span>主题 <b>GPU / ComfyUI / 系统工具</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">VRAM 解读</span>
+    <span class="s-chip">ComfyUI</span>
+    <span class="s-chip">Z-Image Turbo</span>
+    <span class="s-chip">VC++ 修复</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>：
+    <ol>
+      <li>00727-2026-03-14 显卡内存解读与应用建议</li>
+      <li>00728-2026-03-14 Windows 安装 ZImage Turbo 教程</li>
+      <li>01218-2026-05-26 电脑配置查询命令</li>
+      <li>01349-2026-06-26 C++ 组件修复多次无效解决</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 显卡内存解读 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>显卡内存解读：5966MB VRAM 与 10010MB 总显存</h2><span class="hint">00727 · 2026-03-14</span></div>
+    <p class="lede">原笔记里用户的查询结果是：显卡总内存 <b>10010MB</b>、显卡内存（VRAM）<b>5966MB</b>。这两个数字揭示了一种「分工合作」模式：一块约 6GB 显存的独立显卡，再加系统借调约 4GB 的后备内存。</p>
+
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th style="width:180px">数字</th><th>含义</th></tr></thead>
+        <tbody>
+          <tr><td><b>5966MB 显卡内存（VRAM）</b></td><td>独立显卡上的专用「高速工作台」，存储 GPU 正在实时处理的图像、纹理和数据，读写极快，对 Photoshop 大画布、大型 3D 游戏至关重要。</td></tr>
+          <tr><td><b>10010MB 总显存</b></td><td>「总仓库」概念：5966MB 专用 VRAM + 从系统内存条划分出来的「共享系统内存」约 4GB。专用显存用满时系统自动调用这部分，速度慢一些但防崩溃。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">Photoshop 创作：得心应手</h3>
+        <ul style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2)">
+          <li style="margin-bottom:6px">6GB 显存远超 Adobe 官方推荐的 2GB 以上配置，几千像素高清照片、数十图层复杂合成都流畅。</li>
+          <li>神经滤镜、创成式填充等 AI 生成功能依赖显卡算力与显存，这个配置足以很好支持。</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">编程与 AI：大有可为</h3>
+        <ul style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2)">
+          <li style="margin-bottom:6px">6GB 是本地 AI 开发的「黄金起步容量」：可跑通并微调 7B–8B 开源大模型（Llama 3、Mistral 等），也能跑通 Stable Diffusion。</li>
+          <li style="margin-bottom:6px">瓶颈在超大规模模型——训练数十亿参数或 FLUX.2 这类可能需 90GB 以上显存的模型会吃力，可用 CPU + 系统内存分担但很慢。</li>
+          <li>Web / 移动 / 桌面软件开发等传统场景，显卡绰绰有余。</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card st1" style="margin-top:14px">
+      <div class="card-h"><span class="tag">6GB 显存精选模型清单</span><h3>适合这个配置的图像生成模型</h3></div>
+      <div class="card-b">
+        <div class="tblwrap" style="margin-bottom:0">
+          <table>
+            <thead><tr><th style="width:170px">模型</th><th>特点与优势</th><th style="width:150px">上手难度</th></tr></thead>
+            <tbody>
+              <tr><td><b>Stable Diffusion WebUI</b></td><td>开源社区万金油，生态最完善、插件极多（ControlNet 等）。6GB 是入门推荐配置，开 <code>--medvram</code> 后可流畅生成 1024×1024 及以下。</td><td>中等</td></tr>
+              <tr><td><b>阿里 Z-Image-Turbo</b></td><td>专为 6GB 显存优化的「快枪手」，1024×1024 数秒出图；6B 参数单流架构，中文理解极佳、文字生成准确。</td><td>简单</td></tr>
+              <tr><td><b>美团 LongCat-Image</b></td><td>FLUX 风格高质量模型，约 6B 参数，复杂布局指令和摄影级写实人像出色，配强大图像编辑工具。</td><td>中等</td></tr>
+              <tr><td><b>腾讯混元 DiT</b></td><td>已推出小显存版本，明确适配 6GB，与 LoRA、ControlNet 插件无缝衔接。</td><td>简单</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:13.5px;color:var(--ink-2);margin-top:12px">建议路径：新手先把 SD WebUI 跑起来理解提示词、采样器、LoRA；再尝鲜 Z-Image-Turbo 感受速度。运行时启动参数加 <code>--medvram</code>（中等显存优化）或 <code>--lowvram</code>（低显存优化），分辨率从 512×512 逐步提到 1024×1024。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 01 Z-Image Turbo 安装 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>Windows 安装 Z-Image Turbo（ComfyUI 新手方案）</h2><span class="hint">00728 · 2026-03-14</span></div>
+    <p class="lede">6GB 显存跑 Z-Image Turbo 完全可行，关键是<b>选对量化模型版本 + 显存优化</b>。新手最稳路径：装 ComfyUI 免安装版 → 下载三个量化模型文件放到指定目录 → 搭工作流 → 按 KSampler 推荐参数出图。</p>
+
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th style="width:130px">项目</th><th>推荐配置</th><th>低显存配置</th></tr></thead>
+        <tbody>
+          <tr><td><b>GPU</b></td><td>NVIDIA，16GB 及以上显存，可用标准模型</td><td>NVIDIA，6–8GB 显存，<b>必须用 FP8/INT8 量化版模型</b></td></tr>
+          <tr><td><b>系统</b></td><td>Windows 10/11</td><td>Windows 10/11</td></tr>
+          <tr><td><b>存储</b></td><td>50GB 以上可用空间</td><td>20GB 以上可用空间</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">第一步 · 装 ComfyUI</span><h3>免安装版 + 首次启动</h3></div>
+      <div class="card-b">
+        <dl class="kv">
+          <dt>下载</dt><dd>官方 GitHub Releases 页找同时含 <code>windows</code>、<code>portable</code>、<code>nvidia</code> 的压缩包（<code>ComfyUI_windows_portable_nvidia.7z</code>）。</dd>
+          <dt>解压</dt><dd>解压到好找的目录（如 <code>D:\ComfyUI</code>），<b>路径不要含中文和空格</b>。</dd>
+          <dt>启动</dt><dd>双击 <code>run_nvidia_gpu.bat</code>；首次启动自动下载依赖，看到 <code>Starting server...</code> 或 <code>http://127.0.0.1:8188</code> 即成功，浏览器打开该地址进入界面。</dd>
+          <dt>git 报错</dt><dd>提示「'git' 不是内部或外部命令」说明没装 Git：装 Git（安装时 PATH 界面选「Git from the command line and also from 3rd-party software」），或手动把 GitHub 上 <code>ComfyUI-GGUF</code> 的 Code → Download ZIP 解压到 <code>ComfyUI/custom_nodes/</code>。</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">第二步 · 模型三件套</span><h3>放到 ComfyUI 指定目录（放错是新手最常见错误）</h3></div>
+      <div class="card-b">
+        <div class="tblwrap" style="margin-bottom:12px">
+          <table>
+            <thead><tr><th style="width:130px">组件</th><th>文件名（照录）</th><th>放置目录</th></tr></thead>
+            <tbody>
+              <tr><td><b>扩散模型</b></td><td><code>z-image-turbo_fp8_scaled_e4m3fn_KJ.safetensors</code>（约 6.5GB，FP8 量化版）</td><td><code>ComfyUI\models\checkpoints\</code>（新版也可能要求 <code>models\diffusion_models\</code>，以节点下拉能看到为准）</td></tr>
+              <tr><td><b>文本编码器</b></td><td><code>Qwen3-4B-Q4_K_M.gguf</code>（约 2.5GB）</td><td><code>ComfyUI\models\text_encoders\</code></td></tr>
+              <tr><td><b>VAE</b></td><td><code>ae.safetensors</code>（约 335MB，不需量化）</td><td><code>ComfyUI\models\vae\</code></td></tr>
+          </table>
+        </div>
+        <p style="font-size:13.5px;color:var(--ink-2)">来源：Hugging Face 搜索 <code>drbaph/z-img</code>、<code>bartowski/Qwen_Qwen3-4B-GGUF</code>、<code>black-forest-labs/FLUX.1-dev</code>；官网慢可用镜像 <code>hf-mirror.com</code>。遇「rate limit / IP 限制」需注册免费 HF 账号生成 read 权限的 Access Token 登录后再下。文本编码器 Q4_K_M 在质量与显存间平衡；显存再紧换 Q4_K_S，质量有余换 Q5_K_M。放好后点右下角「刷新」或重启 ComfyUI。</p>
+      </div>
+    </div>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">第三步 · 工作流与采样参数</span><h3>节点连接 + KSampler 推荐值</h3></div>
+      <div class="card-b">
+        <p class="lede" style="margin-bottom:10px">双击画布空白处添加节点：Load Checkpoint（主模型）→ 两个 CLIP Text Encode（正/负提示词）→ Empty Latent Image（尺寸）→ KSampler → VAE Decode → Save Image，按接口连线。Z-Image Turbo 负向提示词影响很弱，可简单填 <code>low quality, blurry</code> 或置零。</p>
+        <div class="tblwrap" style="margin-bottom:12px">
+          <table>
+            <thead><tr><th style="width:150px">KSampler 参数</th><th>推荐值</th></tr></thead>
+            <tbody>
+              <tr><td><b>steps</b></td><td><b>9</b>（该模型专为低步数优化，9 步即可出高质量图）</td></tr>
+              <tr><td><b>sampler_name</b></td><td><code>res_multistep</code> 或 <code>euler</code></td></tr>
+              <tr><td><b>scheduler</b></td><td><code>simple</code> 或 <code>normal</code></td></tr>
+              <tr><td><b>cfg</b></td><td><b>1.0–1.5</b>（模型已内置提示词引导，不要高 CFG）</td></tr>
+              <tr><td><b>宽×高</b></td><td>先 512×512 / 768×768 试跑，稳了再上 1024×1024</td></tr>
+              <tr><td><b>denoise</b></td><td>文生图保持 <b>1.0</b></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:13.5px;color:var(--ink-2)">出图：点右上角「Queue Prompt / 队列提示」，图片落在 ComfyUI 目录的 <code>output</code> 文件夹。6GB 显存若报 <code>CUDA out of memory</code>：启动脚本 <code>run_nvidia_gpu.bat</code> 里 <code>main.py</code> 后加 <code>--medvram</code>（或设置里把 VRAM 管理模式设为 lowvram、UNET 精度设 fp8_e4m3fn），并降低分辨率、关掉占显存程序。</p>
+      </div>
+    </div>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">排障 · GGUF</span><h3>文本编码器用不了 GGUF 的连环坑</h3></div>
+      <div class="card-b">
+        <ul style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2)">
+          <li style="margin-bottom:8px"><b>报 <code>ModuleNotFoundError: No module named 'gguf'</code></b>：在 ComfyUI 目录地址栏输 <code>cmd</code> 打开命令行，运行 <code>.\python_embeded\python.exe -m pip install gguf</code>（慢则加 <code>-i https://pypi.tuna.tsinghua.edu.cn/simple</code>），装完重启。</li>
+          <li style="margin-bottom:8px"><b>CLIP 下拉没有可用选项</b>：标准 CLIP Text Encode 不认识 .gguf。在 ComfyUI Manager 里安装 <code>ComfyUI-GGUF</code> 扩展并重启，改用 <code>DualCLIPLoaderGGUF</code>（加载 gguf 文本编码器）、<code>UnetLoaderGGUF</code>（加载主模型）、<code>VAELoader</code>（加载 ae.safetensors）三个节点重连。</li>
+          <li style="margin-bottom:8px"><b>加载器里看不到模型文件</b>：文件放对目录（文本编码器在 <code>text_encoders\</code>，扩散模型在 <code>diffusion_models\</code>，别改名）；删节点重新添加或完全重启；还不行就更新 ComfyUI 核心（<code>update\update_comfyui.bat</code>）和 GGUF 扩展。</li>
+          <li><b>working around nvidia conv3d memory bug</b>：不是报错，是 ComfyUI 检测到已知 CUDA 3D 卷积显存问题后自动启动绕过方案，正常忽略继续即可。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 02 配置查询命令 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>电脑配置查询命令（Windows / macOS / Linux）</h2><span class="hint">01218 · 2026-05-26</span></div>
+    <p class="lede">查配置不靠第三方软件也够用：系统自带图形工具 + 一行命令覆盖绝大多数需求。下表按操作系统整理原笔记收录的常用命令。</p>
+
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th style="width:110px">系统</th><th style="width:190px">命令 / 工具</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td rowspan="6"><b>Windows</b></td><td><code>msinfo32</code></td><td>Win+R 运行，软硬件配置、主板、BIOS 版本等最全面的信息。</td></tr>
+          <tr><td><code>dxdiag</code></td><td>DirectX 诊断工具，重点看显卡型号、显存、驱动版本，「显示」选项卡查看。</td></tr>
+          <tr><td><code>systeminfo</code></td><td>CMD / PowerShell 运行，输出含网络配置和系统补丁的详细清单。</td></tr>
+          <tr><td>任务管理器</td><td><code>Ctrl+Shift+Esc</code>，「性能」标签页实时看 CPU、内存负载。</td></tr>
+          <tr><td><code>wmic cpu get name</code></td><td>灵活提取特定硬件字段（如 CPU 型号），部分新版 Windows 需额外安装。</td></tr>
+          <tr><td><code>Get-ComputerInfo</code></td><td>PowerShell 下获取结构化系统信息。</td></tr>
+          <tr><td rowspan="3"><b>macOS</b></td><td><code>system_profiler SPHardwareDataType</code></td><td>终端运行，硬件概览，最全面的系统报告工具。</td></tr>
+          <tr><td><code>sysctl hw.memsize</code> / <code>sysctl hw.physicalcpu</code></td><td>查内存大小 / 物理核心数等内核底层信息。</td></tr>
+          <tr><td><code>sw_vers</code></td><td>macOS 版本号、构建号等系统版本信息。</td></tr>
+          <tr><td rowspan="4"><b>Linux</b></td><td><code>sudo lshw -short</code></td><td>列出详细硬件配置摘要（需 sudo）。</td></tr>
+          <tr><td><code>lscpu</code></td><td>CPU 架构、型号、核心数和线程数。</td></tr>
+          <tr><td><code>lspci | grep -i vga</code></td><td>列出 PCI 设备并筛选显卡。</td></tr>
+          <tr><td><code>free -h</code> / <code>df -h</code> / <code>inxi -Fxz</code></td><td>内存与交换分区 / 硬盘分区空间 / 整合硬件摘要加温度（inxi 需另装）。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="lede" style="margin-top:4px">想更直观深入：Windows 可用 <b>CPU-Z</b>（CPU 与内存时序）、<b>GPU-Z</b>（显卡 BIOS 与显存带宽）；跨平台全面检测选 <b>HWiNFO</b>（支持 Windows / macOS / Linux）。</p>
+  </section>
+
+  <!-- ══ 03 C++ 修复 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>Visual C++ 运行库修复多次无效的根治流程</h2><span class="hint">01349 · 2026-06-26</span></div>
+    <p class="lede">运行库修复多次无效，通常是<b>旧版本残留、注册表损坏、系统文件被锁定或杀软干扰</b>——单纯覆盖安装治标不治本。按「彻底清理 → 官方重装 → 系统修复」逐级深入，不必全部执行。</p>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">第一步 · 明确症状</span><h3>先缩小范围</h3></div>
+      <div class="card-b">
+        <p style="font-size:13.5px;color:var(--ink-2)">确认具体报错再动手：打开软件/游戏提示「缺少 MSVCP140.dll」「VCRUNTIME140.dll」；安装程序自身报错（如 0x80070643、1935）；或程序直接崩溃无提示。有错误代码可针对性搜索，没有就直接走下面的「清洁大法」。</p>
+      </div>
+    </div>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">第二步 · 核心修复</span><h3>安全模式彻底卸载所有版本运行库</h3></div>
+      <div class="card-b">
+        <dl class="kv">
+          <dt>进安全模式</dt><dd>重启出现 Windows 标志前反复按 <code>F8</code>；或按住 <code>Shift</code> 点开始菜单「重启」→ 疑难解答 → 高级选项 → 启动设置 → 重启 → 选安全模式。避免第三方软件和驱动锁定文件。</dd>
+          <dt>全卸</dt><dd>控制面板 → 程序和功能，按名称排序，把所有 <code>Microsoft Visual C++ 20XX Redistributable</code>（x86 / x64 都算）从最新年份往旧年份<b>全部卸载</b>；卸载出错就用微软官方「Program Install and Uninstall Troubleshooter」选「卸载」处理。卸完重启。</dd>
+          <dt>清残留</dt><dd>Geek Uninstaller / CCleaner 清残留注册表项（先备份注册表）；<code>C:\Windows\System32</code> 与 <code>SysWOW64</code> 里确认不属于当前系统的 <code>msvcp*.dll</code>、<code>vcruntime*.dll</code> 先剪切到备份文件夹再删。</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">第三步 · 官方重装</span><h3>winget 一键装全（照录命令）</h3></div>
+      <div class="card-b">
+        <p class="lede" style="margin-bottom:10px">开始菜单右键开「终端(管理员)」，依次执行；或去微软官方下载中心搜「Visual C++ Redistributable 最新支持的下载」手动装（64 位系统 x64 和 x86 都要）。</p>
+<pre># 安装最新的 2015-2022 合并包（x64 和 x86）
+winget install Microsoft.VCRedist.2015+.x64
+winget install Microsoft.VCRedist.2015+.x86
+
+# 安装老版本（按需）
+winget install Microsoft.VCRedist.2013.x64
+winget install Microsoft.VCRedist.2013.x86
+winget install Microsoft.VCRedist.2012.x64
+winget install Microsoft.VCRedist.2012.x86
+winget install Microsoft.VCRedist.2010.x64
+winget install Microsoft.VCRedist.2010.x86
+winget install Microsoft.VCRedist.2008.x64
+winget install Microsoft.VCRedist.2008.x86</pre>
+        <p style="font-size:13.5px;color:var(--ink-2)">关键版本：2015–2022（一个包含 2015/2017/2019/2022）、2013、2012、2010、2008 SP1。装完重启。</p>
+      </div>
+    </div>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">第四~六步 · 逐级深入</span><h3>系统修复 → 工具兜底 → 排除干扰</h3></div>
+      <div class="card-b">
+        <dl class="kv">
+          <dt>修系统文件</dt><dd>管理员命令提示符先跑 <code>DISM /Online /Cleanup-Image /RestoreHealth</code>，再跑 <code>sfc /scannow</code>，完成后重启测试。</dd>
+          <dt>DirectX 修复工具</dt><dd>「DirectX 修复工具增强版」里 工具 → 选项 → 高级，勾选「强力修复」和「同时更新 C++」，点检测并修复，强制注册所有 DLL 并修注册表。</dd>
+          <dt>排除外部干扰</dt><dd>装库时临时关杀毒软件/防火墙（装完恢复）；<code>chkdsk c: /f</code> 查磁盘错误；校正系统时间（证书校验依赖）；精简版/Ghost 系统天生缺组件，最干净的办法是装微软原版 Windows。</dd>
+          <dt>终极方案</dt><dd>以上全无效时，用 Windows 安装介质做「保留个人文件和应用」的原地修复安装——重置所有系统组件而不丢数据。</dd>
+        </dl>
+        <div class="warnbox" style="margin-top:14px">
+          <h5>原笔记叮嘱</h5>
+          <ul><li>不要跳过「安全模式卸载」这一步——绝大多数「修复很多次没用」的死结，都是因为没卸干净旧版本残留。</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>显卡内存解读 · ZImage Turbo · 配置查询 · C++修复 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页内容整理自硬件与 AI 部署工作笔记，模型版本、参数与文件名以原笔记记录为准；AI 模型下载涉及第三方平台（Hugging Face 等），请遵守其条款。系统修复与注册表操作存在风险，操作前请备份重要数据。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
