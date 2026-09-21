@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>印刷浮雕烫金掉金解决方案 · gervas.wang</title>
+<meta name="description" content="浮雕加烫金工艺掉金问题的系统排查：材料匹配、温度压力速度工艺参数、设计适配、印前印后处理，附透明胶带粘拉检测法与胶印衔接要点。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3{grid-template-columns:1fr}}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:104px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+<body>
+
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 根源对策表</a>
+      <a href="#s1" data-sec="s1">01 检测与衔接</a>
+      <a href="#s2" data-sec="s2">02 浮雕专项</a>
+      <a href="#s3" data-sec="s3">03 排查路径</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">印刷工艺 · 烫金</span>
+  <h1 class="s-h1">印刷浮雕烫金掉金解决方案</h1>
+  <p class="s-lede">浮雕加烫金工艺容易出现"掉金"，涉及材料匹配、工艺参数、设计适配与印前印后处理。本页按根源—对策整理，并给出现场检测法与胶印衔接要点。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2025-11-18</b></span>
+    <span>工艺 <b>浮雕 + 烫金</b></span>
+    <span>排查路径 <b>材料 → 工艺 → 设备</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">烫金掉金</span>
+    <span class="s-chip">电化铝</span>
+    <span class="s-chip">胶印反拉</span>
+    <span class="s-chip">胶带测试</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+
+    <!-- ══ 00 根源对策表 ══ -->
+    <section id="s0" class="st1">
+      <div class="sec-h"><span class="idx st1">01</span><h2>问题根源与对策总表</h2><span class="hint">四类根源</span></div>
+      <p class="lede">按材料匹配、工艺参数、设计适配、印前印后四类梳理，逐项对照解决。</p>
+      <div class="tblwrap"><table>
+        <thead><tr><th style="width:130px">根源</th><th style="width:270px">具体问题</th><th>解决方案</th></tr></thead>
+        <tbody>
+          <tr><td rowspan="3"><b>材料匹配</b></td><td>电化铝与纸张、油墨、不干胶不匹配</td><td>按被烫物品种选合适电化铝，并向供应商明确具体需求。</td></tr>
+          <tr><td>电化铝胶层质量差</td><td>检查并更换质量更好的电化铝箔。</td></tr>
+          <tr><td>金粉化学性能不稳定、氧化变色；纸张酸性强或吸收过强</td><td>金粉密封保存，控制环境湿度、避免硫化物；选适合纸张或在吸收性强的纸上采取对策。</td></tr>
+          <tr><td rowspan="3"><b>工艺参数</b></td><td>烫印温度不适宜</td><td>按烫印材料、面积选合适温度。</td></tr>
+          <tr><td>烫印压力不足或过大</td><td>调整压力，同时提高烫金版表面平整度。</td></tr>
+          <tr><td>烫印速度不匹配</td><td>与温度、压力配合调整。</td></tr>
+          <tr><td rowspan="3"><b>设计适配</b></td><td>浮雕 / 烫金面积太大或墨层太厚</td><td>大面积烫金做镂空处理。</td></tr>
+          <tr><td>吸收性强的纸张上印金银墨易渗透掉色</td><td>在金墨中加部分黄墨，或金版下铺五成黄网。</td></tr>
+          <tr><td>烫金后需胶印，油墨粘性大或压力不当导致反拉</td><td>烫金后重新热压；胶印时降低油墨粘性与压力。</td></tr>
+          <tr><td rowspan="2"><b>印前印后</b></td><td>印刷油墨未干，或过量使用干燥剂、喷粉</td><td>确保油墨充分干燥，控制干燥剂和喷粉用量。</td></tr>
+          <tr><td>三面切口粉尘多导致掉金；套准波动、压力不均</td><td>清除粉尘；稳定烫金套准、提高烫金版平整度、减少局部垫压。</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- ══ 01 检测与衔接 ══ -->
+    <section id="s1" class="st2">
+      <div class="sec-h"><span class="idx st2">02</span><h2>现场检测与胶印衔接</h2><span class="hint">透明胶带粘拉法</span></div>
+      <div class="grid g3">
+        <div class="panel">
+          <h4 style="font-size:14.5px;font-weight:700;color:var(--ink);margin-bottom:8px">胶带粘拉测试</h4>
+          <p style="font-size:13.5px;color:var(--ink-2);line-height:1.7">烫金后用普通透明胶带粘在图案上快速撕下，电化铝易被拔下说明烫金不牢，后续胶印易"反拉"。</p>
+        </div>
+        <div class="panel">
+          <h4 style="font-size:14.5px;font-weight:700;color:var(--ink);margin-bottom:8px">附着力优先</h4>
+          <p style="font-size:13.5px;color:var(--ink-2);line-height:1.7">烫金后还需胶印时，须确保电化铝与纸张的附着力大于胶印油墨对电化铝的吸附力。</p>
+        </div>
+        <div class="panel">
+          <h4 style="font-size:14.5px;font-weight:700;color:var(--ink);margin-bottom:8px">版平压匀</h4>
+          <p style="font-size:13.5px;color:var(--ink-2);line-height:1.7">烫金时保证烫金版表面平整、压力均匀，避免为补压力不足而过多局部垫压，给后续胶印带来压力不均。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 02 浮雕专项 ══ -->
+    <section id="s2" class="st4">
+      <div class="sec-h"><span class="idx st4">03</span><h2>浮雕底材上烫金的专项注意</h2><span class="hint">接触面不平整</span></div>
+      <div class="warnbox">
+        <h5>浮雕烫金要点</h5>
+        <ul>
+          <li>浮雕（凸起）图案上直接烫金，因接触面不平整、附着力可能不足，易掉金。</li>
+          <li>建议适当<b>降低浮雕高度</b>，或烫印时<b>适当增加压力和温度</b>。</li>
+          <li>确保烫金箔与浮雕涂层材料兼容。</li>
+          <li>在带浮雕的底材上烫金时，务必确保<b>油墨已彻底干燥</b>。</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ══ 03 排查路径 ══ -->
+    <section id="s3" class="st5">
+      <div class="sec-h"><span class="idx st5">04</span><h2>排查路径与小结</h2><span class="hint">系统排查</span></div>
+      <p class="lede">解决掉金关键在系统考量，按以下三步排查，并善用胶带测试法初判。</p>
+      <div class="tblwrap"><table>
+        <thead><tr><th style="width:150px">步骤</th><th>要点</th></tr></thead>
+        <tbody>
+          <tr><td><b>1. 材料是基础</b></td><td>确保烫金箔、纸张、油墨（尤其黑油墨）兼容；批量前务必小样测试。</td></tr>
+          <tr><td><b>2. 工艺是核心</b></td><td>精细调控温度、压力、速度三者配合；大面积与小块烫金参数不同；控制环境温湿度。</td></tr>
+          <tr><td><b>3. 操作是保障</b></td><td>定期检查机台工作正常，保持烫金版平整、避免不必要的局部垫压。</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>浮雕烫金掉金方案 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页内容整理自包装采购工作笔记，仅供内部参考。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+</body>
+</html>
