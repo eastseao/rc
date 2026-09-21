@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>饮料出厂成本明细与功能饮料添加剂成本占比</title>
+<meta name="description" content="以 500ml PET 瓶 24 瓶/箱为例拆解饮料出厂成本与包装 BOM，并测算功能饮料核心原料（添加剂）在零售价与出厂价两个口径下的成本占比。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent); --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+p{margin-bottom:12px}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+<body>
+
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s1" data-sec="s1">01 出厂成本</a>
+      <a href="#s2" data-sec="s2">02 包装BOM</a>
+      <a href="#s3" data-sec="s3">03 添加剂占比</a>
+      <a href="#s4" data-sec="s4">04 洞察</a>
+      <a href="#s5" data-sec="s5">05 来源</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">金融分析 · 长文</span>
+  <h1 class="s-h1">饮料出厂成本明细与功能饮料添加剂成本占比</h1>
+  <p class="s-lede">以常见 500ml PET 瓶 24 瓶/箱为例，拆解内容物、包装 BOM、制造、人工与物流的出厂成本区间；再以功能饮料为对象，测算核心添加剂在零售价与出厂价两个口径下的成本占比。</p>
+  <div class="s-meta">
+    <span>文档版本 <b>V1.0</b></span>
+    <span>编制日期 <b>2026-03-18</b></span>
+    <span>类别 <b>金融分析</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">出厂成本</span>
+    <span class="s-chip">包装BOM</span>
+    <span class="s-chip">功能饮料</span>
+    <span class="s-chip">添加剂占比</span>
+    <span class="s-chip">成本拆解</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <section id="s1" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>24 瓶装饮料出厂成本总表</h2><span class="hint">500ml PET 瓶 · 估算区间</span></div>
+    <p class="lede">以市面常见的 500ml 塑料瓶装饮料（可乐、茶饮料类）为模型，单瓶综合出厂成本约 <b>1.07—2.02 元</b>，单箱（24 瓶）约 <b>25.7—48.5 元</b>。此为<b>出厂成本</b>，不含后续销售、广告及利润。</p>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th style="width:150px">成本大项</th><th>细项</th><th style="width:120px">单瓶(元)</th><th style="width:130px">单箱(24瓶,元)</th></tr></thead>
+        <tbody>
+          <tr><td><b>内容物</b></td><td>净化水、甜味剂、浓缩液 / 主剂、CO₂、食品添加剂</td><td>0.45—0.75</td><td>10.8—18.0</td></tr>
+          <tr><td><b>包装 BOM</b></td><td>PET 瓶、瓶盖、标签、纸箱、打包膜</td><td>约 0.28—0.74</td><td>约 6.72—17.74</td></tr>
+          <tr><td><b>生产制造</b></td><td>水电汽能耗、生产损耗、设备折旧、厂房</td><td>0.15—0.30</td><td>3.6—7.2</td></tr>
+          <tr><td><b>人工</b></td><td>一线生产、质检、管理及销售人员分摊</td><td>0.02—0.07</td><td>0.5—1.7</td></tr>
+          <tr><td><b>物流仓储</b></td><td>工厂至经销商运费、仓租</td><td>0.15—0.40</td><td>3.6—9.6</td></tr>
+          <tr><td><b>合计</b></td><td>单瓶 / 单箱综合出厂成本</td><td><b>约 1.07—2.02</b></td><td><b>约 25.7—48.5</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="s2" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>包装成本的 BOM 拆解</h2><span class="hint">瓶子占比最高</span></div>
+    <p class="lede">包装是除内容物外最主要的成本项，其中 <b>PET 瓶本身占比最大</b>，成本与瓶子克重（如 17g、24g、28g）直接相关，品牌商常以“克重轻量化”降本。</p>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th style="width:150px">BOM 项目</th><th style="width:130px">单件(元)</th><th style="width:150px">单箱(元/24瓶)</th><th>影响因素</th></tr></thead>
+        <tbody>
+          <tr><td><b>PET 瓶</b></td><td>0.17—0.36</td><td>4.08—8.64</td><td>与克重强相关，克重越轻成本越低。</td></tr>
+          <tr><td><b>瓶盖</b></td><td>0.026—0.10</td><td>0.624—2.40</td><td>普通盖便宜；防盗盖、热灌装盖更贵。</td></tr>
+          <tr><td><b>标签</b></td><td>0.013—0.05</td><td>0.312—1.20</td><td>套标 / 贴标、材质与印刷复杂度影响价格。</td></tr>
+          <tr><td><b>外包装纸箱</b></td><td>0.05—0.208</td><td>1.20—5.00</td><td>单瓦楞便宜，双瓦楞或特殊设计更贵。</td></tr>
+          <tr><td><b>打包膜</b></td><td>约 0.021</td><td>约 0.50</td><td>固定箱内产品，成本较低。</td></tr>
+          <tr><td><b>包装小计</b></td><td>约 0.28—0.74</td><td><b>约 6.72—17.74</b></td><td>固定成本主体，规模采购可降。</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="s3" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>功能饮料核心添加剂的成本占比</h2><span class="hint">两个口径对照</span></div>
+    <p class="lede">常规功能饮料中，所有添加成分（功能性原料、甜味剂、酸度调节剂等）合计成本在总成本中占比很低。由于是否计入渠道利润，<b>零售价口径与出厂价口径的占比差异明显</b>。</p>
+
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th style="width:200px">成本构成</th><th style="width:130px">金额(元)</th><th style="width:130px">占 5 元零售价</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><b>核心原料（添加剂等）</b></td><td>约 0.4</td><td><b>约 8%</b></td><td>牛磺酸、咖啡因、B 族维生素、赖氨酸、白砂糖、柠檬酸等。</td></tr>
+          <tr><td><b>包装材料</b></td><td>0.8—1.0</td><td>16%—20%</td><td>瓶 / 罐、标签、瓶盖。</td></tr>
+          <tr><td><b>其他制造</b></td><td>约 0.4</td><td>约 8%</td><td>加工、人工、折旧、水电。</td></tr>
+          <tr><td><b>经销商 / 零售利润</b></td><td>约 1.5</td><td>约 30%</td><td>流通环节利润。</td></tr>
+          <tr><td><b>广告营销与研发</b></td><td>约 1.5</td><td>约 30%</td><td>广告、代言、推广及保健食品认证。</td></tr>
+          <tr><td><b>企业利润</b></td><td>0.4—0.5</td><td>8%—10%</td><td>厂商最终利润。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p style="margin-top:6px">换一个口径：以一箱<b>出厂价 100 元</b>的功能饮料计，剔除渠道利润后，核心原料占比上升——</p>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th style="width:200px">成本构成</th><th style="width:150px">金额(元/箱)</th><th>占出厂价 100 元</th></tr></thead>
+        <tbody>
+          <tr><td><b>核心原料</b></td><td>约 10.5—12</td><td><b>10.5%—12%</b></td></tr>
+          <tr><td><b>包装材料</b></td><td>约 20—25</td><td>20%—25%</td></tr>
+          <tr><td><b>其他制造</b></td><td>约 10</td><td>约 10%</td></tr>
+          <tr><td><b>营销 / 研发 / 管理</b></td><td>约 28—30</td><td>28%—30%</td></tr>
+          <tr><td><b>厂商税前利润</b></td><td>约 23—31.5</td><td>23%—31.5%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="srcnote"><b>对照头部企业</b>：以东鹏饮料公开结构参考，直接材料约占总收入 44.7%，其中白砂糖约 10.39%、瓶坯约 10.23%，而牛磺酸 / 咖啡因 / B 族维生素等<b>核心功能性成分仅约 1.6%</b>——在出厂价 100 元/箱中约 1.6 元，原料里白砂糖与塑料瓶远贵于核心添加剂。</div>
+  </section>
+
+  <section id="s4" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>关键洞察</h2><span class="hint">钱花在哪</span></div>
+    <div class="grid g2">
+      <div class="panel"><h4 style="font-size:14.5px;color:var(--sc);margin-bottom:6px">你为包装、广告、流通买单</h4><p style="margin:0;font-size:13.5px;color:var(--ink-2)">一瓶功能饮料的钱，大部分用于包装、广告营销与渠道利润；真正“提神”的添加成分物料成本微乎其微。</p></div>
+      <div class="panel"><h4 style="font-size:14.5px;color:var(--sc);margin-bottom:6px">规模效应显著</h4><p style="margin:0;font-size:13.5px;color:var(--ink-2)">制造与人工成本随产量摊薄；每小时数万瓶的产线能显著压低单瓶折旧、人工与能耗分摊。</p></div>
+      <div class="panel"><h4 style="font-size:14.5px;color:var(--sc);margin-bottom:6px">品类差异大</h4><p style="margin:0;font-size:13.5px;color:var(--ink-2)">真茶提取、浓缩果汁、乳品等内容物成本远高于仅靠香精色素的产品。</p></div>
+      <div class="panel"><h4 style="font-size:14.5px;color:var(--sc);margin-bottom:6px">成本动态波动</h4><p style="margin:0;font-size:13.5px;color:var(--ink-2)">PET、糖、纸箱等受大宗行情影响，表中均为估算区间，需按实时行情调整。</p></div>
+    </div>
+  </section>
+
+  <section id="s5" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>内容来源</h2><span class="hint">合并自两份问答记录</span></div>
+    <p class="lede">本页由以下两份原始问答记录合并整理，已去除“用户提问”与创建时间等元信息。</p>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th style="width:120px">源编号</th><th>原始主题</th></tr></thead>
+        <tbody>
+          <tr><td><b>00398</b></td><td>饮料出厂成本明细及影响因素分析（含包装 BOM）</td></tr>
+          <tr><td><b>00760</b></td><td>功能饮料添加剂成本占比</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="srcnote">所有金额为行业估算区间，综合媒体报道与公开成本结构整理，不代表任何具体企业财务数据，不构成投资建议。</div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>饮料出厂成本与添加剂占比 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页为成本结构的知识性测算，数据为估算区间且随原料行情与企业差异浮动，不构成任何投资或经营决策建议。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=['s1','s2','s3','s4','s5'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
