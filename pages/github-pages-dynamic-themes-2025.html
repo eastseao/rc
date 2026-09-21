@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d9488'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>GitHub Pages 动态博客方案与官方主题 · 2025-10</title>
+<meta name="description" content="在 GitHub 上搭一个手机就能更新的 md 动态博客：GitHub Pages + 静态网站生成器基础方案、官方主题与 Beautiful Jekyll 远程主题怎么选、remote_theme 地址与 baseurl/tabs 子目录的配置坑，以及静态网页功能拓展清单。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:130px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.codeblock{font-family:var(--mono);font-size:12.5px;background:var(--code);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px;margin:12px 0;overflow-x:auto;line-height:1.7;color:var(--ink-2);white-space:pre}
+.codeblock .c{color:var(--muted-2)}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 需求与选型</a>
+      <a href="#s1" data-sec="s1">01 基础方案</a>
+      <a href="#s2" data-sec="s2">02 主题</a>
+      <a href="#s3" data-sec="s3">03 baseurl 与 tabs</a>
+      <a href="#s4" data-sec="s4">04 拓展清单</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 长文</span>
+  <h1>GitHub Pages 动态博客方案与官方主题</h1>
+  <p class="s-lede">目标是一个「手机上就能更新内容、文章用 md」的易维护个人博客。这条线从方案选型（GitHub Pages + 静态网站生成器）走到官方/第三方主题怎么挑、Beautiful Jekyll 远程主题怎么配、baseurl 与 tabs 子目录的坑怎么绕，最后附一份静态网页功能拓展清单。合并 00158 / 00195 / 00233 / 00247。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2025-10-14</b></span>
+    <span>收录笔记 <b>4 篇</b></span>
+    <span>时间跨度 <b>2025-10-02 ~ 2025-10-14</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">静态生成器</span>
+    <span class="s-chip">remote_theme</span>
+    <span class="s-chip">Beautiful Jekyll</span>
+    <span class="s-chip">baseurl</span>
+    <span class="s-chip">主题选择器</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00158-2025-10-02 GitHub 搭建动态博客方案推荐</li>
+      <li>00195-2025-10-09 GitHub 静态网页功能拓展清单</li>
+      <li>00233-2025-10-13 GitHub 个人博客推荐与技术方案分析</li>
+      <li>00247-2025-10-14 GitHub Pages 官方主题及使用指南</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 需求与选型 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>需求：手机上就能更新的 md 动态博客</h2><span class="hint">00158 / 00233</span></div>
+    <p class="lede">原始诉求很明确：在 GitHub 上建一个<b>易维护的动态个人博客，文章主要用 md 格式，关键是手机上就能更新内容</b>。要的是框架、结构、语言。00233 顺手列了一批做得好的 GitHub 个人博客作参考。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:180px">参考博客</th><th>技术方案</th><th>特点</th></tr></thead>
+      <tbody>
+        <tr><td><b>Yash Goel</b></td><td>纯 HTML + CSS</td><td>极致简洁、无 JS，专注内容展示。</td></tr>
+        <tr><td><b>Nicholas Clooney</b></td><td>Eleventy</td><td>前端技术向，自动化图片处理、主题切换。</td></tr>
+        <tr><td><b>daijiale</b></td><td>Hexo</td><td>稳定运行多年，展示 Hexo 的长期可靠性。</td></tr>
+        <tr><td><b>LeuisKen</b></td><td>GitHub Issues</td><td>直接用 Issues 写文章，极简管理。</td></tr>
+        <tr><td><b>Tech-shrimp</b></td><td>Gmeek（基于 Jekyll）</td><td>超轻量，也支持 Issues 写作。</td></tr>
+        <tr><td><b>Hux</b></td><td>Jekyll</td><td>成熟热门的 Jekyll 主题，很多人基于它。</td></tr>
+      </tbody>
+    </table></div>
+    <div class="srcnote" style="margin-bottom:0"><b>选型口径（源笔记原话）</b>：侧重写作体验选 Jekyll 或基于 Issues 的方案；热衷前端折腾选 Eleventy 或纯手工；求快速稳定就选成熟 Jekyll/Hexo 主题。仓库命名搜 <code style="font-family:var(--mono);font-size:12.5px">username.github.io</code>、<code style="font-family:var(--mono);font-size:12.5px">jekyll blog stars:&gt;100</code> 能挖更多案例。</div>
+  </section>
+
+  <!-- ══ 01 基础方案 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>GitHub Pages + 静态网站生成器（基础通用方案）</h2><span class="hint">00158</span></div>
+    <p class="lede">源笔记给新手详细展开了这条「基础通用方案」：写 md → 生成器转 HTML → GitHub Pages 托管，免服务器、免数据库。关键落地是把博客放进<b>已有个人主页仓库的 blog 子文件夹</b>，在 blog 下建 Jekyll 项目。</p>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">方案组成</h3>
+        <dl class="kv">
+          <dt>静态托管</dt><dd>GitHub Pages，直接从仓库出静态站点。</dd>
+          <dt>生成器</dt><dd>Jekyll（Pages 原生支持）/ Hexo / Eleventy 等，把 _posts 里的 md 渲染成 HTML。</dd>
+          <dt>写作语言</dt><dd>Markdown；界面用 HTML + CSS。</dd>
+          <dt>手机更新</dt><dd>手机浏览器直接编辑仓库里的 md，push 后 Pages 自动重建——这正是「手机就能更新」的落点。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">子文件夹结构</h3>
+        <div class="codeblock">your-repo/
+├── index.html      <span class="c"># 个人主页（根）</span>
+└── blog/           <span class="c"># 博客放这里</span>
+    ├── _config.yml
+    ├── index.md
+    └── _posts/</div>
+      </div>
+    </div>
+
+    <div class="warnbox">
+      <h5>00158 实录：「用了你上面的代码，博客首页现在什么都没有」</h5>
+      <ul>
+        <li>在已有主页的库里加 blog 子目录、又套一层 Jekyll，<code style="font-family:var(--mono);font-size:12.5px">baseurl</code> / 路径没对上时，首页会整片空白。</li>
+        <li>排错动作：重新出 blog 文件夹及其子文件夹的完整文件代码；用户名占位符（gervasw）统一替换真实值。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ 02 主题 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>官方主题与第三方主题：Beautiful Jekyll 怎么用</h2><span class="hint">00247</span></div>
+    <p class="lede">GitHub 自带一个「主题选择器」；除此之外第三方 Jekyll 主题更丰富。00247 重点把 Beautiful Jekyll 讲透。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:200px">主题</th><th>特点</th><th>启用方式</th></tr></thead>
+      <tbody>
+        <tr><td><b>官方主题选择器</b></td><td>仓库 Settings → Pages → Choose/Change theme → 预览 → Select theme，自动应用到 Markdown。</td><td>网页点选。</td></tr>
+        <tr><td><b>Leap Month</b></td><td>专为 Pages 定制，<b>中文排版优化</b>、移动端改进。</td><td><code style="font-family:var(--mono);font-size:12px">remote_theme: qyxf/leap-month</code></td></tr>
+        <tr><td><b>Minimal Light</b></td><td>简洁学术主页模板、自动暗黑模式。</td><td><code style="font-family:var(--mono);font-size:12px">remote_theme: yaoyao-liu/minimal-light</code></td></tr>
+        <tr><td><b>Beautiful Jekyll</b></td><td>Dean Attali 开发，开箱即用、响应式、内置评论/分析/社交图标。</td><td>Fork 到 <code style="font-family:var(--mono);font-size:12px">用户名.github.io</code>，或 <code style="font-family:var(--mono);font-size:12px">remote_theme: daattali/beautiful-jekyll</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="codeblock"><span class="c"># _config.yml 关键行（照录）</span>
+remote_theme: daattali/beautiful-jekyll
+plugins:
+  - jekyll-remote-theme
+markdown: kramdown
+permalink: pretty</div>
+
+    <div class="warnbox">
+      <h5>高频坑：remote_theme 地址写错</h5>
+      <ul>
+        <li>错：<code style="font-family:var(--mono);font-size:12.5px">mmistakes/beautiful-jekyll@master</code>（这个组合根本不存在）。</li>
+        <li>对：<code style="font-family:var(--mono);font-size:12.5px">daattali/beautiful-jekyll</code>；建议锁版本 <code style="font-family:var(--mono);font-size:12.5px">@5.0.0</code>，避免主题自更新把站点搞坏。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ 03 baseurl 与 tabs ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>baseurl 与 tabs 子目录：链接前缀的坑</h2><span class="hint">00247 / 00158</span></div>
+    <p class="lede">当仓库名不是「用户名.github.io」、而是一个普通仓库（如 blog），站点就挂在子路径下，所有 URL 都得带前缀。这是 00247 反复修的配置点。</p>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">00247 · 真实配置（用户 seamoonappear / 仓库 blog）</span><h3>子路径部署的完整 _config.yml</h3></div>
+      <div class="card-b">
+        <div class="codeblock">url: "https://seamoonappear.github.io"
+baseurl: "/blog"      <span class="c"># 仓库名是 blog，不是 用户名.github.io</span>
+
+nav:
+  - title: "首页"   url: /
+  - title: "博客"   url: /blog/tabs/blog/
+  - title: "消费"   url: /blog/tabs/media/
+  - title: "照片"   url: /blog/tabs/photo/
+  - title: "关于我" url: /blog/tabs/about/</div>
+        <div class="tblwrap" style="margin:14px 0 0">
+          <table>
+            <thead><tr><th style="width:160px">要点</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td><b>子路径</b></td><td>站点地址 = <code style="font-family:var(--mono);font-size:12px">https://seamoonappear.github.io/blog</code>，所有链接带 <code style="font-family:var(--mono);font-size:12px">/blog</code> 前缀。</td></tr>
+              <tr><td><b>tabs 目录</b></td><td>子页面统一放 <code style="font-family:var(--mono);font-size:12px">tabs/</code>；每个页面文件里的 <code style="font-family:var(--mono);font-size:12px">permalink</code> 必须与导航 URL 完全一致。</td></tr>
+              <tr><td><b>首页独立</b></td><td><code style="font-family:var(--mono);font-size:12px">index.md</code> 留在根目录，不放进 tabs。</td></tr>
+              <tr><td><b>404 排查</b></td><td>出 404 先看 Pages 构建日志，确认文件路径与 permalink。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 04 拓展清单 ══ -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>静态网页功能拓展清单</h2><span class="hint">00195</span></div>
+    <p class="lede">00195 给了一张 GitHub 静态网页能加什么的清单，五大类；并针对「日常用笔记本、Word/Excel/PDF 多」的办公场景给了一套侧重。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:160px">拓展方向</th><th>举例</th></tr></thead>
+      <tbody>
+        <tr><td><b>内容展示增强</b></td><td>项目橱窗（突破置顶 6 仓库）、数据可视化（D3.js）、个人博客（Jekyll + Markdown）。</td></tr>
+        <tr><td><b>交互与 UX</b></td><td>评论（Gitalk / Utterances 基于 Issues）、全站搜索（Lunr.js / Algolia）、在线导航、短网址（404.html + routes.json）。</td></tr>
+        <tr><td><b>个性化与品牌</b></td><td>自定义主题（Sass）、动态徽章（Shields.io）、贡献面板（Repobeats）。</td></tr>
+        <tr><td><b>性能与 SEO</b></td><td>响应式、sitemap.xml、图片压缩 + CDN。</td></tr>
+        <tr><td><b>集成与自动化</b></td><td>自定义域名（CNAME）、GitHub Actions 自动部署。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="srcnote" style="margin-bottom:0"><b>办公场景侧重（00195 第二段）</b>：PDF 互转/编辑/批量、个人模板库（把常用报告合同做成在线模板一键调用）、在线预览与轻量编辑（mammoth.js）、跨设备同步与个人办公导航。新手从导航页或模板库起步，有经验再上评论/自动化。</div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>GitHub Pages 动态博客方案与官方主题 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自动态博客方案与主题选型笔记，主题仓库地址、remote_theme、baseurl 与目录结构均照录原笔记。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

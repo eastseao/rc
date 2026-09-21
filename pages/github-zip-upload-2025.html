@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d9488'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>GitHub ZIP 解压上传与构建 404 排错 · 2025-10</title>
+<meta name="description" content="GitHub 不能在线解压 ZIP 的三条出路、解压后文件用 Git 命令行还是网页端上传、PaperMod 主题用 ZIP 还是子模块装、Hugo + PaperMod 全程网页端靠 GitHub Actions 自动构建，以及远程主题 404 构建失败的排错。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.grid > *{min-width:0}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:130px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.codeblock{font-family:var(--mono);font-size:12.5px;background:var(--code);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px;margin:12px 0;overflow-x:auto;line-height:1.7;color:var(--ink-2);white-space:pre}
+.codeblock .c{color:var(--muted-2)}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 解压三法</a>
+      <a href="#s1" data-sec="s1">01 上传两法</a>
+      <a href="#s2" data-sec="s2">02 PaperMod 安装</a>
+      <a href="#s3" data-sec="s3">03 Actions 自动构建</a>
+      <a href="#s4" data-sec="s4">04 404 排错</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 手册</span>
+  <h1>GitHub ZIP 解压上传与构建 404 排错</h1>
+  <p class="s-lede">上传了个 ZIP 到仓库想解压？GitHub 不在线解压。这份手册把一条线串起来：本地/Actions/前端三条解压路、解压后用 Git 命令行还是网页端传、PaperMod 主题 ZIP 或子模块装、Hugo + PaperMod 不本地部署靠 Actions 自动构建，以及远程主题 404 怎么排。合并 00177 / 00179 / 00180 / 00181。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2025-10-07</b></span>
+    <span>收录笔记 <b>4 篇</b></span>
+    <span>时间跨度 <b>2025-10-06 ~ 2025-10-07</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">ZIP 解压</span>
+    <span class="s-chip">Git LFS</span>
+    <span class="s-chip">PaperMod 子模块</span>
+    <span class="s-chip">GitHub Actions</span>
+    <span class="s-chip">远程主题 404</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00177-2025-10-06 GitHub ZIP 文件解压方法总结</li>
+      <li>00179-2025-10-06 PaperMod 主题 ZIP 上传教程</li>
+      <li>00180-2025-10-06 解压文件上传 GitHub 指南</li>
+      <li>00181-2025-10-06 GitHub Pages 构建失败：远程主题 404 错误</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 解压三法 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>GitHub 不能在线解压 ZIP：三条路</h2><span class="hint">00177</span></div>
+    <p class="lede">「上传了一个 zip 到库里怎么解压」——直接在仓库里在线解压是<b>不可能的</b>，GitHub 没这功能。按场景选下面一条。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">方法</th><th>适用</th><th>怎么做</th></tr></thead>
+      <tbody>
+        <tr><td><b>本地解压</b></td><td>个人查看/改文件</td><td>仓库里 Download 下来 → 本地解压 →（可选）再 git push 回去。</td></tr>
+        <tr><td><b>GitHub Actions</b></td><td>CI/CD 自动处理</td><td>写 <code style="font-family:var(--mono);font-size:12px">.github/workflows/unzip.yml</code>，push 含 zip 的提交自动解压。</td></tr>
+        <tr><td><b>前端 JSZip</b></td><td>Web 应用内浏览器解压</td><td>引入 JSZip，用户选文件后在浏览器读解压，不经仓库。</td></tr>
+      </tbody>
+    </table></div>
+    <div class="srcnote" style="margin-bottom:0"><b>给普通用户的结论</b>：快速查看就<b>下载到本地解压</b>最简单；要自动化才上 Actions；要网页里在线解压才用 JSZip。</div>
+  </section>
+
+  <!-- ══ 01 上传两法 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>解压后怎么上传：Git 命令行 vs 网页端</h2><span class="hint">00180</span></div>
+    <p class="lede">解压出来一堆文件和文件夹，往哪传？两条路，按是否要版本控制选。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">对比</th><th>Git 命令行（推荐）</th><th>GitHub 网页端</th></tr></thead>
+      <tbody>
+        <tr><td><b>适合</b></td><td>要版本控制、频繁更新、文件较大</td><td>快速、一次性、文件较小</td></tr>
+        <tr><td><b>版本管理</b></td><td>完整支持</td><td>仅初始提交</td></tr>
+        <tr><td><b>单文件上限</b></td><td>网页端 25MB；<b>&gt;100MB 用 Git LFS</b></td><td>网页端 ≤ 25MB</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="codeblock">git init
+git add .
+git commit -m "Initial commit: add unzipped code package"
+git remote add origin &lt;你的仓库Git地址&gt;
+git push -u origin main</div>
+
+    <div class="warnbox">
+      <h5>00180 实录排错</h5>
+      <ul>
+        <li><b>文件夹拖不进网页</b>：浏览器安全限制/文件夹过大——改用 Git 命令行（最可靠）、GitHub Desktop 图形界面、逐子文件夹上传，或重新压缩成 ZIP 再传。</li>
+        <li><b>push 被拒</b>（failed to push some refs）：远程有本地没有的更新，先 <code style="font-family:var(--mono);font-size:12.5px">git pull origin main --rebase</code> 再 push。</li>
+        <li><b>认证</b>：GitHub 已不支持账户密码，用<b>个人访问令牌（PAT，勾 repo 权限）</b>当密码。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ 02 PaperMod 安装 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>PaperMod 主题：ZIP 还是子模块装</h2><span class="hint">00177 / 00179</span></div>
+    <p class="lede">PaperMod 文件夹很大，要么下 ZIP，要么用 git 拉。网页端没法本地部署时，源笔记直接让你写 <code style="font-family:var(--mono);font-size:12.5px">.gitmodules</code> 声明子模块。</p>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">ZIP 方式</h3>
+        <ol style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2)">
+          <li style="margin-bottom:6px">从 <code style="font-family:var(--mono);font-size:12.5px">releases</code> 下载 Source code (zip)。</li>
+          <li style="margin-bottom:6px">解压 → 把文件夹<b>重命名为 PaperMod</b>。</li>
+          <li>整体放进 <code style="font-family:var(--mono);font-size:12.5px">themes/</code>，确保文件<b>直接在 themes/PaperMod 下、不嵌套一层</b>。</li>
+        </ol>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">子模块 / 克隆</h3>
+        <div class="codeblock"><span class="c"># .gitmodules（网页端直接建文件）</span>
+[submodule "themes/PaperMod"]
+  path = themes/PaperMod
+  url = https://github.com/adityatelange/hugo-PaperMod.git
+  branch = "master"</div>
+        <p style="font-size:13.5px;color:var(--ink-2);line-height:1.72">或本地 <code style="font-family:var(--mono);font-size:12.5px">git clone … themes/PaperMod --depth=1</code>。记得 Hugo 用<b>扩展版</b>，配置 <code style="font-family:var(--mono);font-size:12.5px">theme: "PaperMod"</code>。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 03 Actions 自动构建 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>Hugo + PaperMod 不本地部署：Actions 自动构建</h2><span class="hint">00177</span></div>
+    <p class="lede">用户「是新手、不要本地部署」，于是全程在网页端用 GitHub Actions 自动跑 Hugo 构建。</p>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">00177 · 两个仓库 + 一个工作流</span><h3>源码仓库与托管仓库分离</h3></div>
+      <div class="card-b">
+        <div class="tblwrap" style="margin:0 0 14px">
+          <table>
+            <thead><tr><th style="width:180px">项</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td><b>源码仓库</b></td><td>放 Hugo 源文件、主题、配置、文章（即用已建好的 <code style="font-family:var(--mono);font-size:12px">blog</code>）。</td></tr>
+              <tr><td><b>托管仓库</b></td><td>必须叫 <code style="font-family:var(--mono);font-size:12px">&lt;用户名&gt;.github.io</code>，存构建产物。</td></tr>
+              <tr><td><b>工作流</b></td><td><code style="font-family:var(--mono);font-size:12px">.github/workflows/deploy.yml</code>：checkout(submodules) → setup Hugo → <code style="font-family:var(--mono);font-size:12px">hugo --minify</code> → upload artifact(./public) → deploy to Pages。</td></tr>
+              <tr><td><b>Pages 源</b></td><td>托管仓库 Settings → Pages → Source 选 <b>GitHub Actions</b>。</td></tr>
+              <tr><td><b>发文章</b></td><td>在 <code style="font-family:var(--mono);font-size:12px">content/posts/</code> 新建 md 并 push，Actions 自动构建发布。</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="srcnote" style="margin-bottom:0"><b>关键点</b>：文章头里 <code style="font-family:var(--mono);font-size:12.5px">draft: false</code> 才会发布（默认 true 的草稿不构建）；<code style="font-family:var(--mono);font-size:12.5px">baseURL</code> 要替换成你的 <code style="font-family:var(--mono);font-size:12.5px">https://用户名.github.io/</code>。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 04 404 排错 ══ -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>Pages 构建失败：远程主题 404 怎么排</h2><span class="hint">00181</span></div>
+    <p class="lede">00181 给的真实构建日志：远程主题 <code style="font-family:var(--mono);font-size:12.5px">chirpythemes/chirpy@v6.0.0</code> 在下载 zip 时 <b>404 Not Found</b>，构建挂掉。</p>
+
+    <div class="codeblock"><span class="c"># 报错关键行</span>
+Theme: chirpythemes/chirpy@v6.0.0
+Remote Theme: Downloading https://codeload.github.com/chirpythemes/chirpy/zip/v6.0.0
+github-pages 232 | Error: 404 - Not Found - Loading URL:
+https://codeload.github.com/chirpythemes/chirpy/zip/v6.0.0</div>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:180px">排查动作</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>验证链接</b></td><td>浏览器直接打开报错那个 codeload URL，也 404 就坐实主题资源不存在。</td></tr>
+        <tr><td><b>核对仓库与版本</b></td><td>确认仓库名/owner 对不对；releases/标签里 <code style="font-family:var(--mono);font-size:12px">v6.0.0</code> 是否真存在——常是版本号拼错。</td></tr>
+        <tr><td><b>目录结构兼容</b></td><td>主题资源得放在 <code style="font-family:var(--mono);font-size:12px">assets/_layouts/_includes/_sass</code> 标准目录，否则被忽略。</td></tr>
+        <tr><td><b>退一步</b></td><td>用默认分支替代版本：<code style="font-family:var(--mono);font-size:12px">remote_theme: chirpythemes/chirpy</code>；或 Fork 主题本地化后自建。</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>GitHub ZIP 解压上传与构建 404 排错 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ZIP 解压上传与远程主题排错笔记，文件大小上限、子模块声明、Actions 工作流与 404 日志均照录原笔记。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

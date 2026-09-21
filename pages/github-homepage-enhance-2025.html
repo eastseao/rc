@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d9488'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>GitHub 主页 Logo·点赞·DOCTYPE 修改 · 2025-10</title>
+<meta name="description" content="把个人主页做活：Canvas 漂浮 Logo 背景怎么换、悬浮红心点赞按钮的 localStorage 防重实现、滚动进度条与不蒜子 PV/UV 统计，以及主页从一长页精简为子网页标题导航、在线视频播放器的旋转与横版适配。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.codeblock{font-family:var(--mono);font-size:12.5px;background:var(--code);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px;margin:12px 0;overflow-x:auto;line-height:1.7;color:var(--ink-2);white-space:pre}
+.codeblock .c{color:var(--muted-2)}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 Logo 背景</a>
+      <a href="#s1" data-sec="s1">01 红心点赞</a>
+      <a href="#s2" data-sec="s2">02 进度与统计</a>
+      <a href="#s3" data-sec="s3">03 子网页导航</a>
+      <a href="#s4" data-sec="s4">04 视频播放器</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 长文</span>
+  <h1>GitHub 主页 Logo · 点赞 · DOCTYPE 修改</h1>
+  <p class="s-lede">主页骨架搭好后，要往「活」里做：把悬浮粒子背景换成大小不一的 Logo、加一个陌生人能点的红心、顶上装滚动进度条、页脚挂访问统计，最后把一长页拆成子网页标题导航、再塞一个可旋转横版视频播放器。本组合并 00145 / 00147 / 00148 三份迭代笔记，参数与代码片段照录。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2025-10-01</b></span>
+    <span>收录笔记 <b>3 篇</b></span>
+    <span>时间跨度 <b>2025-10-01</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">Canvas 粒子</span>
+    <span class="s-chip">localStorage 点赞</span>
+    <span class="s-chip">不蒜子统计</span>
+    <span class="s-chip">子网页导航</span>
+    <span class="s-chip">视频旋转</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00145-2025-10-01 个人主页 Logo 背景动态实现</li>
+      <li>00147-2025-10-01 网页优化与红心点赞功能添加</li>
+      <li>00148-2025-10-01 主页修改 &lt;!DOCTYPE html&gt; &lt;html lang=…&gt;</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 Logo 背景 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>把悬浮粒子背景换成大小不一的 Logo</h2><span class="hint">00145</span></div>
+    <p class="lede">00145 的诉求：背景上原本悬浮的圆形粒子，换成<b>直径大小不一的 Logo</b>。做法是保留粒子的运动特性，把圆形粒子替换成一张 Logo 图片，并加上旋转。</p>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">核心思路</h3>
+        <ol style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2)">
+          <li style="margin-bottom:7px">用 <code style="font-family:var(--mono);font-size:12.5px">&lt;canvas&gt;</code> 绘制多个 Logo 实例。</li>
+          <li style="margin-bottom:7px">每个 Logo 有不同直径、位置、移动速度和旋转角。</li>
+          <li style="margin-bottom:7px">用 <code style="font-family:var(--mono);font-size:12.5px">requestAnimationFrame</code> 跑平滑动画。</li>
+          <li>Logo 图加载完再开动画，避免空图。</li>
+        </ol>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">关键参数（照录）</h3>
+        <dl class="kv">
+          <dt>Logo 地址</dt><dd><code style="font-family:var(--mono);font-size:12px">https://cdn4.winhlb.com/2025/10/01/68dc359deeea1.jpg</code></dd>
+          <dt>直径</dt><dd><code style="font-family:var(--mono);font-size:12px">Math.random()*60 + 20</code>，即 20–80px。</dd>
+          <dt>数量</dt><dd><code style="font-family:var(--mono);font-size:12px">logoCount = 屏宽×屏高 / 15000</code>，随屏幕大小自适应。</dd>
+          <dt>透明度</dt><dd><code style="font-family:var(--mono);font-size:12px">random*0.5 + 0.3</code>，即 0.3–0.8。</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="codeblock"><span class="c">// Logo 类：位置/速度/旋转/透明度各自随机，出界后从另一侧移入</span>
+class Logo {
+  constructor() {
+    this.size = Math.random() * 60 + 20;
+    this.speedX = (Math.random() - 0.5) * 1.5;
+    this.speedY = (Math.random() - 0.5) * 1.5;
+    this.rotation = Math.random() * 360;
+    this.rotationSpeed = (Math.random() - 0.5) * 0.5;
+    this.opacity = Math.random() * 0.5 + 0.3;
+  }
+  update() {
+    this.x += this.speedX; this.y += this.speedY;
+    this.rotation += this.rotationSpeed;
+    <span class="c">// 出界回绕：x 超出画布就从 -size 重新进来</span>
+  }
+  draw() {
+    ctx.globalAlpha = this.opacity;
+    ctx.drawImage(logoImg, -this.size/2, -this.size/2, this.size, this.size);
+  }
+}</div>
+    <div class="srcnote" style="margin-bottom:0"><b>性能要点</b>：Logo 数量按屏幕面积算（除以 15000），避免小屏堆太多；窗口 resize 时重算 canvas 尺寸与 Logo 数组；内容卡片用毛玻璃 <code style="font-family:var(--mono);font-size:12.5px">backdrop-filter: blur</code> 压在背景之上，保证文字可读。</div>
+  </section>
+
+  <!-- ══ 01 红心点赞 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>悬浮红心点赞按钮：陌生人也能点</h2><span class="hint">00147</span></div>
+    <p class="lede">00147 的硬要求：文字不动、在不影响整体显示的前提下加一个红心点赞按钮，<b>支持陌生人点赞</b>（不用登录）。关键是用 <code style="font-family:var(--mono);font-size:12.5px">localStorage</code> 存状态，既防同一浏览器重复点，又不要求注册。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">组成</th><th>做法（照录）</th></tr></thead>
+      <tbody>
+        <tr><td><b>按钮本体</b></td><td>页面左下角悬浮 <code style="font-family:var(--mono);font-size:12px">.heart-like</code>，里面是 <code style="font-family:var(--mono);font-size:12px">&lt;i class="far fa-heart"&gt;</code> + 一个 <code style="font-family:var(--mono);font-size:12px">.like-count</code> 数字。</td></tr>
+        <tr><td><b>计数来源</b></td><td><code style="font-family:var(--mono);font-size:12px">let currentLikes = parseInt(localStorage.getItem('pageLikes')) || 0</code>。</td></tr>
+        <tr><td><b>防重复</b></td><td>读 <code style="font-family:var(--mono);font-size:12px">localStorage.getItem('hasLiked') === 'true'</code>；已点过就 toast「您已经点过赞了！」，不再累加。</td></tr>
+        <tr><td><b>点赞动画</b></td><td>点中后给按钮加 <code style="font-family:var(--mono);font-size:12px">.liked</code>，图标换实心 <code style="font-family:var(--mono);font-size:12px">fas fa-heart</code>，跑 <code style="font-family:var(--mono);font-size:12px">heartBeat 0.6s</code> 心跳关键帧。</td></tr>
+        <tr><td><b>提示</b></td><td><code style="font-family:var(--mono);font-size:12px">.like-toast</code> 显示「感谢您的点赞！」，2 秒后自动消失。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="codeblock">heartLike.addEventListener('click', function() {
+  if (hasLiked) { showToast('您已经点过赞了！'); return; }
+  currentLikes++;
+  likeCount.textContent = currentLikes;
+  localStorage.setItem('pageLikes', currentLikes);
+  localStorage.setItem('hasLiked', 'true');
+  heartLike.classList.add('liked');
+  showToast('感谢您的点赞！');
+  <span class="c">// 实际项目把计数上报到服务端：</span>
+  <span class="c">// fetch('/api/like', { method:'POST', body: JSON.stringify({ page:'wangwei' }) })</span>
+});</div>
+
+    <div class="warnbox">
+      <h5>localStorage 方案的边界（源笔记原话）</h5>
+      <ul>
+        <li>同一浏览器里重复访问不会重复计数；<b>不同浏览器/设备会各自独立计数</b>。</li>
+        <li>要跨设备汇总真实点赞数，必须接后端 API——源笔记留了 <code style="font-family:var(--mono);font-size:12.5px">sendLikeToServer()</code> 占位，注释里写明应替换为 <code style="font-family:var(--mono);font-size:12.5px">fetch('/api/like', …)</code>。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ 02 进度与统计 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>滚动进度条、返回顶部与访问统计</h2><span class="hint">00147</span></div>
+    <p class="lede">00147 在同一轮优化里还加了三个「站点级」小部件：顶部滚动进度条、右下角返回顶部、页脚不蒜子 PV/UV 统计。都是纯前端、无后端。</p>
+
+    <div class="grid g3">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">滚动进度条</h3>
+        <p style="font-size:13.5px;color:var(--ink-2);line-height:1.72">顶部 <code style="font-family:var(--mono);font-size:12px">.progress-container</code>（高 4px、fixed），里面 <code style="font-family:var(--mono);font-size:12px">.progress-bar</code> 宽度随 <code style="font-family:var(--mono);font-size:12px">scrollTop / (scrollHeight - innerHeight)</code> 变化，渐变填色。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">返回顶部</h3>
+        <p style="font-size:13.5px;color:var(--ink-2);line-height:1.72">右下角 <code style="font-family:var(--mono);font-size:12px">.back-to-top</code> 圆钮，初始 <code style="font-family:var(--mono);font-size:12px">opacity:0; visibility:hidden</code>；滚动超过阈值才加 <code style="font-family:var(--mono);font-size:12px">.active</code> 显现，点了 <code style="font-family:var(--mono);font-size:12px">scrollTo(0,0)</code>。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">不蒜子 PV/UV</h3>
+        <p style="font-size:13.5px;color:var(--ink-2);line-height:1.72">页脚引入 <code style="font-family:var(--mono);font-size:12px">//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js</code>（async），用 <code style="font-family:var(--mono);font-size:12px">busuanzi_container_site_pv / _uv</code> 两个容器挂本站总访问量与访客数。</p>
+      </div>
+    </div>
+
+    <div class="srcnote" style="margin-bottom:0"><b>搭配关系</b>：00147 的主页同时保留了「红心点赞」和「不蒜子访客统计」——前者是交互反馈、后者是站点流量，两者互不依赖，都能纯前端跑。这也是 00148 后来拆子网页时明确要求「保留点赞和访客统计」的原因。</div>
+  </section>
+
+  <!-- ══ 03 子网页导航 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>主页太复杂？拆成子网页标题导航</h2><span class="hint">00148</span></div>
+    <p class="lede">00148 的转折：用户觉得主页一长页太杂，要求<b>各板块改成子网页、主页只留标题</b>。这正是把前面学的「子目录/子网页」用到自己身上。下面是源笔记沉淀下来的主页骨架。</p>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">00148 · 主页精简要求（照录）</span><h3>主页只保留入口，内容拆出去</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:150px">位置</th><th>放什么</th></tr></thead>
+          <tbody>
+            <tr><td><b>顶部</b></td><td>个人头像<b>往左</b>放；头像右侧放「可拨打的电话」与「可一键复制的微信号」。</td></tr>
+            <tr><td><b>中间</b></td><td>各板块只留<b>标题（+图标）</b>，点进去才是子网页：健康集团、青海基地介绍、个人介绍、主要采购品类、工作目标、擅长领域、知识库、产品库。</td></tr>
+            <tr><td><b>底部正中</b></td><td>放一个 logo，规格 <b>285×65 像素</b>；底部背景用<b>黑底</b>。</td></tr>
+            <tr><td><b>保留</b></td><td>点赞功能 + 访客统计（即 00147 的红心与不蒜子）。</td></tr>
+          </tbody>
+        </table></div>
+        <p class="lede" style="margin:0">后续又迭代两轮：要求把「分类」从一排改<b>分两行</b>排布；产品子网页本身再做导航栏——<b>传统渠道、电商渠道 3 区、其他、首页</b>四个入口，每个用<b>下拉列表</b>展开。</p>
+      </div>
+    </div>
+
+    <details class="acc st4">
+      <summary>「DOCTYPE 修改」这个文件名到底在说什么<span class="cnt">命名由来</span></summary>
+      <div class="body">
+        <p>这份笔记的标题里 <code style="font-family:var(--mono);font-size:12.5px">&lt;!DOCTYPE html&gt; &lt;html lang=</code> 并不是在讨论文档类型声明——它只是用户每次提问时把当前主页的 HTML 头两行（<code style="font-family:var(--mono);font-size:12.5px">&lt;!DOCTYPE html&gt;</code>、<code style="font-family:var(--mono);font-size:12.5px">&lt;html lang="zh-CN"&gt;</code>）原样粘进对话框，文件名就照抄了这两行。真正的内容是主页的一轮轮精修：渐变文字标题、毛玻璃弹窗、拆子网页、加视频。</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ══ 04 视频播放器 ══ -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>在线视频播放器：旋转 90 度与横版适配</h2><span class="hint">00148</span></div>
+    <p class="lede">00148 后半段连续追了几次视频需求：先给一个在线视频网址做播放页，再要求「只放一个视频、要简约」，接着要<b>把播放器转 90 度</b>、横版视频要完整展现、播放按钮要放在好点的位置。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:180px">需求迭代</th><th>做法要点</th></tr></thead>
+      <tbody>
+        <tr><td><b>在线播放 mp4</b></td><td>用 <code style="font-family:var(--mono);font-size:12px">&lt;video controls autoplay&gt;</code> + <code style="font-family:var(--mono);font-size:12px">&lt;source src="在线mp4地址" type="video/mp4"&gt;</code>，页面尽量留白、只放播放器。</td></tr>
+        <tr><td><b>播放器转 90 度</b></td><td>给播放器容器套 CSS <code style="font-family:var(--mono);font-size:12px">transform: rotate(90deg)</code>，并配合调整宽高与定位，让旋转后仍居中、不溢出。</td></tr>
+        <tr><td><b>横版完整展现</b></td><td>视频本身是横版，却只显示了一部分——用 <code style="font-family:var(--mono);font-size:12px">object-fit: contain</code> 让横版视频完整装入容器，再把播放/暂停/进度等控制条（插件）放到不遮挡画面、便于点击的位置。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="codeblock">&lt;video id="player" controls autoplay playsinline&gt;
+  &lt;source src="https://在线视频地址.mp4" type="video/mp4"&gt;
+&lt;/video&gt;
+<span class="c">/* 竖屏容器里把横版视频转正并完整显示 */</span>
+#player { width: 100%; height: 100%; object-fit: contain; }
+.rotate90 { transform: rotate(90deg); transform-origin: center; }</div>
+
+    <div class="srcnote" style="margin-bottom:0"><b>经验沉淀</b>：在线视频最容易翻车的是「竖屏手机里横版视频只露一半」——根因是容器是竖的、视频是横的，光旋转不够，必须同时用 <code style="font-family:var(--mono);font-size:12.5px">object-fit: contain</code> 保证完整画面，再挪控制条位置。</div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>GitHub 主页 Logo·点赞·DOCTYPE 修改 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自个人主页迭代工作笔记，Canvas 参数、localStorage 键名、视频 CSS 与尺寸规格均照录原笔记。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

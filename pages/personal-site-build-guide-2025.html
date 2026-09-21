@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>个人网站搭建完整指南 · 2025-10</title>
+<meta name="description" content="从注册 GitHub 账号到上线个人网站：三种建站路径对比、GitHub Pages 仓库命名与 Pages 启用、Jekyll Chirpy 主题纯网页操作全流程、移动端个人主页设计，以及 Markdown 博客的文章推送与自动打标签。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+/* 顶栏 */
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+/* 文档头部 */
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+/* 主体 */
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+/* 章节 */
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+/* 表格 */
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+/* 手风琴 */
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+/* 代码块 */
+.codeblock{font-family:var(--mono);font-size:12.5px;background:var(--code);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px;margin:12px 0;overflow-x:auto;line-height:1.7;color:var(--ink-2);white-space:pre}
+.codeblock .c{color:var(--muted-2)}
+
+/* 页脚 */
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+/* 板块主题色开关 */
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 建站路径</a>
+      <a href="#s1" data-sec="s1">01 Pages 起步</a>
+      <a href="#s2" data-sec="s2">02 Chirpy 博客</a>
+      <a href="#s3" data-sec="s3">03 移动主页</a>
+      <a href="#s4" data-sec="s4">04 MD 站点</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 手册</span>
+  <h1>个人网站搭建完整指南</h1>
+  <p class="s-lede">从注册一个新的 GitHub 账号开始，把「怎么把个人网站/博客上线」这条路走通：先在三种建站路径里选对方向，再用 GitHub Pages 把仓库跑起来，接着用 Jekyll Chirpy 主题在网页上搭出博客，最后落到移动端个人主页的设计与 Markdown 内容的推送、打标签。所有仓库名、命令、配置项均照录源笔记，未作改写。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2025-10-12</b></span>
+    <span>收录笔记 <b>5 篇</b></span>
+    <span>时间跨度 <b>2025-10-01 ~ 2025-10-12</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">GitHub Pages</span>
+    <span class="s-chip">Jekyll</span>
+    <span class="s-chip">Chirpy</span>
+    <span class="s-chip">Hexo</span>
+    <span class="s-chip">Markdown 博客</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00142-2025-10-01 个人网站搭建指南与步骤</li>
+      <li>00159-2025-10-03 我刚刚在 github 新建了一个账号，我将利用这个账号建我的个人博客</li>
+      <li>00160-2025-10-03 我刚在 github 上，建立了我的 md 个人网页，请帮我搭建一个比较……</li>
+      <li>00229-2025-10-12 我想搭建博客，采用 jekyll Chirpy，请告诉我完整流程</li>
+      <li>00230-2025-10-12 新手构建 Jekyll Chirpy 博客指南</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 建站路径选择 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>三种建站路径，先选方向再动手</h2><span class="hint">00142 / 00159</span></div>
+    <p class="lede">源笔记把「个人网站怎么建」归成三条路：<b>可视化平台</b>、<b>静态站点生成器</b>、<b>自托管</b>。对新手最友好的是静态生成器里的 Jekyll——它与 GitHub Pages 原生集成，连本地环境都可以不装，直接在网页上写 Markdown 就出页面。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">路径</th><th style="width:230px">代表工具</th><th>适合谁 / 代价</th></tr></thead>
+      <tbody>
+        <tr><td><b>可视化平台</b></td><td>WordPress、Wix、各类建站 SaaS</td><td>拖拽即用，最快上线；但受制于平台模板与计费，自由度低，数据不在自己手里。</td></tr>
+        <tr><td><b>静态站点生成器</b></td><td>Jekyll（Ruby）、Hugo、Hexo（Node.js）</td><td>把 Markdown 编译成静态 HTML，托管在 GitHub Pages 免费；Jekyll 与 Pages 原生集成，Hexo 需本地装 Node 并命令行部署。</td></tr>
+        <tr><td><b>自托管</b></td><td>自己租服务器、装 Nginx/Node</td><td>自由度最高，要管运维、域名、备案；对纯静态个人主页属于杀鸡用牛刀。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">Jekyll：与 GitHub Pages 无缝集成</h3>
+        <p class="lede" style="margin-bottom:10px">GitHub Pages 原生支持 Jekyll，可直接在线编辑，无需本地装复杂环境。写文章就是在仓库里建 <code style="font-family:var(--mono);font-size:12.5px">_posts/年-月-日-标题.md</code>，文件头带一段 YAML Front Matter。</p>
+        <div class="codeblock"><span class="c"># _config.yml 应用默认主题</span>
+theme: minima</div>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">Hexo：灵活但要本地命令行</h3>
+        <p class="lede" style="margin-bottom:10px">Node.js 驱动，先装 Node.js 与 Git，再用命令行初始化、本地预览、生成并推送。</p>
+        <div class="codeblock">npm install hexo-cli -g
+hexo init blog &amp;&amp; cd blog &amp;&amp; npm install
+hexo server            <span class="c"># 预览 http://localhost:4000</span>
+hexo clean &amp;&amp; hexo generate &amp;&amp; hexo deploy</div>
+      </div>
+    </div>
+
+    <div class="srcnote" style="margin-bottom:0"><b>源笔记结论</b>：新手强烈推荐 Jekyll 路线——仓库建好、Pages 一开、写 <code style="font-family:var(--mono);font-size:12.5px">index.md</code> 或 <code style="font-family:var(--mono);font-size:12.5px">index.html</code> 就能上线；主题在 <code style="font-family:var(--mono);font-size:12.5px">_config.yml</code> 里改 <code style="font-family:var(--mono);font-size:12.5px">theme</code> 一行即可切换，NexT、码志等简约主题社区常用。</div>
+  </section>
+
+  <!-- ══ 01 GitHub Pages 从零起步 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>新账号到上线：GitHub Pages 起步五步</h2><span class="hint">00159 / 00142</span></div>
+    <p class="lede">注册完 GitHub 账号，核心只有两步硬规则：<b>仓库名必须叫 <code style="font-family:var(--mono);font-size:12.5px">&lt;你的用户名&gt;.github.io</code></b>、仓库设为 <b>Public</b>。其余都是在这之上填内容、开 Pages。</p>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">00159 · 2025-10-03</span><h3>三阶段流程：建仓 → 写内容 → 开 Pages</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:120px">阶段</th><th style="width:200px">操作</th><th>关键点</th></tr></thead>
+          <tbody>
+            <tr><td><b>1 建仓</b></td><td>右上 + → New repository；Repository name 填 <b><code style="font-family:var(--mono);font-size:12px">用户名.github.io</code></b>；设 Public；可勾 Add a README</td><td>仓库名必须与用户名完全一致、大小写敏感。这是个人主站点的固定命名。</td></tr>
+            <tr><td><b>2 写内容</b></td><td>Add file → Create new file，建 <code style="font-family:var(--mono);font-size:12px">index.md</code>（或 <code style="font-family:var(--mono);font-size:12px">index.html</code>）；再建 <code style="font-family:var(--mono);font-size:12px">_config.yml</code> 写 <code style="font-family:var(--mono);font-size:12px">theme: minima</code></td><td>主页文件必须在仓库根目录，不能藏在子文件夹里。</td></tr>
+            <tr><td><b>3 开 Pages</b></td><td>Settings → 左侧 Pages → Source 选 <b>Deploy from a branch</b>、分支选 <b>main</b> / <code style="font-family:var(--mono);font-size:12px">/(root)</code>；保存</td><td>等 1–10 分钟，访问 <code style="font-family:var(--mono);font-size:12px">https://用户名.github.io</code>。</td></tr>
+          </tbody>
+        </table></div>
+        <div class="codeblock"><span class="c"># index.md 主页最小示例</span>
+---
+layout: home
+title: 首页
+---
+# 欢迎来到我的博客！
+这里是我的个人空间。
+
+<span class="c"># _config.yml</span>
+title: "我的博客"
+description: "欢迎来到我的个人博客"
+theme: minima
+url: "https://用户名.github.io"</div>
+        <div class="warnbox">
+          <h5>404 打不开时，按这五点排查</h5>
+          <ul>
+            <li>仓库名是否严格等于 <code style="font-family:var(--mono);font-size:12.5px">用户名.github.io</code>（拼写、大小写都要对）。</li>
+            <li>Settings → Pages 的发布分支是否选对（main / master），文件夹为 /(root)。</li>
+            <li>根目录下是否真有 <code style="font-family:var(--mono);font-size:12.5px">index.html</code> / <code style="font-family:var(--mono);font-size:12.5px">index.md</code>，且文件已 Commit 成功。</li>
+            <li>看 Actions 标签里的构建日志——构建失败时日志会写明原因（插件不兼容、语法错误等）。</li>
+            <li>纯静态框架项目可在根目录放空文件 <code style="font-family:var(--mono);font-size:12.5px">.nojekyll</code>，让 Pages 跳过默认 Jekyll 构建（它默认会忽略下划线开头的目录）。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <details class="acc st2">
+      <summary>为何能访问 用户名.github.io/github.io/ 却打不开主站？<span class="cnt">命名纠偏</span></summary>
+      <div class="body">
+        <p>源笔记里的真实案例：用户只能通过 <code style="font-family:var(--mono);font-size:12.5px">https://hdbuyer.github.io/github.io/</code> 访问，标准主站却 404。原因是网站文件存放在名为 <b>github.io</b> 的仓库里——那是一个<b>项目站点</b>，URL 必然带项目名；而个人主站点要求仓库名必须是 <code style="font-family:var(--mono);font-size:12.5px">hdbuyer.github.io</code>。</p>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:240px">访问 URL</th><th>对应仓库</th></tr></thead>
+          <tbody>
+            <tr><td><code style="font-family:var(--mono);font-size:12.5px">https://hdbuyer.github.io</code></td><td>仓库名应为 <b>hdbuyer.github.io</b>，GitHub 直接从该仓库根目录提供文件。</td></tr>
+            <tr><td><code style="font-family:var(--mono);font-size:12.5px">https://hdbuyer.github.io/github.io/</code></td><td>仓库名是 <b>github.io</b>，属项目站点，URL 里必须带项目名。</td></tr>
+          </tbody>
+        </table></div>
+        <p>修正：进入 github.io 仓库 → Settings → Repository name 改成 <code style="font-family:var(--mono);font-size:12.5px">hdbuyer.github.io</code>，确认主页文件在根目录、发布分支正确即可。</p>
+      </div>
+    </details>
+
+    <details class="acc st2">
+      <summary>怎么删 GitHub 仓库（误建的库）<span class="cnt">Danger Zone</span></summary>
+      <div class="body">
+        <p>网页端删单个仓库：进入仓库 → Settings → 滚到底 <b>Danger Zone</b> → 点 <b>Delete this repository</b> → 在弹窗里<b>输入要删的仓库名</b>确认（可能还要输 GitHub 密码）。删除后代码、Issues、PR、Wiki 都会丢失，删前务必备份；若只是不想公开，可先把仓库设为 Private 作为缓冲。批量删库需 Personal Access Token，配合官方 API 脚本或 del-repos 类工具。</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ══ 02 Jekyll Chirpy 主题博客 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>Jekyll Chirpy 主题：纯网页操作搭博客</h2><span class="hint">00229 / 00230</span></div>
+    <p class="lede">Chirpy 是 Jekyll 上一款流行博客主题。源笔记分别用两个账号实操：<b>seamoonappear / blog</b> 与 <b>hdbuyer / blog</b>，结论一致——不装本地环境，全程在 GitHub 网页上点模板、改配置、写 Markdown 就能上线。</p>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">00229 / 00230</span><h3>三阶段：模板建仓 → 开 Actions → 写文章</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:130px">阶段</th><th>网页操作（照录）</th></tr></thead>
+          <tbody>
+            <tr><td><b>① 用模板建仓</b></td><td>打开 <b>cotes2020/chirpy-starter</b> 模板仓库 → 右上绿色 <b>Use this template</b> → <b>Create a new repository</b>（<b>不要直接 Fork</b>）。想走 <code style="font-family:var(--mono);font-size:12px">用户名.github.io</code> 主站就把仓库名定为 <code style="font-family:var(--mono);font-size:12px">用户名.github.io</code>；源笔记实际用的是仓库名 <b>blog</b>，于是访问地址变成 <code style="font-family:var(--mono);font-size:12px">https://用户名.github.io/blog/</code>。设 Public，Create repository from template。</td></tr>
+            <tr><td><b>② 开 Pages + Actions</b></td><td>仓库 → Settings → 左侧 Pages → Build and deployment 的 Source 从 <b>Deploy from a branch</b> 改成 <b>GitHub Actions</b>。回到顶部 Actions 标签，能看到一条 <b>Build and Deploy</b> 工作流自动触发，等它全绿（约几分钟）。</td></tr>
+            <tr><td><b>③ 改配置 + 写文章</b></td><td>编辑根目录 <code style="font-family:var(--mono);font-size:12px">_config.yml</code> 把 url 等填对；进 <code style="font-family:var(--mono);font-size:12px">_posts</code> → Add file → Create new file，文件名 <code style="font-family:var(--mono);font-size:12px">YYYY-MM-DD-标题.md</code>，开头写 Front Matter，Commit。每次提交都自动触发重建。</td></tr>
+          </tbody>
+        </table></div>
+        <div class="codeblock"><span class="c"># _posts 文章最小头部（Front Matter）</span>
+---
+title: "欢迎来到我的博客"
+date: 2025-10-12 20:00:00 +0800
+categories: [随笔]
+tags: [欢迎]
+---
+## 这是我的第一篇文章
+你好，世界！</div>
+      </div>
+    </div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">_config.yml 关键配置项</h3>
+        <dl class="kv">
+          <dt>url</dt><dd>完整站点地址。仓库名为 blog 时应为 <code style="font-family:var(--mono);font-size:12px">https://用户名.github.io</code>；若用 <code style="font-family:var(--mono);font-size:12px">blog</code> 子路径需另设 baseurl。</dd>
+          <dt>baseurl</dt><dd>源笔记实测：仓库名叫 <b>blog</b> 时必须设 <code style="font-family:var(--mono);font-size:12px">baseurl: "/blog"</code>，否则 CSS/JS 资源路径 404。本地预览用 <code style="font-family:var(--mono);font-size:12px">bundle exec jekyll s --baseurl /blog</code>。</dd>
+          <dt>theme</dt><dd><code style="font-family:var(--mono);font-size:12px">jekyll-theme-chirpy</code>。</dd>
+          <dt>lang / timezone</dt><dd><code style="font-family:var(--mono);font-size:12px">lang: zh-CN</code>、<code style="font-family:var(--mono);font-size:12px">timezone: Asia/Shanghai</code>。</dd>
+          <dt>plugins</dt><dd><code style="font-family:var(--mono);font-size:12px">jekyll-sitemap</code>、<code style="font-family:var(--mono);font-size:12px">jekyll-feed</code>、<code style="font-family:var(--mono);font-size:12px">jekyll-paginate</code>、<code style="font-family:var(--mono);font-size:12px">jekyll-seo-tag</code>。</dd>
+          <dt>permalink</dt><dd><code style="font-family:var(--mono);font-size:12px">/posts/:title/</code>。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">可选：Giscus 评论系统</h3>
+        <p class="lede" style="margin-bottom:10px">Giscus 基于 GitHub Discussions，免费。三步走：</p>
+        <ul style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2)">
+          <li style="margin-bottom:7px">访问 github.com/apps/giscus 点 Install，授权访问你的博客仓库。</li>
+          <li style="margin-bottom:7px">仓库 Settings → Features 勾选 <b>Discussions</b>。</li>
+          <li style="margin-bottom:7px">到 giscus.app/zh-CN 选仓库，页面生成 repo / repo_id / category / category_id，填回 <code style="font-family:var(--mono);font-size:12px">_config.yml</code> 的 <code style="font-family:var(--mono);font-size:12px">comments</code> 段。</li>
+        </ul>
+        <div class="codeblock" style="margin-top:10px">comments:
+  active: giscus
+  giscus:
+    repo: 用户名/仓库
+    repo_id: YOUR_REPO_ID
+    category: Announcements
+    category_id: YOUR_CATEGORY_ID
+    mapping: pathname</div>
+      </div>
+    </div>
+
+    <div class="rl" style="margin-top:14px">
+      <h4>排错 · HTML-Proofer 报 JS 文件不存在</h4>
+      <div class="mid">Build failed：theme.min.js / page.min.js 等 internal script reference does not exist</div>
+      <p>源笔记实战：用 blog 仓库存 Chirpy 模板后，GitHub Actions 跑 HTML-Proofer 时一次性报 113 个失败，全是 <code style="font-family:var(--mono);font-size:12.5px">/assets/js/dist/*.min.js does not exist</code>。根因是 Chirpy 依赖特定构建步骤生成这些压缩 JS，远程直接 Fork/模板出的仓库可能缺 <code style="font-family:var(--mono);font-size:12.5px">assets/js</code>、<code style="font-family:var(--mono);font-size:12.5px">tools</code> 等关键目录。解决：核对仓库目录结构是否完整；本地补 <code style="font-family:var(--mono);font-size:12.5px">bundle install</code> + <code style="font-family:var(--mono);font-size:12.5px">npm install</code> 后 <code style="font-family:var(--mono);font-size:12.5px">bundle exec jekyll b</code>；临时可在工作流里注释掉 htmlproofer 步骤或加 <code style="font-family:var(--mono);font-size:12.5px">--disable-external</code>；并复查 baseurl 是否设为 /blog。</p>
+    </div>
+  </section>
+
+  <!-- ══ 03 移动端个人主页设计 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>移动端个人主页：一页式名片怎么排</h2><span class="hint">00142</span></div>
+    <p class="lede">00142 用一个真实场景反复迭代：一位常驻杭州、供职北京同仁堂健康药业（青海）的包装采购从业者，要在手机上跑一张「个人名片页」。源笔记把这页从占位头像一路改到真人头像、加微信、调采购品类与目标——下面是沉淀下来的设计骨架。</p>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">页面从上到下的结构</h3>
+        <dl class="kv">
+          <dt>资料区</dt><dd>渐变 banner 通栏，圆形头像（在线图片 URL，源笔记从 120px 放大到 160px）、姓名、公司头衔、常驻地点、电话/微信两个 CTA 按钮。</dd>
+          <dt>个人简介卡</dt><dd>三条技能：成本优化（省 15-20%）、供应商资源（50+ 长期合作）、质量管控严格。</dd>
+          <dt>擅长卡</dt><dd>包装材料专业知识、行业资源整合（源笔记中途去掉了「采购流程优化」一段）。</dd>
+          <dt>采购品类卡</dt><dd>包装制品 → 内包装品类 → 食品包装材料三段，照用户要求调过顺序、补了内包装。</dd>
+          <dt>三大目标卡</dt><dd>左侧 Logo 图 + 右侧三条：质量保证 / 成本控制 / 供应链稳定。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">微信弹窗与头像替换</h3>
+        <p class="lede" style="margin-bottom:10px">「添加微信」按钮弹出 modal，源笔记要求<b>去掉二维码、只留微信号 EastSeaO 并支持一键复制</b>：</p>
+        <div class="codeblock">const wechatId = 'EastSeaO';
+navigator.clipboard.writeText(wechatId).then(...)
+<span class="c">// 降级：临时 textarea + execCommand('copy')</span></div>
+        <p class="lede" style="margin:10px 0">真人头像用方法一（在线图片 URL），删掉本地占位方案：</p>
+        <div class="codeblock">&lt;img src="https://你的头像URL" alt="王维"&gt;</div>
+      </div>
+    </div>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">00142 · 采购铁三角</span><h3>采购岗位三大核心目标（用户原文沉淀）</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:150px">目标</th><th style="width:150px">性质</th><th>具体体现（照录）</th></tr></thead>
+          <tbody>
+            <tr><td><b>1 降本增效</b></td><td>成本目标</td><td>不只是压价，而是策略性手段实现总拥有成本最低：价格谈判、全生命周期成本管理（物流/仓储/维护/运营/报废）、流程优化、价值工程与分析。</td></tr>
+            <tr><td><b>2 保障供应</b></td><td>风险与稳定</td><td>正确时间、地点、数量到货：供应商关系管理、供应链风险管理（政治/灾害/供应商财务危机，建备用方案）、交期管理、库存优化。</td></tr>
+            <tr><td><b>3 保证质量</b></td><td>价值与合规</td><td>符合质量标准、技术规格与法规：验收标准与来料检验、供应商质量审核、合规管理（RoHS、REACH）、推动持续改进。</td></tr>
+          </tbody>
+        </table></div>
+        <div class="srcnote" style="margin-bottom:0"><b>三者关系（源笔记原文）</b>：成本、质量、供应构成「采购铁三角」，相互制约需找最佳平衡点——单纯追低成本会掉质量或断供，过度追高质量会成本陡升，只盯供应稳定会损害利润。优秀采购的核心价值就是在三者间找最优解，从被动「下单者」转为主动「价值创造者」。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 04 Markdown 站点演进 ══ -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>Markdown 个人网页的演进与文章推送</h2><span class="hint">00160</span></div>
+    <p class="lede">00160 是一个 md 个人网页从「能看」到「好用」的连续迭代：先把浮动导航改成左侧边栏，再把文章列表改成卡片表格，最后落到 Jekyll 目录结构；同时解决「文章怎么自动推送、怎么自动打标签」两件事。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:170px">迭代阶段</th><th>解决的问题</th></tr></thead>
+      <tbody>
+        <tr><td><b>浮动导航 → 左侧边栏</b></td><td>顶部浮动导航在长文章里频繁遮挡正文；改成左侧固定边栏后，阅读区与导航分离，滚动更顺。</td></tr>
+        <tr><td><b>文章列表 → 卡片表格</b></td><td>纯文字列表看不出差异；卡片表格把标题、日期、分类、摘要分栏，扫读更快。</td></tr>
+        <tr><td><b>单页 → Jekyll 目录结构</b></td><td>多页共用导航/页脚要重复维护；落到 <code style="font-family:var(--mono);font-size:12px">_posts</code>、布局模板后，新增文章只需放一个 md 文件。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">文章推送的三条路</h3>
+        <ul style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2)">
+          <li style="margin-bottom:8px"><b>GitHub API</b>：程序调用接口直接往仓库写 md 文件，适合自己做发布端。</li>
+          <li style="margin-bottom:8px"><b>Webhooks</b>：仓库收到 push 后触发外部服务，做即时重建与通知。</li>
+          <li><b>Jekyll 静态生成</b>：提交 md 到 <code style="font-family:var(--mono);font-size:12.5px">_posts</code>，GitHub Actions 自动编译成 HTML——最省心，也是前两节 Chirpy 走的路。</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">自动打标签：关键词规则</h3>
+        <p class="lede" style="margin-bottom:10px">源笔记的做法是<b>关键词命中规则</b>：在 md 正文/标题里预置关键词表，命中某组关键词就自动给文章挂上对应标签，省去手动维护 Front Matter 的 <code style="font-family:var(--mono);font-size:12.5px">tags</code>。例如命中「采购/包装/成本」归到效率工具类，命中「Jekyll/GitHub Pages」归到建站类。</p>
+        <div class="srcnote" style="margin-bottom:0"><b>源笔记落款</b>：微信 EastSeaO、邮箱 gervas@foxmail.com——与 00142 个人主页里的联系方式一致。</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>个人网站搭建完整指南 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自网站建设与博客工作笔记，仓库名、命令、配置项与流程均照录原笔记，实际操作时以 GitHub 官方界面与文档为准。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d9488'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>GitHub 推文与 Markdown 博客系统 · 2025-10</title>
+<meta name="description" content="hdbuyer 在 GitHub Pages 上搭 Markdown 推文博客的全过程：导航从隐藏式到顶部式、_posts 文件命名与 Front Matter 规则、推文卡片与每页 20 篇分页、md 推文生成器子页面，以及新手只想改 md 文件就能同步主页的简化方案。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:130px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.codeblock{font-family:var(--mono);font-size:12.5px;background:var(--code);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px;margin:12px 0;overflow-x:auto;line-height:1.7;color:var(--ink-2);white-space:pre}
+.codeblock .c{color:var(--muted-2)}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 结构与导航</a>
+      <a href="#s1" data-sec="s1">01 命名与元数据</a>
+      <a href="#s2" data-sec="s2">02 卡片与分页</a>
+      <a href="#s3" data-sec="s3">03 md 生成器</a>
+      <a href="#s4" data-sec="s4">04 新手简化</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 长文</span>
+  <h1>GitHub 推文与 Markdown 博客系统</h1>
+  <p class="s-lede">hdbuyer 在 GitHub Pages 上搭一套「md 推文博客」的完整迭代：导航从左侧隐藏式改成顶部式、推文文件怎么命名、Front Matter 写什么、卡片怎么排、每页多少条、要不要留言板块，最后落到新手友好的「只改 _posts 下 md 就同步主页」。四份笔记（00165/00166/00167/00169）按这条主线合并。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2025-10-04</b></span>
+    <span>收录笔记 <b>4 篇</b></span>
+    <span>时间跨度 <b>2025-10-03 ~ 2025-10-04</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">GitHub Pages</span>
+    <span class="s-chip">_posts</span>
+    <span class="s-chip">Front Matter</span>
+    <span class="s-chip">分页</span>
+    <span class="s-chip">md 生成器</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00165-2025-10-03 我想在 GitHub 上创建我的 md 推文博客系统（用户名 hdbuyer）</li>
+      <li>00166-2025-10-03 GitHub 推文博客系统设计方案</li>
+      <li>00167-2025-10-04 GitHub 推文博客系统设计与实现</li>
+      <li>00169-2025-10-04 GitHub Markdown 博客系统需求梳理</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 结构与导航 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>系统目录结构与导航怎么演进来的</h2><span class="hint">00165 / 00166 / 00167</span></div>
+    <p class="lede">用户已建好库、建好 <code style="font-family:var(--mono);font-size:12.5px">index.html</code>，要在上面跑一套推文博客。源笔记先给了完整目录结构，再在多轮里把导航、留言板块来回调整。</p>
+
+    <div class="codeblock">your-repo/
+├── index.html          <span class="c"># 主页</span>
+├── categories.html     <span class="c"># 分类页</span>
+├── tags.html           <span class="c"># 标签页</span>
+├── about.html          <span class="c"># 关于我</span>
+├── css/style.css
+├── js/script.js
+├── _posts/             <span class="c"># 推文目录，放 md 文件</span>
+│   ├── 2024-03-15-getting-started.md
+│   └── ...
+└── data/posts.json     <span class="c"># 推文元数据（早期方案，后被简化）</span></div>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">导航迭代</th><th>源笔记演变</th></tr></thead>
+      <tbody>
+        <tr><td><b>00165 / 00166 初版</b></td><td>左侧<b>隐藏式（折叠）导航栏</b>：首页、分类、标签、留言、关于我。</td></tr>
+        <tr><td><b>00166 改版</b></td><td>导航栏「还是不好看」→ 换格式 → 要求<b>去掉留言区域</b>。</td></tr>
+        <tr><td><b>00167 定稿</b></td><td>顶部导航：<b>首页、分类、标签、关于我</b>。</td></tr>
+        <tr><td><b>00169 再简</b></td><td>顶部导航进一步收成 <b>首页、标签、关于我</b>，推文放 <code style="font-family:var(--mono);font-size:12px">_posts/</code>。</td></tr>
+      </tbody>
+    </table></div>
+    <div class="srcnote" style="margin-bottom:0"><b>留言板块的去留</b>：初版要求推文下方留一个<b>留言板块，留言必须备注网名、所有人留言公开</b>；到 00166 第二轮就明确「去掉留言区域」。这条线只在早期方案里出现，最终版不带留言。</div>
+  </section>
+
+  <!-- ══ 01 命名与元数据 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>_posts 文件命名与 Front Matter 规则</h2><span class="hint">00165 / 00166</span></div>
+    <p class="lede">这是整套系统最硬的规则层。文件名、Front Matter、时间、分类、标签都有约定，首页靠这些自动排序、打标签。</p>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">文件命名</h3>
+        <div class="codeblock">YYYY-MM-DD-slug-title.md
+
+<span class="c"># 示例（全小写、连字符、无空格）</span>
+2024-03-15-getting-started-with-github-pages.md
+2024-03-14-my-first-tweet-blog-post.md</div>
+        <ul style="margin:10px 0 0;padding-left:18px;font-size:13.5px;color:var(--ink-2)">
+          <li style="margin-bottom:6px">全小写、用 <code style="font-family:var(--mono);font-size:12px">-</code> 分词、避免空格与特殊字符。</li>
+          <li>日期前缀决定排序——首页按创建时间最新在前。</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">Front Matter（md 最开头的 YAML）</h3>
+        <div class="codeblock">---
+layout: post
+title: "文章标题"
+date: 2024-01-15 09:00:00 +0800
+last_modified_at: 2024-01-18 14:30:00 +0800
+categories: [技术]
+tags: [GitHub, 教程]
+excerpt: "摘要……"
+---</div>
+        <ul style="margin:10px 0 0;padding-left:18px;font-size:13.5px;color:var(--ink-2)">
+          <li style="margin-bottom:6px">必须放在 md <b>最开头</b>，前后用 <code style="font-family:var(--mono);font-size:12px">---</code> 包围。</li>
+          <li>00169 后期要求 <b>Front Matter 标准去掉分类</b>。</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">维度</th><th>规则（照录）</th></tr></thead>
+      <tbody>
+        <tr><td><b>时间格式</b></td><td>ISO 8601：<code style="font-family:var(--mono);font-size:12px">createTime: "2024-03-15T10:30:00Z"</code>。创建时间<b>不可改</b>，修改时间每次更新时刷新。</td></tr>
+        <tr><td><b>分类</b></td><td>预设主分类：技术 / 生活 / 读书 / 旅行 / 思考 / 工作；每篇<b>有且仅有 1 个主分类</b>，2–4 个汉字，保持数量有限。</td></tr>
+        <tr><td><b>标签</b></td><td>每篇 <b>2–5 个标签</b>；技术术语优先英文（JavaScript / CSS / GitHub），避免过宽泛。</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ══ 02 卡片与分页 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>推文卡片怎么排、每页几条、怎么翻页</h2><span class="hint">00165 / 00167</span></div>
+    <p class="lede">首页把每篇推文渲染成一张卡片：<b>正中是标题，标题下方依次是创建时间、修改时间、标签、分类</b>；按创建时间倒序，每页最多 20 篇，余下在底部用序号翻页。</p>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">00167 · 推文数据结构</span><h3>每篇推文对象长这样</h3></div>
+      <div class="card-b">
+        <div class="codeblock">{
+  id: 1,
+  title: "我的第一篇推文",
+  createdAt: "2024-10-01",
+  updatedAt: "2024-10-01",
+  tags: ["JavaScript", "GitHub"],
+  categories: ["技术"]
+}</div>
+        <div class="tblwrap" style="margin:14px 0 0">
+          <table>
+            <thead><tr><th style="width:160px">字段</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td><b>id</b></td><td>唯一标识，数字递增。</td></tr>
+              <tr><td><b>title</b></td><td>卡片正中显示的标题。</td></tr>
+              <tr><td><b>createdAt / updatedAt</b></td><td>创建时间 / 修改时间，YYYY-MM-DD；首页按 createdAt 倒序。</td></tr>
+              <tr><td><b>tags / categories</b></td><td>数组，即使只有一项也要用方括号。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">分页逻辑</h3>
+        <p style="font-size:13.5px;color:var(--ink-2);line-height:1.72"><code style="font-family:var(--mono);font-size:12px">postsPerPage = 20</code>；<code style="font-family:var(--mono);font-size:12px">startIndex = (currentPage-1)*20</code>，<code style="font-family:var(--mono);font-size:12px">endIndex = startIndex+20</code>，对数组 slice；<code style="font-family:var(--mono);font-size:12px">totalPages = Math.ceil(总数/20)</code>；底部渲染上一页 / 页码 / 下一页，点页码切页并回到顶部。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">分类 / 标签页</h3>
+        <p style="font-size:13.5px;color:var(--ink-2);line-height:1.72">分类页、标签页各自用 <code style="font-family:var(--mono);font-size:12px">Set</code> 去重收集全站分类/标签，渲染成卡片并标注该分类下的推文数量。</p>
+      </div>
+    </div>
+
+    <div class="warnbox">
+      <h5>「首页打开看不到推文卡片」怎么查（00166 实录）</h5>
+      <ul>
+        <li>推文数据有没有真正加载进页面——早期方案数据在 <code style="font-family:var(--mono);font-size:12.5px">js/script.js</code> 的 <code style="font-family:var(--mono);font-size:12.5px">postsData</code> 数组里，忘了填或路径错都会空。</li>
+        <li>JS 控制台有没有报错；卡片容器 <code style="font-family:var(--mono);font-size:12.5px">#posts-container</code> 是否真被渲染。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ 03 md 生成器 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>md 推文生成器子页面</h2><span class="hint">00165 / 00169</span></div>
+    <p class="lede">用户不想手写 Front Matter，于是要一个<b>子网页</b>：输入文档标题和内容，自动生成一篇 md 推文、自动做好标签和分类，再放到 _posts 里推送首页。</p>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">00165 / 00169 · 生成器思路</span><h3>填表单 → 出一段可粘贴的 md</h3></div>
+      <div class="card-b">
+        <ol style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2)">
+          <li style="margin-bottom:8px">表单字段：标题、内容、创建日期、修改日期、标签（逗号分隔）、分类（逗号分隔）。</li>
+          <li style="margin-bottom:8px">点「生成」后拼成一个推文对象，<code style="font-family:var(--mono);font-size:12.5px">JSON.stringify(postObject, null, 2)</code> 输出，供复制。</li>
+          <li style="margin-bottom:8px">id 用 <code style="font-family:var(--mono);font-size:12.5px">Date.now()</code> 临时生成；日期默认填今天。</li>
+          <li>把生成的 md / JSON 贴进 <code style="font-family:var(--mono);font-size:12.5px">_posts/</code> 或 <code style="font-family:var(--mono);font-size:12.5px">data/posts.json</code>，push 到仓库即上线。</li>
+        </ol>
+        <div class="srcnote" style="margin-top:14px;margin-bottom:0"><b>用户原话</b>：「我是一个新手，我会利用 md 生成器生成的文章在 posts 里边提交文件，太复杂的过程，比如 json 文件目前我还操作不了。」——这正是下一节要解决的痛点。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 04 新手简化 ══ -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>新手简化：只改 _posts 下的 md 就同步主页</h2><span class="hint">00169</span></div>
+    <p class="lede">00169 的收尾是一次「减负」：用户把前面那套文件都传上去了，能显示标题和导航，但<b>中间看不到推文</b>；而且 json、改 main.js 对他太难。最终诉求收敛成一句——<b>只想通过修改 _posts 下的 md 文件来同步主页，其他文件不动</b>。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:180px">阶段</th><th>做法</th><th>卡点</th></tr></thead>
+      <tbody>
+        <tr><td><b>早期</b></td><td>数据放 <code style="font-family:var(--mono);font-size:12px">data/posts.json</code>，前端 fetch 加载</td><td>「json 文件目前操作不了」。</td></tr>
+        <tr><td><b>中期</b></td><td>提示去 <code style="font-family:var(--mono);font-size:12px">assets/js/main.js</code>、<code style="font-family:var(--mono);font-size:12px">tags.js</code> 加文章数据</td><td>「这种操作对我来说还是太难」。</td></tr>
+        <tr><td><b>最终</b></td><td>重做逻辑：<b>只往 _posts/ 放 md 文件</b>，主页自动按最新日期读取并列出推文；首页<b>不一定用卡片</b>，按最新日期不断更新即可</td><td>其他文件不动，降低到「只会传 md」。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="srcnote" style="margin-bottom:0"><b>这条线的价值</b>：推文博客从「前端写死 postsData / 维护 json」演进到「md 即数据、仓库即数据库」——用户每发一篇就是往 <code style="font-family:var(--mono);font-size:12.5px">_posts/</code> 丢一个按命名规则的 md，主页自动重排。这与第 1 篇里 Jekyll 自动渲染 _posts 的思路一致，只是这里用前端在 md/JSON 之间做了一轮适配。</div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>GitHub 推文与 Markdown 博客系统 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 hdbuyer 推文博客系统的设计笔记，文件命名、Front Matter 字段、分页与简化方案均照录原笔记。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
