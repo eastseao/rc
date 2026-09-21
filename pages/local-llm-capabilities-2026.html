@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>本地开源模型能力介绍 · 2026</title>
+<meta name="description" content="4 个 7B 级本地开源模型横评：Qwen2.5-7B-Instruct、Mistral 7B、Pygmalion 7B 角色扮演、dolphin-2.2.1-mistral-7b。每模型一张卡片，列技术规格、基准评测、适用场景与局限；评测分数与参数照录原笔记。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+.codeblock{background:var(--code);border:1px solid var(--line);border-radius:6px;padding:12px 14px;font-family:var(--mono);font-size:12.5px;line-height:1.7;overflow-x:auto;white-space:pre;color:var(--ink-2);margin-bottom:14px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 总览对照</a>
+      <a href="#s1" data-sec="s1">02 Qwen2.5-7B</a>
+      <a href="#s2" data-sec="s2">03 Mistral 7B</a>
+      <a href="#s3" data-sec="s3">04 Pygmalion 7B</a>
+      <a href="#s4" data-sec="s4">05 dolphin</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">行业研究 · 本地开源模型</span>
+  <h1>本地开源模型能力介绍</h1>
+  <p class="s-lede">把 4 篇 7B 级本地模型笔记做成一张横评：先给一张四模型总览对照表，再逐模型一张卡片，列技术规格、基准评测分数、适用场景与局限。所有参数量、上下文长度、评测分数均照录原笔记。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-03-31</b></span>
+    <span>收录笔记 <b>4 篇（合并 1 组）</b></span>
+    <span>时间跨度 <b>2026-03-24 ~ 2026-03-31</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">Qwen2.5-7B</span>
+    <span class="s-chip">Mistral 7B</span>
+    <span class="s-chip">Pygmalion 7B</span>
+    <span class="s-chip">dolphin</span>
+    <span class="s-chip">本地部署</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00796-2026-03-24 Qwen2.5-7B-Instruct 模型能力介绍</li>
+      <li>00797-2026-03-24 Pygmalion 7B 角色扮演模型能力</li>
+      <li>00798-2026-03-24 Mistral7B 模型能力介绍</li>
+      <li>00817 + 00818-2026-03-31 dolphin-2.2.1-mistral-7b 擅长的能力（两份同名笔记内容相同，合并为一条）</li>
+    </ol>
+  </div>
+
+  <!-- ══ 01 总览对照 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>四模型总览对照表</h2><span class="hint">00796 / 00797 / 00798 / 00817+00818</span></div>
+    <p class="lede">四款都是 7B 量级、可在消费级显卡上跑的开源模型，但定位差异很大：<b>Qwen2.5-7B</b> 是综合指令模型，<b>Mistral 7B</b> 是「以小博大」的效率标杆，<b>Pygmalion 7B</b> 专做角色扮演，<b>dolphin-2.2.1-mistral-7b</b> 是基于 Mistral 7B 的再微调。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">模型</th><th style="width:120px">参数 / 底座</th><th style="width:120px">上下文</th><th style="width:150px">定位</th><th>关键特点</th></tr></thead>
+      <tbody>
+        <tr><td><b>Qwen2.5-7B-Instruct</b></td><td>约 76 亿（7.61B），阿里通义千问</td><td>131,072（128K）</td><td>指令遵循 / 对话通用</td><td>知识、编程数学、长文本、结构化数据全面提升；支持 29 种以上语言；Apache-2.0 可商用。</td></tr>
+        <tr><td><b>Mistral 7B</b></td><td>73 亿（7.3B），Mistral AI，2023 年</td><td>理论堆叠可达 131K</td><td>性能/效率平衡</td><td>几乎所有基准超越 Llama 2 13B；GQA + 滑动窗口注意力；Apache 2.0；v0.3 支持函数调用。</td></tr>
+        <tr><td><b>Pygmalion 7B</b></td><td>70 亿（7B），基于 Meta LLaMA-7B 微调</td><td>约 4096 token</td><td>角色扮演 / 虚构对话</td><td>保持角色性格语气一致；未做安全对齐、易幻觉，仅供娱乐。</td></tr>
+        <tr><td><b>dolphin-2.2.1-mistral-7b</b></td><td>基于 Mistral-7B 的 dolphin 微调版</td><td>—（沿用 Mistral 7B 底座）</td><td>对话/指令向微调</td><td>原笔记仅记录了查询标题，未留存详细回答，详见第 05 节说明。</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ══ 02 Qwen2.5-7B-Instruct ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>Qwen2.5-7B-Instruct</h2><span class="hint">00796 · 2026-03-24</span></div>
+    <p class="lede">阿里云通义千问团队发布的 70 亿参数开源模型，专为<b>指令遵循和对话场景</b>优化，在知识掌握、编程与数学、长文本、结构化数据理解上较前代显著提升。</p>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">技术规格</span><h3>架构与参数</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:170px">技术规格</th><th>参数（照录）</th></tr></thead>
+          <tbody>
+            <tr><td>参数规模</td><td>约 <b>76 亿（7.61B）</b></td></tr>
+            <tr><td>架构特点</td><td>基于 Transformer，采用 RoPE、SwiGLU、RMSNorm 和 GQA（分组查询注意力）</td></tr>
+            <tr><td>上下文长度</td><td>支持长达 <b>131,072（128K）tokens</b></td></tr>
+            <tr><td>生成能力</td><td>单次最多生成 <b>8,192（8K）tokens</b></td></tr>
+            <tr><td>训练数据</td><td>预训练数据从 Qwen2 的 7 万亿 tokens 扩展至<b>最高 18 万亿 tokens</b></td></tr>
+            <tr><td>开源协议</td><td><b>Apache-2.0</b>，支持免费商用</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">基准评测</span><h3>能力维度与评测分数</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:150px">能力维度</th><th style="width:200px">关键特点</th><th>评测表现（照录）</th></tr></thead>
+          <tbody>
+            <tr><td>综合知识与推理</td><td>知识储备丰富，通用理解出色</td><td>MMLU 85+；MMLU-Pro 56.3</td></tr>
+            <tr><td>编程与代码</td><td>编程能力显著增强，多语言代码任务</td><td>HumanEval 85+；MBPP 79.2</td></tr>
+            <tr><td>数学与逻辑</td><td>解决更复杂数学问题</td><td>MATH 80+；GSM8K 91.6</td></tr>
+            <tr><td>指令遵循与对话</td><td>理解复杂指令、多系统提示，适合角色扮演</td><td>MT-Bench 8.75；Arena-Hard 52.0</td></tr>
+            <tr><td>结构化数据处理</td><td>理解和生成表格、JSON</td><td>官方文档强调能力提升</td></tr>
+            <tr><td>多语言支持</td><td>支持中文、英文等 29 种以上语言</td><td>官方文档确认</td></tr>
+          </tbody>
+        </table></div>
+        <div class="warnbox" style="margin-top:14px">
+          <h5>适用场景</h5>
+          <ul>
+            <li>智能对话助手：客服、虚拟角色扮演等高情商聊天机器人。</li>
+            <li>代码生成与辅助：代码编写、解释、调试。</li>
+            <li>内容创作与总结：文章/报告生成，长文档摘要。</li>
+            <li>结构化输出：从文本提取信息输出为 JSON 的自动化流程。</li>
+            <li>多语言应用：跨国业务或多语言环境。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 03 Mistral 7B ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>Mistral 7B</h2><span class="hint">00798 · 2026-03-24</span></div>
+    <p class="lede">Mistral AI 于 2023 年发布的开源模型，以 73 亿参数的「小巧」体积实现超越许多更大模型的性能，因<b>性能与效率</b>的平衡而受欢迎。</p>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">核心技术</span><h3>两项架构创新：GQA + SWA</h3></div>
+      <div class="card-b">
+        <dl class="kv">
+          <dt>分组查询注意力 GQA</dt><dd>显著加速推理、减少解码时内存需求，允许更大批量、提升总吞吐量，对实时应用关键。</dd>
+          <dt>滑动窗口注意力 SWA</dt><dd>限制每个 token 只能看到前文固定数量的 token；配合滚动缓冲区缓存，处理 32k 超长序列时缓存内存用量减少 <b>8 倍</b>而不影响质量；理论上堆叠注意力层最终上下文跨度可达 <b>131K</b> token。</dd>
+        </dl>
+        <p class="lede" style="margin:14px 0 10px">技术报告结论：几乎所有基准超越 Llama 2 13B（130 亿），在推理、数学、代码生成上超越 Llama 1 34B（340 亿）；处理推理/理解/STEM 任务时表现相当于其尺寸 <b>3 倍大</b>的 Llama 2 模型。</p>
+      </div>
+    </div>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">基准对比</span><h3>与 Llama 2 13B 对比（照录）</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:130px">能力领域</th><th style="width:160px">基准测试</th><th style="width:120px">Mistral 7B</th><th style="width:130px">Llama 2 13B</th><th>小结</th></tr></thead>
+          <tbody>
+            <tr><td>综合知识</td><td>MMLU</td><td><b>60.1%</b></td><td>55.6%</td><td>全面超越</td></tr>
+            <tr><td>常识推理</td><td>HellaSwag</td><td><b>81.3%</b></td><td>80.7%</td><td>领先</td></tr>
+            <tr><td>世界知识</td><td>TriviaQA</td><td><b>75.1%</b></td><td>69.6%</td><td>显著领先</td></tr>
+            <tr><td>数学能力</td><td>GSM8K (8-shot)</td><td><b>47.5%</b></td><td>34.3%</td><td>大幅领先</td></tr>
+            <tr><td>代码生成</td><td>HumanEval (0-shot)</td><td><b>28.1%</b></td><td>18.9%</td><td>大幅领先</td></tr>
+          </tbody>
+        </table></div>
+        <div class="grid g2">
+          <div class="panel"><dl class="kv"><dt>获取方式</dt><dd>Apache 2.0 开源，可在 Hugging Face 下载；通过 Ollama 一键本地运行（至少 8GB 内存）。</dd></dl></div>
+          <div class="panel"><dl class="kv"><dt>版本</dt><dd>有 Instruct（指令）与 Text（文本补全）两版；最新 v0.3 支持函数调用，方便构建 Agent。</dd></dl></div>
+        </div>
+        <div class="warnbox" style="margin-top:14px"><h5>使用提醒</h5><ul><li>应用：代码生成、机器翻译/摘要/问答/情感分析、创意写作、教育科研。</li><li>完全开源版本可能缺乏内置内容安全过滤，使用时自行注意。</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 04 Pygmalion 7B ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>Pygmalion 7B（角色扮演）</h2><span class="hint">00797 · 2026-03-24</span></div>
+    <p class="lede">专注<b>角色扮演和虚构对话</b>的对话式模型，基于 Meta 的 LLaMA-7B 微调，目标是创造沉浸式交互体验，而非通用安全助手。</p>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">核心能力与技术规格</span><h3>角色、对话、创意与提示格式</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:150px">能力维度</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td><b>角色扮演（核心优势）</b></td><td>根据角色描述在对话中完美扮演，保持人物性格、语气一致。</td></tr>
+            <tr><td><b>多轮对话</b></td><td>跟踪对话历史、理解上下文，进行连贯自然的连续对话，适合复杂叙事。</td></tr>
+            <tr><td><b>创意写作</b></td><td>协助创作虚构故事、生成对话、构思情节、塑造人物，输出偏富有想象力与细节。</td></tr>
+            <tr><td><b>上下文理解</b></td><td>通过特定提示格式理解「角色设定」和「对话历史」。</td></tr>
+          </tbody>
+        </table></div>
+        <dl class="kv" style="margin-top:14px">
+          <dt>底座</dt><dd>Meta LLaMA-7B，70 亿（7B）参数。</dd>
+          <dt>上下文</dt><dd>约 <b>4096 个 token</b>，足以处理中等长度对话或故事片段。</dd>
+          <dt>部署</dt><dd>有 GPTQ、GGUF 等量化版本，优化后可在 <b>8GB–16GB 显存</b>的消费级硬件流畅运行。</dd>
+        </dl>
+        <p class="lede" style="margin:14px 0 8px">标准提示格式（模型需按此格式输入效果最佳）：</p>
+        <div class="codeblock">[角色名称]'s Persona: [角色的详细描述]
+&lt;START&gt;
+[对话历史]
+You: [你的输入]
+[角色名称]:</div>
+        <div class="warnbox">
+          <h5>关键局限性（务必照用）</h5>
+          <ul>
+            <li>专为娱乐设计：不适合需要高准确性或安全性的严肃场景。</li>
+            <li>可能生成不当内容：未经过安全和无害化对齐微调。</li>
+            <li>事实准确性差：非常容易「产生幻觉」，重创意轻事实。</li>
+            <li>不具备真正的常识、情感或抽象推理，只是按训练数据模式做文本预测。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card st5">
+      <div class="card-h"><span class="tag">LM Studio 调参</span><h3>用 LM Studio 部署时的推荐参数</h3></div>
+      <div class="card-b">
+        <p class="lede">笔记特别说明：LM Studio 通常会自动从模型文件读取正确提示模板，若已能正常工作可不改。需手动调时按下面来。</p>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:180px">参数</th><th>推荐值</th></tr></thead>
+          <tbody>
+            <tr><td>Temperature（温度）</td><td><b>0.7 – 1.1</b>，稍高更具创造性，适合角色扮演。</td></tr>
+            <tr><td>Context Length（上下文长度）</td><td>设为 <b>4096</b>，即该模型支持的最大上下文。</td></tr>
+            <tr><td>Repeat Penalty（重复惩罚）</td><td><b>1.1</b> 左右，防止长对话陷入重复句循环。</td></tr>
+          </tbody>
+        </table></div>
+        <p class="lede" style="margin-bottom:0">进阶：在 Advanced → Chat Template 选 Custom，用 Jinja 模板把用户输入格式化成 <code>You: …</code>、模型回复前加角色名与冒号；注意保留 <code>&lt;START&gt;</code> 和角色名后冒号这些模型习得的分隔符，也不要加「请遵守道德规范」之类安全指令（对未对齐模型无效且干扰角色扮演）。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 05 dolphin ══ -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>dolphin-2.2.1-mistral-7b（合并条目）</h2><span class="hint">00817 + 00818 · 2026-03-31</span></div>
+    <p class="lede">原笔记 00817 与 00818 同名、同日、内容完全相同，按要求合并为一条。需要如实说明：<b>这两份笔记当时只记录了提问标题「dolphin-2.2.1-mistral-7b 擅长的能力」，并未留存 AI 的回答正文</b>，因此本页不为其编造任何评测分数或参数。</p>
+
+    <div class="card st5">
+      <div class="card-h"><span class="tag">合并条目</span><h3>dolphin-2.2.1-mistral-7b</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:150px">项目</th><th>可确认信息</th></tr></thead>
+          <tbody>
+            <tr><td>模型名称</td><td>dolphin-2.2.1-mistral-7b</td></tr>
+            <tr><td>底座来源</td><td>名称即表明它是<b>基于 Mistral-7B</b> 的 dolphin 系列再微调版——其底座能力可参考本页第 03 节 Mistral 7B（73 亿参数、GQA+SWA、理论 131K 上下文、Apache 2.0）。</td></tr>
+            <tr><td>笔记关注点</td><td>原笔记只提了一句「擅长的能力」，未展开；具体擅长领域无原文可引。</td></tr>
+            <tr><td>建议</td><td>如需该模型的能力清单，应回到提问当时补一次实测，再按「底座 + 微调方向」补全卡片，不要套用 Mistral 7B 的分数冒充 dolphin 自身成绩。</td></tr>
+          </tbody>
+        </table></div>
+        <div class="srcnote" style="margin-bottom:0"><b>口径声明</b>：本页严格照录源笔记。dolphin 卡片中没有任何数字来自凭空补写——凡原笔记缺失处，均以上表「可确认信息」的边界为准。</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>本地开源模型能力介绍 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自本地模型工作笔记，参数量、上下文长度与基准评测分数均照录原笔记；dolphin 条目因原笔记未留存回答正文，仅作如实标注，未补写任何数据。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

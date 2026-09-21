@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>本地大模型部署 · 聊天 · 搜索实现 · 2026</title>
+<meta name="description" content="5 篇本地部署笔记合并成手册：普通电脑能跑哪些模型与工具、聊天能不能提升知识、本地模型如何实现在线搜索、2万~3万元预算的两套硬件配置清单与可跑模型、以及 Hermes 经 Ollama/vLLM 接入本地 Qwen 7B 的步骤与命令。硬件用表格、命令用代码块。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:130px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+.codeblock{background:var(--code);border:1px solid var(--line);border-radius:6px;padding:12px 14px;font-family:var(--mono);font-size:12.5px;line-height:1.7;overflow-x:auto;white-space:pre;color:var(--ink-2);margin-bottom:14px}
+.codeblock .c{color:var(--muted-2)}
+
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 模型推荐</a>
+      <a href="#s1" data-sec="s1">02 聊天与知识</a>
+      <a href="#s2" data-sec="s2">03 搜索实现</a>
+      <a href="#s3" data-sec="s3">04 硬件配置</a>
+      <a href="#s4" data-sec="s4">05 Hermes 接入</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">行业研究 · 本地大模型手册</span>
+  <h1>本地大模型部署 · 聊天 · 搜索实现</h1>
+  <p class="s-lede">把 5 篇本地部署笔记整理成一本上手手册：普通电脑该选哪些模型、聊天会不会让模型变聪明、本地模型怎么实现联网搜索、2万~3万元预算的两套硬件配置与可跑模型，以及 Hermes 经 OpenAI 兼容接口接本地 Qwen 7B 的完整步骤。硬件配置一律用表格、部署命令一律用代码块。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-04-27</b></span>
+    <span>收录笔记 <b>5 篇</b></span>
+    <span>时间跨度 <b>2026-03-14 ~ 2026-04-27</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">本地模型推荐</span>
+    <span class="s-chip">RAG / 微调</span>
+    <span class="s-chip">Ollama</span>
+    <span class="s-chip">硬件配置清单</span>
+    <span class="s-chip">Hermes 接入</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本手册合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00724-2026-03-14 普通电脑本地模型推荐</li>
+      <li>00791-2026-03-24 本地大模型聊天知识提升</li>
+      <li>00793-2026-03-24 本地模型搜索实现方式</li>
+      <li>01030-2026-04-27 本地部署大模型配置建议</li>
+      <li>00955-2026-04-17 Hermes 接入本地 Qwen 模型</li>
+    </ol>
+  </div>
+
+  <!-- ══ 01 普通电脑本地模型推荐 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>普通电脑能跑哪些本地模型</h2><span class="hint">00724 · 2026-03-14</span></div>
+    <p class="lede">得益于量化技术，许多大模型压缩后在 <b>8GB–16GB</b> 内存的电脑上就能跑得不错。下表是主流推荐与量化后内存需求（照录）。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:160px">模型</th><th style="width:110px">参数</th><th style="width:150px">内存需求（量化后）</th><th>特点与适用场景</th></tr></thead>
+      <tbody>
+        <tr><td><b>Llama 3.1</b></td><td>8B</td><td>约 7.2–8 GB</td><td>Meta 通用型，对话、写代码、总结文档全面。</td></tr>
+        <tr><td><b>Qwen2.5（通义千问）</b></td><td>7B</td><td>约 6–7.5 GB</td><td>阿里出品，中文出色、支持长文本，适合中文内容。</td></tr>
+        <tr><td><b>DeepSeek R1</b></td><td>7B/8B</td><td>约 6.7–7.3 GB</td><td>擅长逻辑推理与代码理解，思维过程透明。</td></tr>
+        <tr><td><b>Gemma 2</b></td><td>2B/4B/7B</td><td>4B 约 4GB；7B 约 6–8GB</td><td>Google 轻量高效，4B 对低配友好，7B 能力更强。</td></tr>
+        <tr><td><b>Mistral 7B</b></td><td>7B</td><td>约 6.9–7.6 GB</td><td>速度快、效率高，适合实时聊天机器人。</td></tr>
+        <tr><td><b>Phi-3 Mini</b></td><td>3.8B</td><td>约 4–7.5 GB</td><td>微软小参数强逻辑与编程，性价比高。</td></tr>
+        <tr><td><b>Granite</b></td><td>3B/4B</td><td>约 3–5 GB</td><td>IBM 最小语言模型，速度快、资源有限设备。</td></tr>
+        <tr><td><b>DeepSeek Coder V2</b></td><td>6.7B</td><td>约 6 GB</td><td>专为代码生成与理解优化，本地编程辅助。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">常用部署「启动器」</h3>
+        <dl class="kv">
+          <dt>Ollama</dt><dd>操作最简单，命令行一键安装运行，对新手友好。</dd>
+          <dt>LM Studio</dt><dd>漂亮图形界面，像普通软件一样安装，内置模型搜索下载。</dd>
+          <dt>Llama.cpp</dt><dd>性能核心，专注普通硬件（甚至树莓派）高效运行，许多工具基于它。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">8GB 内存的取舍</h3>
+        <dl class="kv">
+          <dt>选量化版</dt><dd>文件名带 <code>Q4_K_M.gguf</code> 即 4-bit 量化，是性能与占用的最佳平衡；建议为模型预留约 1.2 倍内存。</dd>
+          <dt>8GB 首选</dt><dd>Gemma 2:4B（首选）、Phi-3 Mini（备选）；写中文可试 Qwen2.5:7B 的 Q3 量化版。</dd>
+          <dt>16GB 可选</dt><dd>可流畅跑 Llama 3.1 或 Qwen2.5。</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="tblwrap" style="margin-top:16px"><table>
+      <thead><tr><th style="width:130px">维度</th><th>在线版 AI</th><th>本地语言模型</th></tr></thead>
+      <tbody>
+        <tr><td><b>硬件依赖</b></td><td>无需配置，有浏览器即可</td><td>完全依赖本机；8GB 内存只能跑 3B–9B 小模型</td></tr>
+        <tr><td><b>模型能力</b></td><td>极强，可用最新最大模型</td><td>相对较弱，受硬件限制</td></tr>
+        <tr><td><b>隐私安全</b></td><td>数据上传服务器，有泄露/被用于训练风险</td><td>完全离线、数据不出电脑，最适合敏感信息</td></tr>
+        <tr><td><b>成本</b></td><td>基础免费、高级付费</td><td>完全免费、无限次使用</td></tr>
+      </tbody>
+    </table></div>
+    <p class="lede" style="margin-bottom:0">笔记建议的混合用法：<b>日常、隐私、草稿</b>用本地模型快速记录与初润；<b>定稿、创意、难题</b>把草稿交给在线版优化标题、文采与结构。</p>
+  </section>
+
+  <!-- ══ 02 聊天与知识提升 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>和本地模型聊天，能让它变聪明吗</h2><span class="hint">00791 · 2026-03-24</span></div>
+    <p class="lede">结论先行：<b>单纯聊天无法永久提升本地大模型的知识或能力。</b>差别在模型是怎么跑起来的。</p>
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">静态模型（Ollama / LM Studio / llama.cpp）</h3>
+        <p style="font-size:13.5px;color:var(--ink-2)">部署后<b>权重是冻结</b>的：每次聊天只基于训练时数据推理，对话历史只活在当前会话的上下文窗口里；关窗即「失忆」，不会因为聊得久就变聪明。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">带「长期记忆」的实验架构</h3>
+        <p style="font-size:13.5px;color:var(--ink-2)">如 MemGPT、LangChain 记忆模块，会把对话总结存进向量数据库，下次聊天能检索到历史作参考——<b>但权重参数依然没变</b>，只是「伪装成记忆」。</p>
+      </div>
+    </div>
+    <div class="warnbox" style="margin-top:14px">
+      <h5>真正「提升」知识的两条路</h5>
+      <ul>
+        <li><b>检索增强生成（RAG）</b>：把文档喂给它，回答时「查书」——目前本地模型获取新知识的主流方式。</li>
+        <li><b>微调（Fine-tuning）</b>：用新数据训练、修改权重，需要较高显存与技术门槛，已不是「聊天」。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ 03 本地模型搜索实现 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>本地模型如何实现「在线搜索」</h2><span class="hint">00793 · 2026-03-24</span></div>
+    <p class="lede"><b>本地模型本身不具备在线搜索能力</b>——它只是一个静态本地文件、语言生成器。要搜索，得由前端/中间层先调搜索 API，再把结果连同问题喂给模型。</p>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:200px">实现方式</th><th>做法</th></tr></thead>
+      <tbody>
+        <tr><td><b>支持联网的客户端</b></td><td>Open WebUI、AnythingLLM、ChatGPT-Next-Web 等可配置搜索引擎 API（Google/Bing/SearchAPI）：模型需要搜索时，工具先取搜索结果，再连同问题发给模型作答。主流组合即 <b>Open WebUI + 本地模型（如 Ollama）+ 搜索引擎 API</b>。</td></tr>
+        <tr><td><b>自己写脚本</b></td><td>用 Python 等先调搜索 API，把结果拼接后再调本地模型 API 接口回答。</td></tr>
+        <tr><td><b>云平台「本地部署」模型</b></td><td>有些 API 服务虽称「本地」，实际跑在云端，是否内置搜索插件取决于平台。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">附 · LM Studio 与图片</span><h3>LM Studio 能不能装图片生成模型</h3></div>
+      <div class="card-b">
+        <p class="lede">结论：<b>不能直接「安装/运行」图片生成模型（如 Stable Diffusion）</b>，它是专门跑大语言模型（LLM）的工具。但它能做两件和「图」相关的事。</p>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:180px">功能</th><th style="width:120px">能否</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>直接生成图片</td><td>不能</td><td>本身不是为图像生成设计的。</td></tr>
+            <tr><td>运行图像理解模型（VLM）</td><td>能</td><td>支持 VLM 读取并理解图片，官方示例 qwen2-vl-2b-instruct、gemma-3-*、pixtral-* 等，可上传图片提问。</td></tr>
+            <tr><td>辅助图片生成</td><td>能</td><td>当「提示词工程师」把想法扩成详细 Prompt 再交给绘图工具；或经 Gemini MCP Server 等插件、或作为节点接入 ComfyUI 工作流。</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 04 硬件配置清单 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>2万~3万元预算硬件配置清单</h2><span class="hint">01030 · 2026-04-27</span></div>
+    <p class="lede">核心思路：优先保障<b>大显存显卡</b>。笔记给了两套方案——单卡约 2.2 万跑 7B–14B，双卡约 3.0 万挑战 70B+ 量化模型。CPU 与主板决定你能插几块卡。以下总价均为<b>不含显示器</b>的参考估算。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">方案</th><th>显卡 GPU</th><th>CPU</th><th>内存 RAM</th><th>硬盘 SSD</th><th>参考总价</th></tr></thead>
+      <tbody>
+        <tr><td><b>方案一<br>单卡主力机</b></td><td><b>1 × RTX 4090 24GB</b>（~¥17,000）</td><td>Intel i7-13700K（~¥2,500）</td><td>64GB DDR5（~¥1,500）</td><td>1TB NVMe（~¥500）+ 4TB HDD（~¥600）</td><td><b>≈ ¥2.2 万</b></td></tr>
+        <tr><td><b>方案二<br>双卡探索机</b></td><td><b>2 × RTX 3090 24GB</b>（二手，~¥11,000）</td><td>AMD Ryzen 9 7950X（~¥3,500）</td><td>64GB DDR5（~¥1,500）</td><td>1TB NVMe（~¥500）+ 4TB HDD（~¥600）</td><td><b>≈ ¥3.0 万</b></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">方案一 · 单卡旗舰（≈¥2.2 万）</h3>
+        <dl class="kv">
+          <dt>主板</dt><dd>Z790 芯片组（~¥2,000），ATX、一线品牌主流型号，重点供电与散热片。</dd>
+          <dt>内存</dt><dd>64GB（32GB×2）DDR5 6000MHz，确保加载运行稳定、留余量。</dd>
+          <dt>电源</dt><dd>1000W 金牌全模组（~¥1,200）——4090 峰值功耗高。</dd>
+          <dt>散热机箱</dt><dd>360mm 一体水冷 + 中塔机箱（~¥1,200），压 i7-13700K。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">方案二 · 双卡探索（≈¥3.0 万）</h3>
+        <dl class="kv">
+          <dt>主板</dt><dd>X670E（~¥2,500），双 PCIe 5.0 x16，两张 3090 满速。</dd>
+          <dt>关键提醒</dt><dd>二手 3090 务必辨别矿卡/高强度卡；双卡发热大，选全塔机箱并装满风扇。</dd>
+          <dt>电源</dt><dd>1500W+ 金牌全模组（~¥2,500）——双卡+旗舰 CPU 满载功耗高。</dd>
+          <dt>散热</dt><dd>强烈建议 360 水冷压 7950X。</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="srcnote" style="margin:14px 0"><b>为什么旧 3090 可能比新 4090 更有用</b>：部署大模型，<b>显存容量</b>是决定能跑多大模型的第一要素。一个 70B 模型即使压缩也约需 <b>35–40GB</b> 显存；4090 24GB 只能把部分任务甩给 CPU 而速度骤降，两张 3090 组成 48GB 显存池则刚好装下。</div>
+
+    <h3 style="font-size:15px;font-weight:700;margin:6px 0 12px">这套硬件能跑哪些模型（照录）</h3>
+    <div class="tblwrap"><table>
+      <thead><tr><th>模型</th><th>参数规模</th><th>推荐量化</th><th>显存需求</th><th>推荐方案</th><th>预估速度</th></tr></thead>
+      <tbody>
+        <tr><td><b>Qwen3.5-9B</b></td><td>9B</td><td>Q4_K_M (4-bit)</td><td>~6 GB</td><td>方案一/二</td><td>极快（&gt;50 t/s）</td></tr>
+        <tr><td><b>DeepSeek-R1-Distill-Qwen-14B</b></td><td>14B</td><td>Q4_K_M (4-bit)</td><td>~10 GB</td><td>方案一/二</td><td>快（&gt;30 t/s）</td></tr>
+        <tr><td><b>Qwen3.5-35B-A3B</b></td><td>35B（MoE，激活 3B）</td><td>Q4_K_M (4-bit)</td><td>~20 GB</td><td>方案一/二</td><td>极快（约 196 t/s）</td></tr>
+        <tr><td><b>DeepSeek-V4（量化版）</b></td><td>671B（MoE，激活 37B）</td><td>量化版</td><td>~24 GB+</td><td>方案一</td><td>中等（~15 t/s）</td></tr>
+        <tr><td><b>Qwen2.5-72B</b></td><td>72B</td><td>GPTQ-Int4 (4-bit)</td><td>~35–40 GB</td><td>方案二</td><td>中等（~15–20 t/s）</td></tr>
+        <tr><td><b>Llama-4（量化版）</b></td><td>1090B（MoE，激活 17B）</td><td>4-bit</td><td>~60 GB</td><td>预算上限</td><td>—</td></tr>
+      </tbody>
+    </table></div>
+    <p class="lede" style="margin-bottom:10px">上手工具：<b>Ollama + Open WebUI</b>（新手一条命令下载、浏览器聊天）；<b>vLLM</b>（多并发 API 后端）；<b>llama.cpp</b>（进阶、CPU/GPU 混合）；<b>Unsloth</b>（微调降显存）。系统推荐 Ubuntu 22.04 LTS，装最新 NVIDIA 驱动、CUDA、cuDNN。</p>
+    <div class="warnbox"><h5>口径提醒</h5><ul><li>推理速度受量化方法、上下文长度、后端框架影响，表中数值为社区公开数据的数量级参考。</li><li>硬件价格波动频繁，RTX 4090 近期从 1.2 万左右涨至 1.7 万甚至更高，选购时关注行情。</li></ul></div>
+  </section>
+
+  <!-- ══ 05 Hermes 接入本地 Qwen ══ -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>Hermes 接入本地 Qwen 7B</h2><span class="hint">00955 · 2026-04-17</span></div>
+    <p class="lede">核心：Hermes 支持 <b>OpenAI 兼容接口</b>，只要模型提供符合格式的 API 地址就能无缝调用。下面是最省事的 Ollama 路径与配置文件路径。</p>
+
+    <div class="card st5">
+      <div class="card-h"><span class="tag">方法一 · Ollama（新手首选）</span><h3>先跑模型，再配 Hermes</h3></div>
+      <div class="card-b">
+        <p class="lede" style="margin-bottom:8px">第一步：确认 Qwen 已在本地经 Ollama 运行——</p>
+        <div class="codeblock"><span class="c"># 1. 拉取模型</span>
+ollama pull qwen2:7b
+
+<span class="c"># 2. 启动服务</span>
+ollama serve
+
+<span class="c"># 3. 另开终端验证状态，确认 qwen2:7b 为 loaded</span>
+ollama list
+<span class="c"># 也可访问 http://localhost:11434 确认服务就绪</span></div>
+        <p class="lede" style="margin-bottom:8px">第二步：终端输入 <code>hermes model</code> 进入配置向导——Provider 选 <code>custom</code>（<b>不要选</b> <code>ollama</code>，旧版 Hermes 对原生 Ollama 接口支持不佳），按下表填写：</p>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:150px">字段</th><th>填写值</th></tr></thead>
+          <tbody>
+            <tr><td>Base URL</td><td><code>http://localhost:11434/v1</code></td></tr>
+            <tr><td>Model Name</td><td>Ollama 中的确切模型名，如 <code>qwen2:7b</code></td></tr>
+            <tr><td>API Key</td><td>任意非空字符，如 <code>ollama</code>（Hermes 会校验，Ollama 会忽略其值）</td></tr>
+          </tbody>
+        </table></div>
+        <p style="font-size:13.5px;color:var(--ink-2)">配置完成后执行 <code>hermes</code> 即可与本地 Qwen 7B 对话。</p>
+      </div>
+    </div>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">方法二 · 配置文件</span><h3>~/.hermes/config.yaml 手动接入</h3></div>
+      <div class="card-b">
+        <p class="lede" style="margin-bottom:8px">用 <code>hermes config edit</code> 打开配置文件，添加如下内容：</p>
+        <div class="codeblock"><span class="c"># ~/.hermes/config.yaml</span>
+llm:
+  provider: custom
+  model: "qwen2:7b"                  <span class="c"># 你使用的模型名称</span>
+  base_url: "http://localhost:11434/v1"  <span class="c"># 本地推理服务地址</span>
+  api_key: "ollama"                  <span class="c"># 任意非空值即可</span>
+  <span class="c"># 遇 JSON 解析错误可尝试启用兼容模式</span>
+  <span class="c"># ollama_compatible: true</span>
+
+<span class="c"># 多模型共存示例</span>
+<span class="c"># providers:</span>
+<span class="c">#   qwen_ollama:</span>
+<span class="c">#     provider: custom</span>
+<span class="c">#     base_url: "http://localhost:11434/v1"</span>
+<span class="c">#     api_key: "ollama"</span>
+<span class="c">#   qwen_vllm:</span>
+<span class="c">#     provider: custom</span>
+<span class="c">#     base_url: "http://localhost:8000/v1"</span>
+<span class="c">#     api_key: "EMPTY"</span></div>
+        <p class="lede" style="margin-bottom:10px">多模型时在 <code>providers</code> 下定义多个服务，再用 <code>provider名/模型名</code> 选默认模型。进阶：vLLM 追求高性能生产部署，启动时需加 <code>--enable-auto-tool-choice</code> 与 <code>--tool-call-parser hermes</code> 才支持 Qwen 工具调用；用阿里云 DashScope 则在向导选 <b>Qwen OAuth</b>。</p>
+      </div>
+    </div>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">排障</span><h3>三个常见问题</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:190px">现象</th><th>原因与解决</th></tr></thead>
+          <tbody>
+            <tr><td>模型不支持最小上下文报错</td><td>部分低量化 Qwen 上下文窗口小；换上下文更大的模型，如 <code>qwen2.5:7b</code> 或 <code>gemma4:e2b</code>。</td></tr>
+            <tr><td>连接失败 / Connection refused</td><td>本地推理服务未启动或 base_url 配错；Ollama 地址通常是 <code>http://localhost:11434/v1</code>。</td></tr>
+            <tr><td>API Key 无效 / 401 Unauthorized</td><td>Hermes 必须有 API Key 但 Ollama 忽略其值；填任意非空串如 <code>ollama</code> 或 <code>dummy</code>。</td></tr>
+          </tbody>
+        </table></div>
+        <div class="grid g3" style="margin-top:14px">
+          <div class="panel"><dl class="kv"><dt>Ollama</dt><dd>部署最简、配置最快、资源占用低，适合个人/新手/快速原型。</dd></dl></div>
+          <div class="panel"><dl class="kv"><dt>vLLM</dt><dd>推理性能高、支持高并发，适合生产部署。</dd></dl></div>
+          <div class="panel"><dl class="kv"><dt>DashScope</dt><dd>无需本地硬件，直接调官方最强模型。</dd></dl></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>本地大模型部署 · 聊天 · 搜索实现 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本手册整理自本地部署工作笔记，硬件价格、显存需求、推理速度与命令均照录原笔记；硬件价格波动频繁，配置清单为 2026-04 的参考估算，采购前请以实时行情为准。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Token 估算 · 上下文长度 · 缓存命中 · 2026</title>
+<meta name="description" content="6 篇大模型计费笔记合并：一千汉字折算多少 token、百万 token 相当于多少字、输入/输出与缓存命中三档定价怎么算钱、上下文 128K/168K/1M 各能装多少内容，以及缓存命中与未命中对延迟和成本的影响。公式与数字照录原笔记。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+.fmla{font-family:var(--mono);font-size:12.5px;background:var(--code);border:1px solid var(--line);border-radius:6px;padding:10px 13px;margin-bottom:12px;color:var(--ink)}
+
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 Token 估算</a>
+      <a href="#s1" data-sec="s1">02 成本构成</a>
+      <a href="#s2" data-sec="s2">03 上下文长度</a>
+      <a href="#s3" data-sec="s3">04 缓存命中</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">行业研究 · 大模型计费</span>
+  <h1>Token 估算 · 上下文长度 · 缓存命中</h1>
+  <p class="s-lede">把 6 篇计费与上下文笔记按「一个汉字折多少 token → 钱怎么算 → 上下文窗口能装多少 → 缓存怎么影响速度和价格」串成一条线。所有换算比例、单价、费用示例与上下文数字均照录原笔记，未做四舍五入改写。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-06-07</b></span>
+    <span>收录笔记 <b>6 篇</b></span>
+    <span>时间跨度 <b>2026-03 ~ 2026-06</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">token 换算</span>
+    <span class="s-chip">百万 tokens 定价</span>
+    <span class="s-chip">168K / 1M 上下文</span>
+    <span class="s-chip">KV 缓存</span>
+    <span class="s-chip">TTFT</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00629-2026-03-02 一千汉字 token 数量估算</li>
+      <li>00640-2026-03-03 模型上下文长度介绍</li>
+      <li>00660-2026-03-07 Token 成本构成解析</li>
+      <li>01052-2026-04-27 AI 缓存命中未命中解释</li>
+      <li>01117-2026-05-08 模型参数上下文解答</li>
+      <li>01278-2026-06-07 AI 上下文 168K 含义解释</li>
+    </ol>
+  </div>
+
+  <!-- ══ 01 Token 估算 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>一个汉字折多少 token</h2><span class="hint">00629</span></div>
+    <p class="lede">token 是文本处理的基本单位，中文按字、词或子词（如 BPE）切分。一篇一千个汉字的文章折多少 token，取决于分词算法——三种情况照录如下。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:180px">分词方式</th><th>一千个汉字对应的 token 数</th></tr></thead>
+      <tbody>
+        <tr><td><b>基于字的模型</b></td><td>每个汉字约对应 1 个 token，1000 字 ≈ <b>1000 个 token</b>。</td></tr>
+        <tr><td><b>基于词的模型</b></td><td>词语由多个字组成，token 数可能<b>少于 1000</b>。</td></tr>
+        <tr><td><b>子词分词（GPT 系列常用）</b></td><td>每个汉字通常对应 1–2 个 token，1000 汉字约 <b>1200–1800 个 token</b>，常见估计为 <b>1500 个左右</b>。</td></tr>
+      </tbody>
+    </table></div>
+    <p class="lede">笔记结论：实际数值需通过具体 tokenizer 计算，上述范围可作参考。日常可按<b>平均约 1.5 token / 汉字</b>估算。</p>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">百万 tokens 相当于多少中文书</h3>
+        <div class="fmla">1,000,000 tokens ÷ 1.5 ≈ 666,667 汉字（约 66.7 万字）</div>
+        <dl class="kv">
+          <dt>参照</dt><dd>一部普通长篇小说约 20 万–30 万字，百万 tokens 相当于 <b>2–3 本</b>这样的书；《平凡的世界》约 100 万字，百万 tokens 接近其体量。</dd>
+          <dt>极端情况</dt><dd>字级模型（1 汉字=1 token）：百万 tokens = 100 万字。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">计费直觉</h3>
+        <p style="font-size:13.5px;color:var(--ink-2);margin-bottom:10px">钱不是按提问次数算，而是按「让模型思考了多少字」算。tokens 像加油站的「升」——用多少油付多少钱。</p>
+        <dl class="kv">
+          <dt>百万 tokens 有多大</dt><dd>一篇 1000 字文章约 1500 tokens，一百万 tokens 约等于 <b>670 篇文章</b>的体量。</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 02 成本构成与计费 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>Token 成本构成与三档定价</h2><span class="hint">00629 / 00660</span></div>
+    <p class="lede">笔记 00629 贴出一张价格表并逐档解释；笔记 00660 则从费用、系统资源、工程与机会四个角度拆解「token 的成本」。价格表与计算公式照录。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:260px">计费项</th><th>价格</th><th>含义</th></tr></thead>
+      <tbody>
+        <tr><td>百万 tokens 输入（<b>缓存命中</b>）</td><td><b>0.2 元</b></td><td>模型「记得」这段内容、不必重新计算，相当于打 1 折，最便宜。</td></tr>
+        <tr><td>百万 tokens 输入（<b>缓存未命中</b>）</td><td><b>2 元</b></td><td>标准输入价：全新内容或模型已「忘记」，每次从头读。</td></tr>
+        <tr><td>百万 tokens <b>输出</b></td><td><b>3 元</b></td><td>模型「开口写答案」最贵——生成新内容（写作、推理）比读取更耗算力。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">00629 · 2026-03-02</span><h3>一次请求的实际费用算例</h3></div>
+      <div class="card-b">
+        <p class="lede">场景：上传一份 5000 tokens 长文（约 3000–4000 汉字），提问「请帮我总结一下」算 20 tokens，模型写出 1000 tokens 总结；假设第一次提问、未命中缓存。</p>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:170px">费用项</th><th style="width:230px">算式</th><th>金额</th></tr></thead>
+          <tbody>
+            <tr><td>输入（未命中）</td><td>(5000 + 20) × (2 ÷ 1,000,000) = 5020 × 0.000002</td><td><b>0.01004 元</b></td></tr>
+            <tr><td>输出</td><td>1000 × (3 ÷ 1,000,000) = 1000 × 0.000003</td><td><b>0.003 元</b></td></tr>
+            <tr><td><b>合计</b></td><td>0.01004 + 0.003</td><td><b>≈ 0.013 元（约 1 分钱）</b></td></tr>
+          </tbody>
+        </table></div>
+        <div class="warnbox">
+          <h5>一句话记住这张表</h5>
+          <ul>
+            <li>0.2 元：让 AI 用已有记忆回答（最划算）。</li>
+            <li>2 元：让 AI 阅读新内容并思考（标准输入价）。</li>
+            <li>3 元：让 AI 开口写答案（最贵，因为生成内容最费劲）。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">00660 · 2026-03-07</span><h3>Token 成本的四个角度</h3></div>
+      <div class="card-b">
+        <div class="fmla">总费用 = (输入 Token 单价 × 输入数量) + (输出 Token 单价 × 输出数量)</div>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:170px">成本角度</th><th>具体内容</th></tr></thead>
+          <tbody>
+            <tr><td><b>计算与计费成本</b></td><td>API 按单价 × token 数计，分输入/输出定价；处理 token 越多，响应越慢、延迟越高。</td></tr>
+            <tr><td><b>系统运行成本</b></td><td>算力成本（GPU/AI 芯片、推理计算密集且耗电）、显存成本（长文本中间结果存于高带宽显存）、带宽成本（传输大量 token 文本的网络流量）。</td></tr>
+            <tr><td><b>开发者技术成本</b></td><td>上下文窗口管理（为超长文本写文本分割、摘要或向量检索逻辑）；结果质量控制（输出上限设太短会导致回答被截断）。</td></tr>
+            <tr><td><b>机会成本</b></td><td>上下文容量有限，无关输入会挤占模型「记住」关键信息的能力；输入太长时模型对中间部分的注意力容易下降。</td></tr>
+          </tbody>
+        </table></div>
+        <p>笔记的一句话总结：<b>Token 的成本，本质上是处理信息所需的算力资源，最终体现为你要支付的金钱和模型处理时的性能负担。</b></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 03 上下文长度 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>上下文长度：128K / 168K / 1M 各能装多少</h2><span class="hint">00640 / 01117 / 01278</span></div>
+    <p class="lede">上下文指模型在一次对话或处理中能「记住」并参考的文本总量（含提问、历史对话、上传文档）。三份笔记分别给了 DeepSeek 的 1M、通用的 168K 与 V4 的对照，照录如下。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:160px">口径</th><th style="width:180px">token 数</th><th>换算成常见文本量</th></tr></thead>
+      <tbody>
+        <tr><td><b>168K 上下文</b></td><td><b>168,000 个 token</b></td><td>英文约 13 万单词（约一本 300 多页的书）；中文约 <b>8 万–10 万汉字</b>（如整本《三体》第一部）。</td></tr>
+        <tr><td><b>DeepSeek 1M</b></td><td><b>100 万 token</b></td><td>《三体》三部曲总字数约 90 万字，正好在处理范围内；笔记 01278 引官方估算约能一次性处理 <b>75 万字</b>中文内容。</td></tr>
+        <tr><td><b>常见旧窗口</b></td><td>128K / 168K</td><td>笔记 01278 指出，与 128K 或 168K 相比，100 万窗口意味着能力大幅提升。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">上下文长度的意义（01278 照录）</h3>
+        <ul style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2);line-height:1.8">
+          <li>长文本处理：一次读完一本长篇小说或多份报告，再回答细节。</li>
+          <li>多轮对话：很长的对话中不「忘记」早期内容。</li>
+          <li>复杂分析：对比多份法律合同、分析完整财报。</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">模型参数与上下文（01117 · 2026-05-08）</h3>
+        <dl class="kv">
+          <dt>架构</dt><dd>混合专家（MoE），总参数量 <b>671B（6710 亿）</b>，每个 token 激活参数约 <b>37B（370 亿）</b>。</dd>
+          <dt>上下文</dt><dd>支持 <b>1M tokens（100 万）</b>窗口。</dd>
+          <dt>一句概括</dt><dd>大量参数保能力，MoE 架构控成本，超长上下文便于处理复杂长篇任务。</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="srcnote" style="margin-top:14px;margin-bottom:0"><b>使用提醒（01278 照录）</b>：上下文长度只是能力之一，模型理解质量同样重要；「168K / 1M」是技术上限，实际过长输入会消耗更多计算资源、响应更慢。168K 是中高端模型常见配置，如 Claude 3 Sonnet、GPT-4 Turbo 等都有类似或更高窗口。</div>
+  </section>
+
+  <!-- ══ 04 缓存命中 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>缓存命中与未命中：速度和价格的分水岭</h2><span class="hint">01052</span></div>
+    <p class="lede">把缓存想象成<b>临时便签本</b>，原始数据放在远处的<b>图书馆</b>（主存或磁盘）。需要的数据在便签本里就是命中，不在就是未命中。两种情况照录。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">对比</th><th>缓存命中</th><th>缓存未命中</th></tr></thead>
+      <tbody>
+        <tr><td><b>过程</b></td><td>数据已在缓存里，直接快速读取，不用去图书馆。</td><td>数据不在缓存里，只能去主存/磁盘（或重新计算）把数据搬回来，顺便存入缓存。</td></tr>
+        <tr><td><b>结果</b></td><td><b>非常快、省算力、省功耗</b>。</td><td><b>慢、消耗更多算力和功耗</b>（多一次数据移动或计算）。</td></tr>
+        <tr><td><b>推理例子</b></td><td>生成第 2 个字时，第 1 个字的 Key-Value 向量还在缓存里，直接复用。</td><td>处理第一个词时没有历史缓存，必须计算全部注意力——一次彻底的未命中。</td></tr>
+        <tr><td><b>硬件例子</b></td><td>再次打开微信，它立刻弹出（已在内存中）。</td><td>杀掉微信后台再打开，需重新从闪存加载。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">对推理速度的影响</h3>
+        <p style="font-size:13.5px;color:var(--ink-2)">缓存命中率直接影响<b>首 token 延迟 TTFT</b>（Time To First Token）与每 token 生成时间。高命中率接近「无限长上下文」的流畅体验；低命中率意味着模型在「费力回忆」刚说过的话。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">对硬件利用率的影响</h3>
+        <p style="font-size:13.5px;color:var(--ink-2)">未命中会让昂贵的高带宽显存（HBM）或 GPU 计算单元空转等数据，拉低每秒处理 token 数（吞吐量）。若模型 200GB 而显存只有 80GB，大量参数访问会频繁在显存与内存间交换、推理变慢。</p>
+      </div>
+    </div>
+    <div class="srcnote" style="margin-top:14px;margin-bottom:0"><b>一句话（01052 照录）</b>：命中了 = 直接复用，省时省力；未命中 = 重新获取，耗时耗力。工程师花大量精力设计 <b>KV 缓存</b>、<b>页缓存</b>，就是为了让命中尽可能多发生。这也正是第 02 节里「输入缓存命中 0.2 元 vs 未命中 2 元」两档价差的技术来源。</div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>Token 估算 · 上下文长度 · 缓存命中 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自大模型计费与上下文工作笔记，token 换算比例、单价、费用算例与上下文数字均照录原笔记；实际数值以所用模型的 tokenizer 与官方定价为准。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

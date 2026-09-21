@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>DeepSeek 功能场景 · 提示词体系 · 集成应用 · 2026</title>
+<meta name="description" content="5 篇 DeepSeek 笔记合并：功能场景与能力图谱、提示词体系七步搭建与实战模板、V4 Lite/V4 版本与战略调整及国产芯片适配、以及把 DeepSeek 通过官方 API 集成到自有应用的正确路径。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+/* 顶栏 */
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+/* 文档头部 */
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+/* 主体 */
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+/* 章节 */
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+/* 表格 */
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+/* 代码块 */
+.codeblock{background:var(--code);border:1px solid var(--line);border-radius:6px;padding:12px 14px;font-family:var(--mono);font-size:12.5px;line-height:1.7;overflow-x:auto;white-space:pre;color:var(--ink-2);margin-bottom:14px}
+
+/* 手风琴 */
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+/* 页脚 */
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+/* 板块主题色开关 */
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 功能场景</a>
+      <a href="#s1" data-sec="s1">02 提示词体系</a>
+      <a href="#s2" data-sec="s2">03 版本与战略</a>
+      <a href="#s3" data-sec="s3">04 集成应用</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">行业研究 · DeepSeek</span>
+  <h1>DeepSeek 功能场景 · 提示词体系 · 集成应用</h1>
+  <p class="s-lede">把 5 篇 DeepSeek 工作笔记按「能做什么 → 怎么写提示词 → 版本与公司动态 → 怎么接进自己的应用」重组：先立能力全景，再给一套可复用的提示词模板库，接着梳理 R1/V4 Lite/V4 的版本脉络与战略调整、国产芯片适配的讨论，最后落到通过官方 API 把 DeepSeek 接进自有应用的正确做法。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-06-26</b></span>
+    <span>收录笔记 <b>5 篇</b></span>
+    <span>时间跨度 <b>2026-03 ~ 2026-06</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">能力图谱</span>
+    <span class="s-chip">提示词体系</span>
+    <span class="s-chip">CIRS 提示语链</span>
+    <span class="s-chip">V4 Lite</span>
+    <span class="s-chip">官方 API 集成</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00680-2026-03-09 DeepSeek 功能场景介绍</li>
+      <li>00681-2026-03-09 搭建 DeepSeek 提示词体系</li>
+      <li>00683-2026-03-09 DeepSeek 入门到精通总结</li>
+      <li>00825-2026-04-01 DeepSeek 战略调整与国产芯片适配</li>
+      <li>01343-2026-06-26 集成 DeepSeek 到应用</li>
+    </ol>
+  </div>
+
+  <!-- ══ 01 功能场景与能力全景 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>功能场景与能力全景</h2><span class="hint">00680</span></div>
+    <p class="lede">第一份笔记直接回答「DeepSeek 可以做什么」，并把答案整理成一张三层能力图谱：<b>核心基础能力 → 应用场景能力 → 特色功能能力</b>。下表是六大应用场景的典型任务与亮点照录。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">场景分类</th><th>典型任务</th><th style="width:200px">能力亮点</th></tr></thead>
+      <tbody>
+        <tr><td><b>学习与教育</b></td><td>学科辅导（数理化、文史哲）、作业答疑与思路引导、概念解释与知识拓展、论文/报告写作指导</td><td>引导式教学，化繁为简</td></tr>
+        <tr><td><b>工作与办公</b></td><td>文档撰写（邮件、方案、总结）、数据分析（Excel 公式、数据解读）、代码编写与调试、会议纪要整理、PPT 大纲生成</td><td>高效产出，逻辑清晰</td></tr>
+        <tr><td><b>创作与写作</b></td><td>文学创作（诗歌、故事、剧本）、商业文案（广告语、营销文案）、内容润色与风格改写、创意点子生成</td><td>文采飞扬，灵感不断</td></tr>
+        <tr><td><b>日常生活</b></td><td>美食菜谱推荐与制作指导、健康养生建议、旅行路线规划、情感陪伴与闲聊、购物决策参考</td><td>贴心实用，温暖陪伴</td></tr>
+        <tr><td><b>技术支持</b></td><td>编程问题排查、技术方案设计、Bug 调试、软件工具使用指导</td><td>精准定位，步骤详尽</td></tr>
+        <tr><td><b>信息处理</b></td><td>长文总结与摘要、多文档信息整合、数据提取与结构化、上传文件处理（图片/PDF/Word/Excel 等）</td><td>从文件中提取文字再分析</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">核心基础能力（三层底座）</h3>
+        <dl class="kv">
+          <dt>自然语言处理</dt><dd>多语言理解与生成（中/英/日/法等，笔记称「100+ 语言」）、语义解析与意图识别、情感分析与语气把控。</dd>
+          <dt>知识广度</dt><dd>覆盖科学、人文、技术等领域；实时知识更新需开启联网搜索。</dd>
+          <dt>对话能力</dt><dd>多轮上下文记忆、个性化交流风格调整。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">特色功能能力（区别于普通聊天）</h3>
+        <dl class="kv">
+          <dt>文件处理</dt><dd>上传并解析图像、PDF、Word、Excel、PPT 等，从中提取文字信息进行分析。</dd>
+          <dt>超长上下文</dt><dd>1M 上下文窗口，可一次性处理整本书级内容（笔记以《三体》三部曲为例）。</dd>
+          <dt>联网搜索</dt><dd>实时获取最新新闻、数据、知识，需手动开启。</dd>
+          <dt>语音交互</dt><dd>App 端支持语音输入。</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 02 提示词体系搭建 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>提示词体系搭建与模板库</h2><span class="hint">00681 / 00683</span></div>
+    <p class="lede">第二份笔记给出<b>七步搭建法</b>（定目标 → 懂能力边界 → 掌握基础结构 → 学进阶技巧 → 建模板库 → 测试迭代 → 保持学习），第三份笔记则补充了提示语链与一整套框架。先看一条高质量提示词的五要素。</p>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">00681 · 2026-03-09</span><h3>高质量提示词的五要素与进阶技巧</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:110px">要素</th><th style="width:240px">说明</th><th>示例</th></tr></thead>
+          <tbody>
+            <tr><td><b>角色</b></td><td>让 AI 扮演特定身份</td><td>「你是一名资深 Java 架构师」</td></tr>
+            <tr><td><b>任务</b></td><td>明确你要做什么</td><td>「请帮我设计一个登录模块」</td></tr>
+            <tr><td><b>背景</b></td><td>提供上下文信息</td><td>「项目使用 Spring Boot，需要 OAuth2 认证」</td></tr>
+            <tr><td><b>要求</b></td><td>约束输出格式、风格、长度</td><td>「用中文，分点列出，每点不超过 50 字」</td></tr>
+            <tr><td><b>示例</b></td><td>给出一两个范例</td><td>「类似这样：……」</td></tr>
+          </tbody>
+        </table></div>
+        <p class="lede" style="margin-bottom:10px">笔记同时给出的进阶技巧：<b>分解复杂任务</b>（先问规划、再问数据库表设计）、<b>指定输出格式</b>（Markdown/表格/JSON）、<b>引入思考链 Chain of Thought</b>（「请一步步推理，然后告诉我结果」）、<b>角色扮演与风格模仿</b>（「用幽默的方式向小学生解释黑洞」）、<b>迭代优化</b>（对不满意回答补充条件继续追问）。</p>
+        <div class="warnbox" style="margin-top:14px">
+          <h5>能力边界（构建提示词时要利用的前提）</h5>
+          <ul>
+            <li>擅长：逻辑推理、文本理解、多轮对话、代码生成、多语言处理。</li>
+            <li>注意：知识截止日期笔记 00683 记为 2024 年 7 月、00681 记为 2025 年 5 月——以官方最新公告为准，实时信息需手动开启联网搜索。</li>
+            <li>特色：支持文件上传、上下文 1M，适合「先上传文档再提问」或要求分步骤推理。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <details class="acc st2" open>
+      <summary>三个通用提示词模板（专业报告 / 代码调试 / 头脑风暴）<span class="cnt">可直接复用</span></summary>
+      <div class="body">
+        <p class="lede" style="margin-bottom:8px">模板 1 · 专业报告总结：</p>
+        <div class="codeblock">角色：你是一名资深行业分析师
+任务：请总结以下报告的核心观点
+背景：[粘贴报告内容]
+要求：
+- 分"市场趋势""竞争格局""机会点"三部分
+- 每部分列出3个要点
+- 语言简洁专业，总字数不超过500字</div>
+        <p class="lede" style="margin-bottom:8px">模板 2 · 代码调试：</p>
+        <div class="codeblock">角色：你是一位经验丰富的Python开发者
+任务：请帮我找出以下代码中的错误并修复
+代码：[粘贴代码]
+问题描述：[描述现象]
+要求：
+- 先指出错误原因
+- 再给出修正后的代码
+- 最后解释修改思路</div>
+        <p class="lede" style="margin-bottom:8px">模板 3 · 创意头脑风暴：</p>
+        <div class="codeblock">角色：你是一个创意策划专家
+任务：围绕"[主题]"生成10个创新点子
+要求：
+- 每个点子用一句话描述
+- 覆盖不同角度（如技术、营销、用户体验）
+- 大胆想象，突破常规</div>
+      </div>
+    </details>
+
+    <details class="acc st2">
+      <summary>笔记作者的四个实战目标模板（数据可视化 / 库存分析 / 产品提案 / 知识整理）<span class="cnt">00681</span></summary>
+      <div class="body">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:170px">实战目标</th><th>提示词设计要点</th></tr></thead>
+          <tbody>
+            <tr><td><b>数据可视化代码生成</b><br>（Typora Markdown）</td><td>指定图表类型（柱状/饼图/折线）、提供数据、要求输出 Mermaid 代码块可直接复制到 Typora；复杂数据可先让 AI 整理成表格再画图。</td></tr>
+            <tr><td><b>日常数据分析</b><br>（库存/采购/销售）</td><td>粘贴 Markdown 表格或上传 Excel；明确目的（找积压、看采购成本趋势、评估销售）；要求算库存周转月数、标记低于安全库存项、列周转超 6 个月的积压风险。</td></tr>
+            <tr><td><b>创意生成</b><br>（热卖产品提案）</td><td>给背景（目标用户、价格区间、当前趋势）；要求每个提案含名称、核心功能一句话、目标人群、预估售价；要差异化亮点。</td></tr>
+            <tr><td><b>日常知识整理整合</b></td><td>粘贴零散笔记；按时间线分「萌芽期/发展期/爆发期」，每阶段列关键事件与影响；末尾加核心概念解释，用 Markdown 标题/列表/引用排版。</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </details>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">00683 · 2026-03-09</span><h3>提示语链 Prompt Chain 与设计框架</h3></div>
+      <div class="card-b">
+        <p class="lede">提示语链是把复杂任务分解为多个子任务的<b>连续性提示语序列</b>，帮 AI 逐步生成高质量内容。笔记给出的设计模型与框架照录如下。</p>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:150px">框架</th><th>展开（字母含义）</th><th style="width:180px">用途定位</th></tr></thead>
+          <tbody>
+            <tr><td><b>CIRS</b></td><td>Context 上下文 · Instruction 指令 · Refinement 优化 · Synthesis 整合</td><td>提示语链基础设计模型</td></tr>
+            <tr><td><b>SPECTRA</b></td><td>分割、优先级、细化、连接、时序、资源分配、适应</td><td>长链编排</td></tr>
+            <tr><td><b>IDEA</b></td><td>想象、发散、扩展、替代</td><td>发散思维</td></tr>
+            <tr><td><b>FOCUS</b></td><td>筛选、优化、组合、统一、综合</td><td>聚合思维</td></tr>
+            <tr><td><b>BRIDGE</b></td><td>混合、重构、互联、去情境化、泛化、推演</td><td>跨界思维</td></tr>
+          </tbody>
+        </table></div>
+        <p class="lede" style="margin-bottom:10px">笔记还列了一套高级技巧缩写：PIA 语用意图分析、TFM 主题聚焦机制、DES 细节增强策略、CMM 跨域映射机制、CGS 概念嫁接策略、KTT 知识转移技术、RCM 随机组合机制、EHS 极端假设策略、MCS 多重约束策略、RSM 语体模拟机制、EIS 情感融入策略。模型选择上，推理模型（如 R1）宜「简洁指令、要什么直接说」，通用模型宜「结构化引导、缺什么补什么」。</p>
+        <div class="grid g2">
+          <div class="panel"><dl class="kv"><dt>平台策略</dt><dd>微信公众号重深度与逻辑；微博重短平快与热点话题；小红书重种草与真实感；抖音重视觉化与剧情性。</dd></dl></div>
+          <div class="panel"><dl class="kv"><dt>人机共生四能力</dt><dd>AI 思维（理解边界）、引导力（提示工程与质量控制）、整合力（跨域融合）、判断力（真伪辨识与风险预测）。</dd></dl></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 03 版本与战略动态 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>模型版本脉络与战略调整</h2><span class="hint">00683 / 00825</span></div>
+    <p class="lede">第三份笔记在总结清华新传院《DeepSeek 从入门到精通》指南之余，连续追问了 V4 是否发布；第四份笔记则记录了一次 12 小时瘫痪事件及其背后的战略解读。版本信息与公司动态照录如下。</p>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">DeepSeek 是什么（00683 照录）</h3>
+        <dl class="kv">
+          <dt>公司</dt><dd>专注通用人工智能的中国科技公司，主攻大模型研发。</dd>
+          <dt>R1</dt><dd>开源推理模型，擅长复杂任务，性能接近 OpenAI o1，免费可商用。</dd>
+          <dt>四类功能</dt><dd>文本生成；自然语言理解与分析（情感/意图/实体/逻辑推理）；编程与代码；常规绘图（SVG、流程图、思维导图、图表）。</dd>
+          <dt>官网</dt><dd>chat.deepseek.com，支持联网搜索与文件上传。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">版本追问链（00683 · 2026-03-09）</h3>
+        <dl class="kv">
+          <dt>当前可用</dt><dd>笔记记录「DeepSeek V4 Lite」先行版，参数量约 2000 亿，上下文从上一代 12.8 万 tokens 提升到 100 万 tokens。</dd>
+          <dt>完整版 V4</dt><dd>笔记记录尚未发布，传闻主打原生多模态（图片/视频/文本联合理解）、新架构、与国产芯片深度适配；确切时间未获官方确认。</dd>
+          <dt>知识截止</dt><dd>V4 知识截止时间笔记预估为 2025 年 5 月，以官方技术报告为准。</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">00825 · 2026-04-01</span><h3>12 小时瘫痪事件与「国产芯片适配」解读</h3></div>
+      <div class="card-b">
+        <p class="lede">笔记转述的事故时间线（照录）：<b>3 月 29 日 21:35</b> 发现异常，<b>23:23</b> 声称已解决，<b>00:20</b> 又出问题，<b>01:24</b> 实施修复方案；到次日上午发稿事件仍标为未解决，全程超过 12 小时。叠加的背景：深度思考模式限流很严（有用户实测 4 小时内只能用 1 次）、R1 核心研究员罗福莉此前离职去小米、R1 第一作者郭达雅随后也离开。</p>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:170px">维度</th><th>笔记中的说法</th></tr></thead>
+          <tbody>
+            <tr><td><b>节奏对比</b></td><td>V2 在 2024 年 5 月发布、R1 在 2025 年 1 月上线，间隔不到 8 个月；按此节奏 V4 本该 2026 年 3 月初亮相，但仍处「即将发布」。</td></tr>
+            <tr><td><b>竞争环境</b></td><td>OpenAI 推 GPT-5.3 / GPT-5.4；Anthropic 的 Claude Code 与 Opus 4.6 迭代；Google Gemini 3.1 Pro 在 ARC-AGI-2 得 77.1 分；国内智谱 GLM-5、阿里悟空 Agent 平台。</td></tr>
+            <tr><td><b>另一种解读</b></td><td>笔记作者的追问与润色：DeepSeek 训练/推理大量跑在昇腾、寒武纪等国产芯片上，英伟达 H200 被业内称留有后门；适配需算子优化、通信库重写、分布式框架适配，若 V4 首发国产芯片，线上冗余被压缩、崩溃是「可预期的代价」。</td></tr>
+          </tbody>
+        </table></div>
+        <div class="srcnote" style="margin-bottom:0"><b>口径提醒</b>：本页关于 V4 发布时间、参数量、知识截止日期、竞品版本号的表述均为 2026-03 ~ 2026-04 笔记当时的对话内容，带有传闻与网友实测成分，不代表官方口径；使用时以深度求索官方公告为准。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 04 集成到应用 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>把 DeepSeek 集成进自有应用</h2><span class="hint">01343</span></div>
+    <p class="lede">最后一份笔记回答一个工程问题：能不能把 chat.deepseek.com 装进自己的 App、登录并记住账号。结论是——<b>不能直接套壳网页，但完全可以走官方 API 实现对话能力与「记住账号」</b>。</p>
+
+    <div class="rl" style="margin-bottom:16px">
+      <h4>红线 · 不要做网页套壳</h4>
+      <div class="mid">不能直接把 chat.deepseek.com 网页「装」进应用来登录和记住账号；套壳极不稳定且不推荐。</div>
+      <p>正确路径是在开放平台申请 API Key，让你的 App 作为独立客户端通过 API 与 DeepSeek 后台通信。DeepSeek 的 API 与 OpenAI 的 API 规范兼容，开发文档与社区资源充足。</p>
+    </div>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">01343 · 2026-06-26</span><h3>推荐方案：官方 API 三步落地</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:150px">步骤</th><th>做法</th></tr></thead>
+          <tbody>
+            <tr><td><b>① 获取 API 密钥</b></td><td>在 DeepSeek 开放平台 platform.deepseek.com 注册账号，创建一个 API Key，作为应用的「身份证」。</td></tr>
+            <tr><td><b>② 应用内集成</b></td><td>在应用代码里用该 API Key 调用 DeepSeek 对话接口，支持管理对话历史、流式输出等。</td></tr>
+            <tr><td><b>③ 自己做登录与记住账号</b></td><td>登录用你自己设计的凭证（自定义用户名密码或手机号），而非 DeepSeek 账号；登录成功后生成应用自己的会话令牌（Session Token），安全存到本地（Android SharedPreferences / iOS Keychain），下次打开校验令牌即可自动登录。</td></tr>
+          </tbody>
+        </table></div>
+        <div class="warnbox">
+          <h5>为什么不推荐「借用网页登录态」</h5>
+          <ul>
+            <li>极不稳定：DeepSeek 前端任何更新都可能让方式失效。</li>
+            <li>安全风险：在客户端处理/存储从网页抓取的 Token 隐患很大。</li>
+            <li>违反服务条款：很可能违反 DeepSeek 服务条款，有封号风险。</li>
+            <li>体验不可控：登录与「记住账号」逻辑你无法掌握。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>DeepSeek 功能场景 · 提示词体系 · 集成应用 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 DeepSeek 工作笔记，能力清单、提示词模板与版本动态均照录原笔记；涉及 V4 发布时间、参数量与竞品版本号的表述为笔记当时对话内容，不构成官方口径。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
