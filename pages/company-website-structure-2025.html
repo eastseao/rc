@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>公司网站搭建结构与心得 · 2025-10</title>
+<meta name="description" content="三份建站笔记合并：经典公司网页结构推荐、生产型食品企业基于 GitHub Pages 的落地结构，以及新手只用网页端/手机端搭站的真实需求整理与假期搭建心得。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 经典结构</a>
+      <a href="#s1" data-sec="s1">01 食品企业落地</a>
+      <a href="#s2" data-sec="s2">02 需求与模板</a>
+      <a href="#s3" data-sec="s3">03 网页端实现</a>
+      <a href="#s4" data-sec="s4">04 搭建心得</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 长文</span>
+  <h1>公司网站搭建结构与心得</h1>
+  <p class="s-lede">把三份建站笔记按「先立经典结构 → 落到生产型食品企业的 GitHub Pages 方案 → 新手只用网页端/手机端的真实需求与选型 → 假期从零到一的搭建心得」串成一条线。结构、目录与代码片段均照录原笔记，未作改写。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2025-10-09</b></span>
+    <span>收录笔记 <b>3 篇</b></span>
+    <span>时间跨度 <b>2025-10-07 ~ 2025-10-09</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">GitHub Pages</span>
+    <span class="s-chip">Jekyll</span>
+    <span class="s-chip">网站结构</span>
+    <span class="s-chip">导航栏</span>
+    <span class="s-chip">新手建站</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00185-2025-10-07 公司网页搭建结构推荐</li>
+      <li>00197-2025-10-08 公司网站搭建</li>
+      <li>00198-2025-10-07 假期网站搭建心得</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 经典公司网页结构 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>经典公司网页结构（通用推荐）</h2><span class="hint">00185</span></div>
+    <p class="lede">先解决「公司站到底该有哪几块」。笔记给出一套适用于大多数中小企业和初创公司的经典结构：<b>顶部导航栏 + 页脚</b>两个全局件，再加<b>首页 / 关于我们 / 产品服务 / 案例 / 新闻 / 联系我们</b>六个主页面。</p>
+
+    <div class="card st1">
+      <div class="card-h"><span class="tag">00185 · 2025-10-07</span><h3>两个全局件：导航栏与页脚</h3></div>
+      <div class="card-b">
+        <div class="grid g2">
+          <div class="panel">
+            <dl class="kv">
+              <dt>顶部导航栏</dt><dd>Logo 点击回首页；核心菜单含 首页 / 关于我们 / 产品服务 / 案例 / 新闻 / 联系我们；右侧放醒目行动号召按钮（如「免费咨询」「获取报价」）。</dd>
+            </dl>
+          </div>
+          <div class="panel">
+            <dl class="kv">
+              <dt>页脚</dt><dd>重复公司名、地址、电话、邮箱；社交媒体图标（微信、微博、LinkedIn）；快速链接再次列出重要页面；版权声明与认证。</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">00185 · 2025-10-07</span><h3>六个主页面的目标与内容</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:150px">页面</th><th>核心目标</th><th>必含板块</th></tr></thead>
+          <tbody>
+            <tr><td><b>首页</b></td><td>10 秒内让访客知道你是谁、做什么、有何价值</td><td>首屏大图/轮播 + 主副标题 + 1-2 个 CTA；客户信任标识；3-4 个核心服务摘要；关键数据；2-3 个精选案例；客户评价；最新动态；底部再放一次联系表单或 CTA。</td></tr>
+            <tr><td><b>关于我们</b></td><td>讲品牌故事、建情感连接</td><td>使命愿景价值观；核心团队照片与简介；发展历程时间轴；企业文化与工作环境。</td></tr>
+            <tr><td><b>产品/服务</b></td><td>清晰展示价值、促成咨询</td><td>服务概览卡片；单服务详情（服务内容、为何选我、FAQ、相关案例、定价、咨询表单）。</td></tr>
+            <tr><td><b>案例研究</b></td><td>用事实证明能力</td><td>按行业/服务筛选；卡片列表；详情页含 客户背景挑战 → 解决方案 → 可量化成果 → 客户证言。</td></tr>
+            <tr><td><b>新闻/博客</b></td><td>分享见解、提升 SEO</td><td>文章列表（标题/摘要/日期/标签）；搜索与分类；热门文章推荐。</td></tr>
+            <tr><td><b>联系我们</b></td><td>让客户能无障碍找到你</td><td>简洁联系表单（字段不宜多）；地址/电话/邮箱/工作时间 + 地图；社交链接；FAQ 快捷入口。</td></tr>
+          </tbody>
+        </table></div>
+        <div class="warnbox">
+          <h5>设计要点与趋势（照录）</h5>
+          <ul>
+            <li>响应式设计：手机、平板、电脑都要有完美浏览体验。</li>
+            <li>极简与留白；高质量视觉元素；一致的品牌形象。</li>
+            <li>快速加载——每延迟 1 秒都可能损失客户；每个页面都要有明确的行动号召。</li>
+            <li>实用工具：原型 Figma / Sketch / Adobe XD；内容管理 WordPress、Webflow 或国内「上线了」「凡科建站」；灵感 Awwwards、Dribbble、Behance。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 01 生产型食品企业落地 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>生产型食品企业 · GitHub Pages 结构</h2><span class="hint">00185</span></div>
+    <p class="lede">把通用结构收窄到<b>「生产型食品企业 + GitHub Pages」</b>：GitHub Pages 只跑静态站，不数据库、不登录，正好契合企业展示、产品介绍与品牌传播；结构上突出食品企业的四个关键词——<b>安全、质量、溯源、品牌故事</b>。</p>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">00185 · 2025-10-07</span><h3>导航与页脚的食品企业定制</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:140px">部位</th><th>内容</th></tr></thead>
+          <tbody>
+            <tr><td><b>全局导航</b></td><td>首页 / 关于我们 / 产品中心 / 质量与创新 / 新闻动态 / 联系我们；行动号召用「样品申请」或「合作咨询」。</td></tr>
+            <tr><td><b>页脚</b></td><td>公司全称与品牌口号；工厂地址、销售电话、客服邮箱；官方认证（ISO22000、HACCP、有机认证、绿色食品——食品企业的信任基石）；微信公众号/视频号/抖音；法律信息。</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">00185 · 2025-10-07</span><h3>六个页面的内容规划</h3></div>
+      <div class="card-b">
+        <details class="acc st3" open>
+          <summary>首页 index.html：视觉冲击、建立信任<span class="cnt">核心</span></summary>
+          <div class="body">
+            <ul>
+              <li>首屏大图/视频（洁净生产线、产品特写或原料农场）+ 主标题「天然美味，品质传承」与副标题；CTA「了解我们的产品」「成为合作伙伴」。</li>
+              <li>核心优势三点：严选原料 / 先进工艺 / 全程质检。</li>
+              <li>3-4 个明星产品；合作客户 Logo 与资质证书；企业数据（年产量、服务品牌数、出口国数）；2 篇最新动态。</li>
+            </ul>
+          </div>
+        </details>
+        <details class="acc st3">
+          <summary>关于我们 about.md：讲品牌故事、展示工厂<span class="cnt">OEM 客户最关心</span></summary>
+          <div class="body">
+            <ul>
+              <li>品牌故事/使命；发展历程时间轴；<b>我们的工厂是重点</b>——厂区外观、洁净车间、自动化包装线；团队风采（可选）。</li>
+            </ul>
+          </div>
+        </details>
+        <details class="acc st3">
+          <summary>产品中心 products.md：清晰分类、支持 OEM/ODM<span class="cnt">生产型核心业务</span></summary>
+          <div class="body">
+            <ul>
+              <li>产品分类导航（休闲零食/营养代餐/调味酱料等）；卡片含图片、名称、简要特点，点击进独立详情页。</li>
+              <li>详情页：多角度图册、规格（净重/配料/保质期）、适用场景人群、OEM/ODM 定制说明。</li>
+            </ul>
+          </div>
+        </details>
+        <details class="acc st3">
+          <summary>质量与创新 quality.md：深度建立信任<span class="cnt">专业度</span></summary>
+          <div class="body">
+            <ul>
+              <li>原料入库 → 生产过程 → 成品出库的全链条质检；研发团队与高校/科研合作；完整资质证书墙。</li>
+            </ul>
+          </div>
+        </details>
+        <details class="acc st3">
+          <summary>新闻动态 / 联系我们<span class="cnt">活力 + 转化</span></summary>
+          <div class="body">
+            <ul>
+              <li>新闻：参展、新厂投产、战略合作 + 行业洞察，列表布局。</li>
+              <li>联系：表单字段 姓名/公司/电话/邮箱/咨询内容；GitHub Pages 无后端，用 Formspree、Getform 等第三方服务收邮件；销售部与客服电话邮箱；工厂地址嵌百度/高德地图；FAQ 解答 MOQ、样品、交期。</li>
+            </ul>
+          </div>
+        </details>
+        <div class="warnbox" style="margin-top:14px">
+          <h5>技术实现建议（针对 GitHub Pages）</h5>
+          <ul>
+            <li>静态站点生成器强烈推荐 Jekyll（GitHub Pages 原生支持，Markdown 写内容、Liquid 管布局）；替代 Hugo、Hexo。</li>
+            <li>主题找免费/付费 Jekyll 主题，多为响应式；主色建议 绿（健康）/ 棕黄（自然谷物）/ 蓝（安全科技）；大量留白；专业产品与工厂摄影是食品站的灵魂。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 02 新手需求整理与模板选型 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>新手网站需求整理与模板选型</h2><span class="hint">00197</span></div>
+    <p class="lede">另一篇笔记把角色换成<b>「采购负责人 + 完全新手」</b>：不会本地部署，只能通过网页和手机端操作，要求尽量简单。需求先逐条整理成结构，再据此推荐模板。</p>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">00197 · 2025-10-08</span><h3>十条需求整理成的站点结构</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:150px">页面</th><th>职责</th></tr></thead>
+          <tbody>
+            <tr><td><b>首页 index</b></td><td>列出采购需求与供应商登记表单入口。</td></tr>
+            <tr><td><b>个人简介 profile</b></td><td>头像 + 电话按钮（直接拨打）+ 微信按钮（一键复制微信号）；工作经历、常驻工作地、工作目标。</td></tr>
+            <tr><td><b>需求 requirements</b></td><td>包装需求（外包装/内包装）+ 原料需求；顶部放供应商采购表单；页内靠上位置放<b>单独二级导航</b>（不做下拉）。</td></tr>
+            <tr><td><b>集团 group</b></td><td>直接外链到别的网站。</td></tr>
+            <tr><td><b>青海厂 qinghai</b></td><td>插入青海厂视频，视频下方生成同仁堂系企业的系统性介绍。</td></tr>
+            <tr><td><b>主要产品线 products</b></td><td>按搜索到的同仁堂健康药业（青海）信息列出产品线。</td></tr>
+            <tr><td><b>全站要求</b></td><td>每页统一导航栏；每页都有返回顶部按钮；部分页面加二级导航。</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">00197 · 2025-10-08</span><h3>选型结论：Jekyll + Minimal Mistakes 主题</h3></div>
+      <div class="card-b">
+        <p class="lede">理由：GitHub Pages 原生支持、无需本地部署、可直接在 GitHub 网页端编辑、响应式适配手机。推荐主题 <b>Minimal Mistakes</b>——简单易用、支持多页面导航、移动端友好、组件丰富。</p>
+        <div class="grid g2">
+          <div class="panel">
+            <dl class="kv">
+              <dt>建库</dt><dd>新建公开仓库 <b>gervasw.github.io</b>。</dd>
+              <dt>配置</dt><dd>新建 <code>_config.yml</code>，写 <code>theme: minimal-mistakes-jekyll</code> 与 navigation 导航列表。</dd>
+            </dl>
+          </div>
+          <div class="panel">
+            <dl class="kv">
+              <dt>建页</dt><dd>用 Markdown（layout: single + permalink）逐个建 index / profile / requirements / group / qinghai / products。</dd>
+              <dt>部署</dt><dd>每保存一个文件自动更新，约 5 分钟后访问 <code>https://gervasw.github.io</code>。</dd>
+            </dl>
+          </div>
+        </div>
+        <div class="srcnote" style="margin-top:14px;margin-bottom:0"><b>两个复用代码片段（照录）</b>：电话按钮 <code>&lt;a href="tel:电话号码"&gt;拨打电话&lt;/a&gt;</code>；微信复制用 <code>navigator.clipboard.writeText(微信号)</code>。返回顶部按钮 <code>position:fixed;bottom:20px;right:20px</code>，监听 scroll 在滚动超过 20px 时显示。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 03 网页端实现细节 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>网页端落地：导航栏 / 播放器 / 复制</h2><span class="hint">00185</span></div>
+    <p class="lede">00185 后半段是一系列「只在网页端操作」的迭代：产品中心/关于我们/联系我们三页、导航栏布局调整、加视频播放器、把视频改成 URL 链接，以及给文件路径加可复制按钮。</p>
+
+    <div class="grid g3">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">产品中心 / 关于 / 联系</h3>
+        <p style="font-size:13.5px;color:var(--ink-2)">按食品企业结构补齐三个核心页：产品中心用卡片网格列产品；关于我们放品牌故事与工厂；联系我们放表单与地图。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">导航栏布局</h3>
+        <p style="font-size:13.5px;color:var(--ink-2)">调整顶栏菜单顺序与 CTA 位置，保证 Logo 回首页、核心菜单一行排开、右侧行动号召醒目。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">视频播放器</h3>
+        <p style="font-size:13.5px;color:var(--ink-2)">在页面嵌入播放器；最初想直接引用本地上传路径，最终改为用<b>企业视频的 URL 链接</b>方式加载，网页端更稳。</p>
+      </div>
+    </div>
+
+    <div class="warnbox" style="margin-top:14px">
+      <h5>可复制按钮（照录思路）</h5>
+      <ul>
+        <li>把「文件路径」单独列出来，旁边放一个复制按钮，点一下即复制完整路径——给后续照抄代码、填图片地址用。</li>
+        <li>复制 trthealth.com 页面代码时同样用「路径单列 + 复制按钮」，避免长代码在对话里找不全。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ 04 假期搭建心得 ══ -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>假期搭建心得：删库十几次与「知易行难」</h2><span class="hint">00198</span></div>
+    <p class="lede">第三份是一段非技术的真实记录：有编程基础的新手，第一次用 ChatGPT 完整搭站，体会到理论与工程之间的差距。</p>
+
+    <div class="card st5">
+      <div class="card-h"><span class="tag">00198 · 2025-10-07</span><h3>时间线：从职业站到个人博客</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:150px">时间</th><th>事件</th></tr></thead>
+          <tbody>
+            <tr><td><b>1 日 ~ 2 日</b></td><td>搭建职业介绍网站 <code>http://gervas.wang</code>，特意买域名并完成 DNS 解析；看着网站从无到有上线，成就感十足。</td></tr>
+            <tr><td><b>3 日 回连云港</b></td><td>另做个人博客 <code>https://seamoonappear.github.io/</code>；初版仅两小时完成。</td></tr>
+            <tr><td><b>之后几天</b></td><td>看到别人更好的网站，换主题时毫不犹豫删了整个库；前前后后<b>删库十几次</b>，一次次从头开始。</td></tr>
+          </tbody>
+        </table></div>
+        <div class="srcnote" style="margin-bottom:0"><b>心得（照录要点）</b>：代码是极其严谨的事——不讲情绪、不靠猜测、没有「差不多」，一行错了就是错了，一个标点都可能让整个程序无法运行。删库十几次后又回到最初的博客，不再急着求快、也不再追求完美，因为每一段成长都是在「重建」中完成的。改写过程还尝试了 Markdown 排版优化与「更技术化」两种文风。</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>公司网站搭建结构与心得 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页内容整理自建站工作笔记，结构建议与代码片段均照录原笔记，仅供内部参考。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
