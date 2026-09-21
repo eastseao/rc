@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%237c3aed'/%3E%3Ccircle cx='22' cy='26' r='6' fill='white'/%3E%3Ccircle cx='42' cy='26' r='6' fill='white'/%3E%3Ccircle cx='32' cy='42' r='6' fill='white'/%3E%3C/svg%3E">
+<title>6GB 显存本地模型选型、手机部署与版本澄清</title>
+<meta name="description" content="六篇 AI 笔记合并：6GB 显存可跑哪些开源大模型（Qwen2.5/DeepSeek-R1-Distill/Gemma-3/Grok 可行性）、手机端部署图像与多模态模型方案与步骤，以及模型版本与宕机传言的澄清记录。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-ink-hi:#c4b5fd;--side-hi:rgba(124,58,237,.18);--sc:var(--accent);--scs:var(--accent-soft)}
+*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:760px){.g2{grid-template-columns:1fr}}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}tbody tr:last-child td{border-bottom:0}
+td.c,th.c{text-align:center}
+.ok{color:#15803d;font-weight:700}.no{color:#b91c1c;font-weight:700}
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}.srcnote p{margin:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+</style>
+</head>
+<body>
+<header class="s-bar"><div class="s-bar-in">
+  <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+  <nav class="s-nav" id="topnav">
+    <a href="#s0" data-sec="s0">00 显存选型</a>
+    <a href="#s1" data-sec="s1">01 手机部署</a>
+    <a href="#s2" data-sec="s2">02 版本澄清</a>
+  </nav>
+</div></header>
+
+<div class="s-head">
+  <span class="s-eyebrow">AI 实践 · 本地部署 / 模型版本</span>
+  <h1>6GB 显存本地模型选型、手机端部署与版本澄清</h1>
+  <p class="s-lede">六篇 AI 笔记合并：5966MB 专用显存（约 6GB）该跑哪些开源大模型、手机上怎么部署图像/多模态模型，以及关于「V4 上线」「宕机」「版本号」等传言的澄清记录。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-03-30</b></span>
+    <span>收录笔记 <b>6 篇</b></span>
+    <span>主题 <b>本地 LLM / 手机部署 / 版本</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">6GB 显存</span>
+    <span class="s-chip">Qwen2.5</span>
+    <span class="s-chip">Gemma-3n</span>
+    <span class="s-chip">DeepSeek-R1</span>
+    <span class="s-chip">V4 澄清</span>
+  </div>
+</div>
+
+<div class="s-body"><main class="s-main">
+  <div class="srcnote"><b>来源笔记：</b>00792-2026-03-23 6GB 显存语言模型安装建议；00725-2026-03-14 手机部署图像生成模型；00722-2026-03-14 澄清模型版本非 V4；00806-2026-03-30 用户询问宕机澄清；00807-2026-03-30 我运行正常请放心；00812-2026-03-30 询问版本回答。date 取组内最晚 2026-03-30。</div>
+
+  <!-- 00 显存选型 -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>6GB 专用显存该跑哪些模型</h2><span class="hint">00792</span></div>
+    <p class="lede">显存 5966MB 是真正决定能跑什么模型的<b>专用 VRAM</b>；总内存 10010MB 是共享系统内存，溢出后会显著掉速。据此门槛：首选 <b>7B–8B 的 4-bit 量化版</b>（占用约 4–5GB），长文本选 3B–4B；13B+ 与 70B 不建议。工具用 Ollama / LM Studio / llama.cpp，并开启 GPU offload。</p>
+    <div class="tblwrap" style="margin-bottom:14px"><table>
+      <thead><tr><th>模型</th><th>量化后显存</th><th class="c">6GB 可跑</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>Qwen2.5-7B-Instruct</b> AWQ</td><td>约 5–6GB</td><td class="c ok">✓ 顶配</td><td>76 亿参数，128k 上下文，代码/数学/中文强；GPTQ 约 8.9GB 易爆显存。</td></tr>
+        <tr><td><b>Qwen2.5-3B-Instruct</b> Q4</td><td>约 2–3GB</td><td class="c ok">✓ 稳妥</td><td>30.9 亿参数，32k–128k，速度快、几乎不爆显存。</td></tr>
+        <tr><td><b>DeepSeek-R1-Distill-Qwen-1.5B</b> Q4_K_M</td><td>约 2GB</td><td class="c ok">✓ 首选</td><td>蒸馏「小钢炮」，推理能力强；<code>ollama run deepseek-r1:1.5b</code>。</td></tr>
+        <tr><td>DeepSeek-R1-Distill-Qwen-7B</td><td>约 5–6GB</td><td class="c">△ 极限</td><td>硬件边缘，需 16GB+ 内存配合，易爆显存。</td></tr>
+        <tr><td><b>Google Gemma-3-4B</b> QAT 4-bit</td><td>约 2.6GB</td><td class="c ok">✓ 推荐</td><td>4B 规模表现出色、中文强、128k；BF16 原始精度 6.4–9.2GB 跑不动。</td></tr>
+        <tr><td>Grok-1 / Grok-2（开源）</td><td>3140 亿 / 约 2690 亿参数</td><td class="c no">✗ 不可行</td><td>16 位约 640GB / 500+GB，极限 2-bit 量化仍需约 80GB+；建议改用在线订阅或继续用小钢炮模型。</td></tr>
+      </tbody>
+    </table></div>
+    <p class="lede" style="margin-bottom:0"><b>量化后缀：</b>AWQ 显存友好、刚够用时首选；GPTQ 在显存有空余（如跑 3B）时推理略快。LM Studio 还需把安装目录里的 huggingface.co 全局替换为 hf-mirror.com 走国内镜像。</p>
+  </section>
+
+  <!-- 01 手机部署 -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>手机端部署图像与多模态模型</h2><span class="hint">00725</span></div>
+    <p class="lede">手机跑模型分<b>本地离线</b>（私密、免费但吃硬件）与<b>远程云端</b>（不挑机型、依赖网络付费）两类；靠模型量化、采样步数优化、NPU/神经引擎加速实现。</p>
+    <div class="tblwrap" style="margin-bottom:14px"><table>
+      <thead><tr><th>方案/模型</th><th>方式</th><th>硬件/速度</th><th>特别之处</th></tr></thead>
+      <tbody>
+        <tr><td><b>Google Gemma 3n</b></td><td>本地</td><td>2GB RAM 可跑</td><td>多模态，处理图像/音频/文本；AI Edge Gallery 侧载。</td></tr>
+        <tr><td>「橘洲」V1.5</td><td>本地</td><td>4 秒出 1024×1024</td><td>国产模型，离线可用。</td></tr>
+        <tr><td>Stable Diffusion 优化版</td><td>本地</td><td>iPhone 15 Pro 约 2 秒，约 4GB</td><td>Core ML 深度优化，画质接近 PC。</td></tr>
+        <tr><td>Local AI Studio</td><td>本地</td><td>需 8GB RAM，iPhone 15 Pro / iPad M1+</td><td>集成 SD 与 LLM。</td></tr>
+        <tr><td>Adobe Firefly</td><td>远程</td><td>仅约 100MB 存储</td><td>专业级、需联网。</td></tr>
+      </tbody>
+    </table></div>
+    <div class="grid g2">
+      <div class="panel"><b style="font-size:14px">复杂度分档</b><p style="font-size:13px;margin-top:6px">懒人：远程 App 3 分钟上手；尝鲜：AI Edge Gallery 下约 2GB 模型约 10 分钟；极客：自行 Xcode 集成 SD 需数天到数周。</p></div>
+      <div class="panel"><b style="font-size:14px">注意</b><p style="font-size:13px;margin-top:6px">AI Edge Gallery 目前主要跑 Gemma 3n 这类<b>语言模型</b>，特长是理解/描述图片，而非凭空「画」图；文生图需另选专门应用。</p></div>
+    </div>
+  </section>
+
+  <!-- 02 版本澄清 -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>关于 V4、宕机与版本号的澄清记录</h2><span class="hint">00722 · 00806 · 00807 · 00812</span></div>
+    <div class="tblwrap" style="margin-bottom:0"><table>
+      <thead><tr><th style="width:150px">传言/提问</th><th>答复口径</th></tr></thead>
+      <tbody>
+        <tr><td><b>「V4 上线了吗」</b></td><td>仍是 DeepSeek 最新版，<b>并非 V4</b>；社交平台「V4」系误传。近期小更新：V3.1-Terminus 企业平台平稳升级、Sealion Lite（传闻 V4 Lite）小范围内测，主打原生多模态与 100 万 tokens 上下文。</td></tr>
+        <tr><td><b>「听说你宕机了」</b></td><td>运行正常，应系传言/误报。</td></tr>
+        <tr><td><b>「V4 啥时候上市」</b></td><td>传闻指向 2026 年 4 月；看点：原生多模态、编程约 90 分、优先适配国产芯片（昇腾/寒武纪）、DualPath 框架推理吞吐约 +1.9 倍。最终以官方公告为准。</td></tr>
+        <tr><td><b>「你现在什么版本/上下文多长」</b></td><td>自称 DeepSeek 最新版，具体版本号以官方文档为准；上下文长度为 <b>1M tokens</b>（约 100 万）。</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+</main></div>
+
+<footer class="s-foot"><div class="s-foot-in">
+  <b>GERVAS</b><span>AI 部署实践 · V1.0</span><span class="sp">Copyright 2026 gervas.wang</span>
+</div><div class="s-disc"><p>本页整理自本地模型部署与模型版本咨询笔记；显存占用与模型规格为笔记所述时点的社区/官方参考值，实际以所选量化格式与工具为准；版本传言以官方公告为准。</p></div></footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+<script>
+(function(){var S=['s0','s1','s2'];var L=document.querySelectorAll('#topnav a[data-sec]');
+function m(c){for(var i=0;i<L.length;i++)L[i].classList.toggle('on',L[i].getAttribute('data-sec')===c);}
+function spy(){var y=window.scrollY+130,c=S[0];for(var i=0;i<S.length;i++){var s=document.getElementById(S[i]);if(!s)continue;var t=s.getBoundingClientRect().top+window.scrollY;if(t<=y)c=S[i];}m(c);}
+window.addEventListener('scroll',spy,{passive:true});window.addEventListener('resize',spy);spy();})();
+</script>
+</body></html>
