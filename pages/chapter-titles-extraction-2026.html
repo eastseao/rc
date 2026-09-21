@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>小说章节拆分·落酥标题·章节名提取与排序 · 2026-05-22</title>
+<meta name="description" content="六篇写作笔记合并：《剁花》章节拆分与书名简介、《落酥》60 章标题提炼与哲理总结、苍狼河 110 章章节名提取、CH## 格式章节标题排序与替换、200 章标题提取格式。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 章节拆分与书名</a>
+      <a href="#s1" data-sec="s1">02 落酥标题提炼</a>
+      <a href="#s2" data-sec="s2">03 章节名提取排序</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">行业研究 · 文学创作与小说</span>
+  <h1>小说章节拆分·落酥标题·章节名提取与排序</h1>
+  <p class="s-lede">六篇写作笔记合并：《剁花》南宋种菇传奇的章节拆分与书名简介、《落酥》60 章标题提炼与每章哲理"作者有话说"、苍狼河长篇 110 章章节名提取、CH## 格式章节标题排序与分隔符替换、200 章标题提取格式记录。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-05-22</b></span>
+    <span>收录笔记 <b>6 篇</b></span>
+    <span>时间跨度 <b>2026-04 ~ 2026-05</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">章节拆分</span>
+    <span class="s-chip">标题提炼</span>
+    <span class="s-chip">CH## 编号</span>
+    <span class="s-chip">哲理总结</span>
+    <span class="s-chip">书名构思</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>01025-2026-04-25 小说章节拆分与标题</li>
+      <li>01027-2026-04-26 落酥章节标题提炼与哲理总结</li>
+      <li>01158-2026-05-16 章节标题顺序列表</li>
+      <li>01186-2026-05-21 章节名提取</li>
+      <li>01191-2026-05-22 章节标题提取</li>
+      <li>00996-2026-04-21 五字章节名替换建议</li>
+    </ol>
+  </div>
+
+  <!-- ══ 01 章节拆分与书名 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>《剁花》章节拆分与书名简介</h2><span class="hint">01025 / 00996</span></div>
+    <p class="lede">南宋绍兴年间烧炭人吴岚发现龙喉菇、摸索人工栽培香菇法、建立菇民群体的故事。从 16 章粗分到 36 章细拆，每章约 2000 字。书名推荐《剁花》——两字、独特、有力，小切口大故事。</p>
+
+    <div class="card st1">
+      <div class="card-h"><span class="tag">36 章标题</span><h3>《剁花》完整章节标题列表</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:60px">章号</th><th>标题</th><th style="width:60px">章号</th><th>标题</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>建炎四年</td><td>19</td><td>合作</td></tr>
+            <tr><td>2</td><td>溃兵</td><td>20</td><td>暗算</td></tr>
+            <tr><td>3</td><td>守村</td><td>21</td><td>转机</td></tr>
+            <tr><td>4</td><td>进山</td><td>22</td><td>扩张</td></tr>
+            <tr><td>5</td><td>朽木</td><td>23</td><td>传授</td></tr>
+            <tr><td>6</td><td>炭窑</td><td>24</td><td>菇民大会</td></tr>
+            <tr><td>7</td><td>刀疤</td><td>25</td><td>边界</td></tr>
+            <tr><td>8</td><td>惊蕈</td><td>26</td><td>立碑</td></tr>
+            <tr><td>9</td><td>下山</td><td>27</td><td>菇民</td></tr>
+            <tr><td>10</td><td>县城</td><td>28</td><td>山寮白</td></tr>
+            <tr><td>11</td><td>粮商陈大发</td><td>29</td><td>让水</td></tr>
+            <tr><td>12</td><td>威逼</td><td>30</td><td>传承</td></tr>
+            <tr><td>13</td><td>暗流</td><td>31</td><td>叶青</td></tr>
+            <tr><td>14</td><td>抉择</td><td>32</td><td>龙庆景</td></tr>
+            <tr><td>15</td><td>散方</td><td>33</td><td>菌种</td></tr>
+            <tr><td>16</td><td>规矩</td><td>34</td><td>接山主</td></tr>
+            <tr><td>17</td><td>巡山队</td><td>35</td><td>归山</td></tr>
+            <tr><td>18</td><td>赌约</td><td>36</td><td>生生不息</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">书名备选方案（00996）</h3>
+        <dl class="kv">
+          <dt>首推</dt><dd><b>《剁花》</b>——两字独特有力，直接点出核心技艺，有动作感。</dd>
+          <dt>备选</dt><dd>《菇民》（突出人物群体）、《朽木生蕈》（文学性意象）、《龙喉菇》（神秘感）、《惊蕈》（关键技法悬念）、《山寮白》（菇民暗语文化厚度）、《种菇人》（质朴民间叙事）。</dd>
+          <dt>副标题</dt><dd>如需更完整：《剁花：南宋种菇传奇》。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">章节名长度变体（00996）</h3>
+        <dl class="kv">
+          <dt>五字版</dt><dd>斧疤与香蕈</dd>
+          <dt>两字版</dt><dd>惊蕈</dd>
+          <dt>拆分原则</dt><dd>每章约 2000 字，紧张段落短章节快节奏，深沉场景长章节沉浸感。</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 02 落酥标题提炼 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>《落酥》章节标题提炼与哲理总结</h2><span class="hint">01027 · 2026-04-26</span></div>
+    <p class="lede">《落酥·上卷》60 章标题提炼（5-10 字），每章末尾附一句哲理性"作者有话说"。标题以单字/双字意象为主——铜瓦厢、黄沙、活法、旱冬、春旱、铁砧、接穗、成活……与人物命运节奏同步。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:50px">章</th><th style="width:100px">标题</th><th>作者有话说（哲理总结）</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><b>铜瓦厢</b></td><td>当命运之水冲刷一切，活着的本身就是最大的抗争。</td></tr>
+        <tr><td>3</td><td><b>活法</b></td><td>有些人走了，有些人留下，留下不是因为勇敢，是因为还有根。</td></tr>
+        <tr><td>6</td><td><b>铁砧</b></td><td>手艺是穷人的命，铁锤一响，日子就有了声音。</td></tr>
+        <tr><td>7</td><td><b>接穗</b></td><td>把好枝条嫁接到野根上，就像把希望种进绝望里。</td></tr>
+        <tr><td>8</td><td><b>成活</b></td><td>活下来的不是最强的，是最能忍的。</td></tr>
+        <tr><td>14</td><td><b>根</b></td><td>根扎得越深，人就越不容易被风吹走。</td></tr>
+        <tr><td>21</td><td><b>根</b></td><td>人这一辈子，就是在找能扎下根的地方。</td></tr>
+        <tr><td>36</td><td><b>秤</b></td><td>人心这杆秤，比梨重。</td></tr>
+        <tr><td>38</td><td><b>烧梨树，救梨树</b></td><td>烧得掉树，烧不掉根。</td></tr>
+        <tr><td>49</td><td><b>抄</b></td><td>抄得走东西，抄不走根。</td></tr>
+        <tr><td>59</td><td><b>满</b></td><td>三十年的沙地，终于长出了甜。</td></tr>
+        <tr><td>60</td><td><b>根</b></td><td>根扎下去了，就不怕风吹。</td></tr>
+      </tbody>
+    </table></div>
+    <p class="lede" style="margin-top:14px">完整 60 章标题以单字/双字为意象核心，按命运弧线排列：灾难起（铜瓦厢→黄沙→活法）→ 扎根期（铁砧→接穗→成活→苗→根）→ 发展期（贩→租→远→移）→ 冲突期（混→旱→救→困→面→札→谋→反）→ 判决与重建（秋→路→债→秤→刀→烧→告→判→疤）→ 收束（独当一面→定名→远→记→婚→传→老树→盲→满→根）。</p>
+  </section>
+
+  <!-- ══ 03 章节名提取排序 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>章节名提取与排序格式</h2><span class="hint">01186 / 01158 / 01191</span></div>
+    <p class="lede">三种章节标题提取与排序格式的实操记录：纯序号列表（苍狼河 110 章）、CH##｜标题编号格式（77 章双幕结构）、CH##｜《标题》格式（200 章长篇）。分隔符可按需求替换（｜→_）。</p>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">01186</span><h3>苍狼河长篇 110 章章节名提取</h3></div>
+      <div class="card-b">
+        <p class="lede" style="margin-bottom:10px">纯序号列表格式，标题以两字至四字为主，按时间线排列：戈壁滩→引水→冻土层→大字报→铁道兵→火车进站→改革大潮→地震→新千年→七十年纪念→归来→值得。</p>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:60px">章号</th><th>标题</th><th style="width:60px">章号</th><th>标题</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>戈壁滩的尽头</td><td>56</td><td>铁道兵</td></tr>
+            <tr><td>5</td><td>苍狼河的水</td><td>68</td><td>火车进站</td></tr>
+            <tr><td>10</td><td>安达之约</td><td>73</td><td>改革大潮</td></tr>
+            <tr><td>21</td><td>灌区开工</td><td>84</td><td>地震夜</td></tr>
+            <tr><td>36</td><td>大字报</td><td>99</td><td>铜罗盘归位</td></tr>
+            <tr><td>49</td><td>水库坝址上移七公里</td><td>107</td><td>七十年纪念</td></tr>
+            <tr><td>55</td><td>沈望岳被召回</td><td>110</td><td>值得</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <details class="acc st3" open>
+      <summary>CH##｜标题编号格式记录（01158）<span class="cnt">77 章 · 双幕结构</span></summary>
+      <div class="body">
+        <p class="lede" style="margin-bottom:10px">格式：<b>CH##｜标题——副标题</b>（如 CH01｜初见——阳光里的陌生人）。77 章分两幕：</p>
+        <ul>
+          <li><b>第一幕（CH01-CH57）</b>：初见→对视→靠近→入住→磨合→窥见→越界→坦诚→名字→晚归→暗夜→门（性张力顶点）→破晓→距离→归来→雨夜→沙发→中秋→月光（第二幕高潮起点）→刻度→妥协→完整→贪欢→余韵→暗号→标记→禁区→试探→暗涌→裂痕→静默→潮汐→照片→沉默→相册→重叠→记忆→真相→门关上→崩溃→空房→回来→尾声。</li>
+          <li><b>第二幕（CH58-CH77）</b>：归来→日常→相认→关上门的恋人→晨光中的告白→课堂上的秘密→办公室的午后→浴室里的放纵→吃醋→冷战→和解→镜前→厨房→电影→学习→嫉妒→冷落→追到学校→雨中和解→毕业。</li>
+        </ul>
+        <div class="srcnote" style="margin-bottom:0"><b>分隔符替换</b>：用户要求将"｜"替换为"_"，格式变为 CH##_标题——副标题。部分章节标题涉及成人内容，此处仅记录编号格式与结构。</div>
+      </div>
+    </details>
+
+    <details class="acc st3">
+      <summary>CH##｜《标题》格式记录（01191）<span class="cnt">200 章 · 编号+书名号</span></summary>
+      <div class="body">
+        <p class="lede" style="margin-bottom:10px">格式：<b>CH##｜《标题》</b>，共 200 章。提取过程两轮：</p>
+        <ul>
+          <li><b>第一轮</b>：纯《标题》列表，不编号，不修改。</li>
+          <li><b>第二轮</b>：加 CH## 编号 + 《》书名号，格式为 <b>CH##｜《标题》</b>。</li>
+        </ul>
+        <p class="lede" style="margin-top:10px;margin-bottom:10px">结构弧线示例（前段章节标题）：</p>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:80px">编号</th><th>标题</th></tr></thead>
+          <tbody>
+            <tr><td>CH01</td><td>《课堂上的陌生人》</td></tr>
+            <tr><td>CH02</td><td>《夜是清醒的》</td></tr>
+            <tr><td>CH03</td><td>《保持距离》</td></tr>
+            <tr><td>CH08</td><td>《门开了》</td></tr>
+            <tr><td>CH13</td><td>《透光》</td></tr>
+            <tr><td>CH32</td><td>《约定与边界》</td></tr>
+            <tr><td>CH57</td><td>《毕业典礼》</td></tr>
+            <tr><td>CH62</td><td>《市一院肿瘤科》</td></tr>
+            <tr><td>CH67</td><td>《真相揭露——王楠的反应》</td></tr>
+            <tr><td>CH90</td><td>《回家第一天》</td></tr>
+            <tr><td>CH137</td><td>《女儿出生》</td></tr>
+            <tr><td>CH200</td><td>《太阳照常升起——终章》</td></tr>
+          </tbody>
+        </table></div>
+        <div class="srcnote" style="margin-bottom:0"><b>说明</b>：该细纲后半段（CH105 起）包含较多成人向章节标题，此处仅记录提取格式与结构位置，不复述具体标题原文。</div>
+      </div>
+    </details>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>章节拆分与标题提取 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页内容整理自文学创作与小说写作笔记，章节标题与提取格式均照录原笔记，仅供写作参考。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
