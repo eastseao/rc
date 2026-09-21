@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>编译器 · 编程语言 · Python 库 · 鲁棒性 · 2026-04 ~ 2026-06</title>
+<meta name="description" content="6 篇编程概念笔记合并：编译器与解释器的区别及自造语言的捷径，torch/scipy/transformers 三件套的分工与打包进应用后的能力，TIOBE 2026 年 6 月前 20 名编程语言速览，进程内向量数据库的用途，鲁棒性概念辨析，以及 Pillow 一词的多重含义。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+code.fx{font-family:var(--mono);font-size:12.5px;background:var(--code);border-radius:5px;padding:2px 6px;color:var(--ink)}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 编译器</a>
+      <a href="#s1" data-sec="s1">01 三件套库</a>
+      <a href="#s2" data-sec="s2">02 语言格局</a>
+      <a href="#s3" data-sec="s3">03 向量库</a>
+      <a href="#s4" data-sec="s4">04 鲁棒性</a>
+      <a href="#s5" data-sec="s5">05 Pillow</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 编程概念</span>
+  <h1>编译器 · 编程语言 · Python 库 · 鲁棒性</h1>
+  <p class="s-lede">把 6 篇编程概念笔记从基础概念到前沿组件串成一条线：编译器与解释器怎么分工、自造一门语言要做什么；torch / scipy / transformers 三件套各自角色与打包进应用后的能力；TIOBE 2026 年 6 月前 20 名编程语言的定位与适用场景；进程内向量数据库为什么流行；鲁棒性到底在说什么；以及「Pillow」一词在编程之外的多重含义。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-06-23</b></span>
+    <span>收录笔记 <b>6 篇</b></span>
+    <span>时间跨度 <b>2026-04 ~ 2026-06</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">编译器</span>
+    <span class="s-chip">PyTorch</span>
+    <span class="s-chip">TIOBE</span>
+    <span class="s-chip">向量数据库</span>
+    <span class="s-chip">鲁棒性</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00900-2026-04-12 编译器和代码语言简介</li>
+      <li>01291-2026-06-10 torch scipy transformers 解释</li>
+      <li>01293-2026-06-11 编程语言深度解析</li>
+      <li>01332-2026-06-23 进程内向量数据库用途解析</li>
+      <li>01336-2026-06-23 鲁棒性概念解析</li>
+      <li>01324-2026-06-18 Pillow多重含义</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 编译器与代码语言 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>编译器与代码语言：翻译官比喻</h2><span class="hint">00900</span></div>
+    <p class="lede">一句话：<b>代码语言</b>是你和电脑沟通用的「外语」，<b>编译器</b>是把这段话翻译成电脑能懂的「母语」的工具。电脑其实只认识 0 和 1（机器语言），C、Java、Python 这类高级语言它无法直接执行。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:130px">对比</th><th>编译器（翻译全书）</th><th>解释器（边读边译）</th></tr></thead>
+      <tbody>
+        <tr><td><b>怎么工作</b></td><td>一次性把全部源代码作为整体，彻底翻译成 CPU 能直接运行的机器码（如 .exe）。像用中文写完整本书，出版社一次性译成英文，读者随时直接读。</td><td>不一次性翻译全书，边读代码边现场翻译一行、执行一行（Python 即此类）。</td></tr>
+        <tr><td><b>代表语言</b></td><td>C / C++ / Go</td><td>Python / JavaScript</td></tr>
+        <tr><td><b>优点</b></td><td>运行快</td><td>改完马上看效果，方便灵活</td></tr>
+        <tr><td><b>缺点</b></td><td>改完要重新编译</td><td>执行效率略低</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="card st1">
+      <div class="card-h"><span class="tag">00900 · 2026-04-12</span><h3>如果用中文造一门编程语言</h3></div>
+      <div class="card-b">
+        <p class="lede">必须制作配套的编译器（或解释器）——CPU 只认 0/1，完全不懂中文，需要一个「翻译官」把 <code class="fx">如果 条件 那么</code> 这类中文语法译成机器指令。但难点并不在把 <code class="fx">if</code> 换成「如果」，而在<b>设计语言的整体逻辑</b>：怎么管理内存、怎么处理不同数据类型的运算。</p>
+        <dl class="kv">
+          <dt>做解释器</dt><dd>实现相对简单、边译边执行，但运行速度比编译型慢，更适合工具型或教学语言。</dd>
+          <dt>一个捷径</dt><dd>不从零造轮子：基于 Python 或 TypeScript 做「二次改造」，写一个转译器把 <code class="fx">如果...那么</code> 直接翻成 Python 的 <code class="fx">if...</code>，复用现有编译器，省去底层大量工作。</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 01 三件套库 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>torch + scipy + transformers 三件套</h2><span class="hint">01291</span></div>
+    <p class="lede">这是 Python 生态里机器学习与科学计算的核心组合，尤其常用于 NLP 与深度学习项目。三者分工明确：</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">库</th><th>角色</th></tr></thead>
+      <tbody>
+        <tr><td><b>torch（PyTorch）</b></td><td>主流深度学习框架，提供张量计算与自动求导，用来构建和训练 Transformer、CNN、RNN 等神经网络。</td></tr>
+        <tr><td><b>scipy</b></td><td>基于 NumPy 的科学计算库：数值积分、优化、稀疏矩阵、线性代数、统计分布等，常与 PyTorch 搭配做数值计算与评估。</td></tr>
+        <tr><td><b>transformers</b></td><td>Hugging Face 的库，封装数千个预训练模型（BERT、GPT、LLaMA 等）及其分词器与训练管道；<b>依赖 PyTorch 作为后端</b>，与 torch 无缝集成。</td></tr>
+      </tbody>
+    </table></div>
+    <p class="lede" style="margin-bottom:14px"><b>典型协作</b>：用 transformers 加载预训练模型（基于 torch 的权重）→ 用 scipy 做辅助计算（词向量余弦相似度、统计检验、稀疏优化）→ 所有训练、推理与梯度更新都在 torch 的张量与自动微分系统内完成。</p>
+
+    <div class="grid g3">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">开箱即用的 NLP</h3>
+        <p style="font-size:13px;color:var(--ink-2)">文本分类、命名实体识别、文本生成、100+ 语言互译、问答、长文摘要、零样本分类——几行代码即可。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">本地离线 + 隐私</h3>
+        <p style="font-size:13px;color:var(--ink-2)">模型跑在用户设备本地、不上传数据，适合医疗/法律/金融文本、弱网环境与低延迟场景。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">跨模态</h3>
+        <p style="font-size:13px;color:var(--ink-2)">CLIP / LLaVA 等支持图文检索、图像描述、视觉问答（「图里有几只狗」）。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">科学计算</h3>
+        <p style="font-size:13px;color:var(--ink-2)">scipy 补深度学习不擅长的：稀疏矩阵、优化拟合、统计检验、向量距离相似度、滤波与傅里叶变换。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">轻量训练</h3>
+        <p style="font-size:13px;color:var(--ink-2)">少量数据即可本地微调/迁移学习；<code class="fx">scipy.optimize.minimize</code> 可补充约束优化。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">性能控制</h3>
+        <p style="font-size:13px;color:var(--ink-2)">CPU/GPU/NPU 自动切换，支持 int8 量化与剪枝；scipy 的 C 实现算法计算快。</p>
+      </div>
+    </div>
+
+    <div class="tblwrap" style="margin-top:14px"><table>
+      <thead><tr><th style="width:160px">把它打包进 App</th><th>示例功能</th></tr></thead>
+      <tbody>
+        <tr><td>笔记 / 文档 App</td><td>自动标签、摘要、跨语言摘要、语义搜索</td></tr>
+        <tr><td>邮件客户端</td><td>智能分类、自动回复草稿、垃圾邮件过滤</td></tr>
+        <tr><td>编程 IDE 插件</td><td>代码注释生成、错误解释、代码补全</td></tr>
+        <tr><td>教育 App</td><td>作文批改、问答机器人、语言学习对话伙伴</td></tr>
+        <tr><td>医疗辅助</td><td>从病历提取诊断信息、药物交互检查</td></tr>
+        <tr><td>法律 / 合同</td><td>关键条款提取、自动风险标注</td></tr>
+        <tr><td>数据分析工具</td><td>文本列情感评分、主题聚类</td></tr>
+      </tbody>
+    </table></div>
+    <div class="warnbox">
+      <h5>需要注意的限制</h5>
+      <ul>
+        <li><b>包体积</b>：三个库加预训练模型可能几百 MB 到几 GB——建议按需/分片加载，用 CPU 版与 <code class="fx">model.half()</code> 降体积。</li>
+        <li><b>计算资源</b>：大模型推理吃内存——用 <code class="fx">pipeline</code> 自动优化，或选小模型（DistilBERT、TinyBERT、Phi-3 Mini）。</li>
+        <li><b>高并发</b>：用 scipy 做批量预处理，torch 的 DataLoader 批量推理。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ 02 TIOBE 前20语言 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>TIOBE 2026 年 6 月前 20 名编程语言</h2><span class="hint">01293</span></div>
+    <p class="lede">对 TIOBE 榜单前 20 名的深度解析：每种语言按设计哲学、技术特性与生态定位，指出其最适合的开发领域。照录如下。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:60px">#</th><th style="width:150px">语言</th><th style="width:200px">一句话定位</th><th>核心特点 / 适用领域</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><b>Python</b></td><td>现代软件开发的「全能工具」</td><td>极简语法、动态类型、PyPI 超 40 万个包、完全开源；AI/ML、数据分析、Web 后端。</td></tr>
+        <tr><td>2</td><td><b>C</b></td><td>现代计算的「基石」</td><td>编译型、面向过程、接近硬件；操作系统内核、嵌入式、驱动开发。</td></tr>
+        <tr><td>3</td><td><b>C++</b></td><td>高性能系统的「性能之王」</td><td>多范式、手动内存、零开销抽象；3A 游戏引擎（Unreal）、高频交易、浏览器内核、HPC 与数据库。</td></tr>
+        <tr><td>4</td><td><b>Java</b></td><td>企业级应用的「定海神针」</td><td>纯面向对象、JVM「一次编写到处运行」；大型企业后台、大数据（Hadoop）。</td></tr>
+        <tr><td>5</td><td><b>C#</b></td><td>微软生态的「全栈利器」</td><td>结合 VB 易用与 C++ 性能；Windows 桌面、Unity 游戏、.NET Core 后端。</td></tr>
+        <tr><td>6</td><td><b>JavaScript</b></td><td>Web 交互的「主宰者」</td><td>事件驱动、前端核心，Node.js 扩展至后端；前端后端、React Native / Electron 跨端。</td></tr>
+        <tr><td>7</td><td><b>VB</b></td><td>经典快速的「RAD 工具」</td><td>事件驱动、所见即所得；传统桌面、Office 二次开发。</td></tr>
+        <tr><td>8</td><td><b>SQL</b></td><td>数据世界的「通用语言」</td><td>声明式；关系数据库管理与数据分析。</td></tr>
+        <tr><td>9</td><td><b>R</b></td><td>统计科学的「专业工具」</td><td>CRAN 超 1.8 万包；学术科研、生物信息、金融量化、政府统计。</td></tr>
+        <tr><td>10</td><td><b>Delphi / Object Pascal</b></td><td>优雅的「RAD 先驱」</td><td>强类型编译、可读性好；Windows 桌面、企业数据库前端。</td></tr>
+        <tr><td>11</td><td><b>Scratch</b></td><td>编程启蒙的「积木世界」</td><td>图形化拖拽；青少年入门教育。</td></tr>
+        <tr><td>12</td><td><b>Rust</b></td><td>安全与性能的「完美平衡」</td><td>所有权 + 借用检查器、无 GC、零成本抽象；系统编程、WebAssembly、OS、数据库。</td></tr>
+        <tr><td>13</td><td><b>Go</b></td><td>云原生时代的「微服务王牌」</td><td>极简语法、Goroutine 与 Channel、单一二进制；Docker/K8s、微服务网关、CLI 工具。</td></tr>
+        <tr><td>14</td><td><b>PHP</b></td><td>Web 开发领域的「老兵」</td><td>专为 Web 设计、易部署、大量遗留系统；动态网页、CMS、社交网站。</td></tr>
+        <tr><td>15</td><td><b>Swift</b></td><td>苹果生态的「现代引擎」</td><td>类型安全、ARC、LLVM；苹果全平台应用与跨平台服务端。</td></tr>
+        <tr><td>16</td><td><b>Ada</b></td><td>高可靠系统的「钢铁堡垒」</td><td>强类型、编译时严格检查；航空航天、军事、铁路信号等安全关键实时系统。</td></tr>
+        <tr><td>17</td><td><b>Fortran</b></td><td>数值计算的「百年基石」</td><td>语法贴近数学、数组强；气象模拟、流体力学、计算物理、线性代数。</td></tr>
+        <tr><td>18</td><td><b>Perl</b></td><td>文本处理的「瑞士军刀」</td><td>强正则、「胶水语言」；运维自动化、日志分析。</td></tr>
+        <tr><td>19</td><td><b>汇编语言</b></td><td>硬件的「最后一公里」</td><td>符号化机器指令、效率最高开发极低；关键性能优化、驱动、Bootloader、逆向。</td></tr>
+        <tr><td>20</td><td><b>MATLAB</b></td><td>算法开发的「快速验证器」</td><td>面向矩阵、工具箱丰富；工程计算、信号图像处理、仿真、高校科研。</td></tr>
+      </tbody>
+    </table></div>
+    <p>格局总结：Python 统治 AI 与数据科学，C/C++ 把控底层基础设施，Java/C#/Go 在企业级后端各显神通，Rust 正在系统编程领域崭露头角。对开发者而言，不必成为所有语言专家，按项目需求选一两门深入即可。</p>
+  </section>
+
+  <!-- ══ 03 进程内向量数据库 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>进程内向量数据库：为什么流行</h2><span class="hint">01332</span></div>
+    <p class="lede">进程内向量数据库把向量搜索能力直接「打包」进应用程序，不需单独安装维护数据库服务——像 SQLite 一样 import 一个库就能建索引、存数据，目标是<b>降低门槛、让向量搜索跑在任何地方</b>。</p>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">四大优势</h3>
+        <dl class="kv">
+          <dt>零部署</dt><dd>import 即用，不用装 Docker、配服务，适合小工具与快速验证。</dd>
+          <dt>延迟极低</dt><dd>数据在进程内存/本地文件，查询不走网络，本地 RAG 问答毫秒级返回。</dd>
+          <dt>隐私离线</dt><dd>数据不出本地，可在手机 App、浏览器（WebAssembly）里跑，无需联网。</dd>
+          <dt>原型利器</dt><dd>跑单测/技术验证时内存里起一个，跑完即销毁，不用搭 Milvus/Qdrant。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">典型场景与代表项目</h3>
+        <dl class="kv">
+          <dt>场景</dt><dd>本地知识库问答（读自己的 PDF 找相关段落）；边缘设备（树莓派/工业相机图像去重）；端侧 AI（相册语义搜图、浏览器插件相似度匹配）。</dd>
+          <dt>代表项目</dt><dd><code class="fx">sqlite-vec</code>/<code class="fx">sqlite-vss</code>（SQLite 扩展）、<code class="fx">LanceDB</code>、<code class="fx">Chroma</code> 嵌入式模式、<code class="fx">Vectra</code>（Node.js）。</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 04 鲁棒性 ══ -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>鲁棒性：从实验室到混乱真实世界</h2><span class="hint">01336</span></div>
+    <p class="lede"><b>鲁棒性</b>（Robustness，意译「健壮性/强韧性」）指系统在面对内部参数变动、外部干扰、数据噪声或不确定性时，仍能维持关键功能与性能稳定、不崩溃、不剧烈失准的能力。比喻：<b>稳定性</b>是静水不沉，<b>鲁棒性</b>是狂风巨浪中不仅不沉、还保持正确航向。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:170px">领域</th><th>具体内涵与例子</th></tr></thead>
+      <tbody>
+        <tr><td><b>计算机 / 软件工程</b></td><td>非法输入、高并发、资源耗尽下不崩溃：容错性（特殊字符优雅报错而非闪退）；压力承载（大促靠限流降级保住核心下单功能）。</td></tr>
+        <tr><td><b>AI / 机器学习</b></td><td>当前最受关注：分布外泛化（训练用高清照、实战遇雨天模糊仍能认出）；对抗鲁棒性（给熊猫图加肉眼不可见噪点，不被错认成「长臂猿」）。</td></tr>
+        <tr><td><b>控制工程 / 制造</b></td><td>温度变化、零件磨损、电磁干扰导致参数漂移时仍稳定；飞机自动驾驶遇突风能迅速修正而非剧烈震荡。</td></tr>
+        <tr><td><b>统计学</b></td><td>对离群点不敏感：用「中位数」估计平均水平比「平均数」更鲁棒，混入一个极端错误数据几乎不受影响。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">易混三词辨析</h3>
+        <dl class="kv">
+          <dt>鲁棒性</dt><dd>侧重「抵抗」——不利条件下维持现状、不轻易改变核心功能。</dd>
+          <dt>韧性</dt><dd>Resilience，侧重「恢复」——被破坏后快速弹回正常。</dd>
+          <dt>可靠性</dt><dd>Reliability，侧重「无故障」——特定时间内不失效的概率。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">提升策略</h3>
+        <ul style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2);line-height:1.85">
+          <li><b>冗余设计</b>：备用组件（双发动机、数据多副本）。</li>
+          <li><b>噪声注入</b>：AI 训练主动加干扰（对抗训练）。</li>
+          <li><b>边界限定</b>：输入阈值与安全护栏，拒绝超范围请求。</li>
+          <li><b>鲁棒优化</b>：按最坏情况最优（Max-Min）决策。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 05 Pillow 多重含义 ══ -->
+  <section id="s5" class="st1">
+    <div class="sec-h"><span class="idx st1">06</span><h2>「Pillow」一词的多重含义</h2><span class="hint">01324</span></div>
+    <p class="lede">Pillow 最常见的意思是「枕头」，但在不同语境下另有所指。一张表看清三个层面。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:160px">层面</th><th>含义</th></tr></thead>
+      <tbody>
+        <tr><td><b>日常用品 · 枕头</b></td><td>由枕芯（填充物：棉花、羽绒、记忆海绵、乳胶）与枕套构成；衍生词 <code class="fx">pillow case</code>（枕套）、<code class="fx">pillow fight</code>（枕头大战）、<code class="fx">pillow talk</code>（枕边细语）；全球枕头市场中<b>中国占近 68% 份额</b>，品牌有 Tempur-Pedic、MyPillow，国内罗莱、富安娜。</td></tr>
+        <tr><td><b>编程工具 · Python 库</b></td><td>Python 流行的<b>图像处理库</b>，是 Python Imaging Library (PIL) 的友好分支（fork）。可打开/保存多格式图像、裁剪缩放旋转、滤镜调色、画图与文字；安装：<code class="fx">pip install Pillow</code>。</td></tr>
+        <tr><td><b>文化娱乐</b></td><td>电影《The Pillow Book》（1996，邬君梅、伊万·麦克格雷格主演，改编自日本古典《枕草子》）；蔡依林 2025 年歌曲《Pillow》（收录于专辑《Pleasure》，Neo-Soul/R&B 风格）；Bebe Rexha、Rich Edwards 也有同名歌曲。</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>编程概念笔记 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页内容整理自编程概念学习笔记，TIOBE 榜单与库介绍口径均照录原笔记（2026-06）；技术生态随版本演进，细节以官方文档为准。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4','s5'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
