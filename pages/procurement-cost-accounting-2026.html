@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>采购成本核算与降幅计算 · 合同计算器 / 毛利 / TCO / 降幅</title>
+<meta name="description" content="四篇采购成本笔记合并：采购合同金额自动计算表格的设计与核心代码、成本A-出厂B-零售C 三段毛利核算公式、所有权总成本（TCO）的寓言式讲解，以及结算成本相对期待工厂成本的降幅百分比两种口径计算。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+/* 顶栏 */
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+/* 文档头部 */
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+/* 主体 */
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+/* 章节 */
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+/* 表格 */
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+/* 手风琴 */
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+/* 页脚 */
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+/* 板块主题色开关 */
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 合同计算器</a>
+      <a href="#s1" data-sec="s1">01 毛利核算</a>
+      <a href="#s2" data-sec="s2">02 所有权总成本</a>
+      <a href="#s3" data-sec="s3">03 降幅计算</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">行业研究 · 成本核算</span>
+  <h1>采购成本核算与降幅计算</h1>
+  <p class="s-lede">把四篇成本核算笔记按「合同金额计算表 → 三段毛利公式 → 所有权总成本（TCO）→ 降幅百分比两种口径」重组：先做一张能自动算合计的采购合同计算表，再用成本A-出厂B-零售C把供货方与渠道的毛利拆开，然后用一则「分驴」寓言讲透 TCO，最后落到结算成本相对期待工厂成本的降幅百分比。所有公式与百分比照录原笔记，不四舍五入改写。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-07-06</b></span>
+    <span>收录笔记 <b>4 篇</b></span>
+    <span>时间跨度 <b>2025-10 ~ 2026-07</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">合同计算表</span>
+    <span class="s-chip">毛利率</span>
+    <span class="s-chip">TCO</span>
+    <span class="s-chip">降幅百分比</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00157-2025-10-02 采购合同金额计算表格代码</li>
+      <li>00759-2026-03-18 成本毛利核算方法</li>
+      <li>01011-2026-04-23 包装采购寓言讲所有权总成本</li>
+      <li>01370-2026-07-06 计算成本降幅百分比</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 采购合同金额计算表 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>采购合同金额自动计算表格</h2><span class="hint">00157 · 2025-10-02</span></div>
+    <p class="lede">采购经常做合同，需要一张网页计算表：第 1 列数量、第 2 列单价，填好后底部自动统计金额。笔记给出的设计是动态行 + 实时计算。</p>
+
+    <div class="card st1">
+      <div class="card-h"><span class="tag">00157 · 设计与核心代码</span><h3>可动态加行、自动合计的合同金额计算表</h3></div>
+      <div class="card-b">
+        <dl class="kv">
+          <dt>表格结构</dt><dd>六列：序号 / 项目名称 / 数量 / 单价(元) / 金额(元) / 操作；表尾合计行「总计金额」。</dd>
+          <dt>设计思路</dt><dd>响应式表格；动态添加与删除行；自动计算每行金额与总金额；数据验证与错误处理；简洁界面。</dd>
+          <dt>核心计算</dt><dd>单行金额 = 数量 × 单价；总金额 = 遍历所有金额单元格累加，toFixed(2) 保留两位小数。</dd>
+        </dl>
+        <pre style="font-family:var(--mono);font-size:12.5px;background:var(--code);border-radius:6px;padding:12px 14px;overflow:auto;margin-top:14px;line-height:1.7">// 计算单行金额
+function calculateRowAmount() {
+    const row = this.closest('tr');
+    const quantity = parseFloat(row.querySelector('.quantity').value) || 0;
+    const unitPrice = parseFloat(row.querySelector('.unit-price').value) || 0;
+    const amountCell = row.querySelector('.amount');
+
+    const amount = quantity * unitPrice;
+    amountCell.textContent = amount.toFixed(2);
+
+    calculateTotal();
+}
+
+// 计算总金额
+function calculateTotal() {
+    const amountCells = document.querySelectorAll('.amount');
+    let total = 0;
+
+    amountCells.forEach(cell =&gt; {
+        const amount = parseFloat(cell.textContent) || 0;
+        total += amount;
+    });
+
+    totalAmountElement.textContent = total.toFixed(2);
+}</pre>
+        <div class="grid g2" style="margin-top:14px">
+          <div class="panel"><h3 style="font-size:15px;font-weight:700;margin-bottom:8px">自动计算功能</h3><p style="font-size:13.5px;color:var(--ink-2);line-height:1.7">输入数量与单价时自动算每行金额，底部实时显示所有项目总金额。</p></div>
+          <div class="panel"><h3 style="font-size:15px;font-weight:700;margin-bottom:8px">动态管理与体验</h3><p style="font-size:13.5px;color:var(--ink-2);line-height:1.7">「添加项目行」加行、每行「删除」按钮、「重置表格」清空重填；响应式适配手机与电脑，输入框焦点高亮、行悬停、非数字输入容错。</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 01 成本毛利核算 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>成本 A · 出厂 B · 零售 C 三段毛利核算</h2><span class="hint">00759 · 2026-03-18</span></div>
+    <p class="lede">成本是 A、出厂价是 B、渠道零售价是 C，怎么核算供货方与渠道各自的毛利？一句话逻辑：<b>站在谁的角度，就用谁的「收入」减去谁的「成本」。</b></p>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">00759 · 公式照录</span><h3>两段毛利的计算公式</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:180px">核算对象</th><th style="width:200px">毛利金额</th><th>毛利率</th></tr></thead>
+          <tbody>
+            <tr><td><b>你的毛利（生产商/供货商）</b></td><td>你的毛利 = B − A</td><td>你的毛利率 = (B − A) / B × 100%（分母是你的收入即出厂价 B）</td></tr>
+            <tr><td><b>渠道毛利（经销商/零售商）</b></td><td>渠道毛利 = C − B</td><td>渠道毛利率 = (C − B) / C × 100%（行业内通常以零售价 C 作分母）</td></tr>
+          </tbody>
+        </table></div>
+        <p class="lede" style="margin-bottom:10px">举例：成本 A = 50 元、出厂价 B = 100 元、零售价 C = 200 元。</p>
+        <div class="grid g2">
+          <div class="panel">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">你的毛利</h3>
+            <pre style="font-family:var(--mono);font-size:12.5px;background:var(--code);border-radius:6px;padding:10px 12px;line-height:1.7">金额：100 − 50 = 50 元
+毛利率：(50 / 100) × 100% = 50%</pre>
+          </div>
+          <div class="panel">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">渠道毛利</h3>
+            <pre style="font-family:var(--mono);font-size:12.5px;background:var(--code);border-radius:6px;padding:10px 12px;line-height:1.7">金额：200 − 100 = 100 元
+毛利率：(100 / 200) × 100% = 50%</pre>
+          </div>
+        </div>
+        <div class="srcnote" style="margin-top:14px;margin-bottom:0"><b>注意事项（照录）</b>：三人各赚 50% 毛利率，但计算基数不同——你的基数是出厂价，渠道的基数是零售价。含税与不含税要先明确，开票业务建议用不含税金额算毛利；渠道另有运费、进场费、促销员等杂费时，前台毛利先用 C − B 估算；渠道说的「倒扣」即以零售价为基准、「顺加」即以进货成本为基准，本节算的是零售行业通用的标准「倒扣毛利率」。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 02 所有权总成本 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>所有权总成本 TCO：一则「分驴」寓言</h2><span class="hint">01011 · 2026-04-23</span></div>
+    <p class="lede">笔记用黄河故道边两家粮行收粮运粮的故事，把「所有权总成本（Total Cost of Ownership，TCO）」讲透：只盯采购单价，就像当年的钱东家一样把所有隐性成本的绳子都丢给了供应商。</p>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">01011 · 寓言骨架</span><h3>《分驴》：整驴计价 vs 按袋算钱</h3></div>
+      <div class="card-b">
+        <p class="lede">镇上新风是「整驴计价」——不论拉什么货走什么路，用一趟驴就收一趟的钱，省心。钱东家立刻跟风，周东家却翻了三年夜账本后决定仍按「袋」算脚钱。三年下来高下立判：</p>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:180px">钱家（整驴计价）</th><th>周家家（按袋算钱）</th></tr></thead>
+          <tbody>
+            <tr><td>脚行装袋松垮，路上颠簸麦粒流失，同样收 1000 袋入库少几十斤。</td><td>袋子装得越满越沉，脚行脚钱越多，自然愿意把车装实。</td></tr>
+            <tr><td>麻袋成消耗品，破洞断绳，补换开销不小；脚行一句「讲好整驴计价」概不负责。</td><td>装车怎么装、路上怎么走、袋子怎么爱惜，都成了脚行自己的事。</td></tr>
+            <tr><td>旺季好驴好车好伙计优先派给周这类按袋计价的主顾，留给钱家老驴破车。</td><td>把「看不见的绳子」接到看得见的那根计价绳上，剩下的不用操心。</td></tr>
+          </tbody>
+        </table></div>
+        <div class="rl">
+          <h4>红线 · 寓言点题</h4>
+          <div class="mid">所有权总成本 TCO：别只买「一头驴的价格」</div>
+          <p>纸箱抗压不够运输压瘪的退货补发、托盘含水率不达标发霉污染货物的报废索赔、缠绕膜延展性差被迫多缠几圈的超耗——这些「算谁的」就是周东家说的「看不见的绳子」。专业采购做的不是「买便宜箱子」，而是用合同条款、验收标准和计价方式，把供应商的利益拴到你想控制的隐性成本上。</p>
+        </div>
+        <div class="tblwrap" style="margin-top:14px"><table>
+          <thead><tr><th style="width:190px">TCO 组成部分</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td><b>搜寻与询价成本</b></td><td>找供应商、比价、打样、测试所花的时间与资源。</td></tr>
+            <tr><td><b>采购单价</b></td><td>合同上白纸黑字的价格，只是浮在水面上的冰山一角。</td></tr>
+            <tr><td><b>运输与仓储成本</b></td><td>包装材料本身占据的物流空间、叠放效率、仓储周转率。</td></tr>
+            <tr><td><b>使用成本</b></td><td>产线上打开、折叠、填充、封合所耗人工与能耗，以及打包效率对整条产线节拍的影响。</td></tr>
+            <tr><td><b>损耗与浪费成本</b></td><td>来料不良率、运输破损率、因包装设计不合理导致的过量填充或过度包装。</td></tr>
+            <tr><td><b>逆向物流与处置成本</b></td><td>退货包装能否重复使用；废弃后焚烧、填埋还是回收，每种选择的处理费与环境合规成本。</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 03 成本降幅百分比 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>成本降幅百分比的两种口径</h2><span class="hint">01370 · 2026-07-06</span></div>
+    <p class="lede">表格的「结算成本」是出厂成本，要按对方的「期待工厂成本」算每行产品降了几个百分点。差额 = 期待工厂成本 − 结算成本；由于所有差额均为负，结算成本其实<b>高于</b>期待成本，即实际是涨价而非降价。</p>
+
+    <details class="acc st4" open>
+      <summary>口径一：降幅 = 差额 ÷ 期待工厂成本（×100%）<span class="cnt">7 行</span></summary>
+      <div class="body">
+        <div class="tblwrap"><table>
+          <thead><tr><th>品名</th><th style="width:150px">最新规格</th><th style="width:90px">结算成本</th><th style="width:110px">期待工厂成本</th><th style="width:90px">差额</th><th style="width:110px">降幅百分比</th></tr></thead>
+          <tbody>
+            <tr><td>枸杞原浆罐头</td><td>30ml×1袋</td><td>0.43</td><td>0.4</td><td>-0.03</td><td><b>-7.50%</b></td></tr>
+            <tr><td>黑果枸杞原浆罐头</td><td>30ml×1袋</td><td>0.62</td><td>0.45</td><td>-0.17</td><td><b>-37.78%</b></td></tr>
+            <tr><td>沙棘原浆罐头</td><td>30ml×1袋</td><td>0.76</td><td>0.54</td><td>-0.22</td><td><b>-40.74%</b></td></tr>
+            <tr><td>枸杞原浆罐头</td><td>240ml (30ml×8袋)/盒</td><td>5.88</td><td>3.75</td><td>-2.13</td><td><b>-56.80%</b></td></tr>
+            <tr><td>黑果枸杞原浆罐头</td><td>240ml (30ml×8袋)/盒</td><td>7.37</td><td>4.1</td><td>-3.27</td><td><b>-79.76%</b></td></tr>
+            <tr><td>红黑枸杞原浆罐头</td><td>240ml (30ml×4袋+30ml×4袋)/盒</td><td>6.64</td><td>4.8</td><td>-3.27</td><td><b>-68.13%</b></td></tr>
+            <tr><td>沙棘原浆罐头</td><td>240ml (30ml×8袋)/盒</td><td>8.49</td><td>3.9</td><td>-4.59</td><td><b>-117.69%</b></td></tr>
+          </tbody>
+        </table></div>
+        <p class="lede" style="margin-bottom:0">表中品名均为「同仁堂 & 滋养青年」纯新品、复合袋/插口盒(无内托)+内袋；负值表示结算成本相比期待工厂成本<b>上升</b>的百分比，例如 -7.50% 表示结算成本比期待高 7.50%。</p>
+      </div>
+    </details>
+
+    <details class="acc st4" open>
+      <summary>口径二：降幅 = 差额 ÷ 结算成本（×100%）<span class="cnt">用户修正口径</span></summary>
+      <div class="body">
+        <p class="lede">用户随后修正口径为「降幅百分比 =（差额 ÷ 结算成本）× 100%」（差额仍为负值），重新计算如下：</p>
+        <div class="tblwrap"><table>
+          <thead><tr><th>品名</th><th style="width:150px">最新规格</th><th style="width:90px">结算成本</th><th style="width:110px">期待工厂成本</th><th style="width:90px">差额</th><th style="width:130px">降幅（基于结算成本）</th></tr></thead>
+          <tbody>
+            <tr><td>枸杞原浆罐头</td><td>30ml×1袋</td><td>0.43</td><td>0.4</td><td>-0.03</td><td><b>-6.98%</b></td></tr>
+            <tr><td>黑果枸杞原浆罐头</td><td>30ml×1袋</td><td>0.62</td><td>0.45</td><td>-0.17</td><td><b>-27.42%</b></td></tr>
+            <tr><td>沙棘原浆罐头</td><td>30ml×1袋</td><td>0.76</td><td>0.54</td><td>-0.22</td><td><b>-28.95%</b></td></tr>
+            <tr><td>枸杞原浆罐头</td><td>240ml (30ml×8袋)/盒</td><td>5.88</td><td>3.75</td><td>-2.13</td><td><b>-36.22%</b></td></tr>
+            <tr><td>黑果枸杞原浆罐头</td><td>240ml (30ml×8袋)/盒</td><td>7.37</td><td>4.1</td><td>-3.27</td><td><b>-44.37%</b></td></tr>
+            <tr><td>红黑枸杞原浆罐头</td><td>240ml (30ml×4袋+30ml×4袋)/盒</td><td>6.64</td><td>4.8</td><td>-3.27</td><td><b>-49.25%</b></td></tr>
+            <tr><td>沙棘原浆罐头</td><td>240ml (30ml×8袋)/盒</td><td>8.49</td><td>3.9</td><td>-4.59</td><td><b>-54.06%</b></td></tr>
+          </tbody>
+        </table></div>
+        <div class="srcnote" style="margin-bottom:0"><b>口径对照</b>：两版百分比均为负，表示结算成本比期待工厂成本高出对应百分比（如 -6.98% 表示相对结算成本而言高出 6.98%）。若按「降幅」字面理解，这些产品并未降价，反而全部涨价；百分比均保留两位小数，照录原笔记计算结果。</div>
+      </div>
+    </details>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>采购成本核算与降幅计算 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页内容整理自采购成本核算工作笔记，公式、成本与百分比均照录原笔记数据，仅供内部参考，不构成定价或采购承诺。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

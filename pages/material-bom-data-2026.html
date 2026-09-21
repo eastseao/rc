@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>物料与 BOM 数据整理 · 采购明细表规范 / 联动 / 去重 / 职责</title>
+<meta name="description" content="五篇采购与供应链笔记合并：采购明细表加列与排序规范、物料查询与产品 BOM 联动的十二类设计、吉祥如意贴物料名称去重结果，以及食品公司 BOM 拆解的跨部门职责归属。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+/* 顶栏 */
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+/* 文档头部 */
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+/* 主体 */
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+/* 章节 */
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+/* 表格 */
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+/* 手风琴 */
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+/* 页脚 */
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+/* 板块主题色开关 */
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 明细表规范</a>
+      <a href="#s1" data-sec="s1">01 物料-BOM联动</a>
+      <a href="#s2" data-sec="s2">02 去重结果</a>
+      <a href="#s3" data-sec="s3">03 拆解职责</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">行业研究 · 物料与 BOM</span>
+  <h1>物料与 BOM 数据整理</h1>
+  <p class="s-lede">把五篇采购与供应链笔记按「采购明细表规范 → 物料-BOM 联动 → 名称去重 → BOM 拆解职责」重组：先立采购单子怎么整理的规矩，再扩到网页查询系统还能做哪些联动，随后是两批「吉祥如意贴」物料名称的去重结果，最后落到食品公司里 BOM 拆解到底由谁牵头。所有编号、计量单位与数值均照录原笔记。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-05-08</b></span>
+    <span>收录笔记 <b>5 篇</b></span>
+    <span>时间跨度 <b>2025-07 ~ 2026-05</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">采购明细表</span>
+    <span class="s-chip">BOM 联动</span>
+    <span class="s-chip">物料去重</span>
+    <span class="s-chip">计量单位对照</span>
+    <span class="s-chip">PBOM</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00031-2025-07-21 请整理这份表格，要求每份购单的采购明细这栏的名称规格数量单位和价</li>
+      <li>00365-2025-10-31 物料查询与BOM联动功能扩展</li>
+      <li>01061-2026-04-28 物料名称去重结果</li>
+      <li>01066-2026-04-29 物料清单去重整理</li>
+      <li>01112-2026-05-08 BOM拆解职责归属</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 采购明细表规范 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>采购明细表的加列与排序规范</h2><span class="hint">00031 · 2025-07-21</span></div>
+    <p class="lede">最早的一篇是一条很具体的整理需求：面对一堆已有的采购单表格，<b>每份购单的「采购明细」这一栏，名称、规格、数量、单位、价格都要保留，再往后补两列、并按提交时间重排</b>。这是整套物料数据工作的起点——先把单子理干净，才谈得上查询与联动。</p>
+    <div class="card st1">
+      <div class="card-h"><span class="tag">00031 · 整理要求</span><h3>对现有采购明细表要做的三件事</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:160px">动作</th><th>具体要求</th></tr></thead>
+          <tbody>
+            <tr><td><b>保留明细列</b></td><td>每份购单的「采购明细」栏原样保留：<b>名称、规格、数量、单位、价格</b>，不删不改。</td></tr>
+            <tr><td><b>追加两列</b></td><td>在采购明细这一栏的<b>价格后面</b>依次加：<b>审批编号</b>、<b>提交人</b>。</td></tr>
+            <tr><td><b>统一排序</b></td><td>整理后的整张表<b>按提交的时间排列</b>，早提交的在前、晚提交的在后。</td></tr>
+          </tbody>
+        </table></div>
+        <div class="srcnote" style="margin-bottom:0"><b>口径说明</b>：原始笔记只有这一条整理指令，未附具体表格数据；本节照录要求本身，作为后续「物料查询与 BOM」系统里明细表字段设计的依据。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 01 物料-BOM 联动 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>物料查询与产品 BOM 的联动扩展</h2><span class="hint">00365 · 2025-10-31</span></div>
+    <p class="lede">在网页上已经搭好「物料查询」和「产品 BOM 查询」、并上传了关联数据 data.json 之后，下一步能做哪些联动？笔记按六类给出了十二项设计，并顺手解决了计量单位英文代码换中文的问题。</p>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">00365 · 六类联动</span><h3>基于 data.json 可以扩展的十二类联动功能</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:170px">联动类别</th><th>功能点</th></tr></thead>
+          <tbody>
+            <tr><td><b>核心数据联动</b></td><td>① 物料-BOM 双向联动：点击物料 → 显示使用该物料的所有产品；点击产品 → 展示 BOM 中所有物料详情。② 实时库存监控：物料库存预警联动 BOM 需求；低库存物料影响的产品生产计划提醒。</td></tr>
+            <tr><td><b>智能分析联动</b></td><td>③ 成本计算联动：自动计算产品物料成本；物料价格变动 → 实时更新产品成本。④ 供应链风险分析：关键物料缺货影响的产品清单；供应商变更影响分析。</td></tr>
+            <tr><td><b>高级查询联动</b></td><td>⑤ 交叉查询：按物料特性筛选适用产品；按产品类型反推所需物料类别。⑥ 相似产品推荐：基于物料使用相似度的产品推荐；替代物料智能推荐。</td></tr>
+            <tr><td><b>可视化联动</b></td><td>⑦ BOM 层级可视化：树状图展示产品物料结构，点击任一节点查看详细信息。⑧ 物料依赖关系图：展示物料在产品间的使用关系网络。</td></tr>
+            <tr><td><b>业务流程联动</b></td><td>⑨ 生产计划模拟：输入生产数量 → 自动计算所需物料总量；物料可用量 → 计算最大可生产数量。⑩ 采购建议生成：基于销售预测自动生成采购需求，考虑现有库存和采购周期。</td></tr>
+            <tr><td><b>预警与通知联动</b></td><td>⑪ 智能预警系统：物料价格异常波动预警；库存周转率异常提醒。⑫ 变更影响分析：物料规格变更影响的产品清单；工程变更通知（ECN）影响范围。</td></tr>
+          </tbody>
+        </table></div>
+        <p class="lede" style="margin-bottom:12px">笔记给出两个直接可用的实现示例——按物料反查产品、按产品汇总成本：</p>
+        <pre style="font-family:var(--mono);font-size:12.5px;background:var(--code);border-radius:6px;padding:12px 14px;overflow:auto;margin-bottom:14px;line-height:1.7">// 物料-BOM 联动查询
+function getProductsByMaterial(materialId) {
+    return data.boms.filter(bom =&gt;
+        bom.components.some(comp =&gt; comp.material_id === materialId)
+    ).map(bom =&gt; bom.product_id);
+}
+
+// 产品成本计算
+function calculateProductCost(productId) {
+    const bom = data.boms.find(b =&gt; b.product_id === productId);
+    return bom.components.reduce((total, comp) =&gt; {
+        const material = data.materials.find(m =&gt; m.id === comp.material_id);
+        return total + (material.price * comp.quantity);
+    }, 0);
+}</pre>
+        <div class="grid g2">
+          <div class="panel">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">进阶功能建议</h3>
+            <ul style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2);line-height:1.8">
+              <li>版本控制——BOM 版本历史追踪</li>
+              <li>权限管理——不同部门查看不同信息</li>
+              <li>API 集成——对接 ERP / MES 系统</li>
+              <li>移动端适配——随时随地查询</li>
+            </ul>
+          </div>
+          <div class="panel">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">计量单位对照（英文代码 → 中文）</h3>
+            <div class="tblwrap" style="margin-bottom:0"><table>
+              <thead><tr><th>代码</th><th>中文</th><th>代码</th><th>中文</th></tr></thead>
+              <tbody>
+                <tr><td>BC</td><td>箱</td><td>KG</td><td>千克</td></tr>
+                <tr><td>BO</td><td>瓶</td><td>ML</td><td>毫升</td></tr>
+                <tr><td>BT</td><td>瓶/桶</td><td>null</td><td>无单位/空值</td></tr>
+                <tr><td>CA</td><td>盒/箱</td><td>RO</td><td>卷/筒</td></tr>
+                <tr><td>EA</td><td>个/件</td><td>TI</td><td>罐</td></tr>
+                <tr><td>GM</td><td>克</td><td>TO</td><td>吨</td></tr>
+                <tr><td>GU</td><td>加仑</td><td>TT</td><td>套/组</td></tr>
+                <tr><td>WA</td><td>瓦</td><td>Z1</td><td>自定义单位1</td></tr>
+                <tr><td>ZH</td><td>张/片</td><td>—</td><td>—</td></tr>
+              </tbody>
+            </table></div>
+          </div>
+        </div>
+        <div class="warnbox" style="margin-top:14px">
+          <h5>单位映射的注意事项（照录）</h5>
+          <ul>
+            <li>BT 单位：根据物料类型可能是「瓶」或「桶」。</li>
+            <li>null 值：建议显示为空或「无单位」。</li>
+            <li>Z1 单位：如果是自定义单位，建议确认具体含义。</li>
+            <li>上下文适配：某些单位在不同物料中可能有不同含义。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 02 物料名称去重 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>物料名称去重结果</h2><span class="hint">01061 / 01066</span></div>
+    <p class="lede">两批「吉祥如意贴」类物料的去重：一篇只给出去重后的<b>名称清单</b>（9 个唯一项），另一篇带上<b>物料项目号</b>整理成 7 条记录。差异之处照原样保留——「黑果杞」与「黑果枸杞」、「贴」与「帖」、「礼盒」与「礼金」这些细微差别都不擅自合并。</p>
+
+    <details class="acc st3" open>
+      <summary>按名称去重：9 个唯一项（01061 · 2026-04-28）<span class="cnt">名称清单</span></summary>
+      <div class="body">
+        <p class="lede">去重后按首次出现顺序列出，共 <b>9 个唯一项</b>：</p>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:60px">序号</th><th>物料名称（去重后）</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>青源堂雪菊70g*2吉祥如意贴</td></tr>
+            <tr><td>2</td><td>青源堂黑果枸杞特级200g吉祥如意贴</td></tr>
+            <tr><td>3</td><td>青源堂黑果杞特级250g吉祥如意贴</td></tr>
+            <tr><td>4</td><td>120g双瓶礼盒线上吉祥如意贴</td></tr>
+            <tr><td>5</td><td>造养青年黑果枸杞160克吉祥如意贴</td></tr>
+            <tr><td>6</td><td>青源堂黑果枸杞特级250g吉祥如意贴</td></tr>
+            <tr><td>7</td><td>120g双瓶线上吉祥如意贴</td></tr>
+            <tr><td>8</td><td>电商180g双瓶礼盒吉祥如意贴</td></tr>
+            <tr><td>9</td><td>120g双瓶礼盒线上吉祥如意帖</td></tr>
+          </tbody>
+        </table></div>
+        <div class="rl">
+          <h4>红线 · 易被误并的细微差异</h4>
+          <div class="mid">名称去重 ≠ 把形近字一律合并</div>
+          <p>笔记特别提示：要注意区分「<b>黑果杞</b>」与「<b>黑果枸杞</b>」、「<b>礼盒</b>」有无、「<b>贴</b>」与「<b>帖</b>」等细微差异——第 3 项与第 6 项、第 4 项与第 9 项都因此保留为不同项。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="acc st3">
+      <summary>带项目号去重：7 条唯一记录（01066 · 2026-04-29）<span class="cnt">项目号升序</span></summary>
+      <div class="body">
+        <p class="lede">在名称基础上补「物料项目号」，共得到 <b>7 条唯一记录</b>，按物料项目号升序排列：</p>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:160px">物料项目号</th><th>物料名称</th></tr></thead>
+          <tbody>
+            <tr><td>81011793</td><td>120g双瓶礼盒线上吉祥如意贴</td></tr>
+            <tr><td>81012606</td><td>青源堂黑果枸杞特级200g 吉祥如意贴</td></tr>
+            <tr><td>81012612</td><td>青源堂黑果枸杞特级250g 吉祥如意贴</td></tr>
+            <tr><td>81012628</td><td>造养青年黑果枸杞160克 吉祥如意贴</td></tr>
+            <tr><td>81013017</td><td>青源堂雪菊70g*2吉祥如意贴</td></tr>
+            <tr><td>81092338</td><td>电商180g双瓶礼盒吉祥如意贴</td></tr>
+            <tr><td>81092338</td><td>电商180g双瓶礼金吉祥如意贴</td></tr>
+          </tbody>
+        </table></div>
+        <div class="srcnote" style="margin-bottom:0"><b>原值保留说明</b>：物料项目号 <code style="font-family:var(--mono)">81092338</code> 对应两个不同名称（「礼盒」与「礼金」），均按原始数据保留；如需合并或确认，需进一步核对。</div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ══ 03 BOM 拆解职责 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>食品公司 BOM 拆解的职责归属</h2><span class="hint">01112 · 2026-05-08</span></div>
+    <p class="lede">「产品 BOM 的拆解一般是产品经理还是采购完成？」——结论是<b>不是单一角色，而是产品经理主导、采购与研发与生产密切协作的团队项目</b>：产品/研发出配方，采购出价格与规则，生产出方法。</p>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">01112 · 四阶段分工</span><h3>BOM 拆解各阶段的主导方与关注点</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:150px">阶段</th><th style="width:150px">主导方</th><th>主要职责与关注点</th></tr></thead>
+          <tbody>
+            <tr><td><b>配方研发与设计</b></td><td>产品经理 / 研发</td><td>关注产品的功能、口味、包装等市场与技术要求；确定 BOM 的「骨架」，即产品的原料、配方和初步生产工艺。</td></tr>
+            <tr><td><b>成本核算与分析</b></td><td>产品经理 / 研发</td><td>关注产品的商业可行性与成本；主导 BOM 的成本测算，为产品定价和盈利能力负责。</td></tr>
+            <tr><td><b>采购 BOM 构建与支持</b></td><td>采购</td><td>关注成本、供应商与供应链效率；将理论物料转化为可采购的物料清单（PBOM），提供采购规则、供应商信息和价格。</td></tr>
+            <tr><td><b>BOM 审核与发布</b></td><td>产品经理 / 研发</td><td>关注最终产品的完整性与一致性；综合采购、生产等意见，审核并批准最终的 BOM 版本，并维护其准确性。</td></tr>
+          </tbody>
+        </table></div>
+        <div class="grid g2" style="margin-top:14px">
+          <div class="panel">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">为什么采购不可或缺</h3>
+            <p style="font-size:13.5px;color:var(--ink-2);line-height:1.72">现代食品公司的 BOM 至少有三副面孔——研发 EBOM、制造 MBOM、采购 PBOM，强行统一成一套反而造成管理混乱。采购主导 <b>PBOM</b>：以「白砂糖」为例，同样 500 公斤，采购必须明确规格是 50 公斤/袋还是 500 公斤/吨袋、验收标准、供应商、最小起订量，这份清单对研发配方至关重要。</p>
+          </div>
+          <div class="panel">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">常见实践场景</h3>
+            <dl class="kv">
+              <dt>大型集团</dt><dd>产品经理或研发主攻设计与成本，采购在框架内深入优化、提供市场信息与备选方案；有的公司专设「BOM 工程师」「BOM 文员」岗位，专职 BOM 数据创建、维护与跨部门协调。</dd>
+              <dt>中小企业</dt><dd>角色融合，常出现「产品采购经理」一类岗位，既懂产品开发又懂供应链，独自完成从概念到落地的全过程。</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>物料与 BOM 数据整理 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页内容整理自采购与供应链工作笔记，物料编号、计量单位对照与百分比均照录原笔记数据，仅供内部参考，不构成采购承诺。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
