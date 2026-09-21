@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>包装采购主页与设计反馈网页笔记</title>
+<meta name="description" content="个人包装采购主页重构、印刷知识库八大分类、页面优化与返回首页按钮、设计反馈文档卡片化排版，以及 AI 跑图设计流程扩展的网页设计笔记。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent); --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.card-b ul{margin:0;padding-left:18px;font-size:13.5px;color:var(--ink);line-height:1.8}
+.card-b li{margin-bottom:6px}
+
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:760px){.g2{grid-template-columns:1fr}}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.04em;padding:10px 11px;border-bottom:1px solid var(--line)}
+td{padding:10px 11px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+td b{color:var(--ink)}
+
+.srcnote{font-size:13px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:6px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:520px;font-size:12.5px}
+  th,td{padding:9px 9px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+<body>
+
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s1" data-sec="s1">01 印刷知识库</a>
+      <a href="#s2" data-sec="s2">02 主页重构</a>
+      <a href="#s3" data-sec="s3">03 页面优化</a>
+      <a href="#s4" data-sec="s4">04 反馈排版</a>
+      <a href="#s5" data-sec="s5">05 设计流程</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 网页设计笔记</span>
+  <h1 class="s-h1">包装采购主页与设计反馈网页笔记</h1>
+  <p class="s-lede">把围绕"食品包装采购个人主页"的几轮网页设计与排版尝试汇总成笔记：印刷知识库的八大分类骨架、动态个人主页的结构、页面优化与返回首页按钮、设计反馈文档的卡片化排版，以及引入 AI 跑图后的设计流程扩展。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-03-30</b></span>
+    <span>文档类型 <b>设计笔记</b></span>
+    <span>分类 <b>效率工具</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">个人主页</span>
+    <span class="s-chip">印刷知识库</span>
+    <span class="s-chip">返回首页按钮</span>
+    <span class="s-chip">设计反馈文档</span>
+    <span class="s-chip">AI 跑图</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <section id="s1" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>印刷知识库：八大分类骨架</h2><span class="hint">导航只留"回到首页"</span></div>
+    <p class="lede">为包装采购角色搭建一套系统性的印刷知识库，从基础到专业、从理论到实战。页面导航只需一个"回到首页"，外加以下八个大分类。</p>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:44px">序</th><th style="width:150px">分类</th><th>核心内容</th></tr></thead>
+      <tbody>
+        <tr><td>一</td><td><b>印刷基础知识</b></td><td>四大印刷方式（胶印/凹印/柔印/数码）、CMYK 与潘通专色、分辨率 300dpi 与出血</td></tr>
+        <tr><td>二</td><td><b>包装材料科学</b></td><td>白卡 / 灰底白板 / 铜版艺术纸、克重与挺度、A–F 楞瓦楞、特种纸与复合材料</td></tr>
+        <tr><td>三</td><td><b>印刷工艺大全</b></td><td>四色 / 专色、覆膜光哑膜、局部 UV、烫金烫银、击凸压凹、模切压纹</td></tr>
+        <tr><td>四</td><td><b>印后加工与成型</b></td><td>天地盖 / 折叠盒 / 抽屉盒等盒型、刀模图识别校验、粘盒糊盒工艺</td></tr>
+        <tr><td>五</td><td><b>成本核算与采购技巧</b></td><td>纸价 × 克重 × 吨价 ÷ 开数公式、印工与后道累加、设计与材料降本、MOQ</td></tr>
+        <tr><td>六</td><td><b>质量检测与常见问题</b></td><td>套印不准、色差、墨屎、刮花等瑕疵成因；尺寸 / 颜色 / 粘合强度检验标准</td></tr>
+        <tr><td>七</td><td><b>实战案例库</b></td><td>高档月饼盒（艺术纸+灰板裱糊+烫金）、食品折叠纸盒、瓦楞运输箱三案例成本拆解</td></tr>
+        <tr><td>八</td><td><b>资源与工具</b></td><td>单位换算表、标准纸张尺寸表、开数计算器模板、供应商清单</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="s2" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>个人主页重构：动态主页要素</h2><span class="hint">食品包装采购 · 名片式主页</span></div>
+    <div class="card st2">
+      <div class="card-h"><span class="tag">结构</span><h3>个人主页的板块组成</h3></div>
+      <div class="card-b">
+        <ul>
+          <li><b>个人资料区</b>：渐变背景头部、悬浮动效头像、姓名与岗位、所在地。</li>
+          <li><b>联系按钮</b>：主联系按钮 + 微信按钮，圆角胶囊、hover 上浮与高光扫过。</li>
+          <li><b>内容卡片</b>：技能、擅长工艺、项目经验等卡片化分区，滚动淡入上浮。</li>
+          <li><b>动态背景</b>：多层径向渐变缓慢浮动，营造层次感但不干扰阅读。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="s3" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>页面优化与返回首页按钮</h2><span class="hint">卡片配色 · 导航闭环</span></div>
+    <div class="grid g2">
+      <div class="card st3">
+        <div class="card-h"><span class="tag">配色变量</span><h3>按用途区分卡片色</h3></div>
+        <div class="card-b">
+          <ul>
+            <li>外箱、内包装、原材料分别用不同渐变作为卡片主色，一眼区分品类。</li>
+            <li>用 CSS 变量统一管理卡片渐变，便于整站换肤。</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card st4">
+        <div class="card-h"><span class="tag">导航闭环</span><h3>返回首页按钮</h3></div>
+        <div class="card-b">
+          <ul>
+            <li>子页增加"返回首页"入口，保证从任意子页能一键回到主页，形成导航闭环。</li>
+            <li>按钮固定在屏幕角落，不随滚动消失。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="s4" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>设计反馈文档：卡片化排版</h2><span class="hint">Typora / Markor 友好</span></div>
+    <p class="lede">把包装设计反馈（如山姆对黑枸杞饮品的意见）整理成可在 Typora 完美渲染的 Markdown 文档，用内联 CSS 卡片承载信息，而非大段纯文字。</p>
+    <div class="card st4">
+      <div class="card-h"><span class="tag">排版组件</span><h3>四类可视化元素</h3></div>
+      <div class="card-b">
+        <ul>
+          <li><b>Flex 特性卡片</b>：按产品分列，每张卡片左侧色条 + 标题 + 反馈要点 + 优先级标签。</li>
+          <li><b>彩色容器</b>：高亮关键时间节点（电话会、见面、过审日）。</li>
+          <li><b>样式化表格</b>：产品 / 修改要点 / 负责人 / 优先级对比表。</li>
+          <li><b>渐变总结框</b>：文末提炼核心行动指令与下一步。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="s5" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>设计流程扩展：AI 跑图</h2><span class="hint">深圳山姆包装供应商 · MM 系列</span></div>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">阶段</th><th style="width:110px">耗时</th><th>核心产出</th></tr></thead>
+      <tbody>
+        <tr><td><b>AI 效果图生成</b></td><td>3–4 天</td><td>多角度包装效果图、材质预演</td></tr>
+        <tr><td><b>结构与合理性评估</b></td><td>与效果图并行</td><td>力学分析、堆码测试、成本预估</td></tr>
+        <tr><td><b>方向确认</b></td><td>1–2 次评审</td><td>锁定结构与工艺</td></tr>
+        <tr><td><b>打样 & 落地</b></td><td>依复杂度</td><td>实物样盒、批量生产文件、交付客户</td></tr>
+      </tbody>
+    </table></div>
+    <div class="srcnote"><b>要点</b>：MM 系列由印刷公司直接向山姆提案，减少中间层级；"AI 快速生成 + 结构前置评估 + 直接提案"把创意阶段周期明显压缩，让早期反馈前置，避免后期返工。</div>
+  </section>
+
+  <div class="srcnote">
+    <b>本页来源（srcnote）</b>
+    <ol>
+      <li>00149（2025-10-01）印刷知识库结构与八大分类导航请求</li>
+      <li>00150（2025-10-01）食品包装采购个人主页重构</li>
+      <li>00153（2025-10-02）食品包装采购页面优化设计</li>
+      <li>00154（2025-10-02）页面优化与返回首页按钮添加</li>
+      <li>00706（2026-03-12）包装设计反馈文档生成</li>
+      <li>00809（2026-03-30）包装设计流程扩展描述（AI 跑图）</li>
+    </ol>
+  </div>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>包装采购主页与设计反馈网页笔记 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页为网页设计工作笔记整理，仅汇总设计思路与排版要点。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s1','s2','s3','s4','s5'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
