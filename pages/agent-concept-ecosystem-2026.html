@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Agent 概念 · 演进 · RAG 与生态 · 2026</title>
+<meta name="description" content="五篇 Agent 笔记合并：从 Agent 概念与语言模型区别、Prompt 到 Skill 的四阶段演进、RAG 检索增强生成原理，到国内 AI Agent 程序全景列表与 2026 年产业市场数据。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+/* 顶栏 */
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+/* 文档头部 */
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+/* 主体 */
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+/* 章节 */
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+/* 表格 */
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+/* 手风琴 */
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+/* 页脚 */
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+/* 板块主题色开关 */
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 概念与区别</a>
+      <a href="#s1" data-sec="s1">02 演进四阶段</a>
+      <a href="#s2" data-sec="s2">03 RAG 原理</a>
+      <a href="#s3" data-sec="s3">04 国内程序列表</a>
+      <a href="#s4" data-sec="s4">05 全景与市场</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">行业研究 · AI Agent</span>
+  <h1>Agent 概念 · 演进 · RAG 与生态</h1>
+  <p class="s-lede">把五篇 Agent 笔记按「概念厘清 → 演进路径 → 关键技术 → 程序全景 → 产业落地」重组：先讲清 Agent 是什么、和语言模型差在哪，再梳理从 Prompt 到 Skill、再到智能体网络的四阶段，落到 RAG 检索增强生成原理、国内 AI Agent 程序全景列表，以及 2026 年最新市场规模与玩家动态。所有数字、产品名与时间均照录原笔记。</p>
+  <div class="s-meta">
+    <span>整理日期 <b>2026-07-08</b></span>
+    <span>收录笔记 <b>5 篇</b></span>
+    <span>时间跨度 <b>2026-03 ~ 2026-07</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">Agent 概念</span>
+    <span class="s-chip">Prompt 到 Skill</span>
+    <span class="s-chip">RAG</span>
+    <span class="s-chip">OpenClaw</span>
+    <span class="s-chip">智能体生态</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00701-2026-03-11 AI 领域 Agent 概念解析（含国内外成熟 Agent 对比、OpenClaw 详解）</li>
+      <li>00985-2026-04-21 AI 从 Prompt 到 Skill 演进及未来趋势</li>
+      <li>01206-2026-05-25 国内 AI Agent 程序列表（含 QClaw / Trae / EasyClaw / Marvis、Molili、DeepSeek Agent 入口）</li>
+      <li>01249-2026-05-31 RAG 技术概念解析</li>
+      <li>01382-2026-07-08 Agent 全景解读（市场规模、大厂动态、应用案例）</li>
+    </ol>
+  </div>
+
+  <!-- ══ 01 概念与区别 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>Agent 是什么：概念与和语言模型的区别</h2><span class="hint">00701</span></div>
+    <p class="lede">在人工智能领域，<b>Agent（智能体）</b>指能够<b>感知环境、自主决策并采取行动</b>以实现特定目标的实体——它不只是能说话的聊天机器人，更是一个能动手干活的数字员工，像一位配备了大脑（大语言模型）又长了双手（调用工具）的数字秘书。</p>
+
+    <div class="grid g3">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">大脑（大语言模型）</h3>
+        <p style="font-size:13.5px;color:var(--ink-2)">负责理解指令、进行推理、拆解复杂任务并做决策。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">感知（感知模块）</h3>
+        <p style="font-size:13.5px;color:var(--ink-2)">接收多模态信息，包括文本、图像、语音以及环境反馈。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">行动（行动模块）</h3>
+        <p style="font-size:13.5px;color:var(--ink-2)">执行具体动作：调用工具（搜索引擎、API、计算器）或执行命令（控制软件、发送邮件）。</p>
+      </div>
+    </div>
+
+    <p class="lede" style="margin-top:16px">与传统程序相比，Agent 最显著的区别在于<b>自主性</b>和<b>主动性</b>：它无需每一步都被人为规定，而是根据目标自行规划路径并执行，遇到错误时还能自我反思并修正。与国内语言模型（DeepSeek、文心一言、通义千问等）的关系是——<b>语言模型是 Agent 的大脑，Agent 是语言模型的"身体"和"手脚"</b>。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:130px">对比维度</th><th>语言模型（如 DeepSeek）</th><th>Agent</th></tr></thead>
+      <tbody>
+        <tr><td><b>核心定位</b></td><td>大脑：基于海量数据训练的神经网络，主攻文本生成、理解与推理。</td><td>自主实体或系统：以语言模型为大脑，目标是感知环境、自主决策并采取行动。</td></tr>
+        <tr><td><b>能力范围</b></td><td>单次对话与内容生成，局限于对话框内的文本交互。</td><td>执行多步骤任务，按需调用外部工具（搜索、API）完成任务，如预订机票酒店。</td></tr>
+        <tr><td><b>交互模式</b></td><td>被动：用户提问，它回答。</td><td>主动：按目标自主规划，甚至主动向用户提问以澄清需求。</td></tr>
+        <tr><td><b>记忆能力</b></td><td>大多只在单次对话内记忆，新对话如"失忆"。</td><td>构建更复杂的记忆模块，长期记住用户偏好，并在执行中反思与自我修正。</td></tr>
+      </tbody>
+    </table></div>
+
+    <details class="acc st1" open>
+      <summary>OpenClaw 详解：引爆"养龙虾"热潮的开源智能体<span class="cnt">四层架构</span></summary>
+      <div class="body">
+        <p class="lede">OpenClaw 是一款<b>开源、本地优先</b>的 AI 智能体平台，由奥地利开发者 Peter Steinberger（PSPDFKit 创始人）于 2025 年底创建、2026 年初定名 OpenClaw；图标形似龙虾，故把使用和训练它的过程称为<b>"养龙虾"</b>。其革命性在于让 AI 从"只会说"进化为"能够干"。GitHub 星标已突破 <b>24.8 万</b>，一度让 Mac Mini 卖到脱销。</p>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:150px">架构层</th><th>对应能力</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td><b>前台 · 多渠道接入层</b></td><td>耳朵</td><td>通过渠道适配器无缝接入 WhatsApp、Telegram、钉钉、飞书、企业微信等，在聊天界面直接 @它下达指令。</td></tr>
+            <tr><td><b>大脑 · 多模型决策层</b></td><td>思考中枢</td><td>不绑定单一模型，可切换 Claude、GPT 系列、DeepSeek、智谱 GLM、阿里云百炼（Qwen）等；负责理解意图、拆解任务。</td></tr>
+            <tr><td><b>双手 · 技能与执行层</b></td><td>手和脚</td><td>通过模型上下文协议（MCP）与技能插件，获得控制浏览器、调用邮件系统、执行终端命令、操作软件 API 等真实能力。</td></tr>
+            <tr><td><b>档案柜 · 本地记忆层</b></td><td>长期记忆</td><td>本地优先双模记忆：短期保证多轮连贯，长期用 SQLite 等把偏好习惯存本地；支持可插拔上下文引擎，让记忆几乎不丢失。</td></tr>
+          </tbody>
+        </table></div>
+        <div class="grid g2">
+          <div class="panel">
+            <dl class="kv">
+              <dt>个人效率</dt><dd>7×24 私人秘书：整理文件、批量重命名、提取 PDF 关键信息、自动回复邮件、抓取网页数据填表。</dd>
+              <dt>企业自动化</dt><dd>智能客服、自动生成会议纪要与待办、分析产线数据优化工艺、秒级识别异常交易。</dd>
+              <dt>开发与科研</dt><dd>辅助代码审查、日志分析、自动跑测试；科研侧调用超算完成分子动力学模拟，效率提升 5-8 倍。</dd>
+            </dl>
+          </div>
+          <div class="panel">
+            <dl class="kv">
+              <dt>Token 消耗</dt><dd>执行任务需大量调用模型，Token 消耗是普通对话的 <b>30 倍以上</b>，由此催生云厂商算力服务与付费安装、订阅。</dd>
+              <dt>生态落地</dt><dd>腾讯云推云上部署方案与 WorkBuddy；阿里云一键部署镜像；国家超算互联网平台接入；硬件厂商推出"OpenClaw 盒子"。</dd>
+            </dl>
+            <div class="warnbox">
+              <h5>安全风险与使用建议</h5>
+              <ul>
+                <li>工信部 NVDB 平台曾预警：默认配置下存在"信任边界模糊"风险，被恶意利用或误下危险指令可能导致设备被接管、邮件误删、隐私泄露。</li>
+                <li>隔离运行：用旧电脑 / 虚拟机 / Docker 部署，不在重要主机上"裸奔"；最小权限；重要操作人工复核（如深圳福田"政务龙虾"配公务员做"监护人"）。</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ══ 02 演进四阶段 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>从 Prompt 到 Skill 的演进四阶段</h2><span class="hint">00985</span></div>
+    <p class="lede">AI 的使用方式正发生一场范式转移——核心是<b>从"指令"思维，向"能力"与"系统"思维跨越</b>。从 Prompt 到 Skill 只是第一幕，背后是 AI 角色从"对话工具"向"行动主体"的质变。完整路径是：写出单个指令 → 安装可复用技能 → 组建能协同工作的智能体军团 → 构建能自主决策、与物理世界交互的智能生态系统。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">阶段</th><th>核心变化</th><th>关键标志</th></tr></thead>
+      <tbody>
+        <tr><td><b>一 · 装技能包</b></td><td>从"写提示词"到"装技能包"：Skill 是把知识、流程、工具封装在一起的可复用模块化能力包（如内置日志格式、错误模式与排查流程的"日志分析 Skill"）。</td><td>进入"技能工程"阶段；核心价值是专家知识封装与复用、避免上下文过载、降低使用门槛。Anthropic（Claude）、Cursor 已在推动。</td></tr>
+        <tr><td><b>二 · 军团协同</b></td><td>从"单兵作战"到"军团协同"：2026 年被普遍视为"智能体爆发年"，单 Agent 成熟后必然走向多智能体系统（MAS），多个分工明确的 Agent 像团队一样协同。</td><td>软件开发需求自动调配需求拆解、代码生成、测试、协调 Agent；标准化通信协议 <b>MCP（模型上下文协议）</b>与 <b>A2A（Agent-to-Agent）</b>成为"通用语言"。</td></tr>
+        <tr><td><b>三 · 智能网络</b></td><td>构建自主的智能网络（Agentic Mesh）：AI 从被动任务执行者，转变为主动的、自组织的智能服务网络，自主设计工作流、发现并协同其他 Agent。</td><td>AI 成为深度嵌入企业 IT 架构的"操作系统"；预计到 2026 年底，超过 <b>40%</b> 的企业应用将嵌入专用 AI Agent。</td></tr>
+        <tr><td><b>四 · 人机协作</b></td><td>人机关系重塑：人从"写提示词的执行者"升级为 <b>"Agent 指挥官"</b>，核心能力变为定义目标、架构系统、编排 Agent 军团。</td><td>认知范式从"预测下一个词"转向"预测世界下一状态"；从单一模型走向推理+端侧混合模型；从数字世界走向具身智能。</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ══ 03 RAG ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>RAG：检索增强生成原理</h2><span class="hint">01249</span></div>
+    <p class="lede">RAG 是 <b>Retrieval-Augmented Generation（检索增强生成）</b>的缩写，结合<b>信息检索</b>与<b>文本生成</b>两方面能力，让大模型借助外部知识给出更准确、更及时、更可靠的回答。可以想象成一个<b>允许在考试时查阅指定参考书的学生</b>。</p>
+
+    <div class="grid g3">
+      <div class="panel">
+        <h3 style="font-family:var(--mono);font-size:13px;color:var(--accent-ink);margin-bottom:8px">1 检索 Retrieval</h3>
+        <p style="font-size:13.5px;color:var(--ink-2)">收到问题后，先去知识库（内部文档、最新网页、法律法规）搜索，找与问题最相关的几个信息片段。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-family:var(--mono);font-size:13px;color:var(--accent-ink);margin-bottom:8px">2 增强 Augmentation</h3>
+        <p style="font-size:13.5px;color:var(--ink-2)">把检索到的片段与原始问题整合，形成包含上下文的"增强提示"。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-family:var(--mono);font-size:13px;color:var(--accent-ink);margin-bottom:8px">3 生成 Generation</h3>
+        <p style="font-size:13.5px;color:var(--ink-2)">把增强后的提示发给大模型，让它基于外部信息而非仅凭"记忆"生成最终答案。</p>
+      </div>
+    </div>
+
+    <div class="tblwrap" style="margin-top:16px"><table>
+      <thead><tr><th style="width:120px">纯大模型的问题</th><th>为什么是硬伤</th><th>RAG 的解决方案</th></tr></thead>
+      <tbody>
+        <tr><td><b>知识陈旧</b></td><td>训练数据截止到某个时间点，之后的信息不知道。</td><td>检索最新文档或新闻，让模型基于最新信息回答。</td></tr>
+        <tr><td><b>产生幻觉</b></td><td>对不了解的问题可能编造看似合理实则错误的内容。</td><td>答案基于检索到的真实内容，大大降低胡编乱造的可能。</td></tr>
+        <tr><td><b>缺乏私密性</b></td><td>无法学习公司或个人的内部数据（出于安全隐私）。</td><td>检索私有知识库、产品手册，模型本身不存储这些数据。</td></tr>
+        <tr><td><b>成本高昂</b></td><td>频繁训练或微调模型更新知识，耗费算力和资金。</td><td>只需更新外部知识库（加一个新文档），无需重新训练模型。</td></tr>
+      </tbody>
+    </table></div>
+    <p>典型应用：智能客服与问答机器人（基于最新产品手册、政策回答）、企业知识库搜索（带出处的精准答案）、AI 辅助编程（查阅最新 API 文档与代码库）、辅助内容创作（先检索事实数据再润色扩写）。一句话——<b>RAG = 检索系统（找资料）+ 大语言模型（组织语言）</b>。</p>
+  </section>
+
+  <!-- ══ 04 国内程序列表 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>国内 AI Agent 程序全景列表</h2><span class="hint">01206</span></div>
+    <p class="lede">国内主要科技公司都推出了自己的智能体平台，大致分为三类：<b>核心智能体 / 大模型平台、编程与特定领域平台、面向开发者的开发框架</b>。代表性的四款桌面/系统级 Agent 为：<b>QClaw</b>（腾讯"养龙虾"AI 助手，最多 3 个并行）、<b>Trae</b>（火山引擎 AI 编程开发平台）、<b>EasyClaw</b>（猎豹移动 Windows 端任务自动化助手）、<b>Marvis 马维斯</b>（腾讯操作系统级 AI 助手，1 主 + 5 专项 Agent）。</p>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">核心智能体 / 大模型平台</span><h3>互联网巨头产品矩阵（一）</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:200px">平台</th><th style="width:120px">出品方</th><th>简介</th></tr></thead>
+          <tbody>
+            <tr><td><b>文心智能体平台 AgentBuilder</b></td><td>百度</td><td>全流程智能体服务，在知识问答、文档处理场景表现突出。</td></tr>
+            <tr><td><b>通义千问</b></td><td>阿里巴巴</td><td>全能型智能体平台，国内调用量第一的大模型，可问答、文本生成。</td></tr>
+            <tr><td><b>腾讯元器</b></td><td>腾讯</td><td>零代码 / 少代码快速创建智能体，可发布至公众号、QQ 等生态。</td></tr>
+            <tr><td><b>讯飞星火智能体</b></td><td>科大讯飞</td><td>多模态智能体平台，集成文字、语音、图片、视频能力。</td></tr>
+            <tr><td><b>智谱清言智能体</b></td><td>智谱 AI</td><td>覆盖学习办公、生活娱乐的 C 端产品，教育领域推出"i福娃"等方案。</td></tr>
+            <tr><td><b>通义百炼</b></td><td>阿里云</td><td>大模型服务平台，支持 5-10 分钟低代码快速构建智能体。</td></tr>
+            <tr><td><b>智能体开发平台 ADP 3.0</b></td><td>腾讯云</td><td>一站式智能体平台，支持多 Agent 协同、工作流编排，可发布到腾讯生态。</td></tr>
+            <tr><td><b>扣子空间</b></td><td>字节跳动</td><td>通用智能体平台，插件生态极强，适合快速构建消费级应用。</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">编程与特定领域平台</span><h3>互联网巨头产品矩阵（二）</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:200px">平台</th><th style="width:120px">出品方</th><th>简介</th></tr></thead>
+          <tbody>
+            <tr><td><b>Trae</b></td><td>火山引擎</td><td>专业 AI 编程开发平台，提供响应快速的编程助手，可创建自定义智能体。</td></tr>
+            <tr><td><b>千帆 AppBuilder</b></td><td>百度</td><td>大模型应用开发平台，提供插件、编排等工具快速构建应用。</td></tr>
+            <tr><td><b>钉钉 AI</b></td><td>钉钉</td><td>集成在办公协作平台中的 AI 助手。</td></tr>
+            <tr><td><b>金蝶苍穹 Agent 平台 2.0</b></td><td>金蝶</td><td>企业级平台，支持 MCP 及 A2A 协议，覆盖财务、人力等核心业务。</td></tr>
+            <tr><td><b>用友 BIP 友空间</b></td><td>用友</td><td>集成 100+ 智能体（财务、供应链等），效率提升 300%。</td></tr>
+            <tr><td><b>得助智能</b></td><td>中关村科金</td><td>国内集成多模态的 C 端产品，自然语言快速创建智能体。</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">开发框架</span><h3>面向开发者的 AI Agent 开发框架</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:200px">框架</th><th style="width:140px">出品方</th><th>简介</th></tr></thead>
+          <tbody>
+            <tr><td><b>Eino</b></td><td>字节跳动</td><td>主流的 Agent 开发框架之一。</td></tr>
+            <tr><td><b>AgentScope</b></td><td>阿里巴巴</td><td>主流的 Agent 开发框架之一。</td></tr>
+            <tr><td><b>Youtu-Agent</b></td><td>腾讯</td><td>主流的 Agent 开发框架之一。</td></tr>
+            <tr><td><b>MetaGPT</b></td><td>多智能体协作框架</td><td>专注多智能体协作，模仿软件工程标准作业程序。</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">更多值得关注</span><h3>垂直与开源生态中的 AI Agent</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:180px">程序</th><th>定位与特色</th></tr></thead>
+          <tbody>
+            <tr><td><b>DeepSeek Agent</b></td><td>深度求索出品，代码生成与长程任务规划见长，可自主编写 Python 脚本调用外部工具，擅科研数据分析。官方入口：deepseek.com / chat.deepseek.com / platform.deepseek.com。</td></tr>
+            <tr><td><b>实在 Agent</b></td><td>实在智能基于自研 TARS 大模型，通过屏幕语义理解"一句话完成工作"，把对话直接转为软件操作。</td></tr>
+            <tr><td><b>WebSailor</b></td><td>阿里巴巴，专注检索的通用智能体，可在互联网上完成复杂信息搜集与分析。</td></tr>
+            <tr><td><b>阿里云百炼 Model Studio</b></td><td>通用企业服务平台，无缝对接钉钉、阿里云 ERP 等生态工具。</td></tr>
+            <tr><td><b>蚂蚁 Agentar</b></td><td>蚂蚁数科全链路开发平台，大模型与行业知识库深度融合，适合金融、零售复杂决策。</td></tr>
+            <tr><td><b>DeepAgent</b></td><td>深演智能，专攻营销与销售决策，广告投放、CRM 管理，支持 20+ 智能体协同。</td></tr>
+            <tr><td><b>Thingo</b></td><td>多智能体协同平台，支持任务自动拆解，适合中小企业低成本快速部署。</td></tr>
+            <tr><td><b>n8n</b></td><td>隐私保护优先的开源自动化平台，支持多步骤工作流编排。</td></tr>
+            <tr><td><b>Dify</b></td><td>开源低代码平台，支持 75+ 模型接入，适合中小企业快速构建知识库问答。</td></tr>
+            <tr><td><b>Molili</b></td><td>当贝（Dangbei）推出的国内首款中文版 OpenClaw；"三省六部"架构（中书省规划 / 门下省审核 / 尚书省执行），配套 CocoLoop 技能商店 8000+ 现成技能，实测成本比原版降低 50% 以上。</td></tr>
+          </tbody>
+        </table></div>
+        <div class="srcnote" style="margin-bottom:0"><b>快速分类</b>：个人生产力——Marvis、QClaw、EasyClaw、DeepSeek Agent、豆包、元宝、灵光；企业服务与开发——阿里云百炼、腾讯云 ADP、文心智能体、钉钉 AI、扣子空间、Dify、n8n、金蝶苍穹、用友 BIP；垂直行业——WebSailor（检索）、DeepAgent（营销）、智谱 AI（教育）；开发者工具与框架——Trae、Eino、AgentScope、Youtu-Agent、LangGraph、MetaGPT。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 05 全景与市场 ══ -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>2026 产业全景：市场规模与落地</h2><span class="hint">01382</span></div>
+    <p class="lede">截至 2026 年 7 月，AI Agent 正处在从"技术概念"走向"规模落地"的关键转折点。行业重点已从堆叠参数，转向以智能体为核心、追求真实产业增效的"后 Scaling 时代"。</p>
+
+    <div class="grid g3">
+      <div class="panel" style="text-align:center">
+        <div style="font-size:30px;font-weight:800;color:var(--accent)">212 亿 → 449 亿</div>
+        <p style="font-size:13px;color:var(--ink-2);margin-top:6px">中国企业级 AI 智能体市场规模：2025 年 212 亿元，预计 2026 年猛增至 449 亿元。</p>
+      </div>
+      <div class="panel" style="text-align:center">
+        <div style="font-size:30px;font-weight:800;color:var(--accent)">72%</div>
+        <p style="font-size:13px;color:var(--ink-2);margin-top:6px">全球已有 72% 的企业将 AI Agent 投入生产。</p>
+      </div>
+      <div class="panel" style="text-align:center">
+        <div style="font-size:30px;font-weight:800;color:var(--accent)">40%</div>
+        <p style="font-size:13px;color:var(--ink-2);margin-top:6px">Gartner 预测：到 2026 年底全球 40% 的企业应用将嵌入 AI 智能体。</p>
+      </div>
+    </div>
+
+    <div class="tblwrap" style="margin-top:16px"><table>
+      <thead><tr><th style="width:150px">维度</th><th>最新动态</th></tr></thead>
+      <tbody>
+        <tr><td><b>国内大厂</b></td><td>"下架智能体"实为下架"拟人陪聊 Bot"以符合监管，真正能干的 Agent 是战略重点。阿里云发布多智能体协作平台 AgentTeams 与优化平台 AgentLoop；腾讯发布能力显著提升的混元 Hy3 模型；字节跳动飞书推出"多维表格智能体"。</td></tr>
+        <tr><td><b>海外巨头</b></td><td>Salesforce 的 Agentforce 平台年收入已近 8 亿美元，并宣布在瑞士投资 10 亿美元加码代理式 AI；微软有 Copilot 体系；ServiceNow 推出面向企业流程管理的 AI Agent 体系。</td></tr>
+        <tr><td><b>关键技术</b></td><td>记忆系统被认为是下一代智能体的核心壁垒；开源项目 OpenClaw 的流行标志 AI 原生工作平台加速落地；国家层面已发布首个智能体互联国家标准，解决"信息孤岛"。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">应用案例</h3>
+        <ul style="padding-left:18px;font-size:13.5px;color:var(--ink-2)">
+          <li style="margin-bottom:8px">供应链物流：兆企供应链开源框架 WorkMate 将报价响应从 20 分钟缩短至 <b>30 秒</b>；但某跨境电商因不同厂商 Agent 接口不统一，导致采购 Agent 误下单造成数百万损失，凸显标准化紧迫性。</li>
+          <li style="margin-bottom:8px">酒店服务：华住集团"AI 住中服务"智能体已在上万家门店上线，生成订单仅需 <b>5 秒</b>。</li>
+          <li>协同办公：Anthropic 的 Claude Tag 让 AI 像同事一样进入工作群，可拆解任务、调用工具；飞书、钉钉、企业微信都在引入类似功能。</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">挑战与展望</h3>
+        <ul style="padding-left:18px;font-size:13.5px;color:var(--ink-2)">
+          <li style="margin-bottom:8px">落地不易：许多项目仍停留在试点，真正进入核心业务的比例不高。</li>
+          <li style="margin-bottom:8px">安全合规：企业担心 AI 在财务、风控等敏感岗位"做错事"。</li>
+          <li>未来方向：多智能体协同、具身智能（与物理世界交互）、记忆原生智能（持续学习与进化）。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>Agent 概念 · 演进 · RAG 与生态 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 AI 与大模型学习笔记，市场数据、产品参数与时间均照录原笔记，反映笔记记录时点的公开信息，不构成投资或采购建议。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
