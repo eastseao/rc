@@ -104,21 +104,50 @@ section:first-of-type{border-top:0;padding-top:22px}
 .rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
 .rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
 
-/* ══ 时间轴（五阶段） ══ */
-.tl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-.tl-stage{background:#fff;border:1px solid var(--line);border-top:3px solid var(--sc);border-radius:var(--radius);padding:14px 14px 9px}
-.tl-stage .sno{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc);background:var(--scs);border-radius:999px;padding:2px 9px;letter-spacing:.06em}
-.tl-stage .sname{font-size:15.5px;font-weight:700;margin:8px 0 4px;color:var(--sc);line-height:1.4}
-.tl-stage .sgoal{font-size:12px;color:var(--muted);margin-bottom:12px;min-height:36px;line-height:1.6}
-.tl-node{border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:7px;cursor:pointer;background:#fff;transition:border-color .15s,box-shadow .15s,transform .15s}
-.tl-node:hover{border-color:var(--sc);box-shadow:0 6px 16px rgba(15,23,42,.1);transform:translateY(-1px)}
-.tl-node.on{border-color:var(--sc);box-shadow:0 0 0 3px var(--scs)}
-.tl-node .n{font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc);letter-spacing:.04em}
-.tl-node .t{font-size:13px;font-weight:600;line-height:1.45;margin:2px 0 3px;color:var(--ink)}
-.tl-node .d{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+/* ══ 全流程节点图 ══════════════════════════════════════════════════
+   格式对齐「供应商产品入驻山姆会员店全流程概览」页：左侧蛇形节点流
+   （行内 → 表先后，行尾 ↵ 表换行接续）+ 右侧粘性详情侧栏。
+   与概览页的差别：概览页的节点状态标签在这里换成「主周期」，
+   并且阶段骨架保留下来 —— 每个阶段自成一条色带，而不是打平成一张大图。 */
+/* 节点尺度：JS 用这三个变量实算「每行放得下几个」，改了就两边同步。
+   ⚠️ .frow 的 gap 作用在「所有相邻 flex 项」上 —— 节点之间夹着 .conn，
+   一行 k 个节点共有 2k-1 个项、2k-2 个间隙，算行宽时必须把箭头两侧的 gap 都算进去。 */
+:root{ --nw:150px; --ngap:8px; --nconn:16px }
 
-/* 节点详情 */
-.detail{margin-top:16px}
+.flow-layout{display:flex;gap:20px;align-items:flex-start}
+.flow{flex:1 1 auto;min-width:0;background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);padding:16px 16px 18px}
+#flowStage{display:flex;flex-direction:column;gap:16px}
+
+/* 阶段带 */
+.fstage{border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);background:var(--scs);padding:10px 12px 12px}
+.fstage-h{display:flex;align-items:baseline;flex-wrap:wrap;gap:3px 10px;margin-bottom:10px}
+.fstage-h .sno{flex:none;font-family:var(--mono);font-size:10.5px;font-weight:700;color:#fff;background:var(--sc);border-radius:999px;padding:2px 9px;letter-spacing:.06em}
+.fstage-h .sname{font-size:14.5px;font-weight:700;color:var(--sc);line-height:1.4}
+.fstage-h .sgoal{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* 节点 */
+.frow{display:flex;flex-wrap:wrap;align-items:stretch;gap:var(--ngap)}
+.fnode{position:relative;flex:0 0 var(--nw);min-height:104px;background:#fff;border:1.5px solid var(--line);
+  border-top:4px solid var(--sc);border-radius:10px;padding:9px 10px;cursor:pointer;
+  transition:transform .15s,box-shadow .15s,border-color .15s}
+.fnode:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(15,23,42,.1)}
+.fnode.on{border-color:var(--sc);box-shadow:0 0 0 3px var(--scs)}
+.fnode:focus-visible{outline:2px solid var(--sc);outline-offset:2px}
+.fnode .num{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:999px;
+  padding:0 6px;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc);background:var(--scs);margin-bottom:6px}
+.fnode .t{font-size:13px;font-weight:600;line-height:1.42;color:var(--ink);min-height:37px}
+.fnode .d{display:inline-block;margin-top:6px;font-family:var(--mono);font-size:10.5px;color:var(--muted-2);
+  background:var(--scs);border-radius:999px;padding:2px 8px;line-height:1.5}
+
+/* 连接符 */
+.conn{display:flex;align-items:center;justify-content:center;flex:0 0 var(--nconn);color:var(--sc);opacity:.45}
+.conn svg,.wrap-turn svg{display:block}
+.wrap-break{flex-basis:100%;height:0}
+.wrap-turn{flex-basis:100%;display:flex;justify-content:center;margin:2px 0;color:var(--sc);opacity:.45}
+
+/* 节点详情：右侧粘性侧栏（窄屏由媒体查询退回节点图下方） */
+.detail{flex:0 0 340px;position:sticky;top:calc(var(--bar-h) + 18px);
+  max-height:calc(100vh - var(--bar-h) - 36px);overflow-y:auto}
 .card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
 .card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
 .card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
@@ -193,11 +222,12 @@ details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--mute
 .st5{--sc:var(--s5);--scs:var(--s5s)}
 .strd{--sc:var(--danger);--scs:var(--danger-soft)}
 
-/* ══ 返回首页浮钮：让位给墨黑顶栏，改停右下 ══ */
-.g-pill{top:auto;bottom:20px}
-
 /* ══ 响应式 ══ */
-@media(max-width:1180px){.tl{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:1179px){
+  /* 放不下「节点流 + 粘性侧栏」两栏 → 详情退回节点图下方（节点流本身仍 4 个一行） */
+  .flow-layout{flex-direction:column;gap:18px}
+  .detail{flex:0 0 auto;width:100%;position:static;max-height:none;overflow:visible}
+}
 @media(max-width:900px){
   .s-main{padding:8px 18px 30px}
   /* 窄屏 6 项排不下 → 允许横向滚动；
@@ -211,16 +241,18 @@ details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--mute
   .s-brand em{display:none}
 }
 @media(max-width:760px){
-  .tl{grid-template-columns:1fr}
   /* 宽表在窄屏改为横向滚动，避免列被压成「一字一列」 */
   .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
   table{min-width:600px;font-size:12.5px}
   th,td{padding:9px 11px}
 }
 @media(max-width:640px){
+  /* 节点竖排时居中，避免 158px 的卡片贴着左边缘、而箭头居中 */
+  .frow{justify-content:center}
+}
+@media(max-width:640px){
   .s-brand em{display:none}
   .s-nav a{padding:5px 8px;font-size:12.5px}
-  .g-pill{top:auto;bottom:14px}
   .s-head{padding:30px 18px 0}
   .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
 }
@@ -233,7 +265,7 @@ details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--mute
     <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
     <nav class="s-nav" id="topnav" aria-label="章节导航">
       <a href="#s0" data-sec="s0">00 红线</a>
-      <a href="#s1" data-sec="s1">01 时间轴</a>
+      <a href="#s1" data-sec="s1">01 节点图</a>
       <a href="#s2" data-sec="s2">02 关键路径</a>
       <a href="#s3" data-sec="s3">03 责任矩阵</a>
       <a href="#s4" data-sec="s4">04 注意事项</a>
@@ -282,10 +314,12 @@ details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--mute
     </section>
 
     <section id="s1">
-      <div class="sec-h"><span class="idx st1">01</span><h2>全流程时间轴</h2><span class="hint">点击任意节点查看详情</span></div>
-      <p class="lede">五个阶段的划分逻辑不是时间先后，而是「拿到什么资格才能进入下一步」——每一阶段的出口都是下一阶段的入场券。</p>
-      <div class="tl" id="timeline"></div>
-      <div class="detail" id="detail"><div class="card"><div class="empty">点上方任意节点，这里显示该节点的完整作业说明。</div></div></div>
+      <div class="sec-h"><span class="idx st1">01</span><h2>全流程节点图</h2><span class="hint">点击任意节点查看详情</span></div>
+      <p class="lede">五个阶段的划分逻辑不是时间先后，而是「拿到什么资格才能进入下一步」——每一阶段的出口都是下一阶段的入场券。二十一个节点按阶段横向串联：行内箭头表示先后，行尾箭头表示换行接续；点任意节点，右侧显示该节点的完整作业说明。</p>
+      <div class="flow-layout">
+        <div class="flow"><div id="flowStage"></div></div>
+        <div class="detail" id="detail"><div class="card"><div class="empty">点左侧任意节点，这里显示该节点的完整作业说明。</div></div></div>
+      </div>
     </section>
 
     <section id="s2">
@@ -360,31 +394,116 @@ function scls(s){return ' st'+(STAGE_IDX[s]||1);}
   });
 })();
 
-/* 时间轴 */
-(function(){
-  var box=document.getElementById('timeline');
-  STAGES.forEach(function(st){
-    var c=el('div','tl-stage'+scls(st.no));
-    var h='<div class="sno">阶段 '+esc(st.no)+'</div><div class="sname">'+esc(st.name)+'</div><div class="sgoal">'+esc(st.goal)+'</div>';
-    c.innerHTML=h;
-    st.node_ids.forEach(function(nid){
-      var n=NODES.filter(function(x){return x.no===nid;})[0];
-      if(!n) return;
-      var d=el('div','tl-node');
-      d.setAttribute('data-no',n.no);
-      d.innerHTML='<div class="n">节点 '+n.no+'</div><div class="t">'+esc(n.title)+'</div><div class="d">'+esc(n.duration)+'</div>';
-      d.addEventListener('click',function(){showNode(n.no);});
-      c.appendChild(d);
+/* ══ 全流程节点图（格式对齐「全流程概览」页：蛇形节点流 + 右侧粘性详情） ══
+   ⚠️ 三个要点：
+   ① 「每行放得下几个节点」必须实算 —— CSS 的 --nw/--ngap/--nconn 与这里共用同一组变量。
+      判据：一行 k 个节点夹着 k-1 个箭头，共 2k-1 个 flex 项、2k-2 个 gap，需
+      k*nw + (k-1)*conn + (2k-2)*gap ≤ 行宽，即 k ≤ (行宽 + conn + 2*gap) / (nw + conn + 2*gap)。
+      ⚠️ 漏掉「箭头两侧的 gap」会算多一个 → 行没排满就被 ↵ 换行，行尾挂一个孤节点（实测 746>742）。
+   ② 行尾的 ↵ 是插进 flex 流的 .wrap-break（flex-basis:100%）强制换行 + .wrap-turn 箭头。
+   ③ 列数随宽度变，窗口尺寸变了要重排；重排后要把当前选中节点的 .on 补回来。 */
+var FLOW=(function(){
+  var box=document.getElementById('flowStage');
+  var RIGHT='<svg width="14" height="10" viewBox="0 0 22 14" fill="none" aria-hidden="true"><path d="M1 7h17M14 2l5 5-5 5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var DOWN='<svg width="14" height="18" viewBox="0 0 16 22" fill="none" aria-hidden="true"><path d="M8 1v17M3 14l5 5 5-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var cur=1;
+
+  function px(name,dflt){
+    var v=parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name));
+    return isNaN(v)?dflt:v;
+  }
+  function perRow(){
+    var w=box.clientWidth, nw=px('--nw',150), gp=px('--ngap',8), cn=px('--nconn',16);
+    if(!w) return 3;
+    /* 一行 k 个节点 = 2k-1 个 flex 项 = 2k-2 个 gap，见上方注释 */
+    return Math.max(1,Math.min(6,Math.floor((w+cn+2*gp-4)/(nw+cn+2*gp))));
+  }
+  /* 节点周期原文最长 45 字，卡片里只放主周期（首段），完整区间在右侧详情 */
+  function brief(s){ return String(s||'').split(/[（(；;]/)[0].trim(); }
+
+  function cells(list,cols){
+    var h='';
+    list.forEach(function(n,i){
+      h+='<div class="fnode'+(n.no===cur?' on':'')+'" data-no="'+n.no+'" role="button" tabindex="0"'
+        +' aria-label="节点 '+n.no+'：'+esc(n.title)+'">'
+        +'<span class="num">'+n.no+'</span>'
+        +'<div class="t">'+esc(n.title)+'</div>'
+        +'<span class="d">'+esc(brief(n.duration))+'</span>'
+        +'</div>';
+      if(i<list.length-1){
+        h += ((i+1)%cols===0)
+          ? '<div class="wrap-break"></div><div class="wrap-turn">'+DOWN+'</div>'
+          : '<div class="conn">'+RIGHT+'</div>';
+      }
     });
-    box.appendChild(c);
-  });
+    return h;
+  }
+  function render(){
+    var cols=perRow(), h='';
+    STAGES.forEach(function(st){
+      var list=st.node_ids.map(function(id){
+        return NODES.filter(function(x){return x.no===id;})[0];
+      }).filter(function(x){return !!x;});
+      if(!list.length) return;
+      h+='<div class="fstage'+scls(st.no)+'">'
+        +'<div class="fstage-h"><span class="sno">阶段 '+esc(st.no)+'</span>'
+        +'<span class="sname">'+esc(st.name)+'</span>'
+        +'<span class="sgoal">'+esc(st.goal)+'</span></div>'
+        +'<div class="frow">'+cells(list,cols)+'</div></div>';
+    });
+    box.innerHTML=h;
+    var ns=box.querySelectorAll('.fnode');
+    for(var i=0;i<ns.length;i++){
+      ns[i].addEventListener('click',function(){ showNode(+this.getAttribute('data-no')); });
+      ns[i].addEventListener('keydown',function(e){
+        if(e.key==='Enter'||e.key===' '){ e.preventDefault(); showNode(+this.getAttribute('data-no')); }
+      });
+    }
+  }
+  /* 本页 .s-main 限宽 860（阅读尺度），节点图需要更宽的画布：
+     ≥1180px 时把它撑到 .s-body 的满宽（其余章节保持原尺度）；
+     窄屏直接清掉内联尺寸，交给 CSS 的单栏回退。 */
+  function fitWide(){
+    var layout=document.querySelector('#s1 .flow-layout');
+    var body=document.querySelector('.s-body'), main=document.querySelector('.s-main');
+    if(!layout||!body||!main) return;
+    if(window.innerWidth<1180){ layout.style.width=''; layout.style.marginInlineStart=''; return; }
+    var bc=getComputedStyle(body), mc=getComputedStyle(main);
+    var w=body.clientWidth-parseFloat(bc.paddingLeft)-parseFloat(bc.paddingRight);
+    var off=(body.getBoundingClientRect().left+parseFloat(bc.paddingLeft))
+          -(main.getBoundingClientRect().left+parseFloat(mc.paddingLeft));
+    layout.style.width=w+'px';
+    layout.style.marginInlineStart=off+'px';
+  }
+  function relayout(){
+    fitWide();
+    var c=perRow();
+    /* 调试钩子：验收脚本用它看「每次重排时测到的容器宽 / 算出的列数」 */
+    (window.__FLOW_DBG=window.__FLOW_DBG||[]).push({
+      iw:window.innerWidth, w:box.clientWidth, cols:c,
+      inline:document.querySelector('#s1 .flow-layout').style.width||'(auto)'
+    });
+    if(c===lastCols) return;        /* 列数没变就不重建 DOM，避免页面闪一下 */
+    lastCols=c;
+    render();
+  }
+  var lastCols=-1;
+  relayout();
+  /* ⚠️ 首屏那一次 render 可能量到「还没稳定的容器宽」（实测 1024 下算出 3 列、
+     插了 4 个换行符，页面上出现 3+1 的参差行；1360 下恰好正常）。
+     所以在 load 与字体就绪后各重排一次 —— 列数不变时 relayout 会直接返回，不会闪。 */
+  window.addEventListener('load', relayout);
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(relayout);
+  var t; window.addEventListener('resize',function(){ clearTimeout(t); t=setTimeout(relayout,180); });
+  return { relayout:relayout, setCur:function(no){ cur=no; } };
 })();
 
 function showNode(no, scroll){
   var n=NODES.filter(function(x){return x.no===no;})[0];
   if(!n) return;
   if(scroll === undefined) scroll = true;
-  var nodes=document.querySelectorAll('.tl-node');
+  FLOW.setCur(no);                      /* 记下当前节点，窗口尺寸变化重排后仍能保持选中 */
+  var nodes=document.querySelectorAll('.fnode');
   for(var i=0;i<nodes.length;i++){
     nodes[i].classList.toggle('on', nodes[i].getAttribute('data-no')==String(no));
   }
@@ -527,7 +646,11 @@ showNode(1, false);
       var st=this.getAttribute('data-stage');
       var s=STAGES.filter(function(x){return String(x.no)===st;})[0];
       if(s && s.node_ids.length){ showNode(s.node_ids[0], false); }
-      var t=document.getElementById('s1');
+      /* 两栏（宽屏）时滚到章节开头即可，高亮节点与右侧详情同屏可见；
+         单栏（窄屏）时详情在节点图下方，必须直接滚到详情，否则看不到内容。 */
+      var lay=document.querySelector('#s1 .flow-layout');
+      var twoCol=lay && getComputedStyle(lay).flexDirection==='row';
+      var t=document.getElementById(twoCol?'s1':'detail');
       if(t) t.scrollIntoView({behavior:'smooth',block:'start'});
       if(window.__SOP_DROP) window.__SOP_DROP();
     });
