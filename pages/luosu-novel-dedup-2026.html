@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>「落酥」梨园小说去重处理 · 2026-04 ~ 05</title>
+<meta name="description" content="两份超大笔记（01075 约 130KB、01080 约 493KB）的合并整理：咸丰年间孟庄沙地种梨的历史小说，用户因段落重复粘贴了多轮原文，要求 AI 去除重复段落。本页梳理小说情节脉络、人物谱系与去重处理的工作模式。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.quote-block{border-left:3px solid var(--line-2);padding:8px 16px;margin:12px 0;color:var(--ink-2);font-size:13.5px;line-height:1.8;background:#fbfcfd;border-radius:0 var(--radius-sm) var(--radius-sm) 0}
+.quote-block .dup{background:var(--danger-soft);padding:1px 4px;border-radius:3px}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 去重任务</a>
+      <a href="#s1" data-sec="s1">01 小说情节</a>
+      <a href="#s2" data-sec="s2">02 人物谱系</a>
+      <a href="#s3" data-sec="s3">03 去重实例</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">生活 · 文本处理笔记</span>
+  <h1>「落酥」梨园小说去重处理</h1>
+  <p class="s-led">两份超大笔记（01075 约 130KB、01080 约 493KB）的合并整理：用户将一部以咸丰年间孟庄沙地种梨为背景的历史小说分多轮粘贴给 AI，原文因操作失误存在大段逐字重复，要求 AI「去除重复段落」后输出干净文本。本页梳理小说情节脉络、人物谱系，并展示原文中重复段落的典型模式。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-05-01</b></span>
+    <span>收录笔记 <b>2 篇</b></span>
+    <span>合计篇幅 <b>约 623 KB</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">文本去重</span>
+    <span class="s-chip">历史小说</span>
+    <span class="s-chip">落酥梨</span>
+    <span class="s-chip">咸丰年间</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>：
+    <ol>
+      <li>01075-2026-04-29 去除重复段落输出文章（约 130KB / 1030 行）——用户第一轮粘贴小说，要求去重后输出。</li>
+      <li>01080-2026-05-01 去除重复段落保留原文（约 493KB / 4845 行）——用户第二轮粘贴更长版本，要求去重并保留原文。</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 去重任务说明 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>去重任务与工作模式</h2><span class="hint">01075 / 01080</span></div>
+    <p class="lede">两份笔记的用户指令几乎相同：粘贴一大段小说原文，要求「去除重复段落」。区别在于 01075 说「输出文章」，01080 说「保留原文」——即去重后仍保持原文叙述顺序，不做改写。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:120px">笔记</th><th style="width:160px">用户指令</th><th style="width:100px">篇幅</th><th>内容特征</th></tr></thead>
+      <tbody>
+        <tr><td><b>01075</b></td><td>去除重复段落输出文章</td><td>约 130KB</td><td>从「咸丰八年四月」陆秋实发现梨树苗长势切入，到「落酥」命名、周德昌谈判为止。原文中有整段逐字重复（如三成利谈判段连续出现两次）。</td></tr>
+        <tr><td><b>01080</b></td><td>去除重复段落保留原文</td><td>约 493KB</td><td>从「咸丰八年冬」风沙渐小切入，篇幅更长，多轮对话结构。重复段落更密集——同一轮探望孟老六、同一段谈判台词在文件中出现三到四次。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">重复产生的原因</h3>
+        <p style="font-size:13.5px;color:var(--ink-2);line-height:1.8">从文本结构推断，用户在编辑或复制小说时误操作——可能是跨段选择时把同一段落框了两次，或在不同位置粘贴了同一段落。AI 收到后需要逐段比对，删除完全相同或高度近似的重复段落，保留首次出现的版本，维持原文叙事顺序。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">去重判断标准</h3>
+        <dl class="kv">
+          <dt>完全重复</dt><dd>整段逐字相同，删除后出现的副本。</dd>
+          <dt>近重复</dt><dd>开头相同、结尾略有增减的段落，保留内容更完整的版本。</dd>
+          <dt>保留原文</dt><dd>不做改写、不缩写，只删重复，保留叙述时序。</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 01 小说情节脉络 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>小说情节脉络：孟庄沙地种梨记</h2><span class="hint">咸丰八年 ~ 九年</span></div>
+    <p class="lede">小说以咸丰年间黄河故道旁的孟庄为背景，讲述洪灾后仅剩八户人家的村民如何在沙地上种活梨树、培育出「落酥」梨品种，并在外部商人觊觎时守住根与地的故事。</p>
+
+    <details class="acc st2" open>
+      <summary>第一段：发现沙地适梨（咸丰八年四月）<span class="cnt">01075 开篇</span></summary>
+      <div class="body">
+        <p>陆秋实发现嫁接三年的七棵梨树在沙地里长势异常——枝条蹿到两丈开外，根系比去年密了一倍。他刨开沙土观察：黄河故道的沙细如面粉、白如雪，沙底渗水，根须像网一样把沙网住。</p>
+        <div class="quote-block">沈若水捏了一撮沙闻了闻，说：「这沙不是一般的沙。故道的沙，是黄河带来的……上游的土肥，沙里头混着那点肥气，庄稼不够吃，但梨树够。」她又指出沙地昼夜温差大，白天吸热长叶、晚上养分往根里送，糖分攒得多，果子会比黄土里长的甜。</div>
+        <p>四月末韩铁匠来讨药，顺带给陆秋实打了一把三寸嫁接刀——刀背厚如铜钱、刀刃薄如蝉翼，枣木刀柄。记账：等梨挂果后送两个梨抵刀钱。</p>
+      </div>
+    </details>
+
+    <details class="acc st2">
+      <summary>第二段：周德昌进村（咸丰八年五月）<span class="cnt">外部威胁出现</span></summary>
+      <div class="body">
+        <p>穿长衫的周德昌骑毛驴从良酥镇方向来，自称棠邑县城人，受人之托来看孟庄的梨树。他看了梨树长势，又望了望一望无际的沙地，问「这些地都是谁的」。陆秋实答：「有主的归有主，没主的归荒。」</p>
+        <div class="quote-block">方守正（村里教书先生）看穿了他的眼神——当年下乡收租的账房先生看佃户家的地就是这种眼神。他跟了上去，警惕这个外来人。</div>
+      </div>
+    </details>
+
+    <details class="acc st3">
+      <summary>第三段：孟老六病榻托名（咸丰八年冬 ~ 九年正月）<span class="cnt">「落酥」命名由来</span></summary>
+      <div class="body">
+        <p>腊月，八十三岁的孟老六一病不起。他无儿无女，唯一的侄子死于洪灾。陆秋实端着沈若水熬的梨皮枇杷叶冰糖汤喂他。孟老六问起三十七亩新地的成活情况——四十七棵移栽活了四十一棵，新播种出了八十九棵苗，还种了二十棵授粉树（金盖酥、紫酥、良酥镇赵庄赵德茂给的枝条）。</p>
+        <p>孟老六托付两件事：一是院子里那棵活了八十年的老母树，明年秋天结果后每家分一个；二是「这树的名字，你得给俺想好」。他说：「名字是把根扎在人心里的事。一棵树有了名字，它就不是树了，它是人了。」</p>
+        <p>咸丰九年正月初一，八户三十口人在祠堂喝梨干粥过年。陆秋实举起一片半透明的梨干，说：「这梨咬一口汁水流一手，掉地上眨眼就化了。孟六叔说这梨酥得落地就没。俺想了很久，这名字就叫<b>落酥</b>——落到地上就化了，化而生根。」</p>
+        <div class="quote-block">方守正翻开手抄本，郑重写下三个字：「落酥。」这名字没有典故、没有出处，就是大白话——落地即化，化而生根，把梨的命和人的命都说了。</div>
+      </div>
+    </details>
+
+    <details class="acc st4">
+      <summary>第四段：三成利之诱（咸丰九年春）<span class="cnt">重复段落最密集处</span></summary>
+      <div class="body">
+        <p>周德昌提出以高三成价格收购落酥梨。平常卖梨一文钱一个，高三成就是一文三——一百个梨多卖三十文，三百个多卖九十文，九十文能买五斤米，够一家人吃三天。三年没吃过饱饭的村民被打动了。</p>
+        <p>方守正提醒众人：周德昌不是善人，是生意人。他愿意高三成收，就说明这梨能卖出更高价——到时候赚的是他，不是村民。买卖权一旦给了周德昌，梨卖多少、卖给谁、什么时候收，全由他说了算。</p>
+        <div class="warnbox">
+          <h5>此处原文重复模式</h5>
+          <ul>
+            <li>「这三年，孟庄人活得太苦了……三成利啊，那是什么概念？」整段在 01075 中连续出现两次，一字不差。</li>
+            <li>方守正的同一段劝说词也出现两次，第二次紧接在「落酥」命名场景之后，时序错位。</li>
+            <li>01080 中同类重复更为密集，探望孟老六的场景在文件中出现三到四次。</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ══ 02 人物谱系 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>人物谱系</h2><span class="hint">孟庄八户</span></div>
+    <p class="lede">小说人物不多，但各有功能：有人负责「种」，有人负责「卖」的警示，有人负责命名与记录，有人代表外部觊觎。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:120px">人物</th><th style="width:100px">身份</th><th>在小说中的功能</th></tr></thead>
+      <tbody>
+        <tr><td><b>陆秋实</b></td><td>主角</td><td>种梨人。发现沙地适梨、栽种三十七亩新地、给梨命名「落酥」。手上老茧厚，沉默肯干，是整个故事的行动核心。</td></tr>
+        <tr><td><b>沈若水</b></td><td>陆秋实之妻</td><td>懂药理、懂土壤。解释黄河故道沙的肥气与昼夜温差原理，为韩铁匠老婆治咳嗽。儿子陆根生快一岁。</td></tr>
+        <tr><td><b>孟老六</b></td><td>梨园老把式</td><td>八十三岁，无儿无女。院子里那棵老母树活了八十年，是孟庄梨树的源头。病榻托名、托果，是小说的精神长辈。</td></tr>
+        <tr><td><b>方守正</b></td><td>村里教书先生</td><td>有手抄本记录村里大事。看穿周德昌的生意人心思，在村民动摇时泼冷水。是孟庄的记忆与良知。</td></tr>
+        <tr><td><b>韩铁匠</b></td><td>铁匠</td><td>给陆秋实打了三寸嫁接刀，淬三次火、刃口能削头发丝。刀钱记账——挂果后送两个梨抵。</td></tr>
+        <tr><td><b>周德昌</b></td><td>棠邑县城商人</td><td>外部威胁。穿长衫、骑毛驴，看中孟庄沙地和梨树，提出高三成收购想垄断买卖权。沈若水警告：「三成利是饵，咬了饵就上了钩。」</td></tr>
+        <tr><td><b>何家二小子</b></td><td>村民</td><td>年轻力壮，刨坑移苗。对三成利最动心，被翠屏拉住。代表被生存压力诱惑的普通村民。</td></tr>
+        <tr><td><b>翠屏</b></td><td>村民</td><td>带两个孩子移苗。比何家二小子冷静，示意别急着答应周德昌。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="rl" style="margin-top:14px">
+      <h4>核心隐喻</h4>
+      <div class="mid">根在谁手里，地就是谁的</div>
+      <p>周德昌看中的是梨树能活这件事，但他不明白——金矿不是地，是根。根在孟庄人手里，地就是孟庄人的。小说通过「落酥」这个名字把梨的命运和人的命运绑在一起：落地即化，化而生根——梨是这样，人也是这样，在沙地里扎下根，就能活。</p>
+    </div>
+  </section>
+
+  <!-- ══ 03 重复段落实例 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>原文重复段落典型实例</h2><span class="hint">01075 行 965~983</span></div>
+    <p class="lede">以下展示 01075 文件中最典型的连续重复：村民讨论三成利的同一段文字在原文中一字不差地出现了两次，且第二段紧接在「落酥」命名之后，造成时序混乱。</p>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">01075 · 行 965~983</span><h3>重复段落原文对照</h3></div>
+      <div class="card-b">
+        <div class="quote-block">
+          <p><b>【第一次出现】</b></p>
+          <p>这三年，孟庄人活得太苦了，苦到连梦里都是黄沙和草根。但这会儿，有人提出来一个条件，让他们有点动心。</p>
+          <p>三成利啊，那是什么概念？平常卖梨，一文钱一个；高三成，就是一文三。一百个梨，能多卖三十文。三百个梨，能多卖九十文。九十文，能买五斤米。五斤米，够一家人吃三天。</p>
+          <p>何家二小子眼睛都直了。他嘴唇动了动，想说话，但被翠屏拉了一把。翠屏摇了摇头，示意他别急。</p>
+        </div>
+        <div class="quote-block" style="border-left-color:var(--danger);">
+          <p><span class="dup"><b>【第二次出现 · 完全重复】</b></span></p>
+          <p>这三年，孟庄人活得太苦了，苦到连梦里都是黄沙和草根。但这会儿，有人提出来一个条件，让他们有点动心。</p>
+          <p>三成利啊，那是什么概念？平常卖梨，一文钱一个；高三成，就是一文三。一百个梨，能多卖三十文。三百个梨，能多卖九十文。九十文，能买五斤米。五斤米，够一家人吃三天。</p>
+          <p>何家二小子眼睛都直了。他嘴唇动了动，想说话，但被翠屏拉了一把。翠屏摇了摇头，示意他别急。</p>
+          <p>方守正看了一圈，说：「乡亲们，周德昌的条件，听着是好……」（同一段劝说词也重复了一次）</p>
+        </div>
+        <div class="srcnote" style="margin-top:14px;margin-bottom:0">
+          <b>去重处理方式</b>：AI 删除第二次出现的整组重复段落（从「这三年，孟庄人活得太苦了」到「赚的是他，不是俺们」），保留第一次出现的版本，并将方守正的劝说词与其后的对话「好名字。落地即化……」正确衔接——避免命名场景被重复的谈判段落打断。
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>「落酥」梨园小说去重处理 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页内容整理自两份超大文本去重笔记，小说情节与人物对话均照录原文，重复段落标注仅作工作记录用途。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

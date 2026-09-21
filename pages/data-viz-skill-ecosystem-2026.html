@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>数据可视化与 AI 技能文件生态 · 2026-04</title>
+<meta name="description" content="10 篇笔记合并：OpenClaw 技能清单全景、数据可视化技能五文件开发（SKILL.md/config.yaml/run.py/prompt.md/schema.json）、红豆调研可视化实例、文档可视化工具翻译与提示词整理，以及市场调研、实体记忆技能优化与公众号技能命名规范。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+/* 顶栏 */
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+/* 文档头部 */
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+/* 主体 */
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+/* 章节 */
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+/* 表格 */
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+/* 手风琴 */
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+/* 代码块 */
+.codeblock{font-family:var(--mono);font-size:12.5px;background:var(--code);border-radius:6px;padding:12px 14px;margin:10px 0;white-space:pre-wrap;word-break:break-all;line-height:1.65;color:var(--ink-2)}
+
+/* 页脚 */
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+/* 板块主题色开关 */
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 技能全景</a>
+      <a href="#s1" data-sec="s1">01 数据可视化</a>
+      <a href="#s2" data-sec="s2">02 红豆实例</a>
+      <a href="#s3" data-sec="s3">03 市场与记忆</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · AI 技能开发</span>
+  <h1>数据可视化与 AI 技能文件生态</h1>
+  <p class="s-led">把 10 篇 OpenClaw 技能开发笔记按「技能清单全景 → 数据可视化技能五文件工程 → 红豆调研可视化实例 → 市场调研与实体记忆技能优化」重组：从 40 个技能模块的全景分类，到一个完整 data-visualization-skill 的 skill.md / config.yaml / run.py / prompt.md / schema.json 五件套，再到红豆品种调研的可视化报告实战，以及市场调研 Pro 与实体记忆两项技能的重写。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-04-20</b></span>
+    <span>收录笔记 <b>10 篇</b></span>
+    <span>时间跨度 <b>2026-04-03 ~ 2026-04-20</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">SKILL.md</span>
+    <span class="s-chip">数据可视化</span>
+    <span class="s-chip">OpenClaw</span>
+    <span class="s-chip">技能命名规范</span>
+    <span class="s-chip">红豆调研</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00840-2026-04-03 技能清单分类整理（40 个 OpenClaw 技能全景）</li>
+      <li>00875-2026-04-08 养虾技能重要性解析（OpenClaw 圈内黑话解读）</li>
+      <li>00855-2026-04-07 数据可视化英文翻译（Data Visualization 技能格式）</li>
+      <li>00859-2026-04-07 文档可视化工具翻译（inference.sh CLI 可视化指南分析与提示词）</li>
+      <li>00913-2026-04-13 数据可视化技能文件生成（五文件完整工程）</li>
+      <li>00857-2026-04-07 红豆调研资料可视化分析</li>
+      <li>00858-2026-04-07 红豆调研可视化报告生成</li>
+      <li>00922-2026-04-14 优化市场调研技能文件（market_research_pro v2.0）</li>
+      <li>00962-2026-04-19 实体记忆技能文件生成（entity-memory 重写）</li>
+      <li>00981-2026-04-20 生成技能相关内容（公众号技能命名规范 + LICENSE）</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 技能全景与命名规范 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>技能清单全景与命名规范</h2><span class="hint">00840 / 00875 / 00981</span></div>
+    <p class="lede">先看全局：OpenClaw 平台 40 个技能模块的分类全景，圈内「养虾」黑话的含义，以及公众号技能从中文命名到英文 slug 的完整规范化流程。</p>
+
+    <div class="card st1">
+      <div class="card-h"><span class="tag">00840 · 2026-04-03</span><h3>OpenClaw 技能清单全景：40 个专业模块分 11 类</h3></div>
+      <div class="card-b">
+        <p class="lede" style="margin-bottom:12px">覆盖办公、搜索、设计、开发、腾讯生态、自动化等全场景，支持自然语言触发，即插即用。</p>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:130px">类别</th><th style="width:70px">数量</th><th>代表技能</th></tr></thead>
+          <tbody>
+            <tr><td><b>文档办公</b></td><td>8 项</td><td>docx / pptx / xlsx / pdf / tencent-docs / doc-coauthoring</td></tr>
+            <tr><td><b>邮件通信</b></td><td>4 项</td><td>email-skill（统一入口）/ imap-smtp-email / 163-email / qq-email</td></tr>
+            <tr><td><b>搜索信息</b></td><td>6 项</td><td>online-search / multi-search-engine（17 引擎聚合）/ news-summary / tech-news-digest / neodata-financial-search / weather-advisor</td></tr>
+            <tr><td><b>设计创作</b></td><td>5 项</td><td>canvas-design / frontend-design / web-artifacts-builder / theme-factory / slack-gif-creator</td></tr>
+            <tr><td><b>腾讯生态</b></td><td>3 项</td><td>tencent-meeting-mcp（会议+AI纪要）/ tencent-survey / tencent-docs</td></tr>
+            <tr><td><b>开发工具</b></td><td>4 项</td><td>github-skill / mcp-builder / mcporter / webapp-testing（Playwright）</td></tr>
+            <tr><td><b>系统环境</b></td><td>5 项</td><td>qclaw-env / qclaw-openclaw / qclaw-rules / qclaw-text-file / file-skill（零删除整理）</td></tr>
+            <tr><td><b>自动化</b></td><td>2 项</td><td>kc-gui（Windows GUI 白名单自动化）/ cloud-upload-backup</td></tr>
+            <tr><td><b>内容创作</b></td><td>2 项</td><td>content-factory（多代理内容生产线）/ self-improving（自我反思学习）</td></tr>
+            <tr><td><b>技能管理</b></td><td>3 项</td><td>find-skills / qclaw-skill-creator / skill-vetter（安装前安全审查）</td></tr>
+            <tr><td><b>其他工具</b></td><td>3 项</td><td>ima-skill（IMA 知识库）/ notion / session-logs（jq 会话日志分析）</td></tr>
+          </tbody>
+        </table></div>
+        <div class="grid g2">
+          <div class="panel">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">生态特点</h3>
+            <dl class="kv">
+              <dt>全场景覆盖</dt><dd>从文档办公到腾讯会议，从金融搜索到 GUI 自动化，40 个技能形成完整工作流。</dd>
+              <dt>自然语言触发</dt><dd>无需记忆复杂指令，用「写报告」「查天气」「整理桌面」即可唤醒对应 skill。</dd>
+              <dt>安全可控</dt><dd>技能审查机制 + 文件零删除整理 + 白名单 GUI 操作，保障系统与数据安全。</dd>
+            </dl>
+          </div>
+          <div class="panel">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">00875 · 「养虾」黑话解读</h3>
+            <p style="font-size:13.5px;color:var(--ink-2)">OpenClaw 圈内把鼓捣机器人戏称「养虾」（Claw=钳子→虾）。<b>「窃以为 SKILL 就是养虾的重要基础」</b>意为：买舵机、打印零件、烧固件看似简单，但 PID 调参、焊接接线、避坑经验、运动学逆解全靠手上真功夫——「硬件有价，手艺无价」。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">00981 · 2026-04-20</span><h3>公众号技能命名规范：从中文标题到英文 slug</h3></div>
+      <div class="card-b">
+        <p class="lede">原始 13 个标题存在「排版1/2」「文章生成1/2/3」等编号冗余。经多轮规范化，最终采用<b>统一前缀 <code>wechat-</code> + 全小写 + 连字符连接</b>的 slug 格式。</p>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:200px">中文名称</th><th>最终 slug（wechat- 前缀）</th></tr></thead>
+          <tbody>
+            <tr><td>公众号7日爆文收集</td><td><code>wechat-collect-7-day-viral-articles</code></td></tr>
+            <tr><td>公众号爆文查询</td><td><code>wechat-query-viral-articles</code></td></tr>
+            <tr><td>公众号标题生成</td><td><code>wechat-generate-titles</code></td></tr>
+            <tr><td>公众号工具包</td><td><code>wechat-operation-toolkit</code></td></tr>
+            <tr><td>公众号基础排版</td><td><code>wechat-basic-formatting</code></td></tr>
+            <tr><td>公众号高级排版</td><td><code>wechat-advanced-formatting</code></td></tr>
+            <tr><td>公众号文章去AI味</td><td><code>wechat-remove-ai-flavor</code></td></tr>
+            <tr><td>公众号爆款封面生成</td><td><code>wechat-generate-viral-cover</code></td></tr>
+            <tr><td>公众号短文生成</td><td><code>wechat-generate-short-article</code></td></tr>
+            <tr><td>公众号长文生成</td><td><code>wechat-generate-long-article</code></td></tr>
+            <tr><td>公众号仿写生成</td><td><code>wechat-generate-imitation-article</code></td></tr>
+            <tr><td>公众号一站式爆文引擎</td><td><code>wechat-all-in-one-viral-engine</code></td></tr>
+            <tr><td>公众号自动发布</td><td><code>wechat-auto-publish</code></td></tr>
+          </tbody>
+        </table></div>
+        <div class="warnbox">
+          <h5>命名规范要点（照录）</h5>
+          <ul>
+            <li>动词开头（collect / query / generate / remove / auto-publish）。</li>
+            <li>功能对象明确（wechat, articles, titles, cover, formatting）。</li>
+            <li>使用 <code>-</code> 连接，无大写，无空格；统一前缀 <code>wechat-</code>。</li>
+            <li>可直接用于 Coze / Dify / GPTs 等平台的 <code>name</code> 或 <code>slug</code> 字段。</li>
+          </ul>
+        </div>
+        <div class="srcnote" style="margin-top:14px;margin-bottom:0">
+          <b>LICENSE 文件补充说明</b>：对话末尾用户追问 GitHub 上「本项目未明确声明 License」的含义。结论——没有 LICENSE 文件则默认保留所有权利，他人不能随意复制修改再发布；如需自由使用建议选 MIT 或 Apache 2.0。笔记中给出了标准 MIT License 全文模板。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 01 数据可视化技能开发 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>数据可视化技能开发：五文件工程</h2><span class="hint">00855 / 00859 / 00913</span></div>
+    <p class="lede">从「Data Visualization 怎么翻」到完整的五文件技能工程：<b>skill.md</b>（对外说明）、<b>config.yaml</b>（参数定义）、<b>run.py</b>（数据抓取分析）、<b>prompt.md</b>（HTML/CSS 模板）、<b>schema.json</b>（配置校验）。</p>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">00913 · 2026-04-13</span><h3>data-visualization-skill 五文件完整实现</h3></div>
+      <div class="card-b">
+        <p class="lede" style="margin-bottom:12px">目录结构：</p>
+        <div class="codeblock">data-visualization-skill/
+├── skill.md        对外说明 + 调用入口
+├── config.yaml     参数定义
+├── run.py          数据抓取 / 分析 / 图表生成
+├── prompt.md       HTML/CSS 模板
+└── schema.json     配置结构校验</div>
+
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:140px">文件</th><th style="width:160px">核心职责</th><th>关键内容</th></tr></thead>
+          <tbody>
+            <tr><td><b>skill.md</b></td><td>技能说明文档</td><td>描述、功能特性、使用方法、输出格式规则（四反引号包裹、内联 CSS、蓝色主题 #e3f2fd/#bbdefb/#2196f3、渐变总结框）、依赖（Python 3.8+ / pandas / matplotlib / pyyaml）、config 字段表、文件结构说明。</td></tr>
+            <tr><td><b>config.yaml</b></td><td>用户配置</td><td>data_source（CSV/JSON 路径，空则用示例数据）、chart_type（bar/line/scatter）、x_column / y_column、title、output_file、include_mermaid、include_data_table、card_metrics（mean/max/min）。</td></tr>
+            <tr><td><b>run.py</b></td><td>主执行脚本</td><td>load_config → load_data → auto_select_columns → generate_chart_base64（matplotlib 转 base64 内嵌）→ generate_insight_cards（flex 卡片）→ generate_data_table（HTML 表格）→ generate_mermaid_diagram → generate_conclusion → 模板填充输出。</td></tr>
+            <tr><td><b>prompt.md</b></td><td>报告模板</td><td>居中标题、蓝色提示框、关键指标卡片区、图表区、数据表区、Mermaid 流程图区、渐变总结框、居中署名。占位符 <code>{{TITLE}}</code> / <code>{{INSIGHT_CARDS}}</code> / <code>{{CHART_IMG}}</code> 等。</td></tr>
+            <tr><td><b>schema.json</b></td><td>JSON Schema 校验</td><td>draft-07，定义 data_source / chart_type enum / x_column / y_column / title / output_file / include_mermaid / table_max_rows(1-100) / card_metrics enum，additionalProperties: false。</td></tr>
+          </tbody>
+        </table></div>
+
+        <div class="grid g2">
+          <div class="panel">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">输出格式七条铁律</h3>
+            <ol style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2);line-height:1.8">
+              <li>全文用四个反引号包裹（防内部代码块截断）。</li>
+              <li>Markdown 标题划分章节，卡片化展示。</li>
+              <li>所有 CSS 写在 <code>style</code> 属性内。</li>
+              <li>引言框 <code>#e3f2fd</code> 底 + <code>#2196f3</code> 左边框。</li>
+              <li>卡片 flex 布局，背景比边框浅。</li>
+              <li>表头 <code>#b3e5fc</code>，行分隔 <code>#e0e0e0</code>。</li>
+              <li>文末渐变总结框 + 居中署名日期。</li>
+            </ol>
+          </div>
+          <div class="panel">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">00855 · 技能格式迭代</h3>
+            <p style="font-size:13.5px;color:var(--ink-2);margin-bottom:10px">最初「数据可视化英文翻译」仅为 <b>Data Visualization</b>。随后两轮对话将其改写为 OpenClaw 技能格式：</p>
+            <dl class="kv">
+              <dt>第一版假设</dt><dd>给出 YAML Frontmatter + input_schema/output_schema + instructions + examples 的假设性结构，AI 自承无 OpenClaw 规范文档。</dd>
+              <dt>用户补充要求</dt><dd>SKILL.md 必须以 YAML Frontmatter 开头（<code>---</code>），全文包裹在 markdown 代码块内。</dd>
+              <dt>最终版</dt><dd>name: data-visualization-skill；description: 对表格/PDF/Word/会议纪要/调研报告/产品提案等文字和数据内容进行可视化操作；version: 1.0.0。</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">00859 · 2026-04-07</span><h3>文档可视化工具翻译：inference.sh CLI 指南分析与提示词</h3></div>
+      <div class="card-b">
+        <p class="lede">用户粘贴了一份英文 Data Visualization 指南（基于 inference.sh CLI），要求分析并整理成可直接使用的提示词。AI 先做内容分析（优点/不足），再产出一段结构化提示词。</p>
+
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:180px">数据关系</th><th style="width:200px">最佳图表</th><th>永远不要用</th></tr></thead>
+          <tbody>
+            <tr><td>随时间变化</td><td>折线图</td><td>饼图</td></tr>
+            <tr><td>类别对比</td><td>条形图（多类别用水平）</td><td>折线图</td></tr>
+            <tr><td>部分占整体</td><td>堆叠条形图 / 矩形树图</td><td>饼图（条形始终更清晰）</td></tr>
+            <tr><td>分布</td><td>直方图 / 箱线图</td><td>条形图</td></tr>
+            <tr><td>相关性</td><td>散点图</td><td>条形图</td></tr>
+            <tr><td>排名</td><td>水平条形图</td><td>垂直条形 / 饼图</td></tr>
+            <tr><td>地理分布</td><td>分级填色地图</td><td>条形图</td></tr>
+            <tr><td>单指标</td><td>KPI 大数字卡</td><td>任何图表（过度设计）</td></tr>
+          </tbody>
+        </table></div>
+
+        <div class="grid g2">
+          <div class="panel">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">饼图为什么几乎总是错的</h3>
+            <ul style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2);line-height:1.8">
+              <li>难以比较相近大小的扇区。</li>
+              <li>超过 5-6 个类别就乱。</li>
+              <li>3D 饼图永远错误。</li>
+              <li>无法读出精确值。</li>
+              <li><b>替代方案</b>：水平条形图、堆叠条形图、矩形树图、直接用表格。</li>
+            </ul>
+          </div>
+          <div class="panel">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">设计核心规则</h3>
+            <dl class="kv">
+              <dt>Y 轴起点</dt><dd>条形图必须从 0 开始；折线图可截断（强调变化而非绝对值）。</dd>
+              <dt>标题即洞察</dt><dd>「Q2 收入增长 68%」而非「Q2 收入图」。</dd>
+              <dt>颜色数量</dt><dd>最多 5-7 色，突出单一重点，其余灰色。</dd>
+              <dt>色盲安全</dt><dd>避免仅用红绿，搭配形状或标签。</dd>
+              <dt>排序</dt><dd>条形图按值排序，不按字母。</dd>
+              <dt>禁止</dt><dd>3D 图表、双 Y 轴、图表垃圾（装饰元素）。</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="srcnote" style="margin-top:14px">
+          <b>AI 分析指出的不足</b>：①平台绑定 inference.sh CLI，建议补纯 Python 版本；②仅覆盖静态 PNG，缺少交互式（Plotly/Bokeh/Altair）示例；③热力图用随机数未说明从 CSV 加载；④缺少数据预处理（pandas 分组/透视）指导。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 02 红豆调研可视化实例 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>红豆品种调研：可视化分析与报告生成</h2><span class="hint">00857 / 00858</span></div>
+    <p class="lede">两份笔记源自同一份《红豆调研资料.xlsx》：先做数据概览卡片与 Mermaid 图表，再按蓝色内联 CSS 规范输出完整深度调研报告。</p>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">00857 · 2026-04-07</span><h3>18 个红小豆品种数据概览</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:180px">指标</th><th>数值</th></tr></thead>
+          <tbody>
+            <tr><td>总品种数</td><td>18 个</td></tr>
+            <tr><td>拥有地理标志（GI/AGI）</td><td>7 个（含双标 2 个）</td></tr>
+            <tr><td>无地理标志品种</td><td>11 个</td></tr>
+            <tr><td>含沙率范围</td><td>0.53 ~ 0.70</td></tr>
+            <tr><td>淀粉含量范围</td><td>44% ~ 55.4%</td></tr>
+            <tr><td>蛋白质含量范围</td><td>18.7% ~ 26.76%</td></tr>
+            <tr><td>百粒重范围</td><td>11 ~ 19 克</td></tr>
+          </tbody>
+        </table></div>
+        <div class="grid g2">
+          <div class="panel">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">地理标志分布</h3>
+            <dl class="kv">
+              <dt>双标（GI+AGI）</dt><dd>萝北红小豆、海门大红袍赤豆。</dd>
+              <dt>单标 GI</dt><dd>宝清红小豆、甘泉红小豆。</dd>
+              <dt>单标 AGI</dt><dd>建平红小豆、文安红小豆、黑垦二九〇红小豆。</dd>
+            </dl>
+          </div>
+          <div class="panel">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">润康团队实测结论</h3>
+            <dl class="kv">
+              <dt>颗粒最大最匀</dt><dd><b>宝清红小豆</b>（推荐做豆沙）。</dd>
+              <dt>豆沙香味最浓</dt><dd>日本红 &gt; 珍珠红 ≈ 宝清红。</dd>
+              <dt>蛋白质最高</dt><dd>保 9326-16（25.85%）。</dd>
+              <dt>淀粉最高</dt><dd>冀红 19（55.4%）。</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">00858 · 2026-04-07</span><h3>深度调研报告：产业化合作策略</h3></div>
+      <div class="card-b">
+        <p class="lede" style="margin-bottom:12px">按蓝色内联 CSS 规范输出的完整报告，含地理标志全景卡片、品质指标对比表、实测结论、合作策略与行动清单。</p>
+        <div class="tblwrap"><table>
+          <thead><tr><th>品种</th><th>含沙率</th><th>淀粉(%)</th><th>蛋白质(%)</th><th>百粒重(g)</th><th>核心用途</th></tr></thead>
+          <tbody>
+            <tr><td>宝清红小豆</td><td>0.68</td><td>50.0</td><td>21.0</td><td>15-18</td><td>豆沙、红豆汤、甜品馅料</td></tr>
+            <tr><td>日本红小豆</td><td>0.70</td><td>54.0</td><td>20.6</td><td>14-16</td><td>豆沙、甜品、出口</td></tr>
+            <tr><td>珍珠红</td><td>0.67</td><td>53.9</td><td>22.0</td><td>12-15</td><td>豆沙、八宝粥</td></tr>
+            <tr><td>海门大红袍赤豆</td><td>0.68</td><td>46.0</td><td>23.0</td><td>12-17</td><td>高档豆沙制品</td></tr>
+            <tr><td>冀红19</td><td>0.62</td><td>55.4</td><td>23.9</td><td>12-15</td><td>加工、出口</td></tr>
+            <tr><td>晋小豆6号</td><td>0.55</td><td>53.1</td><td>25.6</td><td>13-15</td><td>豆饭、豆粥</td></tr>
+            <tr><td>保9326-16</td><td>0.67</td><td>51.1</td><td>25.9</td><td>15-18</td><td>出口、高档甜品</td></tr>
+          </tbody>
+        </table></div>
+        <div class="rl" style="margin-top:14px">
+          <h4>红线 · 首选推荐</h4>
+          <div class="mid">宝清红小豆 —— 颗粒最大且均匀、地理标志产区稀缺</div>
+          <p>宝清县年产量约 1.365 ~ 1.8375 万吨，一等品占 60%，杂质率 2% → 实际可用一等品约 8026 ~ 10805 吨。建议通过订单农业锁定核心产区一等品，形成品种+产地+加工一体化壁垒。日本红可混合使用提升香气。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 03 市场调研与实体记忆 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>市场调研 Pro 与实体记忆技能</h2><span class="hint">00922 / 00962</span></div>
+    <p class="lede">两项技能文件的优化重写：市场调研从 v1.0 升级到 v2.0（结构化输入/输出/约束/边缘情况），实体记忆从学术 ontology 改名为 entity-memory（结构化记忆 + 跨技能状态共享）。</p>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">00922 · 2026-04-14</span><h3>market_research_pro v2.0：结构化市场调研技能</h3></div>
+      <div class="card-b">
+        <p class="lede" style="margin-bottom:12px">YAML Frontmatter 定义三个输入参数：<b>research_topic</b>（必填）、<b>target_market</b>（默认全球）、<b>depth_level</b>（简版/标准/深度）。执行逻辑按九步顺序不得跳步：</p>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:40px">步</th><th style="width:180px">分析环节</th><th>核心内容</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>行业定义与范围界定</td><td>明确产品/服务边界，排除模糊重叠品类。</td></tr>
+            <tr><td>2</td><td>宏观环境（PEST 简化）</td><td>政策 / 经济 / 社会 / 技术。</td></tr>
+            <tr><td>3</td><td>市场规模与增长</td><td>当前规模、CAGR、未来 3-5 年低/中/高情景预测。</td></tr>
+            <tr><td>4</td><td>竞争格局分析</td><td>TOP5-10 品牌、渠道结构、价格带分布。</td></tr>
+            <tr><td>5</td><td>产品结构分析</td><td>形态剂型、主流规格包装、核心卖点成分。</td></tr>
+            <tr><td>6</td><td>消费者分析</td><td>人群画像、使用场景、购买动机。</td></tr>
+            <tr><td>7</td><td>趋势洞察</td><td>3-5 条具体可验证趋势，每条附证据点。</td></tr>
+            <tr><td>8</td><td>商业机会判断</td><td>机会等级（高/中/低）、切入点（人群/价格带/渠道/形态）。</td></tr>
+            <tr><td>9</td><td>风险与不确定性</td><td>政策、技术、供应链、市场接受度。</td></tr>
+          </tbody>
+        </table></div>
+        <div class="grid g2">
+          <div class="panel">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">硬性约束</h3>
+            <ul style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2);line-height:1.8">
+              <li>每个结论必须附逻辑或数据支撑。</li>
+              <li>不确定数据必须标注「估算」并说明依据。</li>
+              <li>禁止编造财报数字。</li>
+              <li>章节不可合并或跳过。</li>
+              <li>商业分析风格，避免口语化。</li>
+            </ul>
+          </div>
+          <div class="panel">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">边缘情况处理</h3>
+            <dl class="kv">
+              <dt>公开数据缺失</dt><dd>行业常识 + 类比市场 + 合理估算，标注「估算」。</dd>
+              <dt>小市场（&lt;1亿美元）</dt><dd>重点分析细分机会，不强制高精度规模。</dd>
+              <dt>竞争信息不足</dt><dd>从渠道、价格带、消费者评论侧推竞争强度。</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card st5">
+      <div class="card-h"><span class="tag">00962 · 2026-04-19</span><h3>entity-memory：从 ontology 重命名为实体记忆</h3></div>
+      <div class="card-b">
+        <p class="lede" style="margin-bottom:12px">原技能名 <code>ontology</code> 偏学术。AI 分析其核心为「带类型的知识图谱 + 约束系统」，用于代理的结构化记忆和技能间状态共享，推荐新名 <b>entity-memory</b>。</p>
+        <div class="grid g2">
+          <div class="panel">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">核心实体类型</h3>
+            <dl class="kv">
+              <dt>人物组织</dt><dd>Person（name/email/phone）、Organization（name/type/members）。</dd>
+              <dt>工作</dt><dd>Project（name/status/goals/owner）、Task（title/status/due/priority/assignee/blockers）、Goal。</dd>
+              <dt>时间地点</dt><dd>Event（title/start/end/location/attendees）、Location。</dd>
+              <dt>信息</dt><dd>Document、Message、Thread、Note。</dd>
+              <dt>资源</dt><dd>Account、Device、Credential（禁止直接存密码，强制 secret_ref 间接引用）。</dd>
+            </dl>
+          </div>
+          <div class="panel">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">约束与工作流</h3>
+            <dl class="kv">
+              <dt>存储</dt><dd><code>memory/entity-memory/graph.jsonl</code>，append-only 规则。</dd>
+              <dt>校验</dt><dd>Task 必填 title/status；Event end ≥ start；Credential 禁止明文密码；blocks 关系无环。</dd>
+              <dt>技能契约</dt><dd>各技能在 SKILL.md 声明 reads / writes / preconditions / postconditions。</dd>
+              <dt>规划</dt><dd>多步计划建模为图变换序列（CREATE → RELATE → CREATE → RELATE），逐步校验。</dd>
+            </dl>
+          </div>
+        </div>
+        <div class="srcnote" style="margin-top:14px;margin-bottom:0">
+          <b>主要变更</b>：名称 ontology → entity-memory；脚本名 entity_memory.py；目录 memory/entity-memory/；触发词增加「remember」「what do I know about」「link X to Y」「show dependencies」；技能契约中 ontology: 改为 entity-memory:；整体语言从学术本体转向「记忆」场景。
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>数据可视化与 AI 技能文件生态 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页内容整理自 OpenClaw 技能开发工作笔记，所有文件结构、配置参数与品种数据均照录原笔记，仅供技术参考。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
