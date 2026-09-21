@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>低成本建站与企业官网搭建指南 · 2026-05</title>
+<meta name="description" content="两篇笔记合并：GitHub Pages 零成本搭建静态采购管理系统的完整步骤（仓库命名、目录结构、localStorage 与 BaaS 数据模拟、部署与局限），以及国内企业官网低成本方案选型对比（SaaS 建站 / 云服务器自建 / 传统定制），含费用明细与域名、备案两条避坑要点。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+/* 顶栏 */
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+/* 文档头部 */
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+/* 主体 */
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+/* 章节 */
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:minmax(0,1fr)}}
+
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+/* 表格 */
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+/* 手风琴 */
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+/* 页脚 */
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+/* 板块主题色开关 */
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 GitHub Pages 步骤</a>
+      <a href="#s1" data-sec="s1">02 官网方案选型</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 低成本建站</span>
+  <h1>低成本建站与企业官网搭建指南</h1>
+  <p class="s-lede">两篇笔记合成一份「从零成本到千元级」的建站手册：上篇是用 GitHub Pages 把一个采购管理系统以纯静态方式跑起来的完整五步（含架构局限与数据模拟方案）；下篇是在国内搭企业官网的三条路线对照——SaaS 全托管、云服务器自建、传统定制——并把必须花的钱和绕不开的两件事（域名、ICP 备案）单独讲清。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-05-08</b></span>
+    <span>收录笔记 <b>2 篇</b></span>
+    <span>成本区间 <b>0 元 ~ 数千元/年</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">GitHub Pages</span>
+    <span class="s-chip">静态站</span>
+    <span class="s-chip">WordPress</span>
+    <span class="s-chip">ICP 备案</span>
+    <span class="s-chip">SaaS 建站</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00387-2025-11-03 GitHub Pages搭建采购管理系统指南</li>
+      <li>01118-2026-05-08 企业官网最低成本搭建指南</li>
+    </ol>
+  </div>
+
+  <!-- ══ 01 GitHub Pages 步骤 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>GitHub Pages 静态站搭建五步</h2><span class="hint">00387 · 2025-11-03</span></div>
+    <p class="lede">GitHub Pages 只托管静态资源（HTML / CSS / JS），<b>不支持 PHP、Java、Python 等服务端语言</b>。所以所谓「在上面建采购管理系统」，本质是做一个前端单页应用（SPA），交互与数据全在浏览器端完成。</p>
+
+    <div class="card st1">
+      <div class="card-h"><span class="tag">架构与局限</span><h3>先想清楚能做什么、不能做什么</h3></div>
+      <div class="card-b">
+        <dl class="kv">
+          <dt>可行路线</dt><dd>前端 SPA：页面与交互逻辑全由浏览器 JavaScript 处理，用 Bootstrap / Layui 等 UI 框架快速搭后台风格界面。</dd>
+          <dt>数据持久化</dt><dd>初级用浏览器 localStorage；进阶接免费 BaaS（Firebase / Supabase / Airtable），在前端直接读写、跨设备同步。</dd>
+          <dt>核心局限</dt><dd>无法做真正的服务端逻辑（用户会话、服务器端数据库、微信支付等）。定位是<b>前端演示原型</b>，适合项目展示、毕业设计、学前端，切勿用于真实敏感商业数据或金钱交易。</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="card st1">
+      <div class="card-h"><span class="tag">五步走</span><h3>从建仓库到上线访问</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:60px">步骤</th><th style="width:180px">做什么</th><th>关键细节</th></tr></thead>
+          <tbody>
+            <tr><td><b>1</b></td><td>准备 GitHub 仓库</td><td>想用 <i>https://用户名.github.io</i> 直达，仓库名必须叫「用户名.github.io」；否则任意仓库名都可，地址为 <i>用户名.github.io/仓库名</i>。克隆到本地。</td></tr>
+            <tr><td><b>2</b></td><td>建项目目录</td><td>典型结构：index.html 主入口；css/、js/（app.js 主逻辑、auth.js 模拟登录、storage.js 数据存取）；pages/ 放 products.html、suppliers.html；libs/ 放第三方库。</td></tr>
+            <tr><td><b>3</b></td><td>开发界面与交互</td><td>用 Bootstrap / Layui 搭表格、表单、导航；jQuery 做提交、列表渲染筛选、弹窗。可参考网上的 Vue 资产采购管理、JavaWeb 采购系统——只学它的前端布局思路，后端技术不适用。</td></tr>
+            <tr><td><b>4</b></td><td>实现数据模拟</td><td>localStorage 版：读 JSON.parse(localStorage.getItem(...)) 作初始数组，每次操作后 localStorage.setItem 写回；要跨设备同步再上 BaaS。</td></tr>
+            <tr><td><b>5</b></td><td>部署上线</td><td>代码 git 推送后，进仓库 Settings → Pages → Source 选部署分支（main / master）保存，稍等即可通过 github.io 地址访问。</td></tr>
+          </tbody>
+        </table></div>
+        <div class="grid g2" style="margin-top:14px">
+          <div class="panel">
+            <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">典型功能模块</h3>
+            <p style="font-size:13.5px;color:var(--ink-2)">模拟登录、仪表盘统计、商品增删改查与分类、采购单创建审批流程模拟、供应商信息维护、简单留言/动态——按需逐步实现。</p>
+          </div>
+          <div class="panel">
+            <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">三个增强方向</h3>
+            <dl class="kv">
+              <dt>多页组织</dt><dd>多页面用 VuePress / Docsify 这类静态站点生成器组织路由。</dd>
+              <dt>自动部署</dt><dd>用 GitHub Actions 在每次推送后自动构建部署。</dd>
+              <dt>自定义域名</dt><dd>已有域名可在 Pages 设置里绑定，访问更短更好记。</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 02 官网方案选型 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>企业官网低成本方案选型对比</h2><span class="hint">01118 · 2026-05-08</span></div>
+    <p class="lede">在国内用最低成本搭企业官网，总思路是「自己动手 + 免费开源工具 + 只花必须的固定费用」。2026 年当下最省心的是全托管 SaaS 建站，首年几百元即可；愿意折腾则云服务器自建性价比最高。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:120px">对比维度</th><th style="width:230px">方案一 · SaaS 平台建站（首选）</th><th style="width:230px">方案二 · 云服务器自建</th><th>方案三 · 传统定制开发</th></tr></thead>
+      <tbody>
+        <tr><td><b>建站方式</b></td><td>零代码可视化拖拽，用平台模板</td><td>镜像一键部署 WordPress 等开源程序，自己配置维护</td><td>全权委托第三方公司从零设计开发</td></tr>
+        <tr><td><b>年投入</b></td><td><b>约 150–900 元</b>（通常含服务器）</td><td><b>约 250–1800 元</b>（需单独买服务器）</td><td><b>约 5,000–30,000 元+</b></td></tr>
+        <tr><td><b>上手难度</b></td><td>极低</td><td>中等（需基础学习）</td><td>无需动手但沟通成本高</td></tr>
+        <tr><td><b>功能灵活度</b></td><td>中（受平台功能限制）</td><td>高（插件生态丰富，可深度定制）</td><td>极高（完全按需求定制）</td></tr>
+        <tr><td><b>后期维护</b></td><td>平台负责，省心</td><td>自管安全更新与数据备份</td><td>依赖开发公司，通常另收维护费</td></tr>
+        <tr><td><b>推荐人群</b></td><td>追求低价高效的小微企业与个人</td><td>愿意折腾、有学习意愿的站长</td><td>个性化需求复杂、预算充足的企业</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">费用明细（照录）</h3>
+        <dl class="kv">
+          <dt>SaaS 参考价</dt><dd>乔拓云初级版活动价一年 132.7 元；码云数智基础版 698 元/年（通常含域名与 SSL）；凡科建站 800–3000 元/年。注意首年便宜、次年续费可能上涨，问清独立域名绑定与 SSL 证书是否另收费。</dd>
+          <dt>自建开销</dt><dd>服务器抓新客/活动：阿里云或腾讯云入门级轻量应用服务器可低至 38 元/年；.com 域名约 55–60 元/年，.cn 约 38–42 元/年；WordPress 等开源程序软件本身免费。</dd>
+          <dt>定制开发</dt><dd>阿里云定制服务起步价就在 5480 元/年，远超低成本范畴，初创企业不推荐。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">自建四步流程</h3>
+        <dl class="kv">
+          <dt>① 购买</dt><dd>买轻量应用服务器 + 域名。</dd>
+          <dt>② 装面板</dt><dd>装宝塔面板。</dd>
+          <dt>③ 部署</dt><dd>面板里一键部署 WordPress（或 Halo 等开源 CMS）。</dd>
+          <dt>④ 选主题</dt><dd>挑免费主题模板换上，内容即可上线。</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="warnbox" style="margin-top:16px">
+      <h5>两件绕不开的事（避坑）</h5>
+      <ul>
+        <li><b>域名选好</b>：.com / .cn 是性价比最高的选择；.vip、.shop 等非刚需后缀不推荐。</li>
+        <li><b>ICP 备案必做</b>：用国内服务器必须备案；企业备案需营业执照、审核更严，约 15–20 个工作日；<b>备案期间网站不能访问，要提前排期；个人备案不能用于商业网站</b>。</li>
+      </ul>
+    </div>
+
+    <div class="srcnote" style="margin-top:16px;margin-bottom:0"><b>结论（照录）</b>：2026 年在国内低成本搭官网，SaaS 全托管是大多数人的最优解——首年成本最低、最省心；愿意投入时间学习的「折腾派」，云服务器自建 WordPress 提供更高的性价比与自由度。</div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>低成本建站与企业官网搭建指南 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页内容整理自建站工作笔记，价格与周期均照录原笔记，随厂商活动与政策变动，请以实际询价为准。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

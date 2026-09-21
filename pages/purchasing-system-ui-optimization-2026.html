@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>采购管理系统 UI/GUI 优化方案 · 2026-06</title>
+<meta name="description" content="五篇采购工作笔记合并：01285/01286/01288 三篇同题 UI 优化方案去重合并为导航布局、配色视觉、交互组件三组对照表，01300 优化建议分析单列一节（看板与各页面专项 + V2.3.0 / V3.0 路线图），00359 附前端采购工具创意清单。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+/* 顶栏 */
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+/* 文档头部 */
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+/* 主体 */
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+/* 章节 */
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:minmax(0,1fr)}}
+
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+/* 表格 */
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+/* 手风琴 */
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+/* 页脚 */
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+/* 板块主题色开关 */
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 导航与布局</a>
+      <a href="#s1" data-sec="s1">02 配色与视觉</a>
+      <a href="#s2" data-sec="s2">03 交互与组件</a>
+      <a href="#s3" data-sec="s3">04 优化建议分析</a>
+      <a href="#s4" data-sec="s4">05 工具创意清单</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 采购系统 UI 优化</span>
+  <h1>采购管理系统 UI/GUI 优化方案</h1>
+  <p class="s-lede">围绕一台 Python + CustomTkinter + SQLite3 的桌面采购管理系统（「采购助手」），把三篇同题 UI 优化方案去重后合并成「导航布局 / 配色视觉 / 交互组件」三组对照表，再单列一篇全站优化建议分析（看板与各业务页面专项 + V2.3.0 / V3.0 路线图），最后附一份前端采购工具创意清单。所有色值、圆角、字号、工时估算均照录原笔记，未作改写。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-06-11</b></span>
+    <span>收录笔记 <b>5 篇</b></span>
+    <span>技术栈 <b>CustomTkinter + SQLite3</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">分组侧栏</span>
+    <span class="s-chip">莫兰迪配色</span>
+    <span class="s-chip">圆角阴影体系</span>
+    <span class="s-chip">看板升级</span>
+    <span class="s-chip">V2.3.0 路线图</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00359-2025-10-30 前端采购工具创意与实现建议</li>
+      <li>01285-2026-06-10 采购系统UI优化方案（基于开发者文档 V1.4 + UI 展示 V1.9.1）</li>
+      <li>01286-2026-06-10 采购管理系统GUI优化方案（V1.4 架构 / V1.9.1 风格，7 个方向）</li>
+      <li>01288-2026-06-10 采购管理系统UI优化方案（基于 V1.9.5，十节）</li>
+      <li>01300-2026-06-11 采购管理系统优化建议分析（看板与各页面专项 + 路线图）</li>
+    </ol>
+    <p style="margin-top:8px">其中 01285 / 01286 / 01288 为同题三轮对话，结论高度重叠，已按「布局 → 配色 → 交互」三个视角去重合并为前两节对照表；01300 单列第三节；00359 为系统之外的前端工具创意，作末节附录。</p>
+  </div>
+
+  <!-- ══ 01 导航与布局 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>导航与布局重构（三篇同题合并）</h2><span class="hint">01285 / 01286 / 01288</span></div>
+    <p class="lede">三篇共同诊断出的核心痛点是：<b>导航信息密度低、功能分组缺失、视觉层级不清</b>。一致结论是——把 90px 图标侧栏扩成 <b>200px 可折叠分组侧栏</b>，把十个功能按业务分四组，同时统一所有列表页的页面骨架。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">优化项</th><th style="width:260px">01285（方案三+精炼莫兰迪）</th><th style="width:260px">01286（7 方向）</th><th>01288（V1.9.5）</th></tr></thead>
+      <tbody>
+        <tr><td><b>侧栏分组</b></td><td>10 功能分 4 组：仪表盘独立；采购管理 5（物料下单/报价单/合同生成/物料查询/供应商管理）；财务 3（催款记录/采购垫付/差旅报销）；工具 2（备忘录/设置），宽度 90→200px</td><td>不重复分组，侧重交互：悬浮 scale 1.02 + 阴影过渡；右缘 4px 拖拽条调宽 155px↔46px，&lt;80px 切纯图标紧凑模式；底部加「最近使用 3 个模块」</td><td>分组标题加 ▶/▼ 三角与悬停浅底 #F0E6DA；角标 [n] 改胶囊气泡（#A89080 底白字）；底部加「全部折叠/全部展开」按钮</td></tr>
+        <tr><td><b>选中指示</b></td><td>当前页左侧 3px 陶土色竖条 #C1816D + 背景高亮</td><td>同样保留左侧 3px 竖条 #C1816D 作视觉锚点</td><td>选中项高亮加 4px 宽圆角指示条；子项点击瞬间 scale 0.98</td></tr>
+        <tr><td><b>图标统一</b></td><td>合同生成 📝→📋、备忘录 📝→📌；全部导出 20×20 PNG，折叠时可辨识</td><td>紧凑模式 tooltip 改用 CTkToolTip，延迟 0.5s 出现</td><td>统一 Feather 风格 1.5px 线宽、20×20 区域；未选中 #8F7A63、选中 #C1816D</td></tr>
+        <tr><td><b>页面骨架</b></td><td>每页统一：标题+面包屑 | 操作栏 → 统计卡片+筛选 → Treeview 数据表格 → 底部固定「导出/导入/新增」</td><td>所有列表/表单收进 CTkFrame 卡片（corner_radius=16），内边距上下 20px、左右 24px，卡片间距 16px</td><td>渐进分层：主操作区大卡片 18px 粗体标题；次要区浅背景 #F5F0EB、圆角 10px、标题 14px</td></tr>
+        <tr><td><b>重点页改造</b></td><td>合同生成分三步向导（合同信息→供应商→产品明细），右侧窄预览栏，每步自动存草稿到本地 JSON；顶部加 Ctrl+K 全局搜索（SQLite LIKE / fts5）</td><td>表单改标签-控件同行两列网格（标签宽 100px）；必填前加红 *（#B56A6A），未填边框变红+抖动</td><td>表格整行可点击进详情；表头 ↑↓ 排序指示，&gt;500 行显示 loading</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">01285 的三阶段实施路径</h3>
+        <dl class="kv">
+          <dt>第一阶段</dt><dd>导航栏重构 + 视觉微调：200px 分组侧栏、图标统一、圆角/字体调整，每阶段 1-2 周，2 周内出 V1.10 尝鲜版。</dd>
+          <dt>第二阶段</dt><dd>页面布局统一 + 交互增强：统一卡片+表格结构、合同分步向导、表格排序与悬浮行高亮。</dd>
+          <dt>第三阶段</dt><dd>高级功能（可选）：全局搜索框、仪表盘迷你趋势图、深/浅色主题切换。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">01285 为什么淘汰其他导航方案</h3>
+        <div class="tblwrap" style="margin-bottom:0"><table>
+          <thead><tr><th>被淘汰方案</th><th>原因</th></tr></thead>
+          <tbody>
+            <tr><td>折叠侧边栏（方案一）</td><td>未解决分组问题，信息仍混乱，治标不治本</td></tr>
+            <tr><td>顶部标签（方案二）</td><td>10+ 标签需溢出菜单，操作不便</td></tr>
+            <tr><td>图标+浮层（方案四）</td><td>实现复杂，CustomTkinter 浮层体验差</td></tr>
+            <tr><td>混合双栏（方案五）</td><td>过度设计，学习成本高，当前功能量无需</td></tr>
+            <tr><td>全新蓝色主题</td><td>改变用户习惯，需维护两套主题，留作后续可选</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 02 配色与视觉 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>配色与视觉规范（三篇同题合并）</h2><span class="hint">莫兰迪暖色微调</span></div>
+    <p class="lede">三篇都主张<b>保留现有莫兰迪暖色调、不推倒重来</b>，只做圆角、阴影、字体、间距、功能色五项系统化微调。下表把三篇的具体取值对照列出，同一组件不同笔记给的数值并列照录。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:130px">维度</th><th style="width:300px">建议取值（照录各笔记）</th><th>来源</th></tr></thead>
+      <tbody>
+        <tr><td><b>圆角体系</b></td><td>01285：卡片 10→12px、按钮/输入框 6→8px、弹窗 0→16px。<br>01288：三级规范——主内容卡片 0/5→12、主按钮 8 / 次按钮 4、输入框 2→6、模态框 10→16、导航子项 0→4（仅悬停背景）</td><td>01285 / 01288</td></tr>
+        <tr><td><b>阴影分层</b></td><td>01285：单层阴影改三层叠加（CustomTkinter 不支持直接阴影，用 border_color #E8DDD0 + fg_color #FFFAF5 模拟）。<br>01288：z0 无阴影（侧栏/页面底）；z1 最浅（普通卡片/列表项）；z2 中度（悬浮卡片/下拉）；z3 最深（模态框/通知弹窗）</td><td>01285 / 01288</td></tr>
+        <tr><td><b>字体字号</b></td><td>01285：正文 11pt→13pt（微软雅黑）；导航按钮高 44px（图标 24 + 文字 20）。<br>01286：主标题 24px #4A3728 粗体、卡片标题 18px #5D4E37、正文 11pt（约 14.7px）、辅助说明 10pt #8B7355，统一 Microsoft YaHei。<br>01288：微文本 10px / 正文 12px / 小标题 14px medium / 大标题 20px bold</td><td>01285 / 01286 / 01288</td></tr>
+        <tr><td><b>间距节奏</b></td><td>01285：页面边距 32px、模块间距 24px。<br>01288：8px 网格（4/8/12/16/24/32 的倍数），卡片内边距统一 16px，导航子项 pady=2、表单行 pady=6</td><td>01285 / 01288</td></tr>
+        <tr><td><b>配色微调</b></td><td>01288 对照表：侧边栏背景 #F5F0EB→#F3EDE6（更中性）；主内容区 #FFFAF5→#FEF9F2（提高与白卡对比）；高亮色 #C1816D→#D4917A（略增饱和）；新增成功 #5B9279、警告 #E4A36A。<br>01286 功能色：成功 #8FA882 按钮 / #5A7A4E 文字；警告 #C9A96E 徽章；危险 #B56A6A；信息 #7BA5B5 灰蓝</td><td>01288 / 01286</td></tr>
+        <tr><td><b>深色模式</b></td><td>01286：莫兰迪深色——主背景 #2A2420、卡片 #3A322C、文字 #E6DED5。<br>01288：主背景 #1E1B18、卡片 #2C2824、文字 #EAE5DD；COLORS 字典拆 light/dark 两套变量，settings.txt 中 theme=dark/light 切换、重启生效</td><td>01286 / 01288</td></tr>
+        <tr><td><b>仪表盘图表</b></td><td>01286：柱状图（近 6 个月下单金额）+ 饼图（各模块占比），配色取 #C1816D / #8FA882 / #C9A96E，去网格线、背景透明</td><td>01286</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="srcnote" style="margin-bottom:0"><b>表格既有好设计，保持不动</b>（01285）：现有选中色 #E8D5C4、文字色 #4A3728 效果良好，无需修改；仅补充鼠标悬浮行背景 #E8DDD0，表头加 ▲/▼ 排序箭头。</div>
+  </section>
+
+  <!-- ══ 03 交互与组件 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>交互与组件建议（三篇同题合并）</h2><span class="hint">表格 / 表单 / 反馈 / 看板</span></div>
+    <p class="lede">把三篇在「表格交互、表单效率、操作反馈、仪表盘增强」上的重合建议合并去重：哪些三篇都提、哪些是单篇独有，一表看清。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:140px">组件域</th><th style="width:320px">建议内容（照录）</th><th>来源</th></tr></thead>
+      <tbody>
+        <tr><td><b>表格行交互</b></td><td>行高加到 36px；悬浮行变色（#FDF2EE 或 #FFF2E6 或 #E8DDD0，三篇各给一色）；整行可点击、鼠标手型；行首加「···」操作按钮防误触；固定首列用双 Treeview 滚动同步模拟</td><td>01286 / 01288 / 01285</td></tr>
+        <tr><td><b>表头排序</b></td><td>右侧 ↑↓ 图标，点击排序并高亮方向；数据量 &gt;500 时排序显示短暂 loading</td><td>01286 / 01288 / 01285</td></tr>
+        <tr><td><b>列宽</b></td><td>允许拖拽调列宽并写入 settings.txt 下次恢复；默认列宽按内容分配（文本 200px、数字 100px、日期 120px）</td><td>01288 / 01286</td></tr>
+        <tr><td><b>表单输入</b></td><td>必填前红 * + 提交时边框红/抖动提示；合同编号、供应商名等 Combobox 自动补全历史记录；金额失焦自动千分位格式化</td><td>01286</td></tr>
+        <tr><td><b>操作反馈</b></td><td>成功导出/保存不再用 messagebox，改右下角非模态 Toast（3 秒自动消失、可堆叠、随类型变色半透明滑入）；加载超 300ms 显示骨架屏 + CTkProgressBar（indeterminate）</td><td>01286 / 01288</td></tr>
+        <tr><td><b>窗口行为</b></td><td>记录上次窗口大小、位置、侧栏宽度、表格列宽并存 settings.txt，启动恢复</td><td>01286</td></tr>
+        <tr><td><b>看板 KPI 卡</b></td><td>卡片统一 280×100；右上角趋势标签改 Sparkline 迷你折线；环比改色块箭头（绿升 / 红降 / 灰平）；底部加微进度条；悬停上浮 y_offset=-2 + 阴影</td><td>01288 / 01286</td></tr>
+        <tr><td><b>看板待办</b></td><td>待办聚合条默认折叠为「📋 你有 3 项待办」横幅，展开后每条左侧加紧急程度色块（红/橙/蓝），「前往处理」改圆角胶囊按钮</td><td>01288</td></tr>
+        <tr><td><b>看板动态流</b></td><td>左侧时间轴圆点（新增=绿、修改=蓝、删除=红）；超过 5 条底部「查看更多」链接弹模态框</td><td>01288</td></tr>
+        <tr><td><b>时间筛选</b></td><td>仪表盘顶部加日期范围选择器（本周/本月/自定义），CTkSegmentedButton 切换、默认「本月」，所有卡片联动</td><td>01286</td></tr>
+        <tr><td><b>页面动效</b></td><td>页面切换淡入淡出；侧栏折叠用 after 循环每 10ms 增减 5px 做平滑动画</td><td>01286</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">01286 优先级表（V1.5 先落实高项）</h3>
+        <div class="tblwrap" style="margin-bottom:0"><table>
+          <thead><tr><th>优先级</th><th>优化点</th><th>工作量</th></tr></thead>
+          <tbody>
+            <tr><td>高</td><td>表格行高、悬浮效果</td><td>1h</td></tr>
+            <tr><td>高</td><td>必填标记 + 表单同行布局</td><td>2-3h</td></tr>
+            <tr><td>高</td><td>非模态通知</td><td>1-2h</td></tr>
+            <tr><td>中</td><td>窗口状态持久化 / 仪表盘图表与趋势</td><td>1h / 2h</td></tr>
+            <tr><td>中</td><td>深色模式</td><td>3-4h</td></tr>
+            <tr><td>低</td><td>侧边栏拖拽 / 页面淡入淡出</td><td>2h / 4h</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">01288 优先级表（V1.9.5 起）</h3>
+        <div class="tblwrap" style="margin-bottom:0"><table>
+          <thead><tr><th>优先级</th><th>优化项</th><th>工作量</th></tr></thead>
+          <tbody>
+            <tr><td>P0</td><td>圆角统一 + 阴影分层</td><td>2h</td></tr>
+            <tr><td>P0</td><td>表格行悬浮与排序指示器</td><td>4h</td></tr>
+            <tr><td>P1</td><td>分组三角 + 胶囊角标 / 待办折叠化 / 字体间距系统化</td><td>1-2h</td></tr>
+            <tr><td>P2</td><td>KPI 卡片迷你趋势图 / 暗色模式基础架构</td><td>3h / 8h</td></tr>
+            <tr><td>P3</td><td>交互式图表（Plotly）</td><td>6h</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 04 优化建议分析（01300 单列） ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>优化建议分析：看板与各页面专项</h2><span class="hint">01300 · 2026-06-11</span></div>
+    <p class="lede">这篇不再谈配色，而是站在「看板 + 各业务页面 + 架构性能」三个层面，按高/中/低优先级给出可落地清单，并收敛出 V2.3.0 优先 5 项与 V3.0 智能化路线图。</p>
+
+    <details class="acc st4" open>
+      <summary>看板页面（Dashboard）优化<span class="cnt">高/中/低三档</span></summary>
+      <div class="body">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:90px">优先级</th><th style="width:230px">优化点</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td><b>高</b></td><td>动态流点击跳转详情</td><td>每条动态按类型+记录 ID 打开对应页面并定位，目前仅静态文字、需人工查找</td></tr>
+            <tr><td><b>高</b></td><td>待办一键完成 / 延后</td><td>聚合条内直接「✔ 完成」「⏱ 延后 1 天」，免跳转</td></tr>
+            <tr><td><b>高</b></td><td>KPI 卡片自定义指标</td><td>设置页从预设列表（下单/催款/垫付/差旅/合同/比价/报价）勾选 4 个，2×2 网格动态生成</td></tr>
+            <tr><td>中</td><td>动态流类型筛选</td><td>顶部胶囊按钮按类型过滤（如只看催款）</td></tr>
+            <tr><td>中</td><td>趋势图悬停提示</td><td>Canvas 折线绑定事件，悬停显示月份与数值，或用文字「近 6 月：+12%, -3%, +5%」替代</td></tr>
+            <tr><td>中</td><td>待办按紧急度排序</td><td>紧急红 / 一般橙 / 普通蓝，今天到期置顶</td></tr>
+            <tr><td>低</td><td>仅看未读模式 / 同比数据</td><td>记录上次查看时间标记未读；系统满一年后补同比</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </details>
+
+    <details class="acc st4">
+      <summary>通用优化（适用大多数页面）<span class="cnt">高频复用</span></summary>
+      <div class="body">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:90px">优先级</th><th style="width:220px">优化点</th><th>适用页面</th></tr></thead>
+          <tbody>
+            <tr><td><b>高</b></td><td>统一快速筛选条（关键词 + 日期范围 + 状态下拉），封装为 FilterBar 组件全页复用</td><td>物料下单/催款/垫付/差旅/备忘录/合同/BOM 等列表页</td></tr>
+            <tr><td><b>高</b></td><td>列宽拖动并记忆到 settings.txt</td><td>所有含 Treeview 页面</td></tr>
+            <tr><td><b>高</b></td><td>导出当前筛选视图为 Excel（字段与表格列一致）</td><td>所有列表页</td></tr>
+            <tr><td>中</td><td>批量操作：行首复选框多选后批量删除/归档/改状态</td><td>物料下单/供应商/催款/垫付/备忘录</td></tr>
+            <tr><td>中</td><td>字段合法性校验 + 未填高亮 Tooltip</td><td>所有表单页</td></tr>
+            <tr><td>中</td><td>长表单每 30 秒自动存草稿</td><td>物料下单（22 字段）/报价单/合同生成</td></tr>
+            <tr><td>低</td><td>快捷键 Ctrl+S 保存 / Ctrl+F 搜索 / Ctrl+E 导出；表格行右键上下文菜单</td><td>全局 / 所有表格页</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </details>
+
+    <details class="acc st4">
+      <summary>九个业务页面专项清单<span class="cnt">点到点改造</span></summary>
+      <div class="body">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:150px">页面</th><th>高优先改造</th><th>中低优先补充</th></tr></thead>
+          <tbody>
+            <tr><td><b>物料下单</b></td><td>顶部生命周期步骤条（比价→签批→通知→生产→发货→入库→完成）按字段自动高亮；一键复制相似订单</td><td>物流单号接快递 100 查轨迹；预计到达临近在动态流提醒并整行高亮</td></tr>
+            <tr><td><b>报价单生成</b></td><td>产品库支持 Excel 批量导入（含阶梯价）</td><td>生成前内嵌表格预览；历史报价「再次使用」一键回填</td></tr>
+            <tr><td><b>三方比价</b></td><td>按输入数量自动算三家阶梯总价，绿色高亮最低价供应商并打「推荐」标签</td><td>同物料历次比价价格曲线；导出比价报告（PDF 需评估 reportlab 打包体积）</td></tr>
+            <tr><td><b>合同生成</b></td><td>支持上传自定义 .docx 模板并映射占位符（类似邮件合并）；合同编号按年份+供应商缩写+顺序号自动生成保唯一</td><td>有效期字段到期前 30 天在动态流提醒、列表高亮</td></tr>
+            <tr><td><b>台账查询</b></td><td>AND/OR 多条件高级筛选（如：供应商=A 且金额&gt;10000 或物料名含「包材」）</td><td>按供应商/品类透视汇总出柱状图；Excel 导入自动识别列头、允许手动映射</td></tr>
+            <tr><td><b>BOM 管理</b></td><td>Treeview 树形展示多层子 BOM，支持展开/折叠全部</td><td>按最近采购价累加成品成本；BOM 多版本（V1.0/V2.0）切换与差异比较</td></tr>
+            <tr><td><b>催款记录</b></td><td>按应付款日期自动着色：逾期 &gt;30 天标红、7 天内标橙</td><td>一键唤起邮件客户端发催款函（预填收件人/主题/正文）；同供应商催收历史时间线</td></tr>
+            <tr><td><b>垫付 & 差旅</b></td><td>批量勾选一键「已报销」</td><td>发票/收据图片存 attachments/ 目录并在列表打图标；按标准报销单格式导 PDF</td></tr>
+            <tr><td><b>备忘录</b></td><td>截止时间到点发系统桌面通知（plyer / win10toast + 后台轮询）</td><td>每日/每周周期性备忘自动生成下一截止日；可关联到订单/供应商并跳转</td></tr>
+            <tr><td><b>厂家 & 设置</b></td><td>设置页一键备份（zip 打包 procurement.db）与恢复；厂家页 0-5 星评分字段</td><td>供应商联系人拆子表（采购/财务/技术多人）；日志自动轮转保留最近 30 天；界面布局一键重置</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </details>
+
+    <details class="acc st4">
+      <summary>架构性能与 V2.3.0 / V3.0 路线图<span class="cnt">下一版本怎么排</span></summary>
+      <div class="body">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:170px">方向</th><th>要点</th></tr></thead>
+          <tbody>
+            <tr><td><b>异步加载分页</b></td><td>台账超 1 万行用 threading 加载、每页 100 行分页，避免一次性全量卡死</td></tr>
+            <tr><td><b>数据库运维</b></td><td>启动迁移加版本标记，只在版本变化时跑 _migrate_tables；每天凌晨自动备份保留最近 7 份；操作写 audit_log 审计表</td></tr>
+            <tr><td><b>V2.3.0 优先 5 项</b></td><td>①动态流可点击跳详情 ②列表统一快速筛选栏+列宽记忆 ③物料下单生命周期流程图 ④数据备份/恢复 ⑤大表异步加载+分页</td></tr>
+            <tr><td><b>V3.0 智能化</b></td><td>按历史价/准时率/评分智能推荐供应商；移动平均做 1-3 个月需求预测；录入单价超该物料近 6 次均价 ±20% 自动弹窗记录原因</td></tr>
+            <tr><td><b>V3.0 自动化</b></td><td>后台定时任务按「通知日期/预计交期/发货日期」自动流转合同状态；逾期 &gt;30 天应付自动生成催款待办；Excel 导入用 difflib 模糊匹配列头</td></tr>
+            <tr><td><b>V3.0 报表与延伸</b></td><td>独立报表中心（月度采购堆积面积图/准时率 Top10/待报销折线/采购频次 Top20 词云）；Flask 只读查询端 + 邮件/企业微信 Webhook 通知 + 二维码扫码录入</td></tr>
+          </tbody>
+        </table></div>
+        <div class="srcnote" style="margin-top:14px;margin-bottom:0"><b>系统背景（照录）</b>：「采购助手」桌面管理系统 V2.2.0，技术栈 Python 3.12 + CustomTkinter + SQLite，作者王维（EastSeaO），北京同仁堂健康药业（青海）有限公司采购部，已在部门实际运行；功能覆盖物料下单、报价比价、合同生成、垫付报销、催款台账等核心环节。</div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ══ 05 前端工具创意清单（00359） ══ -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>附录：前端采购工具创意清单</h2><span class="hint">00359 · 2025-10-30</span></div>
+    <p class="lede">这篇是更早的一份「采购 + 前端」跨界工具构想，按「流程效率 → 数据决策 → 小工具」三档列出八类可独立做的小工具，技术栈与起步建议一并照录。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:170px">工具</th><th style="width:300px">做什么</th><th>技术亮点</th></tr></thead>
+      <tbody>
+        <tr><td><b>采购比价助手 / 价格看板</b></td><td>一表录入各供应商报价/税率/运费，自动算含税总价与单价并高亮最优，柱状图对比，导出 PDF/Excel</td><td>React Table / Handsontable、ECharts / Chart.js、文件导出</td></tr>
+        <tr><td><b>供应商信息管理中心</b></td><td>卡片化展示联系人/主营品类/信用等级/最近交易，按品类地区信用筛选，一键发邮件或复制联系方式</td><td>组件化 + 状态管理 + LocalStorage</td></tr>
+        <tr><td><b>采购需求收集器</b></td><td>生成标准链接/二维码发内部同事填需求，看板实时汇总，提交人可看自己需求状态（待处理/已询价/已下单）</td><td>Formik / React Hook Form、WebSocket 或轮询、二维码生成</td></tr>
+        <tr><td><b>支出分析仪表盘</b></td><td>上传 Excel 采购记录，出月度/季度趋势、品类占比饼图、供应商排名，点击图表联动筛选</td><td>D3.js / AntV G2、文件解析</td></tr>
+        <tr><td><b>合同/订单到期提醒器</b></td><td>录入合同与长单到期日，自动算剩余天数按颜色预警，配日历视图</td><td>Day.js / date-fns、日历组件、桌面通知</td></tr>
+        <tr><td><b>单位换算与税率计算器</b></td><td>货币换算、件↔箱换算、含税/不含税价互算</td><td>实时计算</td></tr>
+        <tr><td><b>采购模板生成器</b></td><td>询价单（RFQ）/合同标准模板在线填字段，一键生成规范 Word/PDF</td><td>docx.js / pdf-lib</td></tr>
+        <tr><td><b>采购术语与 SOP 知识库</b></td><td>静态站整理专业术语与标准流程，支持搜索，自用或培训新人</td><td>VitePress / Docusaurus + Markdown</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">怎么起步</h3>
+        <dl class="kv">
+          <dt>选题目</dt><dd>回想工作中最重复、最耗时、最头疼的任务，作为第一个项目。</dd>
+          <dt>MVP 原则</dt><dd>先做核心功能可用的简单版本（如本地比价表格），再逐步加数据持久化。</dd>
+          <dt>展示跨界</dt><dd>说明工具解决了采购哪个具体问题，按采购员操作习惯做界面，发布到 GitHub / 个人博客。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">技术栈推荐</h3>
+        <dl class="kv">
+          <dt>框架</dt><dd>React（生态丰富）/ Vue（易上手）/ Solid.js（性能好）</dd>
+          <dt>UI 库</dt><dd>Ant Design、Chakra UI、Element Plus 等，快速搭专业界面</dd>
+          <dt>构建</dt><dd>Vite，开发体验佳</dd>
+          <dt>推荐起点</dt><dd><b>采购比价助手</b>：目标明确、能串联表单/表格/计算/图表/导出，做完立刻能用</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>采购管理系统 UI/GUI 优化方案 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页内容整理自采购工作笔记，色值、圆角、工时估算与优先级均照录原笔记，仅作内部设计参考，不构成开发承诺。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
