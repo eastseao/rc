@@ -172,7 +172,6 @@
   .progress.on{display:block}
   .progress div{height:100%;background:var(--accent);width:0%;transition:width .2s}
 
-
   /* ── 全量书单索引 ───────────────────────── */
   .allbooks-intro{font:12.5px/1.7 var(--mono);color:var(--muted);margin:18px 0 12px;letter-spacing:.03em;border:1px solid var(--border);background:var(--surface);padding:12px 16px}
   .allbooks-intro b{color:var(--accent-ink)}
@@ -236,45 +235,129 @@
     .book-card .actions .dl{background:none;color:var(--ink);border:1px solid var(--ink)}
   }
 </style>
+<style id="tn-style">
+/* ═══ 全站统一顶部导航（GERVAS） ═══════════════════════════════════
+   一级分组横排 + 下拉二级；替代原先的左右悬浮目录
+   依赖 theme.css 的 token，不重复定义主题色                       */
+:root{ --tnh:50px }
+html{ scroll-behavior:smooth }
+[id]{ scroll-margin-top:calc(var(--tnh) + 14px) }
+
+.tn-bar{ position:sticky; top:0; z-index:60; background:#0f172a; color:#f1f5f9 }
+.tn-in{ max-width:1400px; margin:0 auto; padding:0 22px; min-height:var(--tnh);
+        display:flex; align-items:center; flex-wrap:wrap; gap:2px 14px }
+.tn-brand{ display:inline-flex; align-items:baseline; gap:8px; flex:0 0 auto;
+           font-family:var(--mono); font-size:13.5px; font-weight:700; letter-spacing:.1em;
+           color:#fff; text-decoration:none; white-space:nowrap }
+.tn-brand em{ font-style:normal; font-size:11.5px; font-weight:400; letter-spacing:.02em;
+              color:#94a3b8; transition:color .15s }
+.tn-brand:hover em{ color:#5eead4 }
+
+/* ⚠️ 这里绝不能写 overflow-x:auto —— 它会让 overflow-y 隐式变成 auto，
+   于是下拉面板被导航自己的滚动容器裁掉（点开看不见）。
+   宽度不够时改用 flex-wrap 换行，让面板能溢出容器。 */
+.tn-nav{ margin-inline-start:auto; display:flex; flex-wrap:wrap;
+         justify-content:flex-end; align-items:center; gap:2px; min-width:0 }
+/* 扁平模式（单组、条目少）：直接横排链接 */
+.tn-nav a.tn-fl{ display:inline-flex; align-items:baseline; gap:6px; flex:0 0 auto;
+  padding:6px 11px; border-radius:6px; font-size:13px; color:#94a3b8;
+  text-decoration:none; white-space:nowrap; transition:background .15s,color .15s }
+.tn-nav a.tn-fl:hover{ background:rgba(255,255,255,.08); color:#f1f5f9 }
+.tn-nav a.tn-fl.on{ background:rgba(13,148,136,.28); color:#f1f5f9; font-weight:600 }
+.tn-nav a.tn-fl .n{ font-family:var(--mono); font-size:10.5px; opacity:.65 }
+.tn-nav a.tn-fl.on .n{ opacity:1 }
+
+/* 下拉模式 */
+.tn-g{ position:relative; flex:0 0 auto }
+.tn-gb{ display:inline-flex; align-items:center; gap:5px; padding:6px 11px;
+  border:0; background:none; cursor:pointer; font:inherit; font-size:13px;
+  color:#94a3b8; border-radius:6px; white-space:nowrap;
+  transition:background .15s,color .15s }
+.tn-gb:hover{ background:rgba(255,255,255,.08); color:#f1f5f9 }
+.tn-gb.on{ background:rgba(13,148,136,.28); color:#f1f5f9; font-weight:600 }
+.tn-gb .ct{ font-family:var(--mono); font-size:10.5px; color:#64748b; margin-inline-start:1px }
+.tn-gb.on .ct{ color:#5eead4 }
+.tn-gb .cv{ width:9px; height:9px; flex:0 0 auto; opacity:.7; transition:transform .18s }
+.tn-g.open .tn-gb{ background:rgba(255,255,255,.1); color:#f1f5f9 }
+.tn-g.open .tn-gb .cv{ transform:rotate(180deg) }
+
+.tn-panel{ position:absolute; top:calc(100% + 8px); inset-inline-start:0; z-index:70;
+  display:none; min-width:250px; max-width:340px;
+  max-height:min(64vh,520px); overflow-y:auto; overscroll-behavior:contain;
+  background:#fff; border:1px solid var(--line); border-radius:10px; padding:7px;
+  box-shadow:0 20px 44px -18px rgba(15,23,42,.42) }
+@media (min-width:901px){
+  .tn-nav > .tn-g:nth-last-child(-n+4) .tn-panel{ inset-inline-start:auto; inset-inline-end:0 }
+}
+.tn-g.open .tn-panel{ display:block }
+@media (hover:hover) and (min-width:901px){ .tn-g:hover .tn-panel{ display:block } }
+.tn-panel a{ display:flex; gap:8px; align-items:baseline; padding:7px 10px;
+  border-radius:6px; font-size:13px; line-height:1.5; color:var(--ink-2);
+  text-decoration:none; transition:background .12s,color .12s }
+.tn-panel a:hover{ background:var(--accent-soft); color:var(--accent-ink) }
+.tn-panel a.on{ background:var(--accent-soft); color:var(--accent-ink); font-weight:600 }
+.tn-panel a .n{ flex:0 0 auto; min-width:1.5em;
+  font-family:var(--mono); font-size:10.5px; color:var(--muted-2) }
+.tn-panel a.on .n{ color:var(--accent-ink) }
+.tn-panel a .tx{ min-width:0 }
+
+/* ── 布局收归单栏 ─────────────────────────────────── */
+.layout{ display:block; max-width:none; min-height:0 }
+.layout > main{ margin-inline:auto }
+/* theme.css 的「返回首页」浮钮默认贴在 top:18px，
+   而我们现在顶部是 50px 墨黑 sticky 顶栏 —— 会被完全压住，
+   必须改挂右下（与 SOP 页同款处理）。同特异性下本表在最后，无需 !important。 */
+.g-pill,.site-home-pill{ top:auto; bottom:20px }
+/* 进度条同理让位，改挂屏幕底部 */
+#pbar{ top:auto; bottom:0 }
+
+@media (max-width:900px){
+  /* 导航独占一行（横向可滑）—— 比跟品牌挤一行能看到更多分组 */
+  .tn-in{ flex-wrap:wrap; padding:8px 16px; row-gap:6px; gap:8px; min-height:0 }
+  .tn-nav{ margin-inline-start:0; width:100%; flex-wrap:nowrap;
+           overflow-x:auto; scrollbar-width:none; padding-bottom:2px }
+  .tn-nav::-webkit-scrollbar{ display:none }
+  .tn-g{ position:static }
+  /* fixed 不受祖先 overflow 裁剪（祖先无 transform/filter），所以面板能铺满全宽 */
+  .tn-panel{ position:fixed; inset-inline:12px; top:calc(var(--tnh) + 8px);
+             max-width:none; max-height:58vh }
+}
+@media print{ .tn-bar{ display:none } }
+</style>
+
 </head>
 <body>
-
-<header class="topbar">
-  <a class="brand" href="../index.html">电子书宝库<em>·</em>实时检索</a>
-  <span class="topmeta"><span class="live loading" id="liveDot"></span><span id="liveText">连接数据源…</span></span>
+<header class="tn-bar">
+  <div class="tn-in">
+    <a class="tn-brand" href="../index.html">GERVAS<em>电子书宝库</em></a>
+    <nav class="tn-nav" id="tnNav" aria-label="内容导航"></nav>
+  </div>
 </header>
 
-<nav class="mnav" aria-label="章节导航（移动端）">
-  <summary>章节目录</summary>
-  <div class="grp">结论</div>
-  <a href="#s0">00 · 核心结论</a>
-  <div class="grp">使用</div>
-  <a href="#s1">01 · 数据采集说明</a>
-  <a href="#s2">02 · 检索功能</a>
-  <a href="#s3">03 · 分类速览</a>
-  <div class="grp">提示</div>
-  <a href="#s4">04 · 使用提示</a>
-  <div class="grp">附录</div>
-  <a href="#s5">A · 全量书单索引</a>
-</nav>
 
 <div class="layout" id="top">
 
-  <nav class="side" aria-label="章节导航">
-    <div class="grp">结论</div>
-    <a href="#s0"><span class="no">00</span>核心结论 TL;DR</a>
-    <div class="grp">使用</div>
-    <a href="#s1"><span class="no">01</span>数据采集说明</a>
-    <a href="#s2"><span class="no">02</span>检索功能</a>
-    <a href="#s3"><span class="no">03</span>分类速览</a>
-    <div class="grp">提示</div>
-    <a href="#s4"><span class="no">04</span>使用提示</a>
-    <div class="grp">附录</div>
-    <a href="#s5"><span class="no">A</span>全量索引</a>
-    <div class="livecount" id="liveCount">数据加载中…</div>
-  </nav>
+  
 
   <main>
+
+    <!-- ── 0 核心结论 · 隐藏锚点 ───────────────────────────────────────
+         本节的正文视觉上由上面的 hero + stats 承载，真正的内容藏在
+         position:absolute;left:-9999px 里，只为给顶栏「结论」那一组提供跳转落点。
+         ⚠️ 必须留在 <main> 的开头：它一旦被挪到页面底部（曾经在 </main> 之后），
+           点「核心结论 TL;DR」就会把页面滚到最后，同时滚动高亮也会错亮「使用」组。 -->
+    <section id="s0" style="margin-top:0;padding-top:0">
+      <div style="position:absolute;left:-9999px">
+        <h2><span class="eyebrow">结论 · TL;DR</span>一句话判断 + 4 条核心洞察</h2>
+        <p>「源仓库 18K stars / 7.2 MB / 1,000 类，中文电子书垂直开放数据集中规模最大的一份。本子页把它搬进 rc 站做实时客户端检索：</p>
+        <ul>
+          <li><strong>无服务端</strong> —— 一个 HTML 文件走天下；JSON 数据由 <code>raw.githubusercontent.com</code> 跨域直供</li>
+          <li><strong>多关键词 AND</strong> ——「python 入门」「刘慈欣 三体」「东野圭吾 推理」按空格组合</li>
+          <li><strong>关键字高亮</strong> —— 命中片段用米色背景标记，长字符串里一眼定位</li>
+          <li><strong>移动端友好</strong> —— 桌面三栏 / 平板两栏 / 手机单栏 + 抽屉章节</li>
+        </ul>
+      </div>
+    </section>
 
     <div class="crumbs"><b>工具 · 检索</b> · 2026-09-10 · eastseao</div>
 
@@ -421,34 +504,11 @@
 
   </main>
 
-  <nav class="toc" aria-label="本页目录">
-    <div class="toc-label">本页</div>
-    <a href="#top"><span class="no">↑</span>回到顶部</a>
-    <a href="#s0"><span class="no">00</span>TL;DR</a>
-    <a href="#s2"><span class="no">02</span>检索功能</a>
-    <a href="#s1"><span class="no">01</span>采集说明</a>
-    <a href="#s3"><span class="no">03</span>分类速览</a>
-    <a href="#s4"><span class="no">04</span>使用提示</a>
-    <a href="#s5"><span class="no">A</span>全量索引</a>
-  </nav>
+  
 
 </div>
 
 <a class="g-pill" href="../index.html" aria-label="返回 rc 首页">← 返回首页</a>
-
-<!-- ── 0 核心结论（隐藏在主区顶部，scroll 锚点用） ── -->
-<section id="s0" style="margin-top:0;padding-top:0">
-  <div style="position:absolute;left:-9999px">
-    <h2><span class="eyebrow">结论 · TL;DR</span>一句话判断 + 4 条核心洞察</h2>
-    <p>「源仓库 18K stars / 7.2 MB / 1,000 类，中文电子书垂直开放数据集中规模最大的一份。本子页把它搬进 rc 站做实时客户端检索：</p>
-    <ul>
-      <li><strong>无服务端</strong> —— 一个 HTML 文件走天下；JSON 数据由 <code>raw.githubusercontent.com</code> 跨域直供</li>
-      <li><strong>多关键词 AND</strong> ——「python 入门」「刘慈欣 三体」「东野圭吾 推理」按空格组合</li>
-      <li><strong>关键字高亮</strong> —— 命中片段用米色背景标记，长字符串里一眼定位</li>
-      <li><strong>移动端友好</strong> —— 桌面三栏 / 平板两栏 / 手机单栏 + 抽屉章节</li>
-    </ul>
-  </div>
-</section>
 
 <script>
 (function(){
@@ -734,14 +794,16 @@
   const $abStat = document.getElementById('abStat');
 
   // 进度条（视觉反馈，避免"卡住"错觉）
-  const $progress = document.createElement('div');
-  $progress.className = 'load-progress';
-  document.body.appendChild($progress);
+  // ⚠️ 注意：此处变量名曾与外层搜索进度条 $("#progress") 撞名，导致整个脚本块语法错误，
+  //    改名 $loadBar 隔离作用域，勿改回。
+  const $loadBar = document.createElement('div');
+  $loadBar.className = 'load-progress';
+  document.body.appendChild($loadBar);
   function flashProgress(msg, ms=1500){
-    $progress.textContent = msg;
-    $progress.classList.add('on');
-    clearTimeout($progress._t);
-    $progress._t = setTimeout(() => $progress.classList.remove('on'), ms);
+    $loadBar.textContent = msg;
+    $loadBar.classList.add('on');
+    clearTimeout($loadBar._t);
+    $loadBar._t = setTimeout(() => $loadBar.classList.remove('on'), ms);
   }
 
   async function loadIndex(){
@@ -804,7 +866,7 @@
       const msg = isAbort ? '请求超时（>30s）' : e.message;
       console.error('[ebook] index load failed:', e);
       const clearAndReload = 'try{sessionStorage.removeItem("ebook_index_v2");location.reload()}catch(e){location.reload()}';
-      $abList.innerHTML = '<div class="empty-state"><div class="big">⚠️</div>索引加载失败<br><br><b>' + escHtml(msg) + '</b><br><br>可能原因：<br>① 网络限制 <code>assets/ebook/books-index.json</code><br>② 浏览器缓存了旧版本（试 Ctrl+Shift+R 强刷）<br>③ sessionStorage 缓存了坏数据（试 DevTools → Application → Storage → Clear site data）<br><br><button class="more-btn" onclick='' + clearAndReload + ''>清缓存 + 重试</button></div>';
+      $abList.innerHTML = '<div class="empty-state"><div class="big">⚠️</div>索引加载失败<br><br><b>' + escHtml(msg) + '</b><br><br>可能原因：<br>① 网络限制 <code>assets/ebook/books-index.json</code><br>② 浏览器缓存了旧版本（试 Ctrl+Shift+R 强刷）<br>③ sessionStorage 缓存了坏数据（试 DevTools → Application → Storage → Clear site data）<br><br><button class="more-btn" onclick="' + clearAndReload + '">清缓存 + 重试</button></div>';
       flashProgress('加载失败 · ' + msg, 5000);
     }
     loading = false;
@@ -969,5 +1031,143 @@
 })();
 </script>
 <!-- 索引数据改外部加载：assets/ebook/books-index.json -->
+
+<script>window.TN_DATA={"groups":[{"g":"结论","items":[{"h":"#s0","n":"00","t":"核心结论 TL;DR"}]},{"g":"使用","items":[{"h":"#s1","n":"01","t":"数据采集说明"},{"h":"#s2","n":"02","t":"检索功能"},{"h":"#s3","n":"03","t":"分类速览"}]},{"g":"提示","items":[{"h":"#s4","n":"04","t":"使用提示"}]},{"g":"附录","items":[{"h":"#s5","n":"A","t":"全量索引"}]}]};</script>
+<script>
+/* ── 统一顶部导航：渲染 + 交互 ───────────────────────────────── */
+(function(){
+  var DATA = window.TN_DATA || { groups: [] };
+  var nav = document.getElementById('tnNav');
+  var bar = document.querySelector('.tn-bar');
+  if (!nav || !bar) return;
+
+  function esc(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function setH(){ document.documentElement.style.setProperty('--tnh', bar.offsetHeight + 'px'); }
+
+  var groups = (DATA.groups || []).filter(function(g){ return g.items && g.items.length; });
+  /* 扁平模式：只有一个无名分组、且条目 ≤ 10 —— 直接横排更省一次点击 */
+  var flat = groups.length === 1 && !groups[0].g && groups[0].items.length <= 10;
+  var html = '';
+
+  if (flat){
+    html = groups[0].items.map(function(it){
+      return '<a class="tn-fl" href="' + esc(it.h) + '" data-h="' + esc(it.h) + '">'
+        + (it.n ? '<span class="n">' + esc(it.n) + '</span>' : '')
+        + esc(it.t) + '</a>';
+    }).join('');
+  } else {
+    html = groups.map(function(g, i){
+      return '<div class="tn-g" data-i="' + i + '">'
+        + '<button type="button" class="tn-gb" aria-expanded="false" aria-haspopup="true">'
+        + esc(g.g || '目录')
+        + '<span class="ct">' + g.items.length + '</span>'
+        + '<svg class="cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>'
+        + '</button><div class="tn-panel" role="menu">'
+        + g.items.map(function(it){
+            return '<a href="' + esc(it.h) + '" data-h="' + esc(it.h) + '">'
+              + (it.n ? '<span class="n">' + esc(it.n) + '</span>' : '')
+              + '<span class="tx">' + esc(it.t) + '</span></a>';
+          }).join('')
+        + '</div></div>';
+    }).join('');
+  }
+  nav.innerHTML = html;
+
+  var gs = [].slice.call(nav.querySelectorAll('.tn-g'));
+  var links = [].slice.call(nav.querySelectorAll('a[data-h]'));
+
+  function closeAll(){
+    gs.forEach(function(g){
+      g.classList.remove('open');
+      var b = g.querySelector('.tn-gb');
+      if (b) b.setAttribute('aria-expanded', 'false');
+    });
+  }
+  gs.forEach(function(g){
+    var b = g.querySelector('.tn-gb');
+    if (!b) return;
+    b.addEventListener('click', function(e){
+      e.preventDefault();
+      var open = !g.classList.contains('open');
+      closeAll();
+      if (open){ g.classList.add('open'); b.setAttribute('aria-expanded', 'true'); }
+    });
+  });
+  nav.addEventListener('click', function(e){ e.stopPropagation(); });
+  document.addEventListener('click', closeAll);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeAll(); });
+  /* 面板内跳转后收起 */
+  nav.addEventListener('click', function(e){
+    var a = e.target.closest ? e.target.closest('a[data-h]') : null;
+    if (a) closeAll();
+  });
+
+  /* ── 滚动高亮：当前章节 → 对应分组 ───────────────── */
+  var marks = [];
+  groups.forEach(function(g, gi){
+    g.items.forEach(function(it){
+      if (!it.h || it.h.charAt(0) !== '#') return;   /* 站内其它页的链接不参与滚动高亮 */
+      var el = document.querySelector(it.h);
+      if (!el) return;
+      marks.push({ el: el, gi: gi, h: it.h,
+                   top: el.getBoundingClientRect().top + window.scrollY });
+    });
+  });
+  marks.sort(function(a, b){ return a.top - b.top; });
+
+  /* 首屏兜底锂点：必须取「第 0 组」的锂点，不能直接取 marks[0]。
+     marks 已按 top 排序，而 ebook 页的 #s0（结论）是
+     position:absolute;left:-9999px 的隐藏锂点桩、DOM 落在页面最底部，
+     排序后 marks[0] 会变成 #s2（使用组），导致首屏错亮「使用」。
+     故按 gi===0 取排序后最靠上的一条。 */
+  var fallback = null;
+  for (var k = 0; k < marks.length; k++){ if (marks[k].gi === 0){ fallback = marks[k]; break; } }
+  if (!fallback && marks.length) fallback = marks[0];
+
+  var ticking = false;
+  function spy(){
+    ticking = false;
+    var y = window.scrollY + bar.offsetHeight + 26;
+    /* 兜底取第 0 组：首屏在第一章节之上时（如 hero 很长）也要有一个激活态，
+       否则顶栏在页面顶部会完全没有高亮 */
+    var cur = fallback;
+    for (var i = 0; i < marks.length; i++){
+      if (marks[i].top <= y) cur = marks[i]; else break;
+    }
+    links.forEach(function(a){
+      a.classList.toggle('on', !!cur && a.getAttribute('data-h') === cur.h);
+    });
+    if (!flat){
+      gs.forEach(function(g, i){
+        var b = g.querySelector('.tn-gb');
+        if (b) b.classList.toggle('on', !!cur && i === cur.gi);
+      });
+    }
+  }
+  function onScroll(){
+    if (!ticking){ ticking = true; window.requestAnimationFrame(spy); }
+  }
+  /* 调试钩子（验收脚本用，页面功能不依赖它） */
+  /* 重新量一遍顶栏高度与各章节的绝对 top，然后刷新高亮 */
+  function remeasure(){
+    setH();
+    marks.forEach(function(m){ m.top = m.el.getBoundingClientRect().top + window.scrollY; });
+    spy();
+  }
+  window.__TN = { groups: groups, marks: marks, flat: flat, spy: spy, bar: bar, remeasure: remeasure };
+  remeasure();
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', remeasure);
+  /* ⚠️ 若初始 spy() 跑在图片/字体加载完成之前，marks 的 top 是按「更短的页面」量的，
+     后面章节会被误判成「已在视口上方」，导致首屏高亮错组（ebook 页实测过）。
+     所以 load 与字体就绪后必须各重量一次。 */
+  window.addEventListener('load', remeasure);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(remeasure);
+})();
+</script>
 </body>
 </html>

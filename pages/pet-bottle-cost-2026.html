@@ -200,14 +200,116 @@
     figure{break-inside:avoid}
   }
 </style>
+<style id="tn-style">
+/* ═══ 全站统一顶部导航（GERVAS） ═══════════════════════════════════
+   一级分组横排 + 下拉二级；替代原先的左右悬浮目录
+   依赖 theme.css 的 token，不重复定义主题色                       */
+:root{ --tnh:50px }
+html{ scroll-behavior:smooth }
+[id]{ scroll-margin-top:calc(var(--tnh) + 14px) }
+
+.tn-bar{ position:sticky; top:0; z-index:60; background:#0f172a; color:#f1f5f9 }
+.tn-in{ max-width:1400px; margin:0 auto; padding:0 22px; min-height:var(--tnh);
+        display:flex; align-items:center; flex-wrap:wrap; gap:2px 14px }
+.tn-brand{ display:inline-flex; align-items:baseline; gap:8px; flex:0 0 auto;
+           font-family:var(--mono); font-size:13.5px; font-weight:700; letter-spacing:.1em;
+           color:#fff; text-decoration:none; white-space:nowrap }
+.tn-brand em{ font-style:normal; font-size:11.5px; font-weight:400; letter-spacing:.02em;
+              color:#94a3b8; transition:color .15s }
+.tn-brand:hover em{ color:#5eead4 }
+
+/* ⚠️ 这里绝不能写 overflow-x:auto —— 它会让 overflow-y 隐式变成 auto，
+   于是下拉面板被导航自己的滚动容器裁掉（点开看不见）。
+   宽度不够时改用 flex-wrap 换行，让面板能溢出容器。 */
+.tn-nav{ margin-inline-start:auto; display:flex; flex-wrap:wrap;
+         justify-content:flex-end; align-items:center; gap:2px; min-width:0 }
+/* 扁平模式（单组、条目少）：直接横排链接 */
+.tn-nav a.tn-fl{ display:inline-flex; align-items:baseline; gap:6px; flex:0 0 auto;
+  padding:6px 11px; border-radius:6px; font-size:13px; color:#94a3b8;
+  text-decoration:none; white-space:nowrap; transition:background .15s,color .15s }
+.tn-nav a.tn-fl:hover{ background:rgba(255,255,255,.08); color:#f1f5f9 }
+.tn-nav a.tn-fl.on{ background:rgba(13,148,136,.28); color:#f1f5f9; font-weight:600 }
+.tn-nav a.tn-fl .n{ font-family:var(--mono); font-size:10.5px; opacity:.65 }
+.tn-nav a.tn-fl.on .n{ opacity:1 }
+
+/* 下拉模式 */
+.tn-g{ position:relative; flex:0 0 auto }
+.tn-gb{ display:inline-flex; align-items:center; gap:5px; padding:6px 11px;
+  border:0; background:none; cursor:pointer; font:inherit; font-size:13px;
+  color:#94a3b8; border-radius:6px; white-space:nowrap;
+  transition:background .15s,color .15s }
+.tn-gb:hover{ background:rgba(255,255,255,.08); color:#f1f5f9 }
+.tn-gb.on{ background:rgba(13,148,136,.28); color:#f1f5f9; font-weight:600 }
+.tn-gb .ct{ font-family:var(--mono); font-size:10.5px; color:#64748b; margin-inline-start:1px }
+.tn-gb.on .ct{ color:#5eead4 }
+.tn-gb .cv{ width:9px; height:9px; flex:0 0 auto; opacity:.7; transition:transform .18s }
+.tn-g.open .tn-gb{ background:rgba(255,255,255,.1); color:#f1f5f9 }
+.tn-g.open .tn-gb .cv{ transform:rotate(180deg) }
+
+.tn-panel{ position:absolute; top:calc(100% + 8px); inset-inline-start:0; z-index:70;
+  display:none; min-width:250px; max-width:340px;
+  max-height:min(64vh,520px); overflow-y:auto; overscroll-behavior:contain;
+  background:#fff; border:1px solid var(--line); border-radius:10px; padding:7px;
+  box-shadow:0 20px 44px -18px rgba(15,23,42,.42) }
+@media (min-width:901px){
+  .tn-nav > .tn-g:nth-last-child(-n+4) .tn-panel{ inset-inline-start:auto; inset-inline-end:0 }
+}
+.tn-g.open .tn-panel{ display:block }
+@media (hover:hover) and (min-width:901px){ .tn-g:hover .tn-panel{ display:block } }
+.tn-panel a{ display:flex; gap:8px; align-items:baseline; padding:7px 10px;
+  border-radius:6px; font-size:13px; line-height:1.5; color:var(--ink-2);
+  text-decoration:none; transition:background .12s,color .12s }
+.tn-panel a:hover{ background:var(--accent-soft); color:var(--accent-ink) }
+.tn-panel a.on{ background:var(--accent-soft); color:var(--accent-ink); font-weight:600 }
+.tn-panel a .n{ flex:0 0 auto; min-width:1.5em;
+  font-family:var(--mono); font-size:10.5px; color:var(--muted-2) }
+.tn-panel a.on .n{ color:var(--accent-ink) }
+.tn-panel a .tx{ min-width:0 }
+
+/* ── 布局收归单栏 ─────────────────────────────────── */
+.layout{ display:block; max-width:none; min-height:0 }
+.layout > main{ margin-inline:auto }
+/* theme.css 的「返回首页」浮钮默认贴在 top:18px，
+   而我们现在顶部是 50px 墨黑 sticky 顶栏 —— 会被完全压住，
+   必须改挂右下（与 SOP 页同款处理）。同特异性下本表在最后，无需 !important。 */
+.g-pill,.site-home-pill{ top:auto; bottom:20px }
+/* 进度条同理让位，改挂屏幕底部 */
+#pbar{ top:auto; bottom:0 }
+
+@media (max-width:900px){
+  /* 导航独占一行（横向可滑）—— 比跟品牌挤一行能看到更多分组 */
+  .tn-in{ flex-wrap:wrap; padding:8px 16px; row-gap:6px; gap:8px; min-height:0 }
+  .tn-nav{ margin-inline-start:0; width:100%; flex-wrap:nowrap;
+           overflow-x:auto; scrollbar-width:none; padding-bottom:2px }
+  .tn-nav::-webkit-scrollbar{ display:none }
+  .tn-g{ position:static }
+  /* fixed 不受祖先 overflow 裁剪（祖先无 transform/filter），所以面板能铺满全宽 */
+  .tn-panel{ position:fixed; inset-inline:12px; top:calc(var(--tnh) + 8px);
+             max-width:none; max-height:58vh }
+}
+/* ── 窄屏防横向溢出（2026-09-21） ─────────────────────────
+   本页 code 默认 white-space:nowrap、表格又不带滚动容器，
+   手机上长路径 / 多列数字表会把整页顶宽（实测 420px 下 +93 ~ +190px）。
+   ⚠️ 只在窄屏放开，桌面排版不变。 */
+@media (max-width:900px){
+  code{ white-space:normal; overflow-wrap:anywhere }
+  /* display:block 让 table 变成可横滑的块级盒子；行/单元格仍按表格式渲染 */
+  table{ display:block; width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch }
+}
+
+@media print{ .tn-bar{ display:none } }
+</style>
+
 </head>
 <body>
-<div id="pbar"></div>
-
-<header class="topbar">
-  <a class="brand" href="../index.html">PET 瓶身<em>·</em>原料价格与单瓶成本</a>
-  <span class="topmeta">2026-01 → 2026-09-10 · 华南</span>
+<header class="tn-bar">
+  <div class="tn-in">
+    <a class="tn-brand" href="../index.html">GERVAS<em>PET 瓶身成本</em></a>
+    <nav class="tn-nav" id="tnNav" aria-label="内容导航"></nav>
+  </div>
 </header>
+
+<div id="pbar"></div>
 
 <nav class="series" aria-label="研究系列导航">
   <div class="swrap">
@@ -217,44 +319,9 @@
   </div>
 </nav>
 
-<nav class="mnav" aria-label="章节导航（移动端）">
-  <summary>章节目录 · 10 节</summary>
-  <div class="grp">结论</div>
-  <a href="#s0">00 · 核心结论</a>
-  <div class="grp">口径</div>
-  <a href="#s1">01 · 调研口径与数据说明</a>
-  <a href="#s2">02 · 产品规格与成本模型</a>
-  <div class="grp">走势</div>
-  <a href="#s3">03 · PET 原料价格走势</a>
-  <a href="#s4">04 · 关键点位明细</a>
-  <div class="grp">成本</div>
-  <a href="#s5">05 · 单瓶原料成本走势</a>
-  <a href="#s6">06 · 单瓶综合成本拆解</a>
-  <a href="#s7">07 · 敏感性分析</a>
-  <div class="grp">决策</div>
-  <a href="#s8">08 · 复盘与采购启示</a>
-  <a href="#s9">附录 · 数据来源与局限</a>
-</nav>
-
 <div class="layout" id="top">
 
-  <nav class="side" aria-label="章节导航">
-    <div class="grp">结论</div>
-    <a href="#s0"><span class="no">00</span>核心结论 TL;DR</a>
-    <div class="grp">口径</div>
-    <a href="#s1"><span class="no">01</span>调研口径与数据说明</a>
-    <a href="#s2"><span class="no">02</span>产品规格与成本模型</a>
-    <div class="grp">走势</div>
-    <a href="#s3"><span class="no">03</span>PET 原料价格走势</a>
-    <a href="#s4"><span class="no">04</span>关键点位明细</a>
-    <div class="grp">成本</div>
-    <a href="#s5"><span class="no">05</span>单瓶原料成本走势</a>
-    <a href="#s6"><span class="no">06</span>单瓶综合成本拆解</a>
-    <a href="#s7"><span class="no">07</span>敏感性分析</a>
-    <div class="grp">决策</div>
-    <a href="#s8"><span class="no">08</span>复盘与采购启示</a>
-    <a href="#s9"><span class="no">A</span>数据来源与局限</a>
-  </nav>
+  
 
   <main>
 
@@ -593,19 +660,7 @@
 
   </main>
 
-  <aside class="toc" aria-label="目录">
-    <div class="toc-label">On this page</div>
-    <a href="#s0"><span class="no">00</span>核心结论</a>
-    <a href="#s1"><span class="no">01</span>调研口径</a>
-    <a href="#s2"><span class="no">02</span>成本模型</a>
-    <a href="#s3"><span class="no">03</span>原料价格走势</a>
-    <a href="#s4"><span class="no">04</span>关键点位明细</a>
-    <a href="#s5"><span class="no">05</span>单瓶原料成本</a>
-    <a href="#s6"><span class="no">06</span>综合成本拆解</a>
-    <a href="#s7"><span class="no">07</span>敏感性分析</a>
-    <a href="#s8"><span class="no">08</span>采购启示</a>
-    <a href="#s9"><span class="no">A</span>数据来源</a>
-  </aside>
+  
 
 </div>
 
@@ -961,6 +1016,144 @@ function f4(v){ return v.toFixed(4); }
   window.addEventListener("scroll", onScroll, {passive:true});
   window.addEventListener("resize", onScroll);
   onScroll();
+})();
+</script>
+
+<script>window.TN_DATA={"groups":[{"g":"结论","items":[{"h":"#s0","n":"00","t":"核心结论 TL;DR"}]},{"g":"口径","items":[{"h":"#s1","n":"01","t":"调研口径与数据说明"},{"h":"#s2","n":"02","t":"产品规格与成本模型"}]},{"g":"走势","items":[{"h":"#s3","n":"03","t":"PET 原料价格走势"},{"h":"#s4","n":"04","t":"关键点位明细"}]},{"g":"成本","items":[{"h":"#s5","n":"05","t":"单瓶原料成本走势"},{"h":"#s6","n":"06","t":"单瓶综合成本拆解"},{"h":"#s7","n":"07","t":"敏感性分析"}]},{"g":"决策","items":[{"h":"#s8","n":"08","t":"复盘与采购启示"},{"h":"#s9","n":"A","t":"数据来源与局限"}]}]};</script>
+<script>
+/* ── 统一顶部导航：渲染 + 交互 ───────────────────────────────── */
+(function(){
+  var DATA = window.TN_DATA || { groups: [] };
+  var nav = document.getElementById('tnNav');
+  var bar = document.querySelector('.tn-bar');
+  if (!nav || !bar) return;
+
+  function esc(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function setH(){ document.documentElement.style.setProperty('--tnh', bar.offsetHeight + 'px'); }
+
+  var groups = (DATA.groups || []).filter(function(g){ return g.items && g.items.length; });
+  /* 扁平模式：只有一个无名分组、且条目 ≤ 10 —— 直接横排更省一次点击 */
+  var flat = groups.length === 1 && !groups[0].g && groups[0].items.length <= 10;
+  var html = '';
+
+  if (flat){
+    html = groups[0].items.map(function(it){
+      return '<a class="tn-fl" href="' + esc(it.h) + '" data-h="' + esc(it.h) + '">'
+        + (it.n ? '<span class="n">' + esc(it.n) + '</span>' : '')
+        + esc(it.t) + '</a>';
+    }).join('');
+  } else {
+    html = groups.map(function(g, i){
+      return '<div class="tn-g" data-i="' + i + '">'
+        + '<button type="button" class="tn-gb" aria-expanded="false" aria-haspopup="true">'
+        + esc(g.g || '目录')
+        + '<span class="ct">' + g.items.length + '</span>'
+        + '<svg class="cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>'
+        + '</button><div class="tn-panel" role="menu">'
+        + g.items.map(function(it){
+            return '<a href="' + esc(it.h) + '" data-h="' + esc(it.h) + '">'
+              + (it.n ? '<span class="n">' + esc(it.n) + '</span>' : '')
+              + '<span class="tx">' + esc(it.t) + '</span></a>';
+          }).join('')
+        + '</div></div>';
+    }).join('');
+  }
+  nav.innerHTML = html;
+
+  var gs = [].slice.call(nav.querySelectorAll('.tn-g'));
+  var links = [].slice.call(nav.querySelectorAll('a[data-h]'));
+
+  function closeAll(){
+    gs.forEach(function(g){
+      g.classList.remove('open');
+      var b = g.querySelector('.tn-gb');
+      if (b) b.setAttribute('aria-expanded', 'false');
+    });
+  }
+  gs.forEach(function(g){
+    var b = g.querySelector('.tn-gb');
+    if (!b) return;
+    b.addEventListener('click', function(e){
+      e.preventDefault();
+      var open = !g.classList.contains('open');
+      closeAll();
+      if (open){ g.classList.add('open'); b.setAttribute('aria-expanded', 'true'); }
+    });
+  });
+  nav.addEventListener('click', function(e){ e.stopPropagation(); });
+  document.addEventListener('click', closeAll);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeAll(); });
+  /* 面板内跳转后收起 */
+  nav.addEventListener('click', function(e){
+    var a = e.target.closest ? e.target.closest('a[data-h]') : null;
+    if (a) closeAll();
+  });
+
+  /* ── 滚动高亮：当前章节 → 对应分组 ───────────────── */
+  var marks = [];
+  groups.forEach(function(g, gi){
+    g.items.forEach(function(it){
+      if (!it.h || it.h.charAt(0) !== '#') return;   /* 站内其它页的链接不参与滚动高亮 */
+      var el = document.querySelector(it.h);
+      if (!el) return;
+      marks.push({ el: el, gi: gi, h: it.h,
+                   top: el.getBoundingClientRect().top + window.scrollY });
+    });
+  });
+  marks.sort(function(a, b){ return a.top - b.top; });
+
+  /* 首屏兜底锂点：必须取「第 0 组」的锂点，不能直接取 marks[0]。
+     marks 已按 top 排序，而 ebook 页的 #s0（结论）是
+     position:absolute;left:-9999px 的隐藏锂点桩、DOM 落在页面最底部，
+     排序后 marks[0] 会变成 #s2（使用组），导致首屏错亮「使用」。
+     故按 gi===0 取排序后最靠上的一条。 */
+  var fallback = null;
+  for (var k = 0; k < marks.length; k++){ if (marks[k].gi === 0){ fallback = marks[k]; break; } }
+  if (!fallback && marks.length) fallback = marks[0];
+
+  var ticking = false;
+  function spy(){
+    ticking = false;
+    var y = window.scrollY + bar.offsetHeight + 26;
+    /* 兜底取第 0 组：首屏在第一章节之上时（如 hero 很长）也要有一个激活态，
+       否则顶栏在页面顶部会完全没有高亮 */
+    var cur = fallback;
+    for (var i = 0; i < marks.length; i++){
+      if (marks[i].top <= y) cur = marks[i]; else break;
+    }
+    links.forEach(function(a){
+      a.classList.toggle('on', !!cur && a.getAttribute('data-h') === cur.h);
+    });
+    if (!flat){
+      gs.forEach(function(g, i){
+        var b = g.querySelector('.tn-gb');
+        if (b) b.classList.toggle('on', !!cur && i === cur.gi);
+      });
+    }
+  }
+  function onScroll(){
+    if (!ticking){ ticking = true; window.requestAnimationFrame(spy); }
+  }
+  /* 调试钩子（验收脚本用，页面功能不依赖它） */
+  /* 重新量一遍顶栏高度与各章节的绝对 top，然后刷新高亮 */
+  function remeasure(){
+    setH();
+    marks.forEach(function(m){ m.top = m.el.getBoundingClientRect().top + window.scrollY; });
+    spy();
+  }
+  window.__TN = { groups: groups, marks: marks, flat: flat, spy: spy, bar: bar, remeasure: remeasure };
+  remeasure();
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', remeasure);
+  /* ⚠️ 若初始 spy() 跑在图片/字体加载完成之前，marks 的 top 是按「更短的页面」量的，
+     后面章节会被误判成「已在视口上方」，导致首屏高亮错组（ebook 页实测过）。
+     所以 load 与字体就绪后必须各重量一次。 */
+  window.addEventListener('load', remeasure);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(remeasure);
 })();
 </script>
 </body>

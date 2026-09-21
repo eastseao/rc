@@ -237,118 +237,118 @@
   
   
 </style>
+<style id="tn-style">
+/* ═══ 全站统一顶部导航（GERVAS） ═══════════════════════════════════
+   一级分组横排 + 下拉二级；替代原先的左右悬浮目录
+   依赖 theme.css 的 token，不重复定义主题色                       */
+:root{ --tnh:50px }
+html{ scroll-behavior:smooth }
+[id]{ scroll-margin-top:calc(var(--tnh) + 14px) }
+
+.tn-bar{ position:sticky; top:0; z-index:60; background:#0f172a; color:#f1f5f9 }
+.tn-in{ max-width:1400px; margin:0 auto; padding:0 22px; min-height:var(--tnh);
+        display:flex; align-items:center; flex-wrap:wrap; gap:2px 14px }
+.tn-brand{ display:inline-flex; align-items:baseline; gap:8px; flex:0 0 auto;
+           font-family:var(--mono); font-size:13.5px; font-weight:700; letter-spacing:.1em;
+           color:#fff; text-decoration:none; white-space:nowrap }
+.tn-brand em{ font-style:normal; font-size:11.5px; font-weight:400; letter-spacing:.02em;
+              color:#94a3b8; transition:color .15s }
+.tn-brand:hover em{ color:#5eead4 }
+
+/* ⚠️ 这里绝不能写 overflow-x:auto —— 它会让 overflow-y 隐式变成 auto，
+   于是下拉面板被导航自己的滚动容器裁掉（点开看不见）。
+   宽度不够时改用 flex-wrap 换行，让面板能溢出容器。 */
+.tn-nav{ margin-inline-start:auto; display:flex; flex-wrap:wrap;
+         justify-content:flex-end; align-items:center; gap:2px; min-width:0 }
+/* 扁平模式（单组、条目少）：直接横排链接 */
+.tn-nav a.tn-fl{ display:inline-flex; align-items:baseline; gap:6px; flex:0 0 auto;
+  padding:6px 11px; border-radius:6px; font-size:13px; color:#94a3b8;
+  text-decoration:none; white-space:nowrap; transition:background .15s,color .15s }
+.tn-nav a.tn-fl:hover{ background:rgba(255,255,255,.08); color:#f1f5f9 }
+.tn-nav a.tn-fl.on{ background:rgba(13,148,136,.28); color:#f1f5f9; font-weight:600 }
+.tn-nav a.tn-fl .n{ font-family:var(--mono); font-size:10.5px; opacity:.65 }
+.tn-nav a.tn-fl.on .n{ opacity:1 }
+
+/* 下拉模式 */
+.tn-g{ position:relative; flex:0 0 auto }
+.tn-gb{ display:inline-flex; align-items:center; gap:5px; padding:6px 11px;
+  border:0; background:none; cursor:pointer; font:inherit; font-size:13px;
+  color:#94a3b8; border-radius:6px; white-space:nowrap;
+  transition:background .15s,color .15s }
+.tn-gb:hover{ background:rgba(255,255,255,.08); color:#f1f5f9 }
+.tn-gb.on{ background:rgba(13,148,136,.28); color:#f1f5f9; font-weight:600 }
+.tn-gb .ct{ font-family:var(--mono); font-size:10.5px; color:#64748b; margin-inline-start:1px }
+.tn-gb.on .ct{ color:#5eead4 }
+.tn-gb .cv{ width:9px; height:9px; flex:0 0 auto; opacity:.7; transition:transform .18s }
+.tn-g.open .tn-gb{ background:rgba(255,255,255,.1); color:#f1f5f9 }
+.tn-g.open .tn-gb .cv{ transform:rotate(180deg) }
+
+.tn-panel{ position:absolute; top:calc(100% + 8px); inset-inline-start:0; z-index:70;
+  display:none; min-width:250px; max-width:340px;
+  max-height:min(64vh,520px); overflow-y:auto; overscroll-behavior:contain;
+  background:#fff; border:1px solid var(--line); border-radius:10px; padding:7px;
+  box-shadow:0 20px 44px -18px rgba(15,23,42,.42) }
+@media (min-width:901px){
+  .tn-nav > .tn-g:nth-last-child(-n+4) .tn-panel{ inset-inline-start:auto; inset-inline-end:0 }
+}
+.tn-g.open .tn-panel{ display:block }
+@media (hover:hover) and (min-width:901px){ .tn-g:hover .tn-panel{ display:block } }
+.tn-panel a{ display:flex; gap:8px; align-items:baseline; padding:7px 10px;
+  border-radius:6px; font-size:13px; line-height:1.5; color:var(--ink-2);
+  text-decoration:none; transition:background .12s,color .12s }
+.tn-panel a:hover{ background:var(--accent-soft); color:var(--accent-ink) }
+.tn-panel a.on{ background:var(--accent-soft); color:var(--accent-ink); font-weight:600 }
+.tn-panel a .n{ flex:0 0 auto; min-width:1.5em;
+  font-family:var(--mono); font-size:10.5px; color:var(--muted-2) }
+.tn-panel a.on .n{ color:var(--accent-ink) }
+.tn-panel a .tx{ min-width:0 }
+
+/* ── 布局收归单栏 ─────────────────────────────────── */
+.layout{ display:block; max-width:none; min-height:0 }
+.layout > main{ margin-inline:auto }
+/* theme.css 的「返回首页」浮钮默认贴在 top:18px，
+   而我们现在顶部是 50px 墨黑 sticky 顶栏 —— 会被完全压住，
+   必须改挂右下（与 SOP 页同款处理）。同特异性下本表在最后，无需 !important。 */
+.g-pill,.site-home-pill{ top:auto; bottom:20px }
+/* 进度条同理让位，改挂屏幕底部 */
+#pbar{ top:auto; bottom:0 }
+
+@media (max-width:900px){
+  /* 导航独占一行（横向可滑）—— 比跟品牌挤一行能看到更多分组 */
+  .tn-in{ flex-wrap:wrap; padding:8px 16px; row-gap:6px; gap:8px; min-height:0 }
+  .tn-nav{ margin-inline-start:0; width:100%; flex-wrap:nowrap;
+           overflow-x:auto; scrollbar-width:none; padding-bottom:2px }
+  .tn-nav::-webkit-scrollbar{ display:none }
+  .tn-g{ position:static }
+  /* fixed 不受祖先 overflow 裁剪（祖先无 transform/filter），所以面板能铺满全宽 */
+  .tn-panel{ position:fixed; inset-inline:12px; top:calc(var(--tnh) + 8px);
+             max-width:none; max-height:58vh }
+}
+/* ── 窄屏防横向溢出（2026-09-21） ─────────────────────────
+   本页 code 默认 white-space:nowrap、表格又不带滚动容器，
+   手机上长路径 / 多列数字表会把整页顶宽（实测 420px 下 +93 ~ +190px）。
+   ⚠️ 只在窄屏放开，桌面排版不变。 */
+@media (max-width:900px){
+  code{ white-space:normal; overflow-wrap:anywhere }
+  /* display:block 让 table 变成可横滑的块级盒子；行/单元格仍按表格式渲染 */
+  table{ display:block; width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch }
+}
+
+@media print{ .tn-bar{ display:none } }
+</style>
+
 </head>
 <body>
-<div id="pbar"></div>
-
-<header class="topbar" data-od-id="topbar">
-  <a class="brand" href="#top">SKILL<em>·</em>Agent Skills 概念手册</a>
-  <span class="topmeta">33 SECTIONS · REV 2026-09</span>
+<header class="tn-bar">
+  <div class="tn-in">
+    <a class="tn-brand" href="../index.html">GERVAS<em>SKILL 介绍</em></a>
+    <nav class="tn-nav" id="tnNav" aria-label="内容导航"></nav>
+  </div>
 </header>
 
-<nav class="series" data-od-id="series" aria-label="Skill 系列导航">
-  <div class="swrap">
-    <span class="slab">SKILL 系列</span>
-    <a href="../index.html">首页</a>
-    <a class="on" href="skill.html">① SKILL 介绍</a>
-    <a href="skill-spec.html">② 架构规范</a>
-    <a href="skill-diy.html">③ 制作指南</a>
-  </div>
-</nav>
-
-<nav class="mnav" data-od-id="mnav" aria-label="章节导航（移动端）">
-  <summary>章节目录 · 33 节 + 尾声</summary>
-  <div class="grp">导论</div>
-  <a href="#sec-01">01 · 最重要的结论</a>
-  <div class="grp">概念本体</div>
-  <a href="#sec-02">02 · Skill 到底是什么</a>
-  <a href="#sec-03">03 · 为什么会出现</a>
-  <div class="grp">与相邻概念</div>
-  <a href="#sec-04">04 · Skill vs Prompt</a>
-  <a href="#sec-05">05 · Skill vs Tool</a>
-  <a href="#sec-06">06 · Skill 与 MCP</a>
-  <a href="#sec-07">07 · Skill vs Workflow</a>
-  <a href="#sec-08">08 · Skill 与 Agent</a>
-  <div class="grp">核心机制</div>
-  <a href="#sec-09">09 · 渐进式披露</a>
-  <a href="#sec-10">10 · 为什么能「教会」Agent</a>
-  <a href="#sec-11">11 · 本质定义</a>
-  <a href="#sec-12">12 · 生产级 Skill 七层</a>
-  <a href="#sec-13">13 · 真实示例</a>
-  <div class="grp">组合与进化</div>
-  <a href="#sec-14">14 · Skill 可以组合</a>
-  <a href="#sec-15">15 · 技能树</a>
-  <a href="#sec-16">16 · 依赖关系</a>
-  <div class="grp">边界与蒸馏</div>
-  <a href="#sec-17">17 · 能力边界</a>
-  <a href="#sec-18">18 · Skill ≠ 知识库</a>
-  <a href="#sec-19">19 · 专家经验蒸馏</a>
-  <a href="#sec-20">20 · 可执行知识</a>
-  <a href="#sec-21">21 · 能力市场</a>
-  <div class="grp">系统与架构</div>
-  <a href="#sec-22">22 · 架构位置</a>
-  <a href="#sec-23">23 · 判断逻辑</a>
-  <a href="#sec-24">24 · 成熟 Skill 五层</a>
-  <a href="#sec-25">25 · Skill 可评估</a>
-  <a href="#sec-26">26 · 生命周期</a>
-  <a href="#sec-27">27 · Skill + Memory</a>
-  <a href="#sec-28">28 · Skill + Memory + Tool</a>
-  <a href="#sec-29">29 · Skill 与 Persona</a>
-  <a href="#sec-30">30 · 最简公式</a>
-  <a href="#sec-31">31 · Skill Layer 独立</a>
-  <div class="grp">总结</div>
-  <a href="#sec-32">32 · Agent OS 总表</a>
-  <a href="#sec-33">33 · 未来方向</a>
-  <a href="#epilogue">尾声 · 一句话理解 Skill</a>
-</nav>
+<div id="pbar"></div>
 
 <div class="layout" id="top">
-
-  <!-- ══ 左侧导航 ══ -->
-  <nav class="side" data-od-id="sidebar" aria-label="章节导航">
-    <div class="grp">导论</div>
-    <a href="#sec-01"><span class="no">01</span>最重要的结论</a>
-    <div class="grp">概念本体</div>
-    <a href="#sec-02"><span class="no">02</span>Skill 到底是什么</a>
-    <a href="#sec-03"><span class="no">03</span>为什么会出现</a>
-    <div class="grp">与相邻概念</div>
-    <a href="#sec-04"><span class="no">04</span>Skill vs Prompt</a>
-    <a href="#sec-05"><span class="no">05</span>Skill vs Tool</a>
-    <a href="#sec-06"><span class="no">06</span>Skill 与 MCP</a>
-    <a href="#sec-07"><span class="no">07</span>Skill vs Workflow</a>
-    <a href="#sec-08"><span class="no">08</span>Skill 与 Agent</a>
-    <div class="grp">核心机制</div>
-    <a href="#sec-09"><span class="no">09</span>渐进式披露</a>
-    <a href="#sec-10"><span class="no">10</span>为什么能「教会」Agent</a>
-    <a href="#sec-11"><span class="no">11</span>本质定义</a>
-    <a href="#sec-12"><span class="no">12</span>生产级 Skill 七层</a>
-    <a href="#sec-13"><span class="no">13</span>真实示例</a>
-    <div class="grp">组合与进化</div>
-    <a href="#sec-14"><span class="no">14</span>Skill 可以组合</a>
-    <a href="#sec-15"><span class="no">15</span>技能树</a>
-    <a href="#sec-16"><span class="no">16</span>依赖关系</a>
-    <div class="grp">边界与蒸馏</div>
-    <a href="#sec-17"><span class="no">17</span>能力边界</a>
-    <a href="#sec-18"><span class="no">18</span>Skill ≠ 知识库</a>
-    <a href="#sec-19"><span class="no">19</span>专家经验蒸馏</a>
-    <a href="#sec-20"><span class="no">20</span>可执行知识</a>
-    <a href="#sec-21"><span class="no">21</span>能力市场</a>
-    <div class="grp">系统与架构</div>
-    <a href="#sec-22"><span class="no">22</span>架构位置</a>
-    <a href="#sec-23"><span class="no">23</span>判断逻辑</a>
-    <a href="#sec-24"><span class="no">24</span>成熟 Skill 五层</a>
-    <a href="#sec-25"><span class="no">25</span>Skill 可评估</a>
-    <a href="#sec-26"><span class="no">26</span>生命周期</a>
-    <a href="#sec-27"><span class="no">27</span>Skill + Memory</a>
-    <a href="#sec-28"><span class="no">28</span>Skill + Memory + Tool</a>
-    <a href="#sec-29"><span class="no">29</span>Skill 与 Persona</a>
-    <a href="#sec-30"><span class="no">30</span>最简公式</a>
-    <a href="#sec-31"><span class="no">31</span>Skill Layer 独立</a>
-    <div class="grp">总结</div>
-    <a href="#sec-32"><span class="no">32</span>Agent OS 总表</a>
-    <a href="#sec-33"><span class="no">33</span>未来方向</a>
-    <a href="#epilogue"><span class="no">§</span>尾声 · 一句话理解</a>
-  </nav>
 
   <!-- ══ 正文 ══ -->
   <main data-od-id="article">
@@ -887,44 +887,6 @@ IF   evidence &lt; threshold        THEN mark conclusion as uncertain</code></pr
     </footer>
   </main>
 
-  <!-- ══ 右侧目录 ══ -->
-  <aside class="toc" data-od-id="toc" aria-label="本页结构">
-    <div class="toc-label">本页结构 · On this page</div>
-    <a href="#sec-01"><span class="no">01</span>最重要的结论</a>
-    <a href="#sec-02"><span class="no">02</span>Skill 到底是什么</a>
-    <a href="#sec-03"><span class="no">03</span>为什么会出现</a>
-    <a href="#sec-04"><span class="no">04</span>Skill vs Prompt</a>
-    <a href="#sec-05"><span class="no">05</span>Skill vs Tool</a>
-    <a href="#sec-06"><span class="no">06</span>Skill 与 MCP</a>
-    <a href="#sec-07"><span class="no">07</span>Skill vs Workflow</a>
-    <a href="#sec-08"><span class="no">08</span>Skill 与 Agent</a>
-    <a href="#sec-09"><span class="no">09</span>渐进式披露</a>
-    <a href="#sec-10"><span class="no">10</span>「教会」Agent</a>
-    <a href="#sec-11"><span class="no">11</span>本质定义</a>
-    <a href="#sec-12"><span class="no">12</span>生产级七层</a>
-    <a href="#sec-13"><span class="no">13</span>真实示例</a>
-    <a href="#sec-14"><span class="no">14</span>Skill 可以组合</a>
-    <a href="#sec-15"><span class="no">15</span>技能树</a>
-    <a href="#sec-16"><span class="no">16</span>依赖关系</a>
-    <a href="#sec-17"><span class="no">17</span>能力边界</a>
-    <a href="#sec-18"><span class="no">18</span>Skill ≠ 知识库</a>
-    <a href="#sec-19"><span class="no">19</span>专家经验蒸馏</a>
-    <a href="#sec-20"><span class="no">20</span>可执行知识</a>
-    <a href="#sec-21"><span class="no">21</span>能力市场</a>
-    <a href="#sec-22"><span class="no">22</span>架构位置</a>
-    <a href="#sec-23"><span class="no">23</span>判断逻辑</a>
-    <a href="#sec-24"><span class="no">24</span>成熟五层</a>
-    <a href="#sec-25"><span class="no">25</span>Skill 可评估</a>
-    <a href="#sec-26"><span class="no">26</span>生命周期</a>
-    <a href="#sec-27"><span class="no">27</span>Skill + Memory</a>
-    <a href="#sec-28"><span class="no">28</span>Skill + Memory + Tool</a>
-    <a href="#sec-29"><span class="no">29</span>Skill 与 Persona</a>
-    <a href="#sec-30"><span class="no">30</span>最简公式</a>
-    <a href="#sec-31"><span class="no">31</span>Skill Layer 独立</a>
-    <a href="#sec-32"><span class="no">32</span>Agent OS 总表</a>
-    <a href="#sec-33"><span class="no">33</span>未来方向</a>
-    <a href="#epilogue"><span class="no">§</span>尾声 · 一句话理解</a>
-  </aside>
 </div>
 
 <script>
@@ -961,5 +923,143 @@ IF   evidence &lt; threshold        THEN mark conclusion as uncertain</code></pr
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
   返回首页
 </a>
+
+<script>window.TN_DATA={"groups":[{"g":"导论","items":[{"h":"#sec-01","n":"01","t":"最重要的结论"}]},{"g":"概念本体","items":[{"h":"#sec-02","n":"02","t":"Skill 到底是什么"},{"h":"#sec-03","n":"03","t":"为什么会出现"}]},{"g":"与相邻概念","items":[{"h":"#sec-04","n":"04","t":"Skill vs Prompt"},{"h":"#sec-05","n":"05","t":"Skill vs Tool"},{"h":"#sec-06","n":"06","t":"Skill 与 MCP"},{"h":"#sec-07","n":"07","t":"Skill vs Workflow"},{"h":"#sec-08","n":"08","t":"Skill 与 Agent"}]},{"g":"核心机制","items":[{"h":"#sec-09","n":"09","t":"渐进式披露"},{"h":"#sec-10","n":"10","t":"为什么能「教会」Agent"},{"h":"#sec-11","n":"11","t":"本质定义"},{"h":"#sec-12","n":"12","t":"生产级 Skill 七层"},{"h":"#sec-13","n":"13","t":"真实示例"}]},{"g":"组合与进化","items":[{"h":"#sec-14","n":"14","t":"Skill 可以组合"},{"h":"#sec-15","n":"15","t":"技能树"},{"h":"#sec-16","n":"16","t":"依赖关系"}]},{"g":"边界与蒸馏","items":[{"h":"#sec-17","n":"17","t":"能力边界"},{"h":"#sec-18","n":"18","t":"Skill ≠ 知识库"},{"h":"#sec-19","n":"19","t":"专家经验蒸馏"},{"h":"#sec-20","n":"20","t":"可执行知识"},{"h":"#sec-21","n":"21","t":"能力市场"}]},{"g":"系统与架构","items":[{"h":"#sec-22","n":"22","t":"架构位置"},{"h":"#sec-23","n":"23","t":"判断逻辑"},{"h":"#sec-24","n":"24","t":"成熟 Skill 五层"},{"h":"#sec-25","n":"25","t":"Skill 可评估"},{"h":"#sec-26","n":"26","t":"生命周期"},{"h":"#sec-27","n":"27","t":"Skill + Memory"},{"h":"#sec-28","n":"28","t":"Skill + Memory + Tool"},{"h":"#sec-29","n":"29","t":"Skill 与 Persona"},{"h":"#sec-30","n":"30","t":"最简公式"},{"h":"#sec-31","n":"31","t":"Skill Layer 独立"}]},{"g":"总结","items":[{"h":"#sec-32","n":"32","t":"Agent OS 总表"},{"h":"#sec-33","n":"33","t":"未来方向"},{"h":"#epilogue","n":"§","t":"尾声 · 一句话理解"}]},{"g":"SKILL 系列","items":[{"h":"../index.html","n":"","t":"首页"},{"h":"skill.html","n":"","t":"① SKILL 介绍"},{"h":"skill-spec.html","n":"","t":"② 架构规范"},{"h":"skill-diy.html","n":"","t":"③ 制作指南"}]}]};</script>
+<script>
+/* ── 统一顶部导航：渲染 + 交互 ───────────────────────────────── */
+(function(){
+  var DATA = window.TN_DATA || { groups: [] };
+  var nav = document.getElementById('tnNav');
+  var bar = document.querySelector('.tn-bar');
+  if (!nav || !bar) return;
+
+  function esc(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function setH(){ document.documentElement.style.setProperty('--tnh', bar.offsetHeight + 'px'); }
+
+  var groups = (DATA.groups || []).filter(function(g){ return g.items && g.items.length; });
+  /* 扁平模式：只有一个无名分组、且条目 ≤ 10 —— 直接横排更省一次点击 */
+  var flat = groups.length === 1 && !groups[0].g && groups[0].items.length <= 10;
+  var html = '';
+
+  if (flat){
+    html = groups[0].items.map(function(it){
+      return '<a class="tn-fl" href="' + esc(it.h) + '" data-h="' + esc(it.h) + '">'
+        + (it.n ? '<span class="n">' + esc(it.n) + '</span>' : '')
+        + esc(it.t) + '</a>';
+    }).join('');
+  } else {
+    html = groups.map(function(g, i){
+      return '<div class="tn-g" data-i="' + i + '">'
+        + '<button type="button" class="tn-gb" aria-expanded="false" aria-haspopup="true">'
+        + esc(g.g || '目录')
+        + '<span class="ct">' + g.items.length + '</span>'
+        + '<svg class="cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>'
+        + '</button><div class="tn-panel" role="menu">'
+        + g.items.map(function(it){
+            return '<a href="' + esc(it.h) + '" data-h="' + esc(it.h) + '">'
+              + (it.n ? '<span class="n">' + esc(it.n) + '</span>' : '')
+              + '<span class="tx">' + esc(it.t) + '</span></a>';
+          }).join('')
+        + '</div></div>';
+    }).join('');
+  }
+  nav.innerHTML = html;
+
+  var gs = [].slice.call(nav.querySelectorAll('.tn-g'));
+  var links = [].slice.call(nav.querySelectorAll('a[data-h]'));
+
+  function closeAll(){
+    gs.forEach(function(g){
+      g.classList.remove('open');
+      var b = g.querySelector('.tn-gb');
+      if (b) b.setAttribute('aria-expanded', 'false');
+    });
+  }
+  gs.forEach(function(g){
+    var b = g.querySelector('.tn-gb');
+    if (!b) return;
+    b.addEventListener('click', function(e){
+      e.preventDefault();
+      var open = !g.classList.contains('open');
+      closeAll();
+      if (open){ g.classList.add('open'); b.setAttribute('aria-expanded', 'true'); }
+    });
+  });
+  nav.addEventListener('click', function(e){ e.stopPropagation(); });
+  document.addEventListener('click', closeAll);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeAll(); });
+  /* 面板内跳转后收起 */
+  nav.addEventListener('click', function(e){
+    var a = e.target.closest ? e.target.closest('a[data-h]') : null;
+    if (a) closeAll();
+  });
+
+  /* ── 滚动高亮：当前章节 → 对应分组 ───────────────── */
+  var marks = [];
+  groups.forEach(function(g, gi){
+    g.items.forEach(function(it){
+      if (!it.h || it.h.charAt(0) !== '#') return;   /* 站内其它页的链接不参与滚动高亮 */
+      var el = document.querySelector(it.h);
+      if (!el) return;
+      marks.push({ el: el, gi: gi, h: it.h,
+                   top: el.getBoundingClientRect().top + window.scrollY });
+    });
+  });
+  marks.sort(function(a, b){ return a.top - b.top; });
+
+  /* 首屏兜底锂点：必须取「第 0 组」的锂点，不能直接取 marks[0]。
+     marks 已按 top 排序，而 ebook 页的 #s0（结论）是
+     position:absolute;left:-9999px 的隐藏锂点桩、DOM 落在页面最底部，
+     排序后 marks[0] 会变成 #s2（使用组），导致首屏错亮「使用」。
+     故按 gi===0 取排序后最靠上的一条。 */
+  var fallback = null;
+  for (var k = 0; k < marks.length; k++){ if (marks[k].gi === 0){ fallback = marks[k]; break; } }
+  if (!fallback && marks.length) fallback = marks[0];
+
+  var ticking = false;
+  function spy(){
+    ticking = false;
+    var y = window.scrollY + bar.offsetHeight + 26;
+    /* 兜底取第 0 组：首屏在第一章节之上时（如 hero 很长）也要有一个激活态，
+       否则顶栏在页面顶部会完全没有高亮 */
+    var cur = fallback;
+    for (var i = 0; i < marks.length; i++){
+      if (marks[i].top <= y) cur = marks[i]; else break;
+    }
+    links.forEach(function(a){
+      a.classList.toggle('on', !!cur && a.getAttribute('data-h') === cur.h);
+    });
+    if (!flat){
+      gs.forEach(function(g, i){
+        var b = g.querySelector('.tn-gb');
+        if (b) b.classList.toggle('on', !!cur && i === cur.gi);
+      });
+    }
+  }
+  function onScroll(){
+    if (!ticking){ ticking = true; window.requestAnimationFrame(spy); }
+  }
+  /* 调试钩子（验收脚本用，页面功能不依赖它） */
+  /* 重新量一遍顶栏高度与各章节的绝对 top，然后刷新高亮 */
+  function remeasure(){
+    setH();
+    marks.forEach(function(m){ m.top = m.el.getBoundingClientRect().top + window.scrollY; });
+    spy();
+  }
+  window.__TN = { groups: groups, marks: marks, flat: flat, spy: spy, bar: bar, remeasure: remeasure };
+  remeasure();
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', remeasure);
+  /* ⚠️ 若初始 spy() 跑在图片/字体加载完成之前，marks 的 top 是按「更短的页面」量的，
+     后面章节会被误判成「已在视口上方」，导致首屏高亮错组（ebook 页实测过）。
+     所以 load 与字体就绪后必须各重量一次。 */
+  window.addEventListener('load', remeasure);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(remeasure);
+})();
+</script>
 </body>
 </html>

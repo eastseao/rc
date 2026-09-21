@@ -89,8 +89,82 @@
   
   
 </style>
+<style id="dk-style">
+/* ═══ 顶部模块导航 + 翻页（原底部 .footer 已上移） ═══════════════════ */
+:root{ --dkh:52px }
+.dk-bar{ position:fixed; inset-inline:0; top:0; z-index:80; height:var(--dkh);
+  background:#0f172a; color:#f1f5f9; display:flex; align-items:center }
+.dk-bar-in{ width:100%; padding:0 22px; display:flex; align-items:center; gap:14px }
+.dk-brand{ display:inline-flex; align-items:baseline; gap:8px; flex:0 0 auto;
+  font-family:var(--mono); font-size:13.5px; font-weight:700; letter-spacing:.1em;
+  color:#fff; text-decoration:none; white-space:nowrap }
+.dk-brand em{ font-style:normal; font-size:11.5px; font-weight:400; letter-spacing:.02em; color:#94a3b8 }
+.dk-brand:hover em{ color:#5eead4 }
+.dk-nav{ margin-inline-start:auto; position:relative }
+.dk-gb{ display:inline-flex; align-items:center; gap:5px; padding:6px 11px; border:0; background:none;
+  cursor:pointer; font:inherit; font-size:13px; color:#94a3b8; border-radius:6px; white-space:nowrap;
+  transition:background .15s,color .15s }
+.dk-gb:hover,.dk-g.open .dk-gb{ background:rgba(255,255,255,.1); color:#f1f5f9 }
+.dk-gb .cv{ width:9px; height:9px; flex:0 0 auto; opacity:.7; transition:transform .18s }
+.dk-g.open .dk-gb .cv{ transform:rotate(180deg) }
+.dk-panel{ position:absolute; top:calc(100% + 8px); inset-inline-end:0; z-index:90; display:none;
+  min-width:236px; background:#fff; border:1px solid var(--line); border-radius:10px; padding:7px;
+  box-shadow:0 20px 44px -18px rgba(15,23,42,.42) }
+.dk-g.open .dk-panel{ display:block }
+@media (hover:hover) and (min-width:769px){ .dk-g:hover .dk-panel{ display:block } }
+.dk-panel a{ display:flex; gap:8px; align-items:baseline; padding:7px 10px; border-radius:6px;
+  font-size:13px; color:var(--ink-2); text-decoration:none; white-space:nowrap; transition:.12s }
+.dk-panel a:hover{ background:var(--accent-soft); color:var(--accent-ink) }
+.dk-panel a.on{ background:var(--accent-soft); color:var(--accent-ink); font-weight:600 }
+.dk-panel a .n{ flex:0 0 auto; min-width:1.5em; font-family:var(--mono);
+  font-size:10.5px; color:var(--muted-2) }
+.dk-panel a.on .n{ color:var(--accent-ink) }
+.dk-ctrl{ display:flex; align-items:center; gap:8px; flex:0 0 auto; margin-inline-start:10px }
+.dk-btn{ width:30px; height:30px; display:inline-flex; align-items:center; justify-content:center;
+  border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.08); color:#e2e8f0;
+  border-radius:6px; cursor:pointer; font:inherit; font-size:14px; line-height:1; transition:.15s }
+.dk-btn:hover{ background:rgba(255,255,255,.18); color:#fff }
+.dk-bar .pager{ font-family:var(--mono); font-size:12px; color:#94a3b8; min-width:58px; text-align:center }
+/* deck 让出顶栏高度；底部留白收窄（原底部控件已移除） */
+.deck{ height:calc(100vh - var(--dkh)); margin-top:var(--dkh) }
+.slide{ padding-bottom:40px }
+@media (max-width:768px){
+  .dk-bar-in{ padding:0 14px; gap:10px }
+  .dk-brand em{ display:none }
+  .dk-panel{ position:fixed; inset-inline:12px; top:calc(var(--dkh) + 8px); min-width:0 }
+  .slide{ padding-bottom:30px }
+}
+</style>
 </head>
 <body>
+<!-- ══ 顶部导航：模块跳转 + 翻页（原底部控件已上移） ══ -->
+<header class="dk-bar">
+  <div class="dk-bar-in">
+    <a class="dk-brand" href="../index.html">GERVAS<em>AI Agent 培训</em></a>
+    <nav class="dk-nav" aria-label="模块导航">
+      <div class="dk-g" id="modDrop">
+        <button type="button" class="dk-gb" aria-expanded="false" aria-haspopup="true">模块 <svg class="cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="dk-panel">
+          <a href="#" data-slide="1"><span class="n">01</span>AI 基础概念</a>
+          <a href="#" data-slide="4"><span class="n">02</span>技术预备</a>
+          <a href="#" data-slide="6"><span class="n">03</span>主流 Agent 盘点</a>
+          <a href="#" data-slide="7"><span class="n">04</span>WorkBuddy 数字员工</a>
+          <a href="#" data-slide="8"><span class="n">05</span>场景实战（上）</a>
+          <a href="#" data-slide="9"><span class="n">06</span>场景实战（下）</a>
+          <a href="#" data-slide="12"><span class="n">07</span>数据可视化与文档</a>
+          <a href="#" data-slide="16"><span class="n">08</span>Prompt 与 Skill</a>
+          <a href="#" data-slide="19"><span class="n">09</span>准则 · 安全 · 路线图</a>
+        </div>
+      </div>
+    </nav>
+    <div class="dk-ctrl">
+      <button type="button" class="dk-btn" id="dkPrev" aria-label="上一张" title="上一张（←）">&#8592;</button>
+      <span class="pager" id="pager">1 / 22</span>
+      <button type="button" class="dk-btn" id="dkNext" aria-label="下一张" title="下一张（→）">&#8594;</button>
+    </div>
+  </div>
+</header>
+
 <a class="g-pill" href="../index.html" title="返回日常首页">← 返回首页</a>
 <div class="deck" id="deck">
 
@@ -101,7 +175,7 @@
       <div class="badge">北京同仁堂健康药业（青海）有限公司 · 内部培训 · 2026</div>
       <h1>让 AI Agent 成为你的<br><span style="background:linear-gradient(90deg,#1d4ed8,#6d5ce7,#0e9f9e);-webkit-background-clip:text;background-clip:text;color:transparent">数字员工</span></h1>
       <p>从概念到实战：理解 Token、API、Skill、Agent 与大模型的关系，<br>掌握 AI 工具，并用 <b style="color:var(--ink)">WorkBuddy</b> 重构食品生产企业的日常工作场景。</p>
-      <p style="margin-top:34px;font-size:16px">按 <span class="kbd">→</span> 或点击下方按钮开始 · 支持左右滑动翻页</p>
+      <p style="margin-top:34px;font-size:16px">按 <span class="kbd">→</span> 或用顶部按钮翻页 · 支持左右滑动</p>
     </div>
     <div class="cover-right">
       <img src="assets/eastseao-avatar.jpg" alt="讲师头像"
@@ -536,11 +610,6 @@
 </section>
 
 </div>
-<div class="footer">
-  <button onclick="nav(-1)">← 上一页</button>
-  <span class="pager" id="pager">1 / 22</span>
-  <button onclick="nav(1)">下一页 →</button>
-</div>
 <script>
   const slides=[...document.querySelectorAll('.slide')];let cur=0;
   function show(i){slides[cur].classList.remove('active');cur=(i+slides.length)%slides.length;
@@ -557,6 +626,57 @@
     const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;
     if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5)nav(dx<0?1:-1);
   },{passive:true});
+</script>
+<script>
+/* ── 顶部导航接线：模块跳转 + 翻页按钮 + 模块高亮 ─────────────────── */
+(function(){
+  var MOD_OF=[-1,0,0,0,1,1,2,3,4,5,5,5,6,6,6,6,7,7,7,8,8,-1];
+  var drop=document.getElementById('modDrop');
+  var panel=drop?drop.querySelector('.dk-panel'):null;
+  var gb=drop?drop.querySelector('.dk-gb'):null;
+
+  function closeDrop(){
+    if(!drop) return;
+    drop.classList.remove('open');
+    if(gb) gb.setAttribute('aria-expanded','false');
+  }
+  window.__DECK_DROP=closeDrop;
+
+  if(drop){
+    if(gb) gb.addEventListener('click', function(e){
+      e.stopPropagation();
+      var op=drop.classList.toggle('open');
+      gb.setAttribute('aria-expanded', op ? 'true' : 'false');
+    });
+    document.addEventListener('click', function(e){ if(!drop.contains(e.target)) closeDrop(); });
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeDrop(); });
+    var items=panel.querySelectorAll('a[data-slide]');
+    for(var i=0;i<items.length;i++){
+      items[i].addEventListener('click', function(e){
+        e.preventDefault();
+        show(parseInt(this.getAttribute('data-slide'),10)||0);
+        closeDrop();
+      });
+    }
+  }
+
+  var bp=document.getElementById('dkPrev'), bn=document.getElementById('dkNext');
+  if(bp) bp.addEventListener('click', function(){ nav(-1); });
+  if(bn) bn.addEventListener('click', function(){ nav(1); });
+
+  /* 包一层 show()：键盘 / 触摸翻页时，模块高亮同步（原 show 是函数声明，挂在 window 上） */
+  function markMod(k){
+    if(!panel) return;
+    var mi=(k>=0 && k<MOD_OF.length) ? MOD_OF[k] : -1;
+    var items=panel.querySelectorAll('a[data-slide]');
+    for(var i=0;i<items.length;i++) items[i].classList.toggle('on', i===mi);
+  }
+  var orig=window.show;
+  if(typeof orig==='function'){
+    window.show=function(i){ orig(i); markMod(cur); };
+  }
+  markMod(typeof cur==='number'?cur:0);
+})();
 </script>
 </body>
 </html>

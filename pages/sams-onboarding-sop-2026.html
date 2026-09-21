@@ -39,11 +39,31 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.
 .s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 22px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
 .s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
 .s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
-.s-nav{margin-inline-start:auto;display:flex;gap:2px;font-size:13px;overflow-x:auto;scrollbar-width:none}
-.s-nav::-webkit-scrollbar{display:none}
+/* ⚠️ 这里不能写 overflow-x:auto —— 它会让 overflow-y 隐式变成 auto，
+   于是下拉面板被导航自身的滚动容器裁掉（点开看不见）。
+   桌面 6 项在 --maxw 内放得下，无需滚动；窄屏断点里再开横滑。 */
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
 .s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
 .s-nav a:hover{color:#f1f5f9}
 .s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+/* ══ 顶栏「五阶段」下拉（原左侧栏跳转已并入此处） ══ */
+.s-drop{position:relative;display:inline-flex}
+.s-dropbtn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border:0;background:none;
+  border-radius:var(--radius-sm);color:var(--side-ink);font:inherit;font-size:13px;cursor:pointer;
+  white-space:nowrap;transition:.15s}
+.s-dropbtn:hover,.s-drop.open .s-dropbtn{color:#f1f5f9;background:var(--side-hi)}
+.s-dropbtn .cv{width:9px;height:9px;flex:0 0 auto;opacity:.7;transition:transform .18s}
+.s-drop.open .s-dropbtn .cv{transform:rotate(180deg)}
+.s-panel{position:absolute;top:calc(100% + 8px);inset-inline-end:0;z-index:70;display:none;
+  min-width:214px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:7px;
+  box-shadow:0 20px 44px -18px rgba(15,23,42,.42)}
+.s-drop.open .s-panel{display:block}
+@media (hover:hover) and (min-width:901px){ .s-drop:hover .s-panel{display:block} }
+.s-panel a{display:flex;gap:8px;align-items:baseline;padding:7px 10px;border-radius:var(--radius-sm);
+  font-size:13px;color:var(--ink-2);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-panel a:hover{background:var(--accent-soft);color:var(--accent-ink)}
+.s-panel a .n{flex:0 0 auto;min-width:1.4em;font-family:var(--mono);font-size:11px;color:var(--ink-3);font-weight:600}
 
 /* ══ 文档头部 ══ */
 .s-head{max-width:var(--maxw);margin:0 auto;padding:44px 22px 0}
@@ -56,17 +76,9 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.
 .s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
 .s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
 
-/* ══ 主体：深色侧栏 + 白卡正文 ══ */
-.s-body{max-width:var(--maxw);margin:0 auto;padding:26px 22px 50px;display:grid;grid-template-columns:var(--sidew) minmax(0,1fr);gap:var(--gap);align-items:start}
-
-.s-side{position:sticky;top:calc(var(--bar-h) + 22px);background:var(--side-bg);border-radius:var(--radius);padding:16px 14px}
-.s-side h5{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:#64748b;margin-bottom:11px;font-weight:700}
-.s-side a{display:block;font-size:13px;color:var(--side-ink);padding:5px 9px;border-radius:var(--radius-sm);line-height:1.5;text-decoration:none;transition:.15s}
-.s-side a:hover{background:rgba(255,255,255,.05);color:#e2e8f0}
-.s-side a.on{background:var(--side-hi);color:var(--side-ink-hi);font-weight:600}
-.s-side a .n{font-family:var(--mono);font-size:11px;color:var(--side-mut);margin-inline-end:7px}
-.s-side a.on .n{color:var(--side-ink-hi)}
-.s-side .grp{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08)}
+/* ══ 主体：单栏正文（原深色侧栏目录已并入顶栏） ══ */
+.s-body{max-width:var(--maxw);margin:0 auto;padding:26px 22px 50px}
+.s-main{min-width:0;max-width:860px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
 
 .s-main{min-width:0;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
 
@@ -187,12 +199,16 @@ details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--mute
 /* ══ 响应式 ══ */
 @media(max-width:1180px){.tl{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:900px){
-  .s-body{grid-template-columns:1fr;gap:24px}
-  .s-side{position:static}
   .s-main{padding:8px 18px 30px}
-  .s-bar{position:static}
-  .s-side a{display:inline-block;margin:0 4px 4px 0}
-  .s-side a .n{margin-inline-end:5px}
+  /* 窄屏 6 项排不下 → 允许横向滚动；
+     同时把面板改为相对视口定位，否则会被导航的滚动容器裁掉 */
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+  .s-drop{position:static}
+  .s-panel{position:fixed;inset-inline:12px;top:calc(var(--bar-h) + 8px);min-width:0;max-height:60vh;overflow-y:auto}
+}
+@media(max-width:600px){
+  .s-brand em{display:none}
 }
 @media(max-width:760px){
   .tl{grid-template-columns:1fr}
@@ -215,12 +231,24 @@ details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--mute
 <header class="s-bar">
   <div class="s-bar-in">
     <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
-    <nav class="s-nav" id="topnav">
-      <a href="#s0">红线</a>
-      <a href="#s1">时间轴</a>
-      <a href="#s2">关键路径</a>
-      <a href="#s3">责任矩阵</a>
-      <a href="#s4">注意事项</a>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 红线</a>
+      <a href="#s1" data-sec="s1">01 时间轴</a>
+      <a href="#s2" data-sec="s2">02 关键路径</a>
+      <a href="#s3" data-sec="s3">03 责任矩阵</a>
+      <a href="#s4" data-sec="s4">04 注意事项</a>
+      <div class="s-drop" id="stageDrop">
+        <button type="button" class="s-dropbtn" aria-expanded="false" aria-haspopup="true">五阶段
+          <svg class="cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="s-panel">
+          <a href="#s1" data-stage="一"><span class="n">一</span>立项与准入</a>
+          <a href="#s1" data-stage="二"><span class="n">二</span>选品与共创</a>
+          <a href="#s1" data-stage="三"><span class="n">三</span>合规与审核</a>
+          <a href="#s1" data-stage="四"><span class="n">四</span>系统与生产准备</a>
+          <a href="#s1" data-stage="五"><span class="n">五</span>交付与上架</a>
+        </div>
+      </div>
     </nav>
   </div>
 </header>
@@ -244,22 +272,6 @@ details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--mute
 </div>
 
 <div class="s-body">
-  <aside class="s-side" id="sidenav">
-    <h5>目录</h5>
-    <a href="#s0" data-sec="s0"><span class="n">00</span>两条红线</a>
-    <a href="#s1" data-sec="s1"><span class="n">01</span>全流程时间轴</a>
-    <a href="#s2" data-sec="s2"><span class="n">02</span>总时长与关键路径</a>
-    <a href="#s3" data-sec="s3"><span class="n">03</span>部门职责与责任矩阵</a>
-    <a href="#s4" data-sec="s4"><span class="n">04</span>注意事项清单</a>
-    <div class="grp">
-      <h5>五阶段 · 跳转</h5>
-      <a href="#s1" data-stage="一"><span class="n">一</span>立项与准入</a>
-      <a href="#s1" data-stage="二"><span class="n">二</span>选品与共创</a>
-      <a href="#s1" data-stage="三"><span class="n">三</span>合规与审核</a>
-      <a href="#s1" data-stage="四"><span class="n">四</span>系统与生产准备</a>
-      <a href="#s1" data-stage="五"><span class="n">五</span>交付与上架</a>
-    </div>
-  </aside>
 
   <main class="s-main">
 
@@ -462,17 +474,15 @@ function showNode(no, scroll){
 
 showNode(1, false);
 
-/* ── 顶栏 / 侧栏 章节联动（滚动高亮） ── */
+/* ── 顶栏章节联动（滚动高亮）＋「五阶段」下拉 ── */
 (function(){
   var SECS=['s0','s1','s2','s3','s4'];
-  var sideLinks=document.querySelectorAll('#sidenav a[data-sec]');
-  var topLinks=document.querySelectorAll('#topnav a');
+  /* ⚠️ 高亮集合只取带 data-sec 的章节链接。
+     五阶段跳转链接的 href 同样是 #s1，若按 href 纳入会被误高亮（5 条同时亮）。 */
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
   function mark(cur){
-    for(var i=0;i<sideLinks.length;i++){
-      sideLinks[i].classList.toggle('on', sideLinks[i].getAttribute('data-sec')===cur);
-    }
-    for(var j=0;j<topLinks.length;j++){
-      topLinks[j].classList.toggle('on', topLinks[j].getAttribute('href')==='#'+cur);
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
     }
   }
   function spy(){
@@ -488,11 +498,29 @@ showNode(1, false);
   window.addEventListener('scroll', spy, {passive:true});
   window.addEventListener('resize', spy);
   spy();
+
+  /* 「五阶段」下拉：点击开合 / Esc / 点外部关闭 */
+  var drop=document.getElementById('stageDrop');
+  if(drop){
+    var dbtn=drop.querySelector('.s-dropbtn');
+    var closeDrop=function(){
+      drop.classList.remove('open');
+      if(dbtn) dbtn.setAttribute('aria-expanded','false');
+    };
+    window.__SOP_DROP=closeDrop;
+    if(dbtn) dbtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var op=drop.classList.toggle('open');
+      dbtn.setAttribute('aria-expanded', op ? 'true' : 'false');
+    });
+    document.addEventListener('click', function(e){ if(!drop.contains(e.target)) closeDrop(); });
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeDrop(); });
+  }
 })();
 
-/* ── 侧栏「五阶段」快捷跳转：跳到该阶段首个节点并高亮 ── */
+/* ── 顶栏「五阶段」快捷跳转：跳到该阶段首个节点并高亮 ── */
 (function(){
-  var links=document.querySelectorAll('#sidenav a[data-stage]');
+  var links=document.querySelectorAll('#topnav a[data-stage]');
   for(var i=0;i<links.length;i++){
     links[i].addEventListener('click', function(e){
       e.preventDefault();
@@ -501,6 +529,7 @@ showNode(1, false);
       if(s && s.node_ids.length){ showNode(s.node_ids[0], false); }
       var t=document.getElementById('s1');
       if(t) t.scrollIntoView({behavior:'smooth',block:'start'});
+      if(window.__SOP_DROP) window.__SOP_DROP();
     });
   }
 })();

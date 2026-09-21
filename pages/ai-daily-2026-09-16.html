@@ -24,7 +24,8 @@ body{
 /* ---------- Hero ---------- */
 .hero{
   position:relative;
-  margin:0 -20px 28px;
+  /* 已确认 hero 是 body 直接子元素，负外边距会撑出 20px 横向滚动条 → 去掉即满宽 */
+  margin:0 0 28px;
   padding:52px 40px 44px;
   background:
     radial-gradient(900px 380px at 12% -10%, rgba(255,255,255,.28), transparent 62%),
@@ -82,30 +83,37 @@ body{
 .stat-lab{font-size:12px;opacity:.84;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* ---------- Nav ---------- */
+/* 顶栏：墨黑，与全站 s-bar / tn-bar / prompt 顶栏一致（原浅色毛玻璃已改） */
 .navbar{
   position:sticky;top:0;z-index:30;
-  background:rgba(244,246,251,.9);
-  backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--line);
-  margin:0 -20px 30px;
+  background:#0f172a;
+  border-bottom:1px solid transparent;
+  /* 已上移到 body 首个子元素（原在 hero 之后），故不再用负外边距抵 body 内边距 */
+  margin:0 0 30px;
   padding:10px 40px;
 }
-.nav-inner{max-width:1080px;margin:0 auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.nav-inner{max-width:1180px;margin:0 auto;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.nav-brand{display:inline-flex;align-items:baseline;gap:8px;flex:0 0 auto;white-space:nowrap;
+  font-family:var(--mono);font-size:13.5px;font-weight:700;letter-spacing:.1em;
+  color:#fff;text-decoration:none}
+.nav-brand em{font-style:normal;font-size:11.5px;font-weight:400;letter-spacing:.02em;color:#94a3b8}
+.nav-brand:hover em{color:#5eead4}
+.nav-pills{margin-inline-start:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center;min-width:0}
 .nav-pill{
   display:inline-flex;align-items:center;gap:8px;
   padding:7px 14px;border-radius:999px;
-  background:var(--panel);border:1px solid var(--line);
-  color:var(--ink-2);text-decoration:none;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);
+  color:#cbd5e1;text-decoration:none;
   font-size:13.5px;font-weight:600;
-  box-shadow:0 1px 2px rgba(20,26,36,.04);
+  box-shadow:none;
   transition:all .16s ease;
 }
-.nav-pill:hover{border-color:#c3cfe8;color:var(--brand);transform:translateY(-1px)}
-.nav-pill.is-active{background:#f0f4ff;border-color:var(--brand);color:var(--brand)}
-.np-dot{width:6px;height:6px;border-radius:50%;background:var(--brand);flex:0 0 auto}
+.nav-pill:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.3);color:#fff;transform:translateY(-1px)}
+.nav-pill.is-active{background:rgba(13,148,136,.28);border-color:#0d9488;color:#f1f5f9}
+.np-dot{width:6px;height:6px;border-radius:50%;background:#5eead4;flex:0 0 auto}
 .np-n{
-  font-size:11px;font-weight:700;color:var(--brand);
-  background:#eaefff;border-radius:999px;padding:1px 7px;
+  font-size:11px;font-weight:700;color:#5eead4;
+  background:rgba(255,255,255,.1);border-radius:999px;padding:1px 7px;
 }
 
 /* ---------- Section ---------- */
@@ -209,7 +217,11 @@ body{
   .hero-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
   .stat-num{font-size:22px}
   .navbar{padding:10px 18px}
-  .nav-pill{font-size:12.5px;padding:6px 11px}
+  .nav-brand em{display:none}
+  /* 窄屏：分类胶囊独占一行横向可滑，比跟品牌挤一行能看到更多 */
+  .nav-pills{margin-inline-start:0;width:100%;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+  .nav-pills::-webkit-scrollbar{display:none}
+  .nav-pill{font-size:12.5px;padding:6px 11px;flex:0 0 auto}
   .grid{grid-template-columns:1fr}
   .card{padding:17px 16px 15px}
   .sec-head h2{font-size:18px}
@@ -228,6 +240,20 @@ body{
 </style>
 </head>
 <body>
+
+<!-- 内容导航：必须在首屏可见，故置于 hero 之前 -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a class="nav-brand" href="../index.html">GERVAS<em>AI 日报 · 2026-09-16</em></a>
+    <div class="nav-pills">
+      <a class="nav-pill" href="#sec0"><span class="np-dot"></span>模型发布/更新<span class="np-n">3</span></a>
+      <a class="nav-pill" href="#sec1"><span class="np-dot"></span>产品发布/更新<span class="np-n">2</span></a>
+      <a class="nav-pill" href="#sec2"><span class="np-dot"></span>行业动态<span class="np-n">1</span></a>
+      <a class="nav-pill" href="#sec3"><span class="np-dot"></span>论文研究<span class="np-n">4</span></a>
+      <a class="nav-pill" href="#sec4"><span class="np-dot"></span>技巧与观点<span class="np-n">7</span></a>
+    </div>
+  </div>
+</nav>
 
 <header class="hero">
   <div class="hero-inner">
@@ -248,16 +274,6 @@ body{
     </div>
   </div>
 </header>
-
-<nav class="navbar">
-  <div class="nav-inner">
-    <a class="nav-pill" href="#sec0"><span class="np-dot"></span>模型发布/更新<span class="np-n">3</span></a>
-    <a class="nav-pill" href="#sec1"><span class="np-dot"></span>产品发布/更新<span class="np-n">2</span></a>
-    <a class="nav-pill" href="#sec2"><span class="np-dot"></span>行业动态<span class="np-n">1</span></a>
-    <a class="nav-pill" href="#sec3"><span class="np-dot"></span>论文研究<span class="np-n">4</span></a>
-    <a class="nav-pill" href="#sec4"><span class="np-dot"></span>技巧与观点<span class="np-n">7</span></a>
-  </div>
-</nav>
 
 <main class="wrap">
 <section class="section" id="sec0"><header class="sec-head"><div class="sec-left"><span class="sec-icon">🧠</span><h2>模型发布/更新</h2></div><span class="sec-count">3 条</span></header><div class="grid"><article class="card"><div class="card-top"><span class="card-no">1</span><span class="card-badge">🧠</span></div><h3 class="card-title">Google DeepMind 发布 Gemini 3.8 Live 和 3.8 Live Extended Thinking</h3><div class="card-meta"><span class="chip" title="Google DeepMind：Blog（RSS）">Google DeepMind：Blog（RSS）</span><span class="c-time c-time-muted">收录于本期日报</span></div><p class="card-sum">Google DeepMind 发布 Gemini 3.8 Live 与 Gemini 3.8 Live…</p><a class="card-link" href="https://aihot.news/items/cmu2xqfxz02zhroc1hxuzi6jm" target="_blank" rel="noopener noreferrer">阅读原文 <span class="arrow">↗</span></a></article>
