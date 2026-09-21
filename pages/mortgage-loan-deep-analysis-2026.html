@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>房贷深度分析咨询</title>
+<meta name="description" content="120 万、30 年纯商业房贷的深度分析：利率环境、等额本息与等额本金测算、两种还款方式选择、全款与贷款对比、以及如何理解高额利息。测算数据照录原文。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 利率与测算</a>
+      <a href="#s1" data-sec="s1">02 方式选择</a>
+      <a href="#s2" data-sec="s2">03 全款对比</a>
+      <a href="#s3" data-sec="s3">04 利息之辨</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">金融分析 · 房贷咨询</span>
+  <h1>房贷深度分析咨询</h1>
+  <p class="s-lede">围绕"120 万、30 年纯商业房贷"这一具体场景：先看利率窗口与两种还款方式的精确测算，再给出选择策略，进而放到全款 vs 贷款的更大视角，最后回答"利息总额六七十万到底合不合适"。测算数据照录原文。</p>
+  <div class="s-meta">
+    <span>编制日期 <b>2026-02-27</b></span>
+    <span>贷款本金 <b>120 万元</b></span>
+    <span>期限 <b>30 年（360 期）</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">LPR 3.5%</span>
+    <span class="s-chip">等额本息</span>
+    <span class="s-chip">等额本金</span>
+    <span class="s-chip">提前还款</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文整理自以下笔记</b>：
+    <ol>
+      <li>00602-2026-02-27 房贷深度分析咨询（120 万 / 30 年纯商贷）</li>
+    </ol>
+  </div>
+
+  <!-- ══ 01 利率与测算 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>利率环境与核心测算</h2><span class="hint">LPR 3.5% · 2026-02</span></div>
+    <p class="lede">2026 年 2 月公布的 5 年期以上 LPR 为 <b>3.5%</b>，新发放个人住房贷款加权平均利率约 <b>3.1%</b>，处于历史低位；适度宽松货币政策下年内仍存下行空间。</p>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">方式</th><th style="width:180px">月供</th><th style="width:150px">总利息</th><th>还款总额 / 特点</th></tr></thead>
+      <tbody>
+        <tr><td><b>等额本息</b></td><td>约 <b>5,388 元</b>（固定不变）</td><td>约 <b>739,680 元</b></td><td>约 1,939,680 元；月供低且恒定，前期利息占比高（可达 70% 以上），本金偿还慢。</td></tr>
+        <tr><td><b>等额本金</b></td><td>首月约 <b>6,833 元</b>（每月递减约 9.7 元）</td><td>约 <b>631,750 元</b></td><td>约 1,831,750 元；前期压力大但越还越少，总利息比等额本息省约 <b>10.8 万元</b>。</td></tr>
+      </tbody>
+    </table></div>
+    <div class="srcnote" style="margin-bottom:0">注：以上基于当前基准利率、未考虑银行加点；实际月供以贷款合同为准。</div>
+  </section>
+
+  <!-- ══ 02 方式选择 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>两种还款方式的选择策略</h2><span class="hint">没有绝对划算，只有是否适合</span></div>
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">选等额本息</h3>
+        <p style="font-size:13.5px;color:var(--ink-2)">看重<b>现金流安全与稳定性</b>：每月固定支出便于家庭预算；收入稳定的上班族用未来会"贬值"的钱还今天的固定债务，心理与实际负担更小。未来利率若下行，更低月供还能享受降息红利。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">选等额本金</h3>
+        <p style="font-size:13.5px;color:var(--ink-2)">看重<b>总利息优化</b>且当前还款能力强：收入高且稳、或有较快提前还款计划时最省利息。但需评估首年月供比等额本息高近 1500 元是否影响生活。</p>
+      </div>
+    </div>
+    <div class="card st2" style="margin-top:14px">
+      <div class="card-h"><span class="tag">提前还款</span><h3>提前还得早，等额本金更优</h3></div>
+      <div class="card-b">
+        <p style="font-size:13.5px;color:var(--ink-2)">若计划 <b>3-5 年内</b>提前结清，等额本金更优（此时剩余本金更少）；若计划 <b>10 年后</b>才提前还款，等额本息前期已还大量利息，后期"节省"效果大打折扣。</p>
+        <div class="warnbox" style="margin-top:12px">
+          <h5>安全线</h5>
+          <ul><li>用"月供 / 家庭月收入 ≤ 30%"作为财务安全线；若 5388 元月供在承受范围内，等额本息更稳妥。</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 03 全款对比 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>全款 vs 贷款全方位对比</h2><span class="hint">结清 vs 活用</span></div>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:130px">维度</th><th>全款买房</th><th>贷款买房（120 万 / 30 年为例）</th></tr></thead>
+      <tbody>
+        <tr><td><b>总成本</b></td><td>一次性支付 120 万（或有折扣）</td><td>30 年总利息约 63-74 万</td></tr>
+        <tr><td><b>资金利用</b></td><td>锁定大量资金，失去投资 / 周转机会</td><td>保留资金弹性，关键看投资收益率能否跑赢 3.5%</td></tr>
+        <tr><td><b>生活压力</b></td><td>无债一身轻，决策从容</td><td>长期债务相伴，对收入稳定性要求高</td></tr>
+        <tr><td><b>交易流程</b></td><td>流程极简，常获开发商折扣</td><td>流程繁琐，另付按揭服务、抵押登记等成本</td></tr>
+        <tr><td><b>未来变现</b></td><td>直接过户，出手快</td><td>需结清解押后才能交易，急售周期拉长</td></tr>
+        <tr><td><b>风险抵御</b></td><td>抗风险强，无断供风险</td><td>房价大跌或收入中断时，或面临负资产 / 断供</td></tr>
+      </tbody>
+    </table></div>
+    <div class="card st3">
+      <div class="card-h"><span class="tag">算账</span><h3>手上 120 万现金怎么用</h3></div>
+      <div class="card-b">
+        <p style="font-size:13.5px;color:var(--ink-2)">若首付 20%（约 24 万），手握 <b>96 万</b>：这 96 万投资年化 5% 年收益约 4.8 万，而 120 万贷款按 3.5% 第一年利息约 4.2 万——形成正收益；若只存定期 2%，则不如全款划算。</p>
+        <dl class="kv" style="margin-top:10px">
+          <dt>全款更适合</dt><dd>现金流极充裕、极度厌恶负债、缺投资渠道（收益长期低于 3.5%）。</dd>
+          <dt>贷款更适合</dt><dd>资金有限需上车、善投资（年化稳定 4% 以上）、看重资金灵活性、预期通胀。</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 04 利息之辨 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>利息总额六七十万，合适吗</h2><span class="hint">三维理解</span></div>
+    <div class="grid g3">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">时间成本</h3>
+        <p style="font-size:13px;color:var(--ink-2)">利息是"提前使用未来资金、转移风险"的对价。七十年利息是为让银行先垫 96 万而付的租金，贵不贵看这 96 万在你手里发挥多大作用。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">通胀稀释</h3>
+        <p style="font-size:13px;color:var(--ink-2)">按每年 3% 温和通胀，30 年后约 5400 元月供的购买力只相当于今天约 <b>2200 元</b>。越往后还款压力越小。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">机会成本</h3>
+        <p style="font-size:13px;color:var(--ink-2)">96 万做大额存单年化 3%，30 年复利约 80-90 万，已基本覆盖 70 万利息；问题归结为：你未来创造财富能力能否超过 3.5%。</p>
+      </div>
+    </div>
+    <div class="warnbox" style="margin-top:16px">
+      <h5>降低"利息痛感"的三个思路</h5>
+      <ul>
+        <li>选等额本金，总利息比等额本息省约 10.8 万。</li>
+        <li>把房子做成租售比合理的资产：月租金若达 3500-4000 元，自付月供仅一两千。</li>
+        <li>设"5-8 年内提前还清大部分"的小目标，让这几年投资收益覆盖同期利息。</li>
+      </ul>
+    </div>
+    <div class="rl" style="margin-top:16px">
+      <h4>不构成财务建议</h4>
+      <div class="mid">利息高不高，取决于钱在你手里的价值</div>
+      <p>本页测算与观点照录咨询笔记，仅供参考，不构成投资或财务建议。实际月供、利率加点（BP）与提前还款规则以贷款合同为准。</p>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>房贷深度分析咨询 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自个人房贷咨询笔记，测算数据照录原文，仅供参考，不构成投资或财务建议。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
