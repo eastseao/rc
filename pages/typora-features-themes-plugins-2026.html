@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Typora 功能·主题·插件全面指南</title>
+<meta name="description" content="合并五篇 Typora 笔记：从所见即所得的核心体验、语法与快捷键、专注/打字机模式，到 Pandoc 导出、七款社区主题的安装避坑，再到 obgnail/typora_plugin（60+功能）与 VLOOK 两大插件生态的完整对照。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+pre.cd{font-family:var(--mono);font-size:12.5px;line-height:1.7;background:var(--code);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px;overflow-x:auto;margin:0 0 12px;color:var(--ink-2);white-space:pre}
+pre.cd:last-child{margin-bottom:0}
+code{font-family:var(--mono);font-size:.92em;background:var(--code);border-radius:4px;padding:1px 5px;color:var(--accent-ink)}
+pre.cd code{background:none;padding:0;color:inherit;font-size:inherit}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+td code{font-size:12px}
+
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 概览价格</a>
+      <a href="#s1" data-sec="s1">01 编辑视图</a>
+      <a href="#s2" data-sec="s2">02 导出发布</a>
+      <a href="#s3" data-sec="s3">03 主题</a>
+      <a href="#s4" data-sec="s4">04 插件生态</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 长文</span>
+  <h1>Typora 功能·主题·插件全面指南</h1>
+  <p class="s-lede">把五篇 Typora 笔记按「认识它 → 用它写 → 导出它 → 美化它 → 增强它」重组：先立核心体验与付费信息，再梳理语法快捷键、专注/打字机模式与 HTML 容器支持，接着讲清 Pandoc 导出链路，然后是七款社区主题的安装避坑，最后落到 obgnail/typora_plugin 与 VLOOK 两大插件生态的取舍。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-05-31</b></span>
+    <span>收录笔记 <b>5 篇</b></span>
+    <span>时间跨度 <b>2025-10 ~ 2026-05</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">Typora</span>
+    <span class="s-chip">所见即所得</span>
+    <span class="s-chip">Mermaid</span>
+    <span class="s-chip">主题</span>
+    <span class="s-chip">插件</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00250-2025-10-15 Typora 功能与使用体验介绍（含 Pandoc 介绍）</li>
+      <li>00613-2026-02-28 Typora 功能详述（含 HTML 容器支持、可视化提示词）</li>
+      <li>00671-2026-03-07 全面介绍 Typora 功能（AI 数据可视化培训课件）</li>
+      <li>00709-2026-03-13 推荐好看的 Typora 主题</li>
+      <li>01252-2026-05-31 Typora 插件全面指南</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 概览与价格 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>Typora 是什么与付费信息</h2><span class="hint">00250 / 00613 / 00671</span></div>
+    <p class="lede">Typora 是一款设计简洁、功能强大的 Markdown 编辑器，最与众不同的是真正的<b>所见即所得（WYSIWYG）</b>——彻底告别「左边编辑、右边预览」的分屏：你输入 <code>##</code> 建二级标题、用 <code>**</code> 加粗，标记立刻被渲染成最终排版，光标离开即隐藏标记，界面干净无干扰。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">维度</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>核心定位</b></td><td>轻量级、跨平台的 Markdown 文本编辑器，追求极简设计与无干扰写作体验。</td></tr>
+        <tr><td><b>核心特色</b></td><td>实时预览（所见即所得）、简洁界面、强扩展语法（CommonMark + GFM）、专注/打字机等辅助模式、灵活导出。</td></tr>
+        <tr><td><b>操作系统</b></td><td>Windows、macOS、Linux 三大平台，数据互通无压力。</td></tr>
+        <tr><td><b>适用人群</b></td><td>开发者、写作者、学生、科研人员，以及常做会议纪要、报告、数据可视化文档的职场人。</td></tr>
+        <tr><td><b>费用情况</b></td><td>已结束公测转<b>付费软件</b>。从 1.0 版本起采用<b>买断制</b>，价格 <b>14.99 美元或 89 元人民币</b>，支持在 <b>3 台设备</b>上激活，并提供 <b>15 天免费试用</b>。</td></tr>
+      </tbody>
+    </table></div>
+    <div class="srcnote" style="margin-bottom:0"><b>正版提醒（照录）</b>：网络上可能存在所谓「破解版」，但出于安全和支持开发者考虑，强烈建议通过官网 typora.io 购买和下载正版。</div>
+  </section>
+
+  <!-- ══ 01 编辑与视图 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>语法 · 快捷键 · 视图模式 · HTML 容器</h2><span class="hint">00613 / 00671</span></div>
+    <p class="lede">Typora 全面支持标题、列表、引用、链接、图片、表格、代码块等标准语法，并扩展了任务列表、脚注、目录 <code>[TOC]</code>、Emoji、LaTeX 数学公式与 Mermaid 图表。下表把高频语法与 Typora 快捷键一一对应（照录 00671）。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:110px">功能</th><th style="width:200px">语法</th><th style="width:180px">Typora 快捷键</th></tr></thead>
+      <tbody>
+        <tr><td>标题</td><td><code># 一级标题</code></td><td>Ctrl + 1 / 2 / 3 / 4 / 5 / 6</td></tr>
+        <tr><td>粗体</td><td><code>**粗体**</code></td><td>Ctrl + B</td></tr>
+        <tr><td>斜体</td><td><code>*斜体*</code></td><td>Ctrl + I</td></tr>
+        <tr><td>删除线</td><td><code>~~删除线~~</code></td><td>Alt + Shift + 5</td></tr>
+        <tr><td>下划线</td><td><code>&lt;u&gt;下划线&lt;/u&gt;</code></td><td>Ctrl + U</td></tr>
+        <tr><td>高亮</td><td><code>==高亮==</code></td><td>需在偏好设置中开启</td></tr>
+        <tr><td>无序列表</td><td><code>- 项目</code> 或 <code>* 项目</code></td><td>Ctrl + Shift + ]</td></tr>
+        <tr><td>有序列表</td><td><code>1. 项目</code></td><td>Ctrl + Shift + [</td></tr>
+        <tr><td>表格</td><td>竖线分隔</td><td>Ctrl + T</td></tr>
+        <tr><td>代码块</td><td>围栏 + 语言名</td><td>Ctrl + Shift + K</td></tr>
+        <tr><td>引用块</td><td><code>&gt; 一级</code> / <code>&gt;&gt; 二级</code></td><td>Ctrl + Shift + Q</td></tr>
+        <tr><td>超链接</td><td><code>[文字](URL)</code></td><td>Ctrl + K</td></tr>
+        <tr><td>图片</td><td><code>![描述](路径)</code></td><td>Ctrl + Shift + I</td></tr>
+        <tr><td>任务列表</td><td><code>- [ ] 待办</code> / <code>- [x] 已完成</code></td><td>手动输入</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">视图模式（含快捷键）</h3>
+        <dl class="kv">
+          <dt>专注模式</dt><dd>F8。当前编辑行高亮、其他行淡出变灰，帮你聚焦当下。</dd>
+          <dt>打字机模式</dt><dd>F9。始终保持编辑行在屏幕中央，适合长时间码字。</dd>
+          <dt>侧边栏</dt><dd>Ctrl+Shift+1 大纲视图 / Ctrl+Shift+2 文件树；大纲按标题自动生成，长文档一键跳转。</dd>
+          <dt>源代码模式</dt><dd>Ctrl + /。需要精细调整时一键切回传统源码编辑。</dd>
+          <dt>全屏</dt><dd>F11。沉浸写作。</dd>
+          <dt>字数统计</dt><dd>实时统计字数、字符数、行数，甚至预估阅读时长。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">推荐初始偏好设置</h3>
+        <dl class="kv">
+          <dt>通用</dt><dd>开启自动保存防丢失；关闭自动检查更新避免弹窗。</dd>
+          <dt>外观</dt><dd>主题选 GitHub，经典清晰。</dd>
+          <dt>编辑器</dt><dd>关闭拼写检查；开启「显示当前块元素的 Markdown 源码」便于学语法。</dd>
+          <dt>图像</dt><dd>复制图片到 <code>./${filename}.assets</code> 文件夹；优先使用相对路径，保证文档可移植。</dd>
+          <dt>Markdown</dt><dd>开启内联公式、下标、上标、高亮、图表等扩展。</dd>
+        </dl>
+      </div>
+    </div>
+
+    <details class="acc st2" open>
+      <summary>Typora 支持哪些 HTML 容器（00613）<span class="cnt">4 类 + 注意事项</span></summary>
+      <div class="body">
+        <p class="lede">官方把支持的标签分为<b>内联标签</b>与<b>块级标签</b>两类，用于做比标准 Markdown 更丰富的排版。</p>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:150px">类别</th><th>典型标签与用途</th></tr></thead>
+          <tbody>
+            <tr><td>块级容器 / 布局</td><td><code>&lt;div&gt;</code> 通用容器配 CSS；<code>&lt;center&gt;</code> 居中；<code>&lt;details&gt;</code>+<code>&lt;summary&gt;</code> 可折叠详情块（FAQ）；<code>&lt;table&gt;</code> 系列标签做合并单元格（colspan / rowspan）——这是原生表格做不到的。</td></tr>
+            <tr><td>文本格式化 / 标记</td><td><code>&lt;span&gt;</code> 对一小段文字套独立样式；<code>&lt;ruby&gt;</code>+<code>&lt;rt&gt;</code> 注音（如汉字标拼音）；<code>&lt;kbd&gt;</code> 键盘按键；<code>&lt;sup&gt;</code> / <code>&lt;sub&gt;</code> 上标下标。</td></tr>
+            <tr><td>多媒体 / 嵌入</td><td><code>&lt;video&gt;</code> / <code>&lt;audio&gt;</code> 嵌入音视频；<code>&lt;iframe&gt;</code> 嵌入 YouTube、Bilibili 等网页分享代码。</td></tr>
+            <tr><td>交互 / 注释</td><td><code>&lt;details&gt;</code> 折叠交互；<code>&lt;!-- ... --&gt;</code> 编辑时可见、导出时隐藏的注释。</td></tr>
+          </tbody>
+        </table></div>
+        <div class="warnbox">
+          <h5>使用注意事项（照录）</h5>
+          <ul>
+            <li><b>安全限制</b>：出于安全，<code>&lt;script&gt;</code> 等标签不会被执行；<code>id</code>、<code>class</code>、<code>data-*</code> 在实时预览中被忽略，但导出 HTML/打印时会保留。</li>
+            <li><b>导出兼容</b>：HTML 内容在导出 PDF/HTML 时完美保留；导出 Word、LaTeX 时部分复杂结构可能丢失甚至变成纯文本。</li>
+            <li><b>编辑技巧</b>：复杂 HTML 块可单击非交互部分，或 <code>Ctrl/Cmd + 单击</code> 进入代码式编辑，点外部退出。</li>
+            <li><b>与 Markdown 混用</b>：块级 HTML 内部标准 Markdown 不解析（CommonMark 设计）；但内联标签（如 <code>&lt;span&gt;</code>）内可混用 Markdown。</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+
+    <div class="warnbox" style="margin-top:14px">
+      <h5>图片管理（00613 / 00671）</h5>
+      <ul>
+        <li>可直接粘贴网络图片或拖拽本地图片；右键图片可缩放。</li>
+        <li>偏好设置可让插入图片自动复制到 <code>./assets</code> 并用相对路径引用，保证便携。</li>
+        <li>支持与 <b>PicGo</b> 等图床工具集成，一键上传至 SM.MS、腾讯云 COS、阿里云 OSS，方便发博客。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ 02 导出与发布 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>导出发布与 Pandoc 链路</h2><span class="hint">00250 / 00671</span></div>
+    <p class="lede">Typora 原生支持导出 PDF、HTML、图片；安装 <b>Pandoc</b> 后可扩展导出 Word（docx）、LaTeX、ePub，也能从这些格式导入。Pandoc 被称为文档转换领域的「瑞士军刀」，用 Haskell 编写，由 John MacFarlane 开发。</p>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">导出各格式怎么操作</h3>
+        <dl class="kv">
+          <dt>PDF</dt><dd>文件 → 导出 → PDF；或 Ctrl+P 打印选「另存为 PDF」。格式完全保留，适合正式交付。</dd>
+          <dt>Word (docx)</dt><dd>需先装 Pandoc（pandoc.org/installing.html）并重启 Typora，再 文件 → 导出 → Word。Mermaid 图表会转成图片，表格格式基本保留。</dd>
+          <dt>图片</dt><dd>Typora 本身不直接导图片：可用截图工具，或先导出 HTML 用浏览器打开再截（如 GoFullPage 截长图）。</dd>
+          <dt>其他格式</dt><dd>装 Pandoc 后可导 LaTeX、ePub，也支持反向导入。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">Pandoc 基础命令（照录）</h3>
+        <pre class="cd">基本格式：pandoc [输入文件] -o [输出文件]
+
+# Markdown 转 HTML
+pandoc input.md -o output.html
+
+# Word 转 Markdown
+pandoc input.docx -o output.md
+
+# 生成 PDF（需 LaTeX 引擎）
+pandoc input.md --pdf-engine=xelatex -o output.pdf
+
+# 中文 PDF 防乱码，指定中文字体
+pandoc doc.md -o doc.pdf --pdf-engine=xelatex -V mainfont="SimSun"</pre>
+        <p style="font-size:13px;color:var(--muted)">原理：Pandoc 先把输入解析成抽象语法树（AST），再从 AST 生成目标格式；可用 Lua/Python 写 Filter 操作 AST。</p>
+      </div>
+    </div>
+
+    <div class="warnbox" style="margin-top:16px">
+      <h5>常见导出故障（00671 照录）</h5>
+      <ul>
+        <li><b>图片丢失</b>：多因用了绝对路径，移动文档后找不到 → 设置「复制图片到 ./assets + 相对路径」。</li>
+        <li><b>Mermaid 不显示</b>：检查代码块是否标了 <code>mermaid</code> 语言、偏好设置是否开启「图表」。</li>
+        <li><b>导出 Word 图表变代码</b>：Pandoc 版本过低或未安装 → 更新到最新版，Mermaid 会自动转图片。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ 03 主题 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>七款社区主题与安装避坑</h2><span class="hint">00709</span></div>
+    <p class="lede">Typora 允许换主题换心情，有 CSS 基础还能改或自建。00709 整理了七款社区口碑不错、颜值在线的选择。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:130px">主题</th><th style="width:150px">风格</th><th>推荐理由</th></tr></thead>
+      <tbody>
+        <tr><td><b>WhisperEden</b></td><td>宁静自然</td><td>柔和浅绿背景（#C7EDCC），长时间码字护眼，可自由定制，营造沉浸式写作氛围。</td></tr>
+        <tr><td><b>VLOOK</b></td><td>功能强大专业</td><td>不只是主题，更是一个增强插件，提供文档排版、内容导航和演示功能，适合专业技术文档/演示。</td></tr>
+        <tr><td><b>Github</b></td><td>经典简约</td><td>自带主题的代表，清爽、代码友好，「简约而不简单」。</td></tr>
+        <tr><td><b>Aspartate</b></td><td>柔和暗色护眼</td><td>黑色带点灰度而非纯黑，对眼睛更友好，深色模式爱好者心头好。</td></tr>
+        <tr><td><b>happysimple</b></td><td>高对比可定制</td><td>高对比让标题、代码块一目了然；内置多字体，配置文件注释清晰，适合爱折腾的人。</td></tr>
+        <tr><td><b>Gobalt</b></td><td>暗色极客</td><td>专为夜晚工作设计，减轻眼部疲劳，深夜也能专注。</td></tr>
+        <tr><td><b>Vue</b></td><td>现代简约</td><td>灵感来自 Vue.js 官方风格，清爽现代，响应式设计，不同屏幕都有不错显示。</td></tr>
+      </tbody>
+    </table></div>
+
+    <details class="acc st4" open>
+      <summary>主题安装四步与导出避坑<span class="cnt">00709</span></summary>
+      <div class="body">
+        <ol style="margin:0 0 12px 18px;line-height:1.9">
+          <li><b>下载主题</b>：从作者分享页（通常 GitHub 或博客）下载压缩包。</li>
+          <li><b>打开主题文件夹</b>：Typora → 文件 → 偏好设置 → 外观 → 打开主题文件夹。</li>
+          <li><b>安装</b>：解压后把 <code>.css</code> 文件和相关资源文件夹一起复制进主题文件夹。</li>
+          <li><b>应用</b>：<b>完全重启 Typora</b>，再从菜单「主题」里选择新装的主题。</li>
+        </ol>
+        <div class="warnbox" style="margin-top:4px">
+          <h5>导出避坑</h5>
+          <ul><li>高度自定义主题（如 happysimple）导出 PDF 可能排版错乱；常导出的人，用新主题后先测导出，或导出时临时切回官方主题。</li></ul>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ══ 04 插件生态 ══ -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>插件生态：obgnail 全家桶 vs VLOOK</h2><span class="hint">01252</span></div>
+    <p class="lede">Typora 本身<b>没有官方插件系统</b>，原生功能刻意保持纯粹。社区用「黑魔法」做出两大主流增强包：全能型 <b>obgnail/typora_plugin</b>（60+ 功能，最活跃）与排版专精的 <b>VLOOK™</b>（Typora 首个增强插件）。主流插件要求 Typora 版本 <b>≥ 0.9.98</b>。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">取舍维度</th><th>obgnail/typora_plugin</th><th>VLOOK™</th></tr></thead>
+      <tbody>
+        <tr><td><b>定位</b></td><td>60+ 功能全家桶，全面提升写作效率</td><td>Typora 首个增强插件，专精排版与 PDF 导出</td></tr>
+        <tr><td><b>适合谁</b></td><td>要更强的文档编辑、管理、搜索能力的人</td><td>把 Typora 当排版工具、需精美演示/分享的人</td></tr>
+        <tr><td><b>招牌功能</b></td><td>标签页管理、中英文混排、文件模板、思维导图 markmap、自动编号、Markdown 检查、一键上传博客、文件加密</td><td>一键发布 PDF、表格自动编号与题注、GitHub 风格 [!NOTE]/[!TIP] 警示块美化、图片剪影换色、交叉引用</td></tr>
+      </tbody>
+    </table></div>
+
+    <details class="acc st5" open>
+      <summary>obgnail/typora_plugin 六大模块速览<span class="cnt">01252</span></summary>
+      <div class="body">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:150px">模块</th><th>代表插件（功能）</th></tr></thead>
+          <tbody>
+            <tr><td>编辑与效率</td><td>window_tab 标签页（Ctrl+Tab 切换、中键关闭）；md_padding 中英文自动加空格（Ctrl+Shift+B）；templater 文件模板；cursor_history 光标历史跳转。</td></tr>
+            <tr><td>搜索与导航</td><td>search_multi 全局文件搜索（AND/OR/NOT、正则、按大小时间筛选）；collapse_paragraph Ctrl+点击折叠章节；toc 右侧大纲；go_top 一键到顶/底。</td></tr>
+            <tr><td>内容与图表</td><td>markmap 思维导图（大纲/代码块两种生成）；datatables 表格搜索过滤分页排序；集成 ECharts、PlantUML、DrawIO；fence_enhance 代码块一键复制与折叠；imageReviewer 悬浮看图。</td></tr>
+            <tr><td>界面与视觉</td><td>dark 夜间模式；blur 模糊非焦点内容；no_image 隐藏图片加速大文档；editor_width_slider 写作区宽度滑块；scrollBookmarker 书签。</td></tr>
+            <tr><td>文档处理协作</td><td>auto_number 自动编号章节/表格/图片/代码块；export_enhance 导出 HTML 把图片转 Base64 内嵌；markdownLint 语法检查；article_uploader 一键发博客；cipher 文件加密；redirectLocalRootUrl 跨笔记软件重定向资源路径。</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </details>
+
+    <details class="acc st5">
+      <summary>obgnail 插件快速上手指引<span class="cnt">01252</span></summary>
+      <div class="body">
+        <ol style="margin:0 0 12px 18px;line-height:1.9">
+          <li>在 GitHub 仓库下载源码压缩包，找到 Typora 程序目录下 <code>window.html</code> 所在目录（正式版类似 <code>Typora\resources\</code>）。</li>
+          <li>把解压得到的 <code>plugin</code> 文件夹完整复制到该目录。</li>
+          <li>进入 <code>plugin\bin\</code>：Windows 右键 <code>install_windows.ps1</code>「使用 PowerShell 运行」；Linux 以管理员运行 <code>install_linux.sh</code>。</li>
+          <li>重启 Typora，文档右键出现「常用插件」即成功；右键 → Interactive Plugins → Preferences 管理启用状态。</li>
+        </ol>
+      </div>
+    </details>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>Typora 功能·主题·插件全面指南 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 Typora 学习笔记，快捷键、价格与插件版本要求均照录原笔记；插件为社区第三方项目，使用前请自行核对 GitHub 仓库最新说明。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

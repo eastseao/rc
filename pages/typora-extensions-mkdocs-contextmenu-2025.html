@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Typora 扩展替代·MkDocs·右键新建 Markdown</title>
+<meta name="description" content="合并四篇手册笔记：Typora 没有官方插件系统的四种曲线救国扩展方式、plugin 文件夹授权报错的三系统解法、Windows 安装 MkDocs 全流程，以及在右键菜单新建 .md 文件的 .reg 脚本与注册表手动方法。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+pre.cd{font-family:var(--mono);font-size:12.5px;line-height:1.7;background:var(--code);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px;overflow-x:auto;margin:0 0 12px;color:var(--ink-2);white-space:pre}
+pre.cd:last-child{margin-bottom:0}
+code{font-family:var(--mono);font-size:.92em;background:var(--code);border-radius:4px;padding:1px 5px;color:var(--accent-ink)}
+pre.cd code{background:none;padding:0;color:inherit;font-size:inherit}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+td code{font-size:12px}
+
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ol,details.acc ul{margin:0;padding-left:20px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 扩展替代</a>
+      <a href="#s1" data-sec="s1">01 文件夹授权</a>
+      <a href="#s2" data-sec="s2">02 MkDocs</a>
+      <a href="#s3" data-sec="s3">03 右键.reg</a>
+      <a href="#s4" data-sec="s4">04 Win11右键</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 手册</span>
+  <h1>Typora 扩展替代·MkDocs·右键新建 Markdown</h1>
+  <p class="s-lede">这是一份操作手册：先讲清 Typora 没有官方插件系统、靠哪四种方式「曲线救国」，再解决装了第三方脚本却提示「请给 plugin 文件夹授权」的报错；随后是 Windows 安装 MkDocs 建站工具的全流程，最后把「在右键菜单新建 .md 文件」的 .reg 一键脚本与注册表手动方法整理成可照做的步骤。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-04-19</b></span>
+    <span>收录笔记 <b>4 篇</b></span>
+    <span>时间跨度 <b>2025-07 ~ 2026-04</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">Typora 扩展</span>
+    <span class="s-chip">Pandoc</span>
+    <span class="s-chip">MkDocs</span>
+    <span class="s-chip">注册表</span>
+    <span class="s-chip">.reg</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本手册合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00020-2025-07-16 Typora 扩展功能与插件替代方案（含 plugin 文件夹授权排障）</li>
+      <li>00151-2025-10-02 Windows 安装 MkDocs 详细教程</li>
+      <li>00920-2026-04-14 Windows 右键新建 Markdown 文件</li>
+      <li>00960-2026-04-19 右键新建 Markdown 文档教程（Win11）</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 Typora 扩展替代 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>Typora 没有官方插件，四种扩展方式</h2><span class="hint">00020</span></div>
+    <p class="lede">Typora <b>不支持传统意义上的插件系统</b>（没有 VSCode/Obsidian 那样的官方插件商店），设计上追求简洁专注。所谓「插件」都是曲线救国，按实用度排序如下。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">方式</th><th style="width:170px">作用</th><th>要点 / 必备度</th></tr></thead>
+      <tbody>
+        <tr><td><b>1. Pandoc 集成</b></td><td>扩展导出能力（最强大常用）</td><td>解锁导出 Word/.pptx/LaTeX/ePub/ODT/Jupyter Notebook；模板与过滤器可控制页眉页脚、封面、目录、字体、边距，结合 BibTeX 做参考文献。在「文件 &gt; 偏好设置 &gt; 导出」指定 pandoc.exe 路径。⭐⭐⭐⭐⭐</td></tr>
+        <tr><td><b>2. 自定义 CSS 主题</b></td><td>改界面与导出外观</td><td>「偏好设置 &gt; 外观 &gt; 打开主题文件夹」编辑或新建 .css。可改字体字号行高、代码块/表格/引用块样式、加背景图或水印。⭐⭐⭐⭐</td></tr>
+        <tr><td><b>3. 外部脚本自动化</b></td><td>Python/Shell/AHK 等与 Typora 交互</td><td>最常见是粘贴图片自动压缩、上传图床、替换 URL（Python + PicGo）；还可批量改链接/Front Matter、智能粘贴、发送到 Todoist/Notion。需一定脚本能力。⭐⭐⭐</td></tr>
+        <tr><td><b>4. 图像设置集成外部命令</b></td><td>「偏好设置 &gt; 图像」</td><td>插入图片时复制到指定文件夹，或调用命令行工具（PicGo CLI）上传并替换链接。比自写脚本简单但功能有限。⭐⭐</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="warnbox">
+      <h5>重要提示（照录）</h5>
+      <ul>
+        <li>官方无插件 API，上述都是「曲线救国」；Pandoc、脚本、CSS 都有学习曲线。</li>
+        <li>外部脚本可能与 Typora 更新冲突，需自行维护；从网上下载的脚本/CSS 要谨慎，注意代码安全。</li>
+        <li>资源关键词：<code>typora theme</code>、<code>typora uploader</code>、<code>typora pandoc template</code>、「Typora 自动上传图片」。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ 01 文件夹授权 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>装了第三方脚本却提示「请给 plugin 文件夹授权」</h2><span class="hint">00020</span></div>
+    <p class="lede">这个「plugin 文件夹」不是 Typora 内部目录，而是<b>你下载/解压的那个脚本工具自己所在的文件夹</b>。报错含义：脚本需要读写/执行它自己目录的权限，但当前权限不足。解法是给那个具体文件夹授权。</p>
+
+    <div class="grid g3">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">Windows</h3>
+        <ol style="margin:0;padding-left:18px;font-size:13px;color:var(--ink-2);line-height:1.8">
+          <li>资源管理器定位该文件夹 → 右键 → 属性。</li>
+          <li>「安全」选项卡 → 选中当前登录用户名。</li>
+          <li>勾选「修改」或「完全控制」（不足则点「编辑」）。</li>
+          <li>应用 → 确定 → 重启 Typora/脚本。</li>
+        </ol>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">macOS</h3>
+        <ol style="margin:0;padding-left:18px;font-size:13px;color:var(--ink-2);line-height:1.8">
+          <li>Finder 定位该文件夹 → 右键「显示简介」。</li>
+          <li>「共享与权限」→ 点锁输入密码解锁。</li>
+          <li>确保用户名在列表，权限选「读与写」。</li>
+          <li>重新锁定 → 重启 Typora/脚本。</li>
+        </ol>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">Linux (Ubuntu)</h3>
+        <ol style="margin:0;padding-left:18px;font-size:13px;color:var(--ink-2);line-height:1.8">
+          <li>属性 → 权限 → 文件夹访问设「创建和删除文件」、文件访问设「读写」。</li>
+          <li>勾选「允许作为程序运行」。</li>
+          <li>或终端：<code>sudo chmod -R 755 文件夹名/</code>。</li>
+          <li>重启 Typora/脚本。</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="warnbox">
+      <h5>排查顺序（照录）</h5>
+      <ul>
+        <li>先确认改的就是<b>报错里那个具体文件夹路径</b>，别误改 Typora 安装目录。</li>
+        <li>改完<b>务必重启</b> Typora 与脚本（含 PicGo）；仍不行可右键「以管理员身份运行 Typora」。</li>
+        <li>检查脚本自身依赖（Python 库、API key、PicGo 配置）是否漏装。</li>
+        <li>Linux 优先 <code>755</code>，别轻易 <code>777</code>（安全风险）；只从可信来源下载脚本。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ 02 MkDocs ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>Windows 安装 MkDocs 建站工具</h2><span class="hint">00151</span></div>
+    <p class="lede">MkDocs 是基于 Python 的静态文档站生成器。安装走 pip，三步：确认 Python → pip 安装 → 验证。</p>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">安装</span><h3>确认 Python、pip 安装与验证</h3></div>
+      <div class="card-b">
+        <pre class="cd">python --version
+pip --version
+
+pip install mkdocs
+# 国内加速用清华镜像：
+pip install mkdocs -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+# 验证（显示如 mkdocs, version 1.5.x 即成功）：
+mkdocs --version</pre>
+        <p style="font-size:13px;color:var(--muted)">未装 Python 到 python.org 下载，安装时<b>务必勾选 Add Python to PATH</b>；权限不足则以管理员身份运行命令行。</p>
+      </div>
+    </div>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">使用</span><h3>新建项目、本地预览、构建发布</h3></div>
+      <div class="card-b">
+        <pre class="cd">mkdocs new my-project
+cd my-project
+mkdocs serve        # 浏览器打开 http://127.0.0.1:8000，改 .md 自动热重载
+mkdocs build        # 生成 site/ 静态文件，可部署到任意 Web 服务器</pre>
+        <p style="font-size:13px;color:var(--muted)">项目结构：<code>mkdocs.yml</code>（配置站名称、导航）+ <code>docs/</code>（Markdown 文档，初始 index.md 为首页）。</p>
+      </div>
+    </div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">永久镜像源（可选）</h3>
+        <p style="font-size:13px;color:var(--ink-2);margin-bottom:8px">在 <code>C:\Users\你的用户名\</code> 下建 <code>pip\pip.ini</code>：</p>
+        <pre class="cd">[global]
+index-url = https://pypi.tuna.tsinghua.edu.cn/simple
+trusted-host = pypi.tuna.tsinghua.edu.cn
+timeout = 120</pre>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">Material 主题与排障</h3>
+        <pre class="cd">pip install mkdocs-material
+# mkdocs.yml 里写：theme: material
+
+# 8000 端口被占用：
+mkdocs serve --dev-addr 127.0.0.1:8080</pre>
+        <p style="font-size:13px;color:var(--muted)">命令「未识别」多为环境变量问题：确认装时勾了 Add to PATH，或重开命令行。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 03 右键 .reg ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>右键「新建」里加 .md：.reg 一键导入</h2><span class="hint">00920</span></div>
+    <p class="lede">改注册表前<b>强烈建议先备份</b>：<code>Win+R</code> → <code>regedit</code> → 文件 → 导出，存一份备份。下面脚本照录自 00920。</p>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">方法一</span><h3>新建文本文档 → 粘贴 → 另存为 .reg → 双击导入</h3></div>
+      <div class="card-b">
+        <pre class="cd">Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\.md]
+@="MarkdownFile"
+"Content Type"="text/markdown"
+"PerceivedType"="text"
+
+[HKEY_CLASSES_ROOT\.md\ShellNew]
+"NullFile"=""
+
+[HKEY_CLASSES_ROOT\MarkdownFile]
+@="Markdown 文件"
+
+[HKEY_CLASSES_ROOT\MarkdownFile\DefaultIcon]
+@="\"C:\\Program Files\\Typora\\Typora.exe\",0"
+
+[HKEY_CLASSES_ROOT\MarkdownFile\shell\open\command]
+@="\"C:\\Program Files\\Typora\\Typora.exe\" \"%1\""</pre>
+        <ol style="margin:0 0 0 20px;font-size:13.5px;color:var(--ink-2);line-height:1.8">
+          <li>另存为时文件名写 <code>Add_Markdown_New.reg</code>，保存类型选「所有文件 (*.*)」。</li>
+          <li>双击该 .reg → 系统警告点「是」确认导入。</li>
+          <li>最后两行是默认打开程序与图标，<b>把 Typora.exe 路径改成你机器的实际路径</b>（VS Code/Notepad++ 同理）；不清楚可先删掉这两行，之后再手动关联。</li>
+        </ol>
+      </div>
+    </div>
+
+    <details class="acc st4" open>
+      <summary>方法二：手动改注册表（了解原理用）<span class="cnt">00920</span></summary>
+      <div class="body">
+        <ol>
+          <li><code>Win+R</code> → <code>regedit</code>，地址栏输入 <code>计算机\HKEY_CLASSES_ROOT\.md</code>。</li>
+          <li>.md 不存在则右键 HKEY_CLASSES_ROOT → 新建 → 项，命名 <code>.md</code>；右侧默认值设为 <code>MarkdownFile</code>。</li>
+          <li>在 .md 下新建项 <code>ShellNew</code>；选中它 → 右侧新建「字符串值」<code>NullFile</code>，数值留空。</li>
+          <li>新建 <code>MarkdownFile</code> 项，默认值设 <code>Markdown 文件</code>；其下依次建 <code>shell\open\command</code>。</li>
+          <li>command 默认值设 <code>"C:\Program Files\Typora\Typora.exe" "%1"</code>（路径用英文双引号）。</li>
+          <li>关闭注册表，<b>重启电脑或重启 explorer.exe</b> 生效。</li>
+        </ol>
+      </div>
+    </details>
+
+    <div class="warnbox">
+      <h5>常见问题（00920）</h5>
+      <ul>
+        <li>右键里看不到：先重启电脑；再检查 <code>HKEY_CLASSES_ROOT\.md\ShellNew</code> 与 <code>NullFile</code> 是否正确创建。</li>
+        <li>新建的 .md 打不开：右键 .md → 打开方式 → 选编辑器并勾「始终使用此应用打开 .md 文件」。</li>
+        <li>想删除菜单项：删 <code>计算机\HKEY_CLASSES_ROOT\.md\ShellNew</code>，重启即可。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ 04 Win11 右键 ══ -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>Win11 右键新建 Markdown：Typora 自带 + 两套脚本</h2><span class="hint">00960</span></div>
+    <p class="lede">已装 Typora 的 Win11 用户，最省事的是用 Typora 自带开关；不生效再走注册表。改注册表前先 <code>regedit</code> → 文件 → 导出备份。</p>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">方法一：Typora 自带（最推荐）</h3>
+        <ol style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2);line-height:1.8">
+          <li>打开 Typora → 文件 → 偏好设置。</li>
+          <li>「通用」里点「向 Windows 资源管理器的'新建'菜单项中添加 Markdown 选项」。</li>
+          <li>等系统提示成功即可。</li>
+        </ol>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">方案A：.md 加「新建」子菜单</h3>
+        <ol style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2);line-height:1.8">
+          <li>regedit 定位 <code>计算机\HKEY_CLASSES_ROOT\.md</code>。</li>
+          <li>双击「默认」，数值改 <code>Typora.md</code>。</li>
+          <li>.md 下新建项 <code>ShellNew</code>；其下建字符串值 <code>NullFile</code>，留空。</li>
+          <li>任务管理器重启「Windows 资源管理器」即生效。</li>
+        </ol>
+      </div>
+    </div>
+
+    <details class="acc st5" open>
+      <summary>方案B：一级菜单直接「用 Typora 新建」+ 两个 .reg 脚本<span class="cnt">00960</span></summary>
+      <div class="body">
+        <p class="lede" style="margin-bottom:10px">方案B 手动步骤：定位 <code>计算机\HKEY_CLASSES_ROOT\Directory\Background\shell</code> → 新建项 <code>Typora</code> → 默认值写 <code>新增 Markdown 文件</code>（可自定义）→ 可加字符串值 <code>icon</code> 指向 Typora.exe → 其下新建项 <code>command</code>，默认值写 <code>"C:\Program Files\Typora\Typora.exe" "%V"</code>（路径有空格务必加英文双引号，<code>%V</code> 代表当前文件夹）→ 重启资源管理器。</p>
+        <p style="font-size:13px;font-weight:700;color:var(--ink);margin:8px 0 6px">脚本一：为 .md 加「新建」选项（保存为 add_md_new.reg，管理员运行）</p>
+        <pre class="cd">Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\.md]
+@="Typora.md"
+
+[HKEY_CLASSES_ROOT\.md\ShellNew]
+"NullFile"=""
+
+[HKEY_CLASSES_ROOT\Typora.md]
+@="Markdown File"</pre>
+        <p style="font-size:13px;font-weight:700;color:var(--ink);margin:8px 0 6px">脚本二：一级菜单「用 Typora 新建」（按实际安装路径改）</p>
+        <pre class="cd">Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\Directory\Background\shell\Typora]
+@="新增 Markdown 文件"
+"Icon"="\"C:\\Program Files\\Typora\\Typora.exe\""
+
+[HKEY_CLASSES_ROOT\Directory\Background\shell\Typora\command]
+@="\"C:\\Program Files\\Typora\\Typora.exe\" \"%V\""</pre>
+      </div>
+    </details>
+
+    <div class="srcnote" style="margin-bottom:0"><b>总结优先级（00960）</b>：已装 Typora 先用<b>方法一</b>（一键）；不生效用<b>方案A</b>（通用可靠）；不想手动就用<b>.reg 脚本</b>（管理员运行）。右键不出现就查注册表路径或重启资源管理器；新建文件双击打不开，就在「打开方式」里选 Typora 并勾「始终使用」。</div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>Typora 扩展替代·MkDocs·右键新建 Markdown · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本手册整理自 Typora/MkDocs/注册表操作笔记，命令、注册表项与脚本均照录原笔记；改注册表前请务必备份，脚本中的软件路径请替换为你本机实际路径。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

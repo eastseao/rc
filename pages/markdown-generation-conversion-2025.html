@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Markdown 生成模板与文章转换</title>
+<meta name="description" content="合并六篇笔记：YAML front-matter 推文模板怎么写，整篇文章（GitHub 用途、降本增效方案）如何转成带表格的 Markdown，40 条观察如何转成可复制的代码块，七情六欲如何框架化展示，以及敏感内容请求被拒的转换边界。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+pre.cd{font-family:var(--mono);font-size:12.5px;line-height:1.7;background:var(--code);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px;overflow-x:auto;margin:0 0 12px;color:var(--ink-2);white-space:pre}
+pre.cd:last-child{margin-bottom:0}
+code{font-family:var(--mono);font-size:.92em;background:var(--code);border-radius:4px;padding:1px 5px;color:var(--accent-ink)}
+pre.cd code{background:none;padding:0;color:inherit;font-size:inherit}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+td code{font-size:12px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 头部模板</a>
+      <a href="#s1" data-sec="s1">01 整篇转换</a>
+      <a href="#s2" data-sec="s2">02 列表代码块</a>
+      <a href="#s3" data-sec="s3">03 框架化展示</a>
+      <a href="#s4" data-sec="s4">04 转换边界</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 长文</span>
+  <h1>Markdown 生成模板与文章转换</h1>
+  <p class="s-lede">把六篇「让 AI 用 Markdown 生成/整理内容」的实操笔记归成一条流水线：先写 YAML 文章头模板，再看整篇文章如何转成带表格的 Markdown，零散条目如何转成「可直接复制」的代码块，知识主题如何框架化，最后记下一条转换边界——敏感内容请求会被拒绝。所有模板与数字照录原笔记。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2025-11-09</b></span>
+    <span>收录笔记 <b>6 篇</b></span>
+    <span>时间跨度 <b>2025-10 ~ 2025-11</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">YAML 头</span>
+    <span class="s-chip">推文模板</span>
+    <span class="s-chip">整篇转换</span>
+    <span class="s-chip">代码块</span>
+    <span class="s-chip">AI 写作</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00168-2025-10-04 生成 Markdown 推文模板（YAML front-matter）</li>
+      <li>00174-2025-10-05 整篇文章用 Markdown 形式展现（GitHub 用途）</li>
+      <li>00200-2025-10-10 用 Markdown 格式生成方案内容（降本增效方案）</li>
+      <li>00400-2025-11-06 Markdown 框架内 40 条人性观察（可复制代码块）</li>
+      <li>00409-2025-11-09 Markdown 框架内展示七情六欲</li>
+      <li>00370-2025-10-31 Markdown 框架展示（敏感内容请求被拒）</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 头部模板 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>文章头部模板：YAML front-matter</h2><span class="hint">00168</span></div>
+    <p class="lede">静态博客（Jekyll/Hexo 等）的文章头用两段 <code>---</code> 包裹 YAML 元数据。00168 的任务是「按这个格式生成标题 test、日期为今天的推文」，生成结果照录如下。</p>
+    <pre class="cd">---
+layout: post
+title: "test"
+date: 2024-01-15 14:30:00 +0800
+categories: [示例分类, 测试分类]
+tags: [测试, 示例, 模板]
+---</pre>
+    <div class="grid g2">
+      <div class="panel"><dl class="kv">
+        <dt>字段含义</dt><dd><code>layout</code> 指定页面布局；<code>title</code> 文章标题；<code>date</code> 发布时间；<code>categories</code> 分类数组；<code>tags</code> 标签数组。</dd>
+      </dl></div>
+      <div class="panel"><dl class="kv">
+        <dt>使用要点</dt><dd><code>+0800</code> 表示东八区（中国标准时间）；categories、tags 替换为实际内容；发布前把日期时间改成实际发布时间。</dd>
+      </dl></div>
+    </div>
+  </section>
+
+  <!-- ══ 01 整篇转换 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>整篇文章转 Markdown：GitHub 用途与降本方案</h2><span class="hint">00174 / 00200</span></div>
+    <p class="lede">「把一大段口语化长文整理成 Markdown」的关键动作：<b>提炼层级标题、把并列内容抽成列表、把对照类内容抽成表格</b>。两个实例如下。</p>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">00174</span><h3>实例一：GitHub 用途长文 → 结构化 Markdown</h3></div>
+      <div class="card-b">
+        <p class="lede">原文把 GitHub 用途分成个人、建站、学习、工作、创意五类。转换后用 <code>##</code>/<code>###</code> 分层，并把「建站类型」「创意玩法」「小结」做成表格。抽取的表格范式如下。</p>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:120px">类型</th><th style="width:220px">举例</th><th>使用方式</th></tr></thead>
+          <tbody>
+            <tr><td>静态网页</td><td>公司官网、产品展示页、活动页</td><td>直接上传 HTML/CSS/JS 到仓库，启用 GitHub Pages</td></tr>
+            <tr><td>文档系统</td><td>产品说明书、API 文档</td><td>用 Docsify / Docusaurus / VuePress</td></tr>
+            <tr><td>知识库</td><td>笔记、学习档案、wiki</td><td>用 Obsidian、MkDocs</td></tr>
+            <tr><td>简历页面</td><td>交互式个人简历</td><td>用 HTML 模板或 React 页面</td></tr>
+          </tbody>
+        </table></div>
+        <p class="lede" style="margin-bottom:0">同名账户下可挂多个站点：<code>blog.hdbuyer.github.io</code>（博客）、<code>cv.hdbuyer.github.io</code>（简历）、<code>design.hdbuyer.github.io</code>（作品集）。</p>
+      </div>
+    </div>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">00200</span><h3>实例二：降本增效方案 → 带预期成果表的方案</h3></div>
+      <div class="card-b">
+        <p class="lede">「用 Markdown 格式生成方案内容」的范式：用 <code># 一、总体目标</code> → <code>### （一）</code> → <code>#### 1.</code> 三级标题搭骨架，措施用有序/无序列表，最后用一张表收预期成果。核心数字照录：</p>
+        <div class="tblwrap"><table>
+          <thead><tr><th>项目</th><th style="width:170px">措施要点</th><th style="width:100px">预期降幅</th><th>预计节省（万元）</th></tr></thead>
+          <tbody>
+            <tr><td>燕窝及主要原料</td><td>—</td><td>3%–5%</td><td>60</td></tr>
+            <tr><td>黑枸杞等原料</td><td>替代与框架协议</td><td>10%–15%</td><td>120</td></tr>
+            <tr><td>包材（传统+电商）</td><td>优化批量 + 消化库存</td><td>10%</td><td>200</td></tr>
+            <tr><td>研发物料</td><td>锁价采购 + 替代原料</td><td>8%</td><td>40</td></tr>
+            <tr><td>运输成本</td><td>路线优化 + 运费下调</td><td>10%</td><td>25</td></tr>
+            <tr><td><b>合计</b></td><td colspan="3"><b>约 445 万元节省 + 出厂价优化收益（出厂价优化 3%–5%，保持利润率稳定）</b></td></tr>
+          </tbody>
+        </table></div>
+        <p style="font-size:13px;color:var(--muted)">目标：整体采购成本降 10%–15%、包材资金占用降 20%、运输费降 10%。物流侧照录：顺丰特快享 0.75 折优惠、整车货物整体降 10% 运费。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 02 列表代码块 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>零散条目转「可复制」代码块</h2><span class="hint">00400</span></div>
+    <p class="lede">当内容是一长串并列条目、用户又想保留语法符号便于粘贴时，做法是把它包进 <code>```markdown</code> 代码块里输出。00400 的任务是「40 条人性观察，Markdown 格式化、带语法符号、可复制」，AI 最终用有序列表代码块交付。节选照录：</p>
+    <pre class="cd">```markdown
+1. 贫穷时，穿着体面一点，更容易翻身。
+2. 99%的男人都好色，99%的女人都爱钱。
+3. 80%的生意，都是人情生意。
+...
+40. 不要高估了你和任何人的关系，更不要低估了人性的逐利规则，
+    做好自己，亲疏随缘。
+```</pre>
+    <div class="srcnote" style="margin-bottom:0"><b>为什么包代码块</b>（照录原说明）：把三个反引号及其中内容整体复制，粘贴到 GitHub、Notion、Typora 等支持 Markdown 的编辑器即可看到格式化效果；代码块里的语法符号（数字、点号、空格）原样保留。若需再调整（如改无序列表、加标题或强调）可继续提。</div>
+  </section>
+
+  <!-- ══ 03 框架化展示 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>知识主题框架化：以「七情六欲」为例</h2><span class="hint">00409</span></div>
+    <p class="lede">00409 演示了两种交付：一种是直接渲染的 Markdown 文章，另一种是放进 <code>```markdown</code> 代码框里、结构清晰可再复制的版本。两种都照录要点。</p>
+    <div class="grid g2">
+      <div class="card st4">
+        <div class="card-h"><span class="tag">七情</span><h3>两种分类体系</h3></div>
+        <div class="card-b">
+          <dl class="kv">
+            <dt>儒家分类</dt><dd>喜、怒、哀、惧、爱、恶、欲（最早见于《礼记·礼运》，人生而具有）。</dd>
+            <dt>中医分类</dt><dd>喜、怒、忧、思、悲、恐、惊。</dd>
+          </dl>
+        </div>
+      </div>
+      <div class="card st4">
+        <div class="card-h"><span class="tag">六欲</span><h3>传统与现代理解</h3></div>
+        <div class="card-b">
+          <dl class="kv">
+            <dt>传统分类</dt><dd>眼（见欲）、耳（听欲）、鼻（香欲）、舌（味欲）、身（触欲）、意（意欲）。</dd>
+            <dt>现代延伸</dt><dd>求生欲、求知欲、表达欲、表现欲、舒适欲、情欲。</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <pre class="cd" style="margin-top:14px">关系：七情是情绪体验，六欲是需求动机，相互影响。
+作用：适度的情欲是人性完整表现，过度则需节制。</pre>
+    <div class="srcnote" style="margin-bottom:0"><b>交付范式</b>：知识主题用「概述 → 分主题（列表/表格）→ 关系与作用说明」组织；若用户要二次使用，再整段包进 markdown 代码框，保持结构清晰、易于复制扩展。</div>
+  </section>
+
+  <!-- ══ 04 转换边界 ══ -->
+  <section id="s4" class="strd">
+    <div class="sec-h"><span class="idx strd">05</span><h2>转换不是万能：敏感内容请求被拒</h2><span class="hint">00370</span></div>
+    <p class="lede">00370 的请求是「把一段露骨的成人内容用 Markdown 框架系统整理」。与前面几篇的差别只在主题：当内容本身涉及露骨性描写时，<b>「整理成 Markdown」这个排版动作也不会被执行</b>——AI 回复「这个问题我暂时无法回答，换个话题再聊聊」，并未产出任何整理后的正文。</p>
+    <div class="warnbox" style="border-color:var(--danger);background:var(--danger-soft)">
+      <h5 style="color:var(--danger)">可记的一条边界</h5>
+      <ul>
+        <li>排版、格式化、结构化整理这类工具性能力，会随<b>内容主题</b>一起被拒绝；不会因为「只是帮你排版」就放行敏感内容。</li>
+        <li>正常的职场方案、知识科普、列表整理（前几篇）都可正常转换；露骨、违法、高危主题即使包上「Markdown 框架」也不会输出。</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>Markdown 生成模板与文章转换 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自「用 Markdown 生成/整理内容」的实操笔记，模板字段、示例数字与金额均照录原笔记；00370 仅作内容边界记录，不复述其敏感正文。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
