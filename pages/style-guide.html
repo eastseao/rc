@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>GERVAS 子页风格设定 · 页面规范与组件库</title>
+<meta name="description" content="gervas.wang 子页的唯一风格基准：三层版心、设计 token、四段页面骨架、十六组组件、字号间距刻度与七档响应式断点，附新建子页的必须与禁止清单。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   体例变量（本页专属，不在 theme.css 收编范围）
+   与 SOP 手册页保持同一套刻度 —— 这份文档自己就是规范的第一份示范
+   ═══════════════════════════════════════════════════════════════ */
+:root{
+  /* 五阶段专属色 */
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  /* 字号刻度 */
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  /* 间距刻度 */
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  /* 布局尺度 */
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  /* 板块主题色：默认青绿，加 .st1—.st5 / .strd 切到对应色 */
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+/* ══ 顶栏（墨黑） ══ */
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+/* ⚠️ 这里不能写 overflow-x:auto —— 它会让 overflow-y 隐式变成 auto，
+   于是下拉面板被导航自身的滚动容器裁掉（点开看不见）。
+   桌面放得下，无需滚动；窄屏断点里再开横滑。 */
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+/* ══ 顶栏二级下拉（可选组件，SOP 页用它承载「五阶段」跳转） ══ */
+.s-drop{position:relative;display:inline-flex}
+.s-dropbtn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border:0;background:none;
+  border-radius:var(--radius-sm);color:var(--side-ink);font:inherit;font-size:13px;cursor:pointer;
+  white-space:nowrap;transition:.15s}
+.s-dropbtn:hover,.s-drop.open .s-dropbtn{color:#f1f5f9;background:var(--side-hi)}
+.s-dropbtn .cv{width:9px;height:9px;flex:0 0 auto;opacity:.7;transition:transform .18s}
+.s-drop.open .s-dropbtn .cv{transform:rotate(180deg)}
+.s-panel{position:absolute;top:calc(100% + 8px);inset-inline-end:0;z-index:70;display:none;
+  min-width:214px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:7px;
+  box-shadow:0 20px 44px -18px rgba(15,23,42,.42)}
+.s-drop.open .s-panel{display:block}
+@media (hover:hover) and (min-width:901px){ .s-drop:hover .s-panel{display:block} }
+.s-panel a{display:flex;gap:8px;align-items:baseline;padding:7px 10px;border-radius:var(--radius-sm);
+  font-size:13px;color:var(--ink-2);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-panel a:hover{background:var(--accent-soft);color:var(--accent-ink)}
+.s-panel a .n{flex:0 0 auto;min-width:1.4em;font-family:var(--mono);font-size:11px;color:var(--ink-3);font-weight:600}
+
+/* ══ 文档头部 ══ */
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+/* ══ 主体：单栏白底正文卡 ══ */
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+/* ══ 章节 ══ */
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+/* 红线卡 */
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+
+/* 详情卡 + 键值网格 + 注意事项盒（节点详情的通用件，任何页都能用） */
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:104px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+/* ══ 表格 ══ */
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+/* ══ 选项卡 ══ */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.tab{border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:var(--radius-sm);padding:7px 14px;font-size:13px;cursor:pointer;font-weight:600;font-family:inherit;transition:.15s}
+.tab:hover{border-color:var(--accent);color:var(--accent-ink)}
+.tab.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink)}
+.tabpane{display:none}
+.tabpane.on{display:block}
+
+/* ══ 手风琴 ══ */
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+/* ══ 部门块 ══ */
+.dept{margin-bottom:16px;border-left:3px solid var(--sc);padding-left:14px}
+.dept:last-child{margin-bottom:0}
+.dept h4{font-size:14.5px;font-weight:700;color:var(--sc);margin-bottom:7px}
+.dept .role{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:8px}
+.dept ul{margin:0 0 8px 0;padding-left:18px}
+.dept li{font-size:13.5px;color:var(--ink-2);margin-bottom:5px;line-height:1.7}
+.dept .ntag{display:inline-block;margin-left:6px;font-family:var(--mono);font-size:10.5px;color:var(--sc);background:var(--scs);border:1px solid var(--sc);border-radius:5px;padding:1px 6px;white-space:nowrap;line-height:1.5;vertical-align:1px;font-weight:700}
+.dept .note{font-size:13px;color:var(--ink-2);background:var(--scs);border-radius:var(--radius-sm);padding:10px 12px;line-height:1.7}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.empty{padding:26px;text-align:center;color:var(--muted);font-size:13px}
+
+/* ══ 页脚 ══ */
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+/* ⚠️ .s-disc 是**外壳**（与 .s-foot-in 同宽同左边界），故取 --maxw；
+   免责声明文本本身交给内层 <p> 吃全局 p{max-width:var(--maxw-text)}。
+   别把 max-width 改成 --maxw-text —— 那样整块会居中，与上方页脚文字错位。 */
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+/* ══ 板块主题色开关（放最后，确保优先级） ══ */
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+/* ═══════════════════════════════════════════════════════════════
+   以下为**本文档专用的演示件**（色板 / 代码块 / 正反例 / 版心示意）。
+   它们不是规范的一部分，子页不必抄 —— 只负责把规范讲清楚。
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 行内代码 */
+code{font-family:var(--mono);font-size:.92em;background:rgba(15,23,42,.055);border-radius:3px;padding:1px 5px;color:var(--ink)}
+
+/* 代码块 */
+.cb{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px}
+.cb .lbl{display:block;font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.06em;color:var(--muted-2);margin-bottom:9px}
+.cb pre{margin:0;font-family:var(--mono);font-size:12.5px;line-height:1.72;color:var(--ink-2);white-space:pre;overflow-x:auto}
+.cb pre b{color:var(--accent-ink);font-weight:700}
+
+/* 色板 */
+.sws{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(156px,1fr));margin-bottom:20px}
+.sw{background:#fff;border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden}
+.sw i{display:block;height:38px;border-bottom:1px solid var(--line)}
+.sw i.sf{height:18px;border-top:1px solid rgba(15,23,42,.08)}
+.sw code{display:block;background:none;padding:7px 9px 0;font-size:11px;font-weight:700;color:var(--ink);border-radius:0}
+.sw span{display:block;font-family:var(--mono);font-size:10.5px;color:var(--muted-2);padding:2px 9px 0}
+.sw em{display:block;font-style:normal;font-size:11px;color:var(--ink-3);padding:3px 9px 9px;line-height:1.55}
+
+/* 正反例对照 */
+.dd{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:18px}
+.dd>div{border-radius:var(--radius-sm);padding:13px 15px}
+.dd h5{font-family:var(--mono);font-size:11.5px;font-weight:700;letter-spacing:.06em;margin-bottom:8px}
+.dd ul{margin:0;padding-left:17px}
+.dd li{font-size:13.5px;color:var(--ink-2);margin-bottom:7px;line-height:1.72}
+.dd .do{background:var(--ok-soft);border:1px solid #b7e2d3}
+.dd .do h5{color:var(--ok)}
+.dd .dont{background:var(--danger-soft);border:1px solid #f3c6c4}
+.dd .dont h5{color:var(--danger)}
+@media(max-width:760px){.dd{grid-template-columns:1fr}}
+
+/* 三层版心示意 */
+.layers{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:20px}
+.layers .ly{border-radius:6px;padding:11px 12px;font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.02em;line-height:1.6}
+.layers .ly span{display:block;font-family:var(--sans);font-size:11px;font-weight:400;opacity:.78;margin-top:4px}
+.layers .shell{background:#0f172a;color:#e2e8f0}
+.layers .read{background:var(--accent-soft);border:1px dashed var(--accent);color:var(--accent-ink);width:82%;margin-top:10px}
+.layers .text{background:#fff;border:1px solid rgba(13,148,136,.42);color:var(--ink-2);width:65%;margin-top:10px}
+.layers .cap{font-family:var(--mono);font-size:10.5px;color:var(--muted-2);line-height:1.7;margin-top:13px}
+@media(max-width:760px){.layers .read,.layers .text{width:100%}}
+
+/* 小节标题 + 编号列表 */
+.ph{font-size:14.5px;font-weight:700;color:var(--sc);line-height:1.45;margin-bottom:10px}
+.ph.ok{color:var(--ok)}
+.ph.no{color:var(--danger)}
+.ol{margin:0;padding-left:19px}
+.ol li{font-size:13.5px;color:var(--ink-2);margin-bottom:9px;line-height:1.72}
+.ol li:last-child{margin-bottom:0}
+.ol li b{color:var(--ink)}
+.cd{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:900px){.cd{grid-template-columns:1fr}}
+
+/* ══ 响应式 ══ */
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  /* 窄屏排不下 → 允许横向滚动；同时把面板改为相对视口定位，
+     否则会被导航的滚动容器裁掉 */
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+  .s-drop{position:static}
+  .s-panel{position:fixed;inset-inline:12px;top:calc(var(--bar-h) + 8px);min-width:0;max-height:60vh;overflow-y:auto}
+}
+@media(max-width:760px){
+  /* 宽表在窄屏改为横向滚动，避免列被压成「一字一列」 */
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#g0" data-sec="g0">00 用法</a>
+      <a href="#g1" data-sec="g1">01 原则</a>
+      <a href="#g2" data-sec="g2">02 Token</a>
+      <a href="#g3" data-sec="g3">03 骨架</a>
+      <a href="#g4" data-sec="g4">04 组件</a>
+      <a href="#g5" data-sec="g5">05 刻度</a>
+      <a href="#g6" data-sec="g6">06 清单</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">站点规范 · 界面基准</span>
+  <h1 class="s-h1">GERVAS 子页风格设定</h1>
+  <p class="s-lede">gervas.wang 全部子页的唯一风格基准。把「供应商产品入驻山姆会员店全流程作业手册」页实际在跑的那套骨架、组件与 token 逐条固化下来 —— 新做子页照抄即可，不必重新发明一套视觉。</p>
+  <div class="s-meta">
+    <span>规范版本 <b>V1.0</b></span>
+    <span>生效日期 <b>2026-09-21</b></span>
+    <span>基准页 <b>sams-onboarding-sop-2026</b></span>
+    <span>适用范围 <b>全站子页</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">单一色源</span>
+    <span class="s-chip">单一版心源</span>
+    <span class="s-chip">三层版心</span>
+    <span class="s-chip">四段骨架</span>
+    <span class="s-chip">零构建 · 零 CDN</span>
+  </div>
+</div>
+
+<div class="s-body">
+
+  <main class="s-main">
+
+    <!-- ══════════ 00 用法 ══════════ -->
+    <section id="g0">
+      <div class="sec-h"><span class="idx strd">必读</span><h2>这份文档怎么用</h2><span class="hint">子页开工前先过一遍</span></div>
+      <p class="lede">这是一份<b>约束性</b>的文档，不是灵感板。它描述的是已经上线的样子：左侧章节的骨架、组件与配色，全部来自实际在跑的子页，不是待实现的设想。写新页时按第 03 节抄骨架、按第 04 节挑组件、在第 06 节的对勾表上过一遍，就够了。</p>
+
+      <div class="grid g3">
+        <div class="rl">
+          <h4>红线 · 单一色源</h4>
+          <div class="mid">配色只在 theme.css 改</div>
+          <p>全站只用仓库根目录一份 <code>theme.css</code>。子页一律 <code>&lt;link&gt;</code> 它，不再自带 <code>:root</code> 配色、不再写死色值。改一次，十几个页面同时生效。</p>
+        </div>
+        <div class="rl">
+          <h4>红线 · 单一版心源</h4>
+          <div class="mid">宽度只有三个数</div>
+          <p>外壳 <code>--maxw</code>、正文列 <code>--maxw-read</code>、长段落 <code>--maxw-text</code>。子页禁止再写 <code>max-width:1180px</code> 这类硬编码，否则又会退化成「一页一个宽度」。</p>
+        </div>
+        <div class="rl">
+          <h4>红线 · 注释里的星号斜杠</h4>
+          <div class="mid">禁止 <code>*</code> 紧邻 <code>/</code></div>
+          <p><code>theme.css</code> 的注释里，这两个字符相邻会被浏览器当成注释结束符，吃掉后面整个 <code>:root</code>，全站瞬间褪色。写变量通配请用「两点」或逐个列举。</p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:18px">
+        <h4 class="ph">文件落位</h4>
+        <dl class="kv">
+          <dt>theme.css</dt>
+          <dd>仓库根目录。<b>全站唯一的</b>配色 / 字体 / 圆角 / 阴影 / 版心来源。子页用 <code>&lt;link rel="stylesheet" href="../theme.css"&gt;</code> 引入。</dd>
+          <dt>pages/*.html</dt>
+          <dd>全部子页平铺在这个目录下。新增一页就新增一个文件，不建子目录。</dd>
+          <dt>本文件</dt>
+          <dd><code>pages/style-guide.html</code>。规范本身也是一张子页 —— 它遵守自己写的每一条规则，因此可以直接当作模板另存。</dd>
+          <dt>index.html</dt>
+          <dd>首页。新页只需在脚本里的 <code>PAGES</code> 数组加一条记录，列表、统计、分类与「最近更新」会自动跟上。</dd>
+        </dl>
+      </div>
+    </section>
+
+    <!-- ══════════ 01 原则 ══════════ -->
+    <section id="g1" class="st1">
+      <div class="sec-h"><span class="idx st1">01</span><h2>设计原则 · 三层版心</h2><span class="hint">改宽度前先想清楚动哪一层</span></div>
+      <p class="lede">整套风格只有两条全局原则：<b>颜色收在一个文件里</b>，<b>宽度收在三个变量里</b>。其中版心三层最容易被改坏 —— 三层职责一旦混用，页面就会出现「顶栏撑得很宽、正文却挤在中间」这种畸形。</p>
+
+      <div class="layers">
+        <div class="ly shell">--maxw · none<span>外壳：顶栏 / 页脚 / 通栏分带</span>
+          <div class="ly read">--maxw-read · 1440px<span>正文列：表格 / 卡片 / 网格 / 代码块 / 配图</span>
+            <div class="ly text">--maxw-text · 940px<span>长段落行宽（约 55 字/行）</span></div>
+          </div>
+        </div>
+        <p class="cap">示意比例按 1920 视口推算：正文列占外壳内容宽 82%，长段落占正文列 65%。</p>
+      </div>
+
+      <div class="tblwrap"><table>
+        <thead><tr><th style="width:164px">token</th><th style="width:96px">值</th><th style="width:186px">职责</th><th>谁在吃它</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><b>--maxw</b></td><td><code>none</code></td><td>外壳：通栏到屏幕两边</td>
+            <td>顶栏 <code>.s-bar-in</code>、页脚 <code>.s-foot-in</code>、免责 <code>.s-disc</code>。不设上限，靠各页自己的 <code>padding</code>（桌面 32px / 窄屏 18px）留呼吸位。</td>
+          </tr>
+          <tr>
+            <td><b>--maxw-read</b></td><td><code>1440px</code></td><td>正文列</td>
+            <td>页头 <code>.s-head</code>、主体 <code>.s-body</code>、白底正文卡 <code>.s-main</code>。表格、卡片、网格、代码块、配图都按它的内容宽（1370px）排。</td>
+          </tr>
+          <tr>
+            <td><b>--maxw-text</b></td><td><code>940px</code></td><td>长段落行宽</td>
+            <td>所有连续中文正文。由全局兜底规则 <code>p{max-width:var(--maxw-text)}</code> 自动生效，作者不用管。</td>
+          </tr>
+        </tbody>
+      </table></div>
+
+      <div class="sec-h"><h2 style="font-size:var(--fz-lg)">全局段落兜底的四条规矩</h2><span class="hint">theme.css 第 84 行那条 p 规则</span></div>
+      <div class="dd">
+        <div class="do">
+          <h5>要这样做</h5>
+          <ul>
+            <li>连续正文写成裸 <code>&lt;p&gt;</code>，它会自动吃到 940px 行宽 —— 表格与卡片不受影响，照吃满 1440。</li>
+            <li>要更窄时，在<b>类选择器</b>上覆盖：<code>p.lede{max-width:var(--maxw-text)}</code>。</li>
+            <li>一个块既要通栏、里面又含长段落时，<b>拆成两层</b>：外壳 <code>&lt;div class="s-disc"&gt;</code> 套内层 <code>&lt;p&gt;</code>。</li>
+          </ul>
+        </div>
+        <div class="dont">
+          <h5>不要这样做</h5>
+          <ul>
+            <li>不要给全局 <code>p</code> 补 <code>margin-inline:auto</code> —— 段落会居中，与左对齐的标题、表格错位。</li>
+            <li>不要把外壳的 <code>max-width</code> 写在段落所在的<b>同一个元素</b>上：它既当容器又当文本，会被撑成通栏。</li>
+            <li>不要写 <code>max-width:940px</code> 字面值，写 <code>var(--maxw-text)</code>。</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="srcnote"><b>为什么外壳不封顶</b>：早期 <code>--maxw</code> 是 1180px，正文列却被各页写死成 772 / 790 / 820 / 840 / 860 / 920 / 1160 八个值，而顶栏又撑到 1400 —— 左右各空 314px 白白浪费，这才是「页面太窄」的真凶。现在外壳通栏、正文列统一 1440，视觉密度靠 <code>padding</code> 与行宽控制。</div>
+    </section>
+
+    <!-- ══════════ 02 Token ══════════ -->
+    <section id="g2" class="st2">
+      <div class="sec-h"><span class="idx st2">02</span><h2>设计 token</h2><span class="hint">全部定义在 theme.css</span></div>
+      <p class="lede">token 分三层理解：<b>核心层</b>（配色 / 形状 / 字体 / 版心，改这里全站生效）、<b>别名层</b>（把各页历史变量名归一到核心层，让老页面的组件 CSS 一行不改也能换肤）、<b>体例层</b>（各页自带的五阶段色与字号间距刻度，不进 theme.css）。</p>
+
+      <div class="tabs">
+        <div class="tab on" data-pane="t-color">配色</div>
+        <div class="tab" data-pane="t-shape">形状 · 字体</div>
+        <div class="tab" data-pane="t-alias">别名层</div>
+        <div class="tab" data-pane="t-page">体例变量</div>
+      </div>
+
+      <!-- ── 配色 ── -->
+      <div class="tabpane on" id="t-color">
+        <div class="sec-h"><h2 style="font-size:var(--fz-lg)">背景层</h2><span class="hint">6 个</span></div>
+        <div class="sws">
+          <div class="sw"><i style="background:var(--bg)"></i><code>--bg</code><span>#f7f8fa</span><em>页面底色</em></div>
+          <div class="sw"><i style="background:var(--band)"></i><code>--band</code><span>#eef1f5</span><em>表头 / 分带 / 页脚</em></div>
+          <div class="sw"><i style="background:var(--surface)"></i><code>--surface</code><span>#ffffff</span><em>卡片面</em></div>
+          <div class="sw"><i style="background:var(--card)"></i><code>--card</code><span>#ffffff</span><em>卡片面（同 surface）</em></div>
+          <div class="sw"><i style="background:var(--panel)"></i><code>--panel</code><span>#ffffff</span><em>面板（同 surface）</em></div>
+          <div class="sw"><i style="background:var(--code)"></i><code>--code</code><span>#f1f5f9</span><em>代码块底</em></div>
+        </div>
+
+        <div class="sec-h"><h2 style="font-size:var(--fz-lg)">文字层</h2><span class="hint">5 个</span></div>
+        <div class="sws">
+          <div class="sw"><i style="background:var(--ink)"></i><code>--ink</code><span>#0f172a</span><em>标题 / 主文字</em></div>
+          <div class="sw"><i style="background:var(--ink-2)"></i><code>--ink-2</code><span>#334155</span><em>正文 / 次强</em></div>
+          <div class="sw"><i style="background:var(--ink-3)"></i><code>--ink-3</code><span>#64748b</span><em>弱文字</em></div>
+          <div class="sw"><i style="background:var(--muted)"></i><code>--muted</code><span>#64748b</span><em>说明文字</em></div>
+          <div class="sw"><i style="background:var(--muted-2)"></i><code>--muted-2</code><span>#8494a8</span><em>最弱 / mono 注释</em></div>
+        </div>
+
+        <div class="sec-h"><h2 style="font-size:var(--fz-lg)">描边层</h2><span class="hint">3 个</span></div>
+        <div class="sws">
+          <div class="sw"><i style="background:var(--line)"></i><code>--line</code><span>#dfe6ef</span><em>常规描边 / 分隔线</em></div>
+          <div class="sw"><i style="background:var(--line-2)"></i><code>--line-2</code><span>#c3ceda</span><em>强描边</em></div>
+          <div class="sw"><i style="background:var(--border)"></i><code>--border</code><span>#dfe6ef</span><em>= --line</em></div>
+        </div>
+
+        <div class="sec-h"><h2 style="font-size:var(--fz-lg)">主色 · 青</h2><span class="hint">3 个</span></div>
+        <div class="sws">
+          <div class="sw"><i style="background:var(--accent)"></i><code>--accent</code><span>#0d9488</span><em>主色 / 眉标 / 选中态</em></div>
+          <div class="sw"><i style="background:var(--accent-ink)"></i><code>--accent-ink</code><span>#0f766e</span><em>主色深（正文可读）</em></div>
+          <div class="sw"><i style="background:var(--accent-soft)"></i><code>--accent-soft</code><span>#e3f5f2</span><em>主色浅底</em></div>
+        </div>
+
+        <div class="sec-h"><h2 style="font-size:var(--fz-lg)">语义色</h2><span class="hint">4 组 · 8 个</span></div>
+        <div class="sws">
+          <div class="sw"><i style="background:var(--warn)"></i><i class="sf" style="background:var(--warn-soft)"></i><code>--warn / --warn-soft</code><span>#b45309 / #fdf3e3</span><em>注意、口径说明</em></div>
+          <div class="sw"><i style="background:var(--danger)"></i><i class="sf" style="background:var(--danger-soft)"></i><code>--danger / --danger-soft</code><span>#b91c1c / #fdeceb</span><em>红线、拒收、风险</em></div>
+          <div class="sw"><i style="background:var(--ok)"></i><i class="sf" style="background:var(--ok-soft)"></i><code>--ok / --ok-soft</code><span>#047857 / #e6f4ef</span><em>正向、达标</em></div>
+          <div class="sw"><i style="background:var(--info)"></i><i class="sf" style="background:var(--info-soft)"></i><code>--info / --info-soft</code><span>#475569 / #eef1f5</span><em>中性提示</em></div>
+        </div>
+        <div class="srcnote">语义色一律<b>成对使用</b>：深色给文字与图标，浅色给底。单独用浅色当文字、或深色当大面积底，都会掉出这套色阶的对比度。</div>
+      </div>
+
+      <!-- ── 形状 · 字体 ── -->
+      <div class="tabpane" id="t-shape">
+        <div class="sec-h"><h2 style="font-size:var(--fz-lg)">形状与投影</h2></div>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:148px">token</th><th style="width:300px">值</th><th>用在哪</th></tr></thead>
+          <tbody>
+            <tr><td><b>--radius</b></td><td><code>8px</code></td><td>面板、卡片、表格外框、节点、白底正文卡</td></tr>
+            <tr><td><b>--radius-sm</b></td><td><code>5px</code></td><td>小标签、按钮、手风琴、阶段带、导航项</td></tr>
+            <tr><td><b>--shadow</b></td><td><code>0 1px 2px rgba(15,23,42,.05),<br>0 10px 26px -16px rgba(15,23,42,.2)</code></td><td>常规浮起</td></tr>
+            <tr><td><b>--shadow-hover</b></td><td><code>0 2px 6px rgba(15,23,42,.07),<br>0 18px 40px -18px rgba(13,148,136,.28)</code></td><td>hover 浮起（带一层青调）</td></tr>
+          </tbody>
+        </table></div>
+
+        <div class="sec-h"><h2 style="font-size:var(--fz-lg)">字体栈</h2></div>
+        <div class="panel" style="margin-bottom:20px">
+          <dl class="kv">
+            <dt>--sans</dt>
+            <dd><code>"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif</code><br>正文与标题。中文落到各系统的默认黑体，西文落到 Segoe UI。</dd>
+            <dt>--mono</dt>
+            <dd><code>"JetBrains Mono","Cascadia Mono",Consolas,"SFMono-Regular",Menlo,monospace</code><br>等宽场景：眉标、章节编号、表头、版本 meta、卡片标签、键值名的 <code>dt</code>、单位与数字。</dd>
+          </dl>
+        </div>
+        <div class="srcnote"><b>零 webfont</b>：字体栈只走系统字体，不引 CDN、不加载字体文件。JetBrains Mono 缺失时自动退回 Cascadia Mono 或 Consolas，观感基本一致 —— 这也是全站「零构建、零外部依赖」的一部分。</div>
+
+        <div class="sec-h"><h2 style="font-size:var(--fz-lg)">等宽字体的使用判据</h2></div>
+        <div class="dd">
+          <div class="do">
+            <h5>该用 --mono</h5>
+            <ul>
+              <li>标识性文字：眉标、编号、标签、版本号、日期</li>
+              <li>表头 <code>th</code>、键值名 <code>dt</code></li>
+              <li>数字与单位并列的地方（周期、金额、百分比）</li>
+              <li>结论：<b>它是「标记」，不是「正文」</b>，字号一律比同级正文小 1—3px</li>
+            </ul>
+          </div>
+          <div class="dont">
+            <h5>不要用 --mono</h5>
+            <ul>
+              <li>成段的说明文字 —— 中文等宽读起来非常累</li>
+              <li>表格单元格里的正文内容</li>
+              <li>任何超过一行的连续中文</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 别名层 ── -->
+      <div class="tabpane" id="t-alias">
+        <p class="lede">早期各子页各自定义过一套变量名（<code>--primary</code>、<code>--brand</code>、<code>--text</code>、<code>--r</code> …）。别名层把它们全部指向核心层，于是<b>子页只要删掉自己 <code>:root</code> 里的同名定义</b>，组件 CSS 一行都不用改就完成了换肤。共 37 个。</p>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:180px">别名</th><th style="width:190px">指向</th><th style="width:180px">别名</th><th>指向</th></tr></thead>
+          <tbody>
+            <tr><td><code>--primary</code></td><td><code>--accent</code></td><td><code>--red</code></td><td><code>--danger</code></td></tr>
+            <tr><td><code>--primary-dark</code></td><td><code>--accent-ink</code></td><td><code>--redsoft</code></td><td><code>--danger-soft</code></td></tr>
+            <tr><td><code>--primary-light</code></td><td><code>--accent-soft</code></td><td><code>--redline</code></td><td><code>#f3c6c4</code></td></tr>
+            <tr><td><code>--brand</code></td><td><code>--accent</code></td><td><code>--green</code></td><td><code>--ok</code></td></tr>
+            <tr><td><code>--brand2</code></td><td><code>--accent-ink</code></td><td><code>--oksoft</code></td><td><code>--ok-soft</code></td></tr>
+            <tr><td><code>--brand-2</code></td><td><code>--accent-ink</code></td><td><code>--safe</code></td><td><code>--ok</code></td></tr>
+            <tr><td><code>--brandsoft</code></td><td><code>--accent-soft</code></td><td><code>--amber</code></td><td><code>--warn</code></td></tr>
+            <tr><td><code>--brandline</code></td><td><code>#5eead4</code></td><td><code>--amber-bg</code></td><td><code>--warn-soft</code></td></tr>
+            <tr><td><code>--accent-dark</code></td><td><code>--accent-ink</code></td><td><code>--amber-line</code></td><td><code>#fcd9a8</code></td></tr>
+            <tr><td><code>--accent-deep</code></td><td><code>--accent-ink</code></td><td><code>--warnsoft</code></td><td><code>--warn-soft</code></td></tr>
+            <tr><td><code>--text</code></td><td><code>--ink</code></td><td><code>--warnline</code></td><td><code>#f3ddb4</code></td></tr>
+            <tr><td><code>--paper</code></td><td><code>--surface</code></td><td><code>--slate</code></td><td><code>--info</code></td></tr>
+            <tr><td><code>--ink2</code></td><td><code>--ink-2</code></td><td><code>--slate-bg</code></td><td><code>--info-soft</code></td></tr>
+            <tr><td><code>--ink3</code></td><td><code>--ink-3</code></td><td><code>--slate-line</code></td><td><code>--line-2</code></td></tr>
+            <tr><td><code>--ink-soft</code></td><td><code>--ink-2</code></td><td><code>--purple</code></td><td><code>#6d5ce7</code></td></tr>
+            <tr><td><code>--card2</code></td><td><code>--band</code></td><td><code>--r</code></td><td><code>--radius</code></td></tr>
+            <tr><td><code>--hairline</code></td><td><code>1px solid var(--line)</code></td><td><code>--r2</code></td><td><code>--radius-sm</code></td></tr>
+            <tr><td><code>--line2</code></td><td><code>--line-2</code></td><td><code>--sh</code></td><td><code>--shadow</code></td></tr>
+            <tr><td><code>--sh2</code></td><td><code>--shadow-hover</code></td><td></td><td></td></tr>
+          </tbody>
+        </table></div>
+        <div class="dd">
+          <div class="do">
+            <h5>别名层怎么用</h5>
+            <ul>
+              <li>子页要换肤时，<b>只删自己 <code>:root</code> 里的同名定义</b>，组件 CSS 一个字都不用动。</li>
+              <li>新写组件时直接用核心层名（<code>--accent</code> / <code>--ink-2</code> / <code>--radius</code>），不要新增别名。</li>
+            </ul>
+          </div>
+          <div class="dont">
+            <h5>不要这样做</h5>
+            <ul>
+              <li>不要在子页 <code>:root</code> 里重新定义别名指向别的值 —— 会形成第二套色源。</li>
+              <li>不要在别名层里挂语义色与体例变量：<code>--up</code> / <code>--down</code> / <code>--lvl-a</code> / <code>--sc</code> 这类<b>不属收编范围</b>，归各页自己管。</li>
+              <li>不要删别名 —— 老页面可能还在用，删了会静默掉色。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 体例变量 ── -->
+      <div class="tabpane" id="t-page">
+        <p class="lede">体例变量是<b>各页自己 <code>:root</code> 里的东西</b>，不进 <code>theme.css</code>。新页开工时把这一段整体抄走即可 —— 这也是 SOP 手册页与本页的 :root 完全一致的原因。</p>
+
+        <div class="sec-h"><h2 style="font-size:var(--fz-lg)">五阶段语义色</h2><span class="hint">实色给文字 / 浅色给底</span></div>
+        <div class="sws">
+          <div class="sw"><i style="background:var(--s1)"></i><i class="sf" style="background:var(--s1s)"></i><code>--s1 / --s1s</code><span>#0d9488 / #ccfbf1</span><em>阶段一 · 立项与准入</em></div>
+          <div class="sw"><i style="background:var(--s2)"></i><i class="sf" style="background:var(--s2s)"></i><code>--s2 / --s2s</code><span>#2563eb / #dbeafe</span><em>阶段二 · 选品与共创</em></div>
+          <div class="sw"><i style="background:var(--s3)"></i><i class="sf" style="background:var(--s3s)"></i><code>--s3 / --s3s</code><span>#7c3aed / #ede9fe</span><em>阶段三 · 合规与审核</em></div>
+          <div class="sw"><i style="background:var(--s4)"></i><i class="sf" style="background:var(--s4s)"></i><code>--s4 / --s4s</code><span>#ea580c / #ffedd5</span><em>阶段四 · 系统与生产准备</em></div>
+          <div class="sw"><i style="background:var(--s5)"></i><i class="sf" style="background:var(--s5s)"></i><code>--s5 / --s5s</code><span>#db2777 / #fce7f3</span><em>阶段五 · 交付与上架</em></div>
+        </div>
+
+        <div class="sec-h"><h2 style="font-size:var(--fz-lg)">板块主题色开关</h2><span class="hint">引用 --sc / --scs 的组件自动跟着换色</span></div>
+        <div class="cb"><span class="lbl">定义（放在样式表最后，确保优先级）</span><pre>.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}</pre></div>
+        <div class="panel" style="margin-bottom:20px">
+          <dl class="kv">
+            <dt>--sc</dt><dd>板块主题色（实色）。默认 <code>var(--accent)</code> 青绿。</dd>
+            <dt>--scs</dt><dd>板块主题色的浅底版本。默认 <code>var(--accent-soft)</code>。</dd>
+            <dt>怎么用</dt><dd>给 <code>&lt;section&gt;</code> 或任意容器加一个 <code>.st1</code>—<code>.st5</code> / <code>.strd</code>，容器内所有引用 <code>var(--sc)</code> / <code>var(--scs)</code> 的组件立即整体换色。</dd>
+            <dt>谁跟着换</dt><dd><code>.sec-h .idx</code>、<code>details.acc</code>、<code>.dept</code>、<code>.card-h</code>、<code>.ph</code>；节点图里的 <code>.fstage</code> / <code>.fnode</code> / <code>.conn</code> 也吃 <code>--sc</code>。</dd>
+            <dt>谁不跟着换</dt><dd><code>.rl</code>（红线卡）固定用 <code>--danger</code>，<code>.srcnote</code> / <code>.warnbox</code> 固定用 <code>--warn</code> —— 语义色不该被板块色覆盖。</dd>
+          </dl>
+        </div>
+
+        <div class="sec-h"><h2 style="font-size:var(--fz-lg)">字号刻度</h2></div>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:120px">token</th><th style="width:96px">值</th><th>典型用途</th></tr></thead>
+          <tbody>
+            <tr><td><b>--fz-xs</b></td><td><code>12px</code></td><td>极弱注释、图表脚注</td></tr>
+            <tr><td><b>--fz-sm</b></td><td><code>13px</code></td><td>表格单元格、清单条目、卡片正文</td></tr>
+            <tr><td><b>--fz</b></td><td><code>14px</code></td><td>章节导语 <code>.lede</code></td></tr>
+            <tr><td><b>--fz-md</b></td><td><code>15px</code></td><td>强调正文（红线卡的 <code>.mid</code>）</td></tr>
+            <tr><td><b>--fz-lg</b></td><td><code>17px</code></td><td>章节内的二级标题 <code>.sec-h h2</code></td></tr>
+            <tr><td><b>--fz-xl</b></td><td><code>21px</code></td><td>卡片标题上限</td></tr>
+            <tr><td><b>--fz-2xl</b></td><td><code>29px</code></td><td>大数字、封面级标题</td></tr>
+          </tbody>
+        </table></div>
+        <div class="srcnote">另有三个不在刻度里、但固定使用的字号：<b>body 基线 14.5px</b>、<b>章节标题 <code>h2</code> 19px</b>、<b>页面主标题 <code>clamp(23px,2.9vw,32px)</code></b>。这三个值请直接照抄，不要改成刻度里的近似值。</div>
+
+        <div class="sec-h"><h2 style="font-size:var(--fz-lg)">间距刻度</h2></div>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:120px">token</th><th style="width:96px">值</th><th>用途</th></tr></thead>
+          <tbody>
+            <tr><td><b>--sp1</b></td><td><code>4px</code></td><td>行内微间距</td></tr>
+            <tr><td><b>--sp2</b></td><td><code>8px</code></td><td>图标与文字、标签之间的间距</td></tr>
+            <tr><td><b>--sp3</b></td><td><code>12px</code></td><td>小节内元素间距</td></tr>
+            <tr><td><b>--sp4</b></td><td><code>16px</code></td><td>卡片内分组间距</td></tr>
+            <tr><td><b>--sp5</b></td><td><code>22px</code></td><td>块与块之间</td></tr>
+            <tr><td><b>--sp6</b></td><td><code>30px</code></td><td>大分区间距</td></tr>
+            <tr><td><b>--sp7</b></td><td><code>42px</code></td><td>章节之间的呼吸</td></tr>
+          </tbody>
+        </table></div>
+        <div class="srcnote"><b>现状提醒</b>：这七个刻度目前<b>已定义但基本没有消费者</b> —— 既有组件的间距写的是字面 px（章节 28px、面板 20px、网格 14px …，完整清单见第 05 节）。新写组件时优先引用刻度，逐步把字面值收编回来。</div>
+
+        <div class="sec-h"><h2 style="font-size:var(--fz-lg)">布局尺度</h2></div>
+        <div class="panel">
+          <dl class="kv">
+            <dt>--bar-h</dt><dd><code>50px</code>。顶栏高度。同时决定 <code>section</code> 的 <code>scroll-margin-top</code>（锚点跳转不被顶栏压住）与节点图粘性侧栏的 <code>top</code>。</dd>
+            <dt>--side-ink</dt><dd><code>#94a3b8</code>。顶栏链接的默认色与品牌副标色。</dd>
+            <dt>--side-ink-hi</dt><dd><code>#5eead4</code>。预留的顶栏高亮色（当前未启用）。</dd>
+            <dt>--side-hi</dt><dd><code>rgba(13,148,136,.18)</code>。顶栏链接 hover 与选中态的底色。</dd>
+            <dt>已废弃</dt><dd><code>--sidew:250px</code> / <code>--side-bg:#141c2b</code> / <code>--side-mut:#5b6b80</code> —— 深色侧栏已并入顶栏，这三个值已无消费者，可安全删除。</dd>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ 03 骨架 ══════════ -->
+    <section id="g3" class="st3">
+      <div class="sec-h"><span class="idx st3">03</span><h2>页面骨架</h2><span class="hint">从 head 到页脚，照抄这一份</span></div>
+      <p class="lede">四段式：<b>墨黑顶栏 → 页头 → 白底正文卡 → 分带页脚</b>，左下角再挂一个返回首页浮钮。下面这份是可直接另存为新页的最小骨架，换掉标题与章节内容即可。</p>
+
+      <div class="cb"><span class="lbl">完整骨架 · 另存为 pages/新页.html</span><pre>&lt;!DOCTYPE html&gt;
+&lt;html lang="zh-CN"&gt;
+&lt;head&gt;
+&lt;meta charset="UTF-8"&gt;
+&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+&lt;link rel="icon" href="data:image/svg+xml,..."&gt;
+&lt;title&gt;页面标题&lt;/title&gt;
+&lt;meta name="description" content="一句话摘要"&gt;
+&lt;link rel="stylesheet" href="../theme.css"&gt;   &lt;!-- ① 必须在自身 &lt;style&gt; 之前 --&gt;
+&lt;style&gt;
+/* ② 只写本页专属的体例变量与组件，不写配色 */
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent); --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);
+     font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+/* ③ 只抄你要用的组件 CSS —— 见第 04 节 */
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;!-- ══ 1. 顶栏（墨黑 sticky） ══ --&gt;
+&lt;header class="s-bar"&gt;
+  &lt;div class="s-bar-in"&gt;
+    &lt;span class="s-brand"&gt;GERVAS&lt;em&gt;日常 · Agent 作品集&lt;/em&gt;&lt;/span&gt;
+    &lt;nav class="s-nav" id="topnav" aria-label="章节导航"&gt;
+      &lt;a href="#s0" data-sec="s0"&gt;00 章节一&lt;/a&gt;
+      &lt;a href="#s1" data-sec="s1"&gt;01 章节二&lt;/a&gt;
+    &lt;/nav&gt;
+  &lt;/div&gt;
+&lt;/header&gt;
+
+&lt;!-- ══ 2. 页头 ══ --&gt;
+&lt;div class="s-head"&gt;
+  &lt;span class="s-eyebrow"&gt;分类 · 类型&lt;/span&gt;
+  &lt;h1 class="s-h1"&gt;页面主标题&lt;/h1&gt;
+  &lt;p class="s-lede"&gt;一到三句话讲清这页是什么、给谁看。&lt;/p&gt;
+  &lt;div class="s-meta"&gt;
+    &lt;span&gt;文档版本 &lt;b&gt;V1.0&lt;/b&gt;&lt;/span&gt;
+    &lt;span&gt;编制日期 &lt;b&gt;2026-09-21&lt;/b&gt;&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="s-chips"&gt;
+    &lt;span class="s-chip"&gt;关键词一&lt;/span&gt;
+    &lt;span class="s-chip"&gt;关键词二&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- ══ 3. 正文卡 ══ --&gt;
+&lt;div class="s-body"&gt;
+  &lt;main class="s-main"&gt;
+    &lt;section id="s0"&gt;
+      &lt;div class="sec-h"&gt;&lt;span class="idx st1"&gt;01&lt;/span&gt;&lt;h2&gt;章节标题&lt;/h2&gt;&lt;span class="hint"&gt;副注&lt;/span&gt;&lt;/div&gt;
+      &lt;p class="lede"&gt;章节导语。&lt;/p&gt;
+      &lt;!-- 组件放这里 --&gt;
+    &lt;/section&gt;
+  &lt;/main&gt;
+&lt;/div&gt;
+
+&lt;!-- ══ 4. 页脚 ══ --&gt;
+&lt;footer class="s-foot"&gt;
+  &lt;div class="s-foot-in"&gt;
+    &lt;b&gt;GERVAS&lt;/b&gt;
+    &lt;span&gt;页面短名 · V1.0&lt;/span&gt;
+    &lt;span class="sp"&gt;Copyright 2026 gervas.wang&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="s-disc"&gt;&lt;p&gt;免责声明或数据口径说明。&lt;/p&gt;&lt;/div&gt;
+&lt;/footer&gt;
+
+&lt;a class="g-pill" href="../index.html" title="返回作品集首页"&gt;返回首页&lt;/a&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+
+      <div class="sec-h"><h2 style="font-size:var(--fz-lg)">逐层取值</h2><span class="hint">8 层，一个不多一个不少</span></div>
+      <div class="tblwrap"><table>
+        <thead><tr><th style="width:110px">层</th><th style="width:150px">类名</th><th style="width:132px">max-width</th><th style="width:128px">padding</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>顶栏底</td><td><code>.s-bar</code></td><td>—</td><td>—</td><td><code>#0f172a</code> 墨黑，<code>position:sticky;top:0</code>，<code>z-index:60</code></td></tr>
+          <tr><td>顶栏内层</td><td><code>.s-bar-in</code></td><td><code>var(--maxw)</code></td><td><code>0 32px</code></td><td>高度 <code>--bar-h</code>（50px），flex 居中，gap 12px</td></tr>
+          <tr><td>页头</td><td><code>.s-head</code></td><td><code>var(--maxw-read)</code></td><td><code>44px 32px 0</code></td><td>眉标 → h1 → lede → meta → chips，五件套</td></tr>
+          <tr><td>主体</td><td><code>.s-body</code></td><td><code>var(--maxw-read)</code></td><td><code>26px 32px 50px</code></td><td>承接所有 <code>section</code></td></tr>
+          <tr><td>正文卡</td><td><code>.s-main</code></td><td><code>var(--maxw-read)</code></td><td><code>8px 34px 40px</code></td><td>白底 + 1px <code>--line</code> + 10px 圆角</td></tr>
+          <tr><td>页脚底</td><td><code>.s-foot</code></td><td>—</td><td>—</td><td><code>--band</code> 底 + 1px 上描边</td></tr>
+          <tr><td>页脚内层</td><td><code>.s-foot-in</code></td><td><code>var(--maxw)</code></td><td><code>26px 32px 10px</code></td><td>flex wrap；<code>b</code> 是 mono 品牌字，<code>.sp</code> 把版权推到最右</td></tr>
+          <tr><td>免责</td><td><code>.s-disc</code></td><td><code>var(--maxw)</code></td><td><code>0 32px 24px</code></td><td><b>外壳层</b>，内层 <code>&lt;p&gt;</code> 吃 940 行宽</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="sec-h"><h2 style="font-size:var(--fz-lg)">骨架三处硬性要求</h2></div>
+      <div class="dd">
+        <div class="do">
+          <h5>要这样做</h5>
+          <ul>
+            <li><code>&lt;link rel="stylesheet" href="../theme.css"&gt;</code> 放在本页 <code>&lt;style&gt;</code> <b>之前</b> —— 基础样式先加载，本页样式才能正确覆盖它。</li>
+            <li>页头五件套顺序固定：眉标 → <code>&lt;h1&gt;</code> → <code>.s-lede</code> → <code>.s-meta</code> → <code>.s-chips</code>。缺哪件就删哪件，不要换顺序。</li>
+            <li>章节一律 <code>&lt;section id="sN"&gt;</code> + <code>&lt;div class="sec-h"&gt;</code>，顶部描边与锚点偏移由元素选择器统一给。</li>
+          </ul>
+        </div>
+        <div class="dont">
+          <h5>不要这样做</h5>
+          <ul>
+            <li>不要把 <code>&lt;link&gt;</code> 写在 <code>&lt;style&gt;</code> 后面 —— 本页样式会被基础样式压回一部分，出问题时极难定位。</li>
+            <li>不要在 <code>.s-head</code> 里再包一层 div 做「版心」—— 它本身已经是正文列。</li>
+            <li>不要给每个 <code>section</code> 手写 <code>padding-top</code> / <code>border-top</code> —— 会与统一规则打架。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ 04 组件 ══════════ -->
+    <section id="g4" class="st4">
+      <div class="sec-h"><span class="idx st4">04</span><h2>组件清单</h2><span class="hint">十六组，按用途分四类</span></div>
+      <p class="lede">全部是纯 CSS 类，不依赖任何框架与外部库。需要哪组就把对应 CSS 块抄进本页 <code>&lt;style&gt;</code>，HTML 按下面的写法组织。表里的取值就是 <code>theme.css</code> 与基准页里的实际值，可直接核。</p>
+
+      <div class="tabs">
+        <div class="tab on" data-pane="c-layout">布局</div>
+        <div class="tab" data-pane="c-body">内容</div>
+        <div class="tab" data-pane="c-table">表格</div>
+        <div class="tab" data-pane="c-inter">交互</div>
+      </div>
+
+      <!-- ── 布局 ── -->
+      <div class="tabpane on" id="c-layout">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:186px">类名</th><th style="width:230px">用途</th><th>关键取值</th></tr></thead>
+          <tbody>
+            <tr><td><code>.sec-h</code></td><td>章节头容器</td><td>flex + <code>align-items:baseline</code>，gap 12px，<code>margin-bottom:14px</code>，<code>flex-wrap:wrap</code></td></tr>
+            <tr><td><code>.sec-h .idx</code></td><td>左侧编号胶囊</td><td>mono 11px 700，字色 <code>--sc</code> / 底 <code>--scs</code>，padding 3px 10px，圆角 <code>--radius-sm</code>；配 <code>.st1</code>—<code>.st5</code> / <code>.strd</code> 换色</td></tr>
+            <tr><td><code>.sec-h h2</code></td><td>章节标题</td><td>19px 700，字距 -.012em，行高 1.4</td></tr>
+            <tr><td><code>.sec-h .hint</code></td><td>右侧副注</td><td>mono 11px，<code>--muted-2</code>；排不下时靠 <code>flex-wrap</code> 落到下一行</td></tr>
+            <tr><td><code>.lede</code></td><td>章节导语</td><td>14px，<code>--ink-2</code>，行高 1.78，行宽 <code>--maxw-text</code>，<code>margin-bottom:16px</code></td></tr>
+            <tr><td><code>.panel</code></td><td>通用白卡</td><td><code>--card</code> 底 + 1px <code>--line</code> + <code>--radius</code> + padding 20px</td></tr>
+            <tr><td><code>.grid</code></td><td>网格基类</td><td><code>display:grid</code>，gap 14px。必须与 <code>.g2</code> / <code>.g3</code> 同用</td></tr>
+            <tr><td><code>.g2</code> / <code>.g3</code></td><td>2 / 3 等分列</td><td><code>repeat(n,minmax(0,1fr))</code>。1100 以下 <code>.g3</code> 退 2 列，760 以下两者都退 1 列</td></tr>
+          </tbody>
+        </table></div>
+        <div class="cb"><span class="lbl">章节 + 面板 + 网格</span><pre>&lt;section id="s1" class="st1"&gt;
+  &lt;div class="sec-h"&gt;
+    &lt;span class="idx st1"&gt;01&lt;/span&gt;
+    &lt;h2&gt;章节标题&lt;/h2&gt;
+    &lt;span class="hint"&gt;副注&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;p class="lede"&gt;章节导语，连续中文会自动收在 940px 行宽内。&lt;/p&gt;
+
+  &lt;div class="grid g2"&gt;
+    &lt;div class="panel"&gt;左卡&lt;/div&gt;
+    &lt;div class="panel"&gt;右卡&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</pre></div>
+      </div>
+
+      <!-- ── 内容 ── -->
+      <div class="tabpane" id="c-body">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:200px">类名</th><th style="width:196px">用途</th><th>关键取值</th></tr></thead>
+          <tbody>
+            <tr><td><code>.rl</code></td><td>红线卡：硬约束、警示事项</td><td>边框 <code>#f3c6c4</code> + 底 <code>--danger-soft</code> + <code>--radius</code> + padding 15px 17px。<code>h4</code> mono 11.5px 700 <code>--danger</code>；<code>.mid</code> 15px 700；<code>p</code> 13.5px 行高 1.72</td></tr>
+            <tr><td><code>.srcnote</code></td><td>数据口径 / 来源说明条</td><td><code>--warn-soft</code> 底 + <code>--warnline</code> 边，padding 14px 16px，<code>margin-bottom:16px</code>；<code>b</code> 用 <code>--warn</code></td></tr>
+            <tr><td><code>.card</code> + <code>.card-h</code> + <code>.card-b</code></td><td>详情卡，顶部一条 3px 主题色</td><td><code>#fbfcfd</code> 底；<code>.card-h</code> padding 14px 18px、底色 <code>--scs</code>、<code>border-top:3px solid var(--sc)</code>；<code>.card-b</code> padding 18px</td></tr>
+            <tr><td><code>.kv</code></td><td>键值网格（<code>dl</code> + <code>dt</code>/<code>dd</code>）</td><td>列宽 <code>104px minmax(0,1fr)</code>，gap 10px 16px；<code>dt</code> mono 11.5px 700 <code>--accent-ink</code>；560 以下退单列</td></tr>
+            <tr><td><code>.warnbox</code></td><td>卡内注意事项盒</td><td><code>--warn-soft</code> 底 + <code>--warnline</code> 边，padding 14px 16px；<code>h5</code> mono 11.5px 700 <code>--warn</code></td></tr>
+            <tr><td><code>.dept</code></td><td>部门 / 角色块（左 3px 主题色条）</td><td><code>padding-left:14px</code>；<code>.role</code> mono 11px <code>--muted-2</code>；<code>.ntag</code> mono 10.5px 描边胶囊；<code>.note</code> 用 <code>--scs</code> 底</td></tr>
+            <tr><td><code>.empty</code></td><td>空态占位</td><td>padding 26px，居中，13px <code>--muted</code></td></tr>
+            <tr><td><code>.ph</code></td><td>卡内小节标题（本文档专用，可借鉴）</td><td>14.5px 700，色 <code>--sc</code>；<code>.ok</code> / <code>.no</code> 切到 <code>--ok</code> / <code>--danger</code></td></tr>
+          </tbody>
+        </table></div>
+        <div class="cb"><span class="lbl">红线卡 · 说明条 · 详情卡</span><pre>&lt;!-- 红线卡：硬约束、不可妥协项 --&gt;
+&lt;div class="grid g3"&gt;
+  &lt;div class="rl"&gt;
+    &lt;h4&gt;红线 · 类别&lt;/h4&gt;
+    &lt;div class="mid"&gt;一句话结论&lt;/div&gt;
+    &lt;p&gt;展开说明。&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 数据口径 / 来源说明条 --&gt;
+&lt;div class="srcnote"&gt;&lt;b&gt;数据口径&lt;/b&gt;：数值来自何处、如何推算、不构成何种承诺。&lt;/div&gt;
+
+&lt;!-- 详情卡 + 键值网格 + 注意事项盒 --&gt;
+&lt;div class="card st1"&gt;
+  &lt;div class="card-h"&gt;&lt;span class="tag"&gt;标签&lt;/span&gt;&lt;h3&gt;卡片标题&lt;/h3&gt;&lt;/div&gt;
+  &lt;div class="card-b"&gt;
+    &lt;dl class="kv"&gt;
+      &lt;dt&gt;键名&lt;/dt&gt;&lt;dd&gt;值&lt;/dd&gt;
+    &lt;/dl&gt;
+    &lt;div class="warnbox"&gt;&lt;h5&gt;注意事项&lt;/h5&gt;&lt;ul&gt;&lt;li&gt;…&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre></div>
+      </div>
+
+      <!-- ── 表格 ── -->
+      <div class="tabpane" id="c-table">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:150px">选择器</th><th style="width:170px">用途</th><th>关键取值</th></tr></thead>
+          <tbody>
+            <tr><td><code>.tblwrap</code></td><td>表格外框</td><td>1px <code>--line</code> + <code>--radius</code> + <code>overflow:hidden</code>，<code>margin-bottom:20px</code>；窄屏 760 以下改为横向滚动</td></tr>
+            <tr><td><code>table</code></td><td>表格本体</td><td>100% 宽，<code>border-collapse:collapse</code>，13px。窄屏 <code>min-width:600px</code> + 12.5px</td></tr>
+            <tr><td><code>th</code></td><td>表头</td><td><code>--band</code> 底，<code>#475569</code> 字，mono 11px 700，字距 .06em，padding 10px 13px，下描边</td></tr>
+            <tr><td><code>td</code></td><td>单元格</td><td>13px，<code>--ink-2</code>，<code>vertical-align:top</code>，padding 10px 13px，下描边</td></tr>
+            <tr><td>条纹</td><td>偶数行底色</td><td><code>tbody tr:nth-child(even) td{background:#fbfcfd}</code>；末行去描边</td></tr>
+          </tbody>
+        </table></div>
+        <div class="cb"><span class="lbl">表格 · 列宽写在 th 上，单元格靠左对齐</span><pre>&lt;div class="tblwrap"&gt;
+  &lt;table&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;&lt;th style="width:160px"&gt;列一&lt;/th&gt;&lt;th&gt;列二&lt;/th&gt;&lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;tr&gt;&lt;td&gt;&lt;b&gt;强调项&lt;/b&gt;&lt;/td&gt;&lt;td&gt;内容&lt;/td&gt;&lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+&lt;/div&gt;</pre></div>
+        <div class="srcnote"><b>列宽只写在表头</b>：给 <code>th</code> 一个固定 <code>width</code>，其余列不给宽度自动均分。全部列都写死会让窄屏横滑距离变得很长。</div>
+      </div>
+
+      <!-- ── 交互 ── -->
+      <div class="tabpane" id="c-inter">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:210px">类名</th><th style="width:200px">用途</th><th>关键取值 / 约束</th></tr></thead>
+          <tbody>
+            <tr><td><code>.tabs</code> / <code>.tab</code> / <code>.tab.on</code> / <code>.tabpane</code> / <code>.tabpane.on</code></td><td>选项卡切换</td><td>按钮圆角 <code>--radius-sm</code>、padding 7px 14px；选中态 <code>--accent-soft</code> 底 + <code>--accent</code> 边 + <code>--accent-ink</code> 字。<b><code>.tabpane</code> 必须与 <code>.tabs</code> 同级</b>，靠 <code>data-pane</code> 与 <code>id</code> 配对，约 20 行 JS</td></tr>
+            <tr><td><code>details.acc</code></td><td>手风琴（原生，零 JS）</td><td>左 3px <code>--sc</code> 边；<code>summary</code> padding 13px 16px、14.5px 700；<code>::after</code> 显示 <code>+</code> / <code>–</code>；展开时 <code>summary</code> 底变 <code>--scs</code></td></tr>
+            <tr><td><code>.s-drop</code> / <code>.s-dropbtn</code> / <code>.s-panel</code></td><td>顶栏二级下拉</td><td>面板 <code>top:calc(100% + 8px)</code>、<code>min-width:214px</code>、圆角 10px、阴影 <code>0 20px 44px -18px rgba(15,23,42,.42)</code>；<code>hover</code> 展开只在 <code>(hover:hover) and (min-width:901px)</code> 生效</td></tr>
+            <tr><td><code>.g-pill</code></td><td>返回首页浮钮</td><td>定义在 <code>theme.css</code>，子页直接用。fixed、右下 18px / 20px、<code>#0f172a</code> 底、mono 12px、<code>z-index:9999</code>。<b>必须贴底</b>，贴顶会被墨黑顶栏压住</td></tr>
+          </tbody>
+        </table></div>
+        <div class="cb"><span class="lbl">选项卡 + 手风琴</span><pre>&lt;!-- 选项卡：.tabs 与 .tabpane 必须是同级兄弟 --&gt;
+&lt;div class="tabs"&gt;
+  &lt;div class="tab on" data-pane="p1"&gt;第一页&lt;/div&gt;
+  &lt;div class="tab" data-pane="p2"&gt;第二页&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="tabpane on" id="p1"&gt;…&lt;/div&gt;
+&lt;div class="tabpane" id="p2"&gt;…&lt;/div&gt;
+
+&lt;!-- 手风琴：原生 details，不需要一行 JS --&gt;
+&lt;details class="acc st2" open&gt;
+  &lt;summary&gt;分组标题&lt;span class="cnt"&gt;6 条&lt;/span&gt;&lt;/summary&gt;
+  &lt;div class="body"&gt;&lt;ul&gt;&lt;li&gt;…&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;
+&lt;/details&gt;</pre></div>
+        <div class="srcnote"><b>页面内可以有多组选项卡</b>：切换脚本是按 <code>.tab</code> 的父容器分组的，所以同一个页面放两三组互不干扰。但同一个父容器里只能有一组。</div>
+      </div>
+
+      <div class="sec-h"><h2 style="font-size:var(--fz-lg)">重型组件 · 全流程节点图</h2><span class="hint">只在长流程页用，别默认带上</span></div>
+      <div class="panel" style="margin-bottom:20px">
+        <dl class="kv">
+          <dt>现成实现</dt>
+          <dd>完整版 <code>pages/sams-onboarding-sop-2026.html</code>（阶段色带 + 蛇形节点流 + 右侧粘性详情卡）；轻量版 <code>pages/sams-onboarding-flow-2026.html</code>。要做流程类页面时直接拿其中一个改，不要从零写。</dd>
+          <dt>结构</dt>
+          <dd><code>.flow-layout</code>（flex，gap 20px）= 左 <code>.flow &gt; #flowStage</code> + 右 <code>.detail</code>（<code>flex:0 0 340px</code>，粘性）。节点流内部是 <code>.fstage</code>（阶段色带）→ <code>.frow</code>（一行节点）→ <code>.fnode</code> / <code>.conn</code> / <code>.wrap-break</code> / <code>.wrap-turn</code>。</dd>
+          <dt>尺度变量</dt>
+          <dd><code>--nw:150px</code>（节点最小宽，实际 <code>flex:1 1 var(--nw)</code> 会伸展填满整行，<code>max-width:260px</code> 封顶）、<code>--ngap:8px</code>、<code>--nconn:16px</code>。JS 与 CSS 共用这三个值，改一处必须两边同步。</dd>
+          <dt>列数公式</dt>
+          <dd>一行 k 个节点 = 2k−1 个 flex 项、2k−2 个 gap → <code>k ≤ (行宽 + conn + 2·gap) / (nw + conn + 2·gap)</code>。</dd>
+        </dl>
+      </div>
+      <ol class="ol">
+        <li><b>「行宽」是 <code>.frow</code> 的宽度，不是 <code>#flowStage.clientWidth</code>。</b>两者之间隔着 <code>.fstage</code> 的 <code>padding</code> + <code>border</code>（实测 28px），不减掉就会算多一列，而后端放不下 → JS 以为 4 列、DOM 却排成 3+1。要用 <code>framePad()</code> 实读，不要写死 28。</li>
+        <li><b><code>.frow{justify-content:center}</code> 必须无条件。</b>满行时节点靠 <code>flex:1</code> 伸展刚好铺满，居中不产生位移；只有末行不满（阶段节点数 % 列数 ≠ 0）时才起作用，把余下的 1—2 个节点居中，正好落在居中下箭头正下方。绑进媒体查询就会让孤节点贴左边缘、箭头留在中间。</li>
+        <li><b>首屏 <code>clientWidth</code> 会量成 0。</b>必须有 <code>lastCols</code> 缓存（列数没变就不重建 DOM，避免闪屏）+ <code>window.load</code> / <code>document.fonts.ready</code> 两次重排纠正。</li>
+        <li><b>侧栏 340px 与单栏断点 1270 是反推出来的常数。</b>两栏时 <code>#flowStage = 视口 − 543</code>；4 列要求 <code>.frow ≥ 696px</code> → <code>#flowStage ≥ 724</code> → 视口 ≥ 1267。改侧栏宽度或 <code>--nw</code> 都必须重算，否则 1267—1280 这一段会掉回 3 列。</li>
+        <li><b>列数不取「最大放得下」，取「排出来不参差」。</b><code>chooseCols()</code> 按「总行数×3 + 各阶段末行空槽总数」打分取最小 —— 只看空槽会让窄屏一路塌成 1 列，只看行数会选出刚好放下但参差的列数。</li>
+      </ol>
+    </section>
+
+    <!-- ══════════ 05 刻度 ══════════ -->
+    <section id="g5" class="st5">
+      <div class="sec-h"><span class="idx st5">05</span><h2>间距刻度与响应式断点</h2><span class="hint">七档断点 · 一张现状表</span></div>
+      <p class="lede">间距刻度在第 02 节列过，这里补上<b>组件实际在用的字面值</b> —— 新写组件时照着这套节奏走，视觉密度就不会跑偏。</p>
+
+      <div class="sec-h"><h2 style="font-size:var(--fz-lg)">组件间距现状</h2></div>
+      <div class="tblwrap"><table>
+        <thead><tr><th style="width:290px">位置</th><th style="width:180px">值</th><th>备注</th></tr></thead>
+        <tbody>
+          <tr><td>页面主标题 <code>.s-h1</code></td><td><code>clamp(23px,2.9vw,32px)</code></td><td>唯一使用 <code>clamp()</code> 的地方</td></tr>
+          <tr><td>页头上留白 <code>.s-head</code></td><td><code>44px</code></td><td>窄屏 640 以下降到 <code>30px 18px 0</code></td></tr>
+          <tr><td>正文卡内边距 <code>.s-main</code></td><td><code>8px 34px 40px</code></td><td>窄屏 900 以下 <code>8px 18px 30px</code></td></tr>
+          <tr><td>章节上间距 <code>section</code></td><td><code>28px</code></td><td>首节 <code>22px</code>，并去掉顶部描边</td></tr>
+          <tr><td>章节头下间距 <code>.sec-h</code></td><td><code>14px</code></td><td>与 <code>.lede</code> 的 16px 同属「标题—正文」节奏</td></tr>
+          <tr><td>导语下间距 <code>.lede</code></td><td><code>16px</code></td><td>—</td></tr>
+          <tr><td>面板内边距 <code>.panel</code></td><td><code>20px</code></td><td>网格里的卡片一律 20px</td></tr>
+          <tr><td>网格间隙 <code>.grid</code></td><td><code>14px</code></td><td>与 <code>.sec-h</code> 的下间距同值</td></tr>
+          <tr><td>红线卡内边距 <code>.rl</code></td><td><code>15px 17px</code></td><td>比面板略紧，因为它是提示而非内容</td></tr>
+          <tr><td>表格外框下间距 <code>.tblwrap</code></td><td><code>20px</code></td><td>紧邻下一个区块时用内联 <code>style="margin-bottom:0"</code> 归零</td></tr>
+          <tr><td>单元格内边距 <code>th,td</code></td><td><code>10px 13px</code></td><td>窄屏 760 以下 <code>9px 11px</code></td></tr>
+          <tr><td>详情卡内边距</td><td><code>.card-h</code> 14px 18px / <code>.card-b</code> 18px</td><td>—</td></tr>
+          <tr><td>键值间隙 <code>.kv</code></td><td>列 104px + 1fr，gap <code>10px 16px</code></td><td>560 以下退单列</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="sec-h"><h2 style="font-size:var(--fz-lg)">响应式断点</h2><span class="hint">七档，全是 max-width</span></div>
+      <div class="tblwrap"><table>
+        <thead><tr><th style="width:100px">断点</th><th style="width:330px">触发条件</th><th style="width:120px">归属</th><th>动作</th></tr></thead>
+        <tbody>
+          <tr><td><b>1270px</b></td><td>节点图放不下「节点流 + 340px 粘性侧栏」两栏</td><td>重型组件</td><td><code>.flow-layout</code> 转纵向，<code>.detail</code> 退回节点图下方（节点流仍是 4 个一行）</td></tr>
+          <tr><td><b>1100px</b></td><td>三列卡排不下</td><td>布局</td><td><code>.g3</code> → 2 列</td></tr>
+          <tr><td><b>900px</b></td><td>顶栏项目排不下</td><td>骨架</td><td><code>.s-main</code> 内边距收窄；<code>.s-nav</code> 开横向滚动（隐藏滚动条）；下拉面板改 <code>position:fixed</code> 相对视口定位</td></tr>
+          <tr><td><b>760px</b></td><td>宽表被压成「一字一列」</td><td>组件</td><td><code>.tblwrap</code> 横向滚动 + <code>table{min-width:600px;font-size:12.5px}</code>；同时 <code>.g3</code>/<code>.g2</code> → 1 列</td></tr>
+          <tr><td><b>640px</b></td><td>小屏</td><td>骨架</td><td>品牌副标隐藏；导航项收紧到 <code>5px 8px</code>；<code>.s-head</code> 与各内层 <code>padding-inline</code> → <code>18px</code></td></tr>
+          <tr><td><b>600px</b></td><td>—</td><td><b>冗余</b></td><td>又写了一遍 <code>.s-brand em{display:none}</code>，与 640 那条完全重复</td></tr>
+          <tr><td><b>560px</b></td><td>键值两列排不下</td><td>组件</td><td><code>.kv</code> → 单列，<code>dt</code> 补上间距</td></tr>
+        </tbody>
+      </table></div>
+      <div class="srcnote"><b>断点只用 max-width</b>：全站七档，桌面优先。写新组件时优先复用这七个数，不要新造 <code>1024px</code>、<code>768px</code> 这类数 —— 断点一多，测试档位就爆炸。</div>
+
+      <div class="sec-h"><h2 style="font-size:var(--fz-lg)">已知冗余与待清理</h2><span class="hint">改版过程留下的历史包袱</span></div>
+      <ol class="ol">
+        <li><b>体例变量三个死值</b>：<code>--sidew:250px</code> / <code>--side-bg:#141c2b</code> / <code>--side-mut:#5b6b80</code>。深色侧栏并入顶栏后已无任何消费者，可整条删除（<code>--side-ink</code> / <code>--side-ink-hi</code> / <code>--side-hi</code> 仍在顶栏使用，保留）。</li>
+        <li><b>重复的 600px 档</b>：<code>.s-brand em{display:none}</code> 在 640 与 600 各写了一次 —— 删掉 600 那一档。</li>
+        <li><b>间距刻度未被引用</b>：<code>--sp1</code>—<code>--sp7</code> 已定义，但既有组件的间距写的是字面值（见上方现状表）。建议新组件优先引用，逐步收编。</li>
+        <li><b>七个长页各有一条死规则</b>：<code>.layout{grid-template-columns:250px minmax(0,1fr) 218px;…}</code> 被同文件末尾的 <code>.layout{display:block}</code> 完全覆盖。因为 <code>--maxw</code> 现在是 <code>none</code>，只改里面的值不安全，应整条删除。涉及：skill、skill-spec、skill-diy、el-nino-2027-impact、pet-bottle-cost-2026、sams-plant-based-puree-2026、ebook-treasure-chest。</li>
+        <li><b>两条山姆页面职责重叠</b>：<code>sams-onboarding-flow-2026</code>（轻量流程概览）与 <code>sams-onboarding-sop-2026</code>（完整作业手册）。旧页去留待定 —— 留的话应明确「概览 / 手册」的分工，不留就整页删除并同步删掉首页登记。</li>
+      </ol>
+    </section>
+
+    <!-- ══════════ 06 清单 ══════════ -->
+    <section id="g6" class="st1">
+      <div class="sec-h"><span class="idx st1">06</span><h2>新建子页清单</h2><span class="hint">写完对照着过一遍</span></div>
+      <p class="lede">左侧是必须项，右侧是禁止项。两边都过完，再按最后一节在首页登记、在四档宽度下自检。</p>
+
+      <div class="cd">
+        <div class="panel">
+          <h4 class="ph ok">必须做</h4>
+          <ol class="ol">
+            <li><b>引 <code>theme.css</code></b>，且放在本页 <code>&lt;style&gt;</code> 之前。</li>
+            <li><b>走四段骨架</b>：<code>.s-bar</code> → <code>.s-head</code> → <code>.s-body</code>/<code>.s-main</code> → <code>.s-foot</code>。</li>
+            <li><b>抄一份 <code>:root</code></b>：五阶段色、字号刻度、间距刻度、<code>--bar-h</code>、<code>--side-ink</code> 三项、<code>--sc</code>·<code>--scs</code>。数值不要改。</li>
+            <li><b>章节用 <code>&lt;section id="sN"&gt;</code> + <code>.sec-h</code></b>，编号胶囊配 <code>.st1</code>—<code>.st5</code> 轮转。</li>
+            <li><b>连续正文写裸 <code>&lt;p&gt;</code></b>，行宽交给全局兜底规则。</li>
+            <li><b>颜色一律 <code>var(--token)</code></b>，不写字面十六进制值。</li>
+            <li><b>页尾挂 <code>.g-pill</code></b> 返回首页，并在 <code>index.html</code> 的 <code>PAGES</code> 里登记一条。</li>
+          </ol>
+        </div>
+        <div class="panel">
+          <h4 class="ph no">禁止做</h4>
+          <ol class="ol">
+            <li><b>不自带配色</b>：不要在本页 <code>:root</code> 里写十六进制色值。</li>
+            <li><b>不硬编码正文列宽度</b>：<code>max-width:1180px</code> 这类一律换成 <code>var(--maxw-read)</code>。</li>
+            <li><b>不给 <code>p</code> 加 <code>margin-inline:auto</code></b> —— 段落会与左对齐的标题错位。</li>
+            <li><b>不在 <code>theme.css</code> 注释里写 <code>*</code> 紧邻 <code>/</code></b>。</li>
+            <li><b>不给 <code>.s-nav</code> 加 <code>overflow-x:auto</code></b> —— 桌面档会把下拉面板裁掉；它只在 900 断点里开。</li>
+            <li><b>不引 CDN、webfont、外部 JS 或图标字体</b> —— 全站零构建、零外部依赖，图标一律内联 SVG。</li>
+            <li><b>不把 <code>.s-disc</code> 当段落用</b>：必须是 <code>&lt;div class="s-disc"&gt;&lt;p&gt;…&lt;/p&gt;&lt;/div&gt;</code>。</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="sec-h"><h2 style="font-size:var(--fz-lg)">在首页登记</h2><span class="hint">index.html 脚本顶部</span></div>
+      <div class="cb"><span class="lbl">往 PAGES 数组里加一条</span><pre>{
+  title: "页面标题",
+  desc: "一到两句话摘要，会显示在首页卡片上。",
+  kind: "手册",          // 手册 / 长文 / 工具 / 仪表盘 / 收藏
+  url: "pages/新页.html",
+  date: "2026-09-21",    // 决定列表排序与页脚「最近更新」
+  category: "行业研究",   // 行业研究 / 效率工具 / 金融分析 / 生活
+  tags: ["关键词一", "关键词二", "关键词三"]
+}</pre></div>
+      <div class="srcnote"><b>PAGES 是唯一数据源</b>：加一条记录，列表、分类筛选、统计计数与页脚「最近更新」会自动跟上。头像类配图走可选的 <code>image</code> / <code>imageAlt</code> 字段，精选头条加 <code>feature:true</code>。</div>
+
+      <div class="sec-h"><h2 style="font-size:var(--fz-lg)">交付前自检</h2><span class="hint">五条，一条都不能省</span></div>
+      <div class="tblwrap"><table>
+        <thead><tr><th style="width:60px">序</th><th style="width:230px">检查项</th><th>通过标准</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><b>四档宽度无横滑</b></td><td>1920 / 1280 / 800 / 420 四档下，页面都不出现横向滚动条</td></tr>
+          <tr><td>2</td><td><b>行宽分层正确</b></td><td>长段落不超 940px；表格与卡片吃满正文列（1440 内）</td></tr>
+          <tr><td>3</td><td><b>主色唯一</b></td><td>全页主色为青 <code>#0d9488</code>，没有残留的旧蓝或旧红</td></tr>
+          <tr><td>4</td><td><b>顶栏行为</b></td><td>吸顶正常，滚动时当前章节高亮；窄屏横滑不裁下拉面板</td></tr>
+          <tr><td>5</td><td><b>浮钮位置</b></td><td><code>.g-pill</code> 贴屏幕右下，不遮顶栏、不压页脚文字</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>子页风格设定 · 页面规范与组件库 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页描述的是当前已上线的状态。规范随站点演进而更新，取值一律以 theme.css 与基准页的实际写法为准。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+/* ── 顶栏章节联动（滚动高亮） ── */
+(function(){
+  var SECS=['g0','g1','g2','g3','g4','g5','g6'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+
+/* ── 选项卡：按 .tab 的父容器分组，本页有两组（第 02 节 token / 第 04 节组件），互不干扰 ── */
+(function(){
+  var tabs=document.querySelectorAll('.tab');
+  for(var i=0;i<tabs.length;i++){
+    tabs[i].addEventListener('click',function(){
+      var pane=this.getAttribute('data-pane');
+      var group=this.parentNode;
+      var sibs=group.querySelectorAll('.tab');
+      for(var j=0;j<sibs.length;j++) sibs[j].classList.remove('on');
+      this.classList.add('on');
+      var parent=group.parentNode;
+      var panes=parent.querySelectorAll('.tabpane');
+      for(var k=0;k<panes.length;k++) panes[k].classList.remove('on');
+      var target=document.getElementById(pane);
+      if(target) target.classList.add('on');
+    });
+  }
+})();
+</script>
+</body>
+</html>
