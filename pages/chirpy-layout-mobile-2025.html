@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Chirpy 布局·手机端·关于我·文章布局 · 2025-10</title>
+<meta name="description" content="Chirpy 主题布局重组（归档/分类/标签合一页+首页个人介绍）、手机端封面图靠左标题靠右的 Flex 写法、CSS 不生效的调试与 !important 强化、关于我页面卡片化设计，以及文章页元信息/热门标签/相关文章/Cusdis 评论完全展开的优化。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--line);border-radius:6px;padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2);margin-bottom:16px;white-space:pre;tab-size:2}
+pre:last-child{margin-bottom:0}
+.codecap{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent-ink);letter-spacing:.04em;margin:14px 0 6px}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 布局重组</a>
+      <a href="#s1" data-sec="s1">02 手机端布局</a>
+      <a href="#s2" data-sec="s2">03 CSS 调试</a>
+      <a href="#s3" data-sec="s3">04 关于我</a>
+      <a href="#s4" data-sec="s4">05 文章布局</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 长文</span>
+  <h1>Chirpy 布局·手机端·关于我·文章布局</h1>
+  <p class="s-lede">四篇围绕 Chirpy 视觉布局的笔记合并：把归档/分类/标签收拢到一个文章页、首页只放个人介绍；手机端首页改成封面图靠左、标题在右；CSS 不生效时的调试套路；关于我页面卡片化设计；以及文章页从元信息到评论区的完整布局优化。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2025-10-25</b></span>
+    <span>收录笔记 <b>4 篇</b></span>
+    <span>时间跨度 <b>2025-10-12 ~ 2025-10-25</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">Chirpy</span>
+    <span class="s-chip">响应式</span>
+    <span class="s-chip">Flex 布局</span>
+    <span class="s-chip">关于我</span>
+    <span class="s-chip">Cusdis</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00225-2025-10-12 GitHub Pages Jekyll Chirpy页面布局调整（4.9KB，文章合集页+首页个人介绍）</li>
+      <li>00234-2025-10-13 Jekyll Chirpy手机端博客布局调整（24KB，封面图左标题右+CSS 调试）</li>
+      <li>00320-2025-10-25 关于我页面优化与设计（22KB，头像+三卡片+职业理念+滚动动画）</li>
+      <li>00321-2025-10-25 Jekyll博客文章布局优化方案（20KB，文章页模板与 Cusdis 展开）</li>
+    </ol>
+  </div>
+
+  <!-- 01 布局重组 -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>布局重组：归档/分类/标签合一页，首页放个人介绍</h2><span class="hint">00225</span></div>
+    <p class="lede">用户想把导航里的「归档、分类、标签」收进一个文章页，首页单独放个人介绍。00225 的三步走法：<b>建文章合集页 → 改首页 → 调导航</b>。</p>
+
+    <p class="codecap">第一步：articles.md 集中调用三块</p>
+<pre>---
+layout: page
+title: "文章"
+---
+
+&lt;h2&gt;文章归档&lt;/h2&gt;
+{% include archives.html %}
+
+&lt;h2&gt;文章分类&lt;/h2&gt;
+{% include categories.html %}
+
+&lt;h2&gt;文章标签&lt;/h2&gt;
+{% include tags.html %}</pre>
+
+    <p class="codecap">第二步：index.html 换成个人介绍</p>
+<pre>---
+layout: home
+title: 首页
+---
+
+&lt;!-- 这里替换成你的个人介绍，HTML 或 Markdown 均可 --&gt;</pre>
+
+    <p class="codecap">第三步：_config.yml 的 tabs 指向新页</p>
+<pre>tabs:
+  - name: 首页
+    path: /
+  - name: 文章
+    path: /articles.html   # 原归档/分类/标签链接替换为这一条
+  - name: 关于
+    path: /about.html</pre>
+
+    <div class="warnbox">
+      <h5>限制与备选</h5>
+      <ul>
+        <li><span style="font-family:var(--mono)">archives.html / categories.html / tags.html</span> 这三个 include 要 Chirpy 主题自带，或自己写——参考主题原本那三个页面怎么写。</li>
+        <li>GitHub Pages 插件支持有限，想用 jekyll-archives 之类增强插件得本地构建后推 _site。</li>
+        <li>实在集成不动，就在文章合集页里放指向原三个独立页的链接，做内容引导也行。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 02 手机端布局 -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>手机端首页：封面图靠左、标题在右、不显示摘要</h2><span class="hint">00234</span></div>
+    <p class="lede">00234 的目标效果：手机端每篇文章是「左小封面 + 右标题」一行，不显示摘要。做法是改首页文章循环的 HTML 结构，再加一段只在 ≤768px 生效的 Flex CSS。</p>
+
+    <p class="codecap">首页文章循环（加 mobile-post-layout 类）</p>
+<pre>{% for post in paginator.posts %}
+  &lt;article class="post-entry mobile-post-layout"&gt;
+    &lt;div class="post-cover"&gt;
+      &lt;a href="{{ post.url | relative_url }}"&gt;
+        &lt;img src="{{ post.image }}" alt="{{ post.title }}"&gt;
+      &lt;/a&gt;
+    &lt;/div&gt;
+    &lt;div class="post-content"&gt;
+      &lt;h3 class="post-title"&gt;
+        &lt;a href="{{ post.url | relative_url }}"&gt;{{ post.title }}&lt;/a&gt;
+      &lt;/h3&gt;
+      &lt;!-- 摘要 {{ post.excerpt }} 这行删掉或注释掉 --&gt;
+    &lt;/div&gt;
+  &lt;/article&gt;
+{% endfor %}</pre>
+
+    <p class="codecap">只在手机端生效的 Flex CSS</p>
+<pre>@media (max-width: 768px) {
+  .post-entry.mobile-post-layout {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 1.5rem;
+  }
+  .post-entry.mobile-post-layout .post-cover {
+    flex-shrink: 0;
+    width: 80px;
+  }
+  .post-entry.mobile-post-layout .post-cover img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+  }
+  .post-entry.mobile-post-layout .post-content { flex: 1; }
+  .post-entry.mobile-post-layout .post-title {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+}</pre>
+
+    <div class="warnbox">
+      <h5>想桌面端也这样？</h5>
+      <ul>
+        <li>把外层 <span style="font-family:var(--mono)">@media (max-width: 768px){}</span> 去掉即可全端生效。</li>
+        <li>封面图变量名可能是 image / cover / thumbnail，按你 Front Matter 实际字段调；桌面端想大一点可加 <span style="font-family:var(--mono)">@media (min-width:992px){ .post-cover{width:100px} }</span>。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 03 CSS 调试 -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>CSS 改了不生效：调试与 !important 强化</h2><span class="hint">00234</span></div>
+    <p class="lede">00234 真实遇到「上述代码无效」。根因通常是选择器优先级被主题默认样式压住，或类名跟模板对不上。从弱到强四步。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:180px">步骤</th><th>做什么</th><th>目的</th></tr></thead>
+      <tbody>
+        <tr><td><b>1. 看真实 DOM</b></td><td>浏览器右键文章项 → 检查，看实际 class 名</td><td>确认模板里有没有 mobile-post-layout</td></tr>
+        <tr><td><b>2. 加测试样式</b></td><td><span style="font-family:var(--mono)">.mobile-post-layout{border:3px solid red!important}</span></td><td>红框出现=CSS 加载了但选择器不对；不出现=CSS 没加载</td></tr>
+        <tr><td><b>3. 提高优先级</b></td><td>用 <span style="font-family:var(--mono)">#main-wrapper #main .post-entry</span> 这种长选择器 + !important</td><td>压过主题默认样式</td></tr>
+        <tr><td><b>4. JS 兜底</b></td><td>DOMContentLoaded 后直接给 entry.style.display='flex'</td><td>CSS 实在压不住时的最后一招</td></tr>
+      </tbody>
+    </table></div>
+
+    <p class="codecap">强化版选择器（照录核心）</p>
+<pre>#main-wrapper #main .post-list .post-entry,
+#main-wrapper #main .post-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 15px !important;
+  margin-bottom: 1.5rem !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+#main-wrapper #main .post-cover {
+  flex-shrink: 0 !important;
+  width: 80px !important;
+  min-width: 80px !important;
+}
+#main-wrapper #main .post-content { flex: 1 !important; min-width: 0 !important; }</pre>
+
+    <div class="warnbox">
+      <h5>自定义 CSS 放哪</h5>
+      <ul>
+        <li>Chirpy 通常放 <span style="font-family:var(--mono)">/_sass/custom/custom.scss</span> 或 <span style="font-family:var(--mono)">/assets/css/style.scss</span>。</li>
+        <li>还不行就把 <span style="font-family:var(--mono)">&lt;style&gt;</span> 直接内联进模板文件，先确认样式能出来再外移。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 04 关于我 -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>关于我页面：头像 + 三卡片 + 职业理念</h2><span class="hint">00320</span></div>
+    <p class="lede">00320 把 about.md 从简单自我介绍升级成「头像装饰环 + 职业简介横幅 + 三卡片（职业经历/技能标签/爱好网格）+ 职业理念三列 + 联系按钮」，并用 IntersectionObserver 做卡片入场动画。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:180px">区块</th><th>结构</th><th>视觉要点</th></tr></thead>
+      <tbody>
+        <tr><td><b>头像简介</b></td><td>圆形头像 + 渐变装饰环 + 姓名/标签/所在地 + 社交圆钮</td><td>装饰环 pulse 呼吸动画；hover 头像上浮</td></tr>
+        <tr><td><b>职业简介横幅</b></td><td>浅灰底横条，左侧 4px 渐变边</td><td>关键数字 highlight 变色</td></tr>
+        <tr><td><b>职业经历卡</b></td><td>圆形图标 + 公司 + 职位 + 职责列表</td><td>悬停顶部渐变条 scaleX 展开</td></tr>
+        <tr><td><b>技能卡</b></td><td>按「设计/营销/行业」三组，每组一排标签 chip</td><td>标签 hover 反白上浮</td></tr>
+        <tr><td><b>爱好卡</b></td><td>2 列图标网格，每项图标+文字</td><td>hover 浅紫底</td></tr>
+        <tr><td><b>职业理念</b></td><td>三列（创新/价值/可持续），居中图标+短述</td><td>标题下居中渐变短线</td></tr>
+      </tbody>
+    </table></div>
+
+    <p class="codecap">卡片入场动画（IntersectionObserver，照录核心）</p>
+<pre>const observer = new IntersectionObserver(function(entries) {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) entry.target.classList.add('animate-in');
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+document.querySelectorAll('.card, .philosophy-item').forEach(el => observer.observe(el));
+// .card { opacity:0; transform:translateY(20px); transition:.6s }
+// .card.animate-in { opacity:1; transform:translateY(0) }</pre>
+
+    <div class="warnbox">
+      <h5>响应式断点</h5>
+      <ul>
+        <li>≤768px：头部改纵向居中，卡片网格单列，爱好网格单列。</li>
+        <li>≤480px：头像缩到 120px，卡片内边距收紧。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 05 文章布局 -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>文章页布局：元信息·封面·热门标签·相关文章·Cusdis 展开</h2><span class="hint">00321</span></div>
+    <p class="lede">00321 给的是一个完整文章页模板（layout: default）：封面插图、作者/阅读时间/日期/分类元信息、正文、相关文章、热门标签云、Cusdis 评论完全展开。优化重点是 CSS 变量化与评论区不再出滚动条。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:170px">区块</th><th>做法</th></tr></thead>
+      <tbody>
+        <tr><td><b>封面插图</b></td><td><span style="font-family:var(--mono)">{% if page.cover %}</span> 时渲染，rounded + shadow，大图加 loading=lazy</td></tr>
+        <tr><td><b>文章元信息</b></td><td>一行 flex：作者 / 阅读时间（按字数 ÷180 算分钟）/ 发布日期 / last_modified_at / 分类</td></tr>
+        <tr><td><b>热门标签云</b></td><td>按文章数排序取前 10，标签后带 (n)，点进 /tags/</td></tr>
+        <tr><td><b>相关文章</b></td><td><span style="font-family:var(--mono)">site.related_posts</span> 取前 5，箭头列表</td></tr>
+        <tr><td><b>Cusdis 评论</b></td><td>容器 height:auto、overflow-y:visible，iframe 最小 400px，不再出内嵌滚动条</td></tr>
+      </tbody>
+    </table></div>
+
+    <p class="codecap">阅读时间与隐藏邮箱输入框（照录）</p>
+<pre>{% assign words = content | number_of_words %}
+{% if words &lt; 360 %}
+  &lt;span&gt;阅读时间: 1分钟&lt;/span&gt;
+{% else %}
+  &lt;span&gt;阅读时间: {{ words | divided_by:180 }}分钟&lt;/span&gt;
+{% endif %}
+
+/* 隐藏 Cusdis 的邮箱输入框 */
+#cusdis_thread .cusdis-input-email-container { display: none !important; }
+/* iframe 完全展开 */
+#cusdis_thread iframe { height: auto !important; min-height: 400px; }</pre>
+
+    <div class="warnbox">
+      <h5>评论区高度自动跟随</h5>
+      <ul>
+        <li>用 MutationObserver 监听 #cusdis_thread 的子节点变化，Cusdis 异步渲染后再调一次高度，避免固定高度留白或截断。</li>
+        <li>窗口 resize 时也重调一次。</li>
+        <li>评论区 min-height 桌面端 400px、手机端 300px。</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>Chirpy 布局·手机端·关于我·文章布局 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自建站学习笔记，代码片段均照录原笔记，仅作个人知识沉淀参考。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

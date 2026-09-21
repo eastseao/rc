@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Jekyll 主题推荐与 Chirpy 入门 · 2025-10</title>
+<meta name="description" content="基于 GitHub Pages 的 Jekyll 个人博客入门：六款口碑主题选型、纯网页搭建四条路径、Chirpy 用 chirpy-starter 模板从零到上线，以及 _config.yml 关键配置片段与起步期三类构建报错的修复。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+/* 顶栏 */
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+/* 文档头部 */
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+/* 主体 */
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+/* 章节 */
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+/* 代码块 */
+pre{background:var(--code);border:1px solid var(--line);border-radius:6px;padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2);margin-bottom:16px;white-space:pre;tab-size:2}
+pre:last-child{margin-bottom:0}
+.codecap{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent-ink);letter-spacing:.04em;margin:14px 0 6px}
+
+/* 表格 */
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+/* 手风琴 */
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+/* 页脚 */
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+/* 板块主题色开关 */
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 主题选型</a>
+      <a href="#s1" data-sec="s1">02 搭建路径</a>
+      <a href="#s2" data-sec="s2">03 Chirpy 上线</a>
+      <a href="#s3" data-sec="s3">04 配置片段</a>
+      <a href="#s4" data-sec="s4">05 起步排错</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 手册</span>
+  <h1>Jekyll 主题推荐与 Chirpy 入门</h1>
+  <p class="s-lede">把「GitHub Pages + Jekyll 搭个人博客」的起步三件事合并成一本手册：先在六款口碑主题里选型，再判断哪条路径能纯网页完成，最后用 Chirpy 官方 starter 模板从零到上线。配置片段照录原笔记，起步期三类构建报错单列一节给出修复。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2025-10-25</b></span>
+    <span>收录笔记 <b>3 篇</b></span>
+    <span>时间跨度 <b>2025-10-09 ~ 2025-10-25</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">Jekyll</span>
+    <span class="s-chip">Chirpy</span>
+    <span class="s-chip">GitHub Pages</span>
+    <span class="s-chip">个人博客</span>
+    <span class="s-chip">远程主题</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00196-2025-10-09 推荐Jekyll主题搭建个人网站（162KB，含 Minimal Mistakes 全流程与配置）</li>
+      <li>00318-2025-10-25 使用Chirpy主题创建GitHub博客（63KB，含 chirpy-starter 与三段 _config.yml）</li>
+      <li>00319-2025-10-25 我的jekyll-theme-chirpy 7.4.0，请提供各（仅一句提问，AI 未作答，并入源说明）</li>
+    </ol>
+  </div>
+
+  <!-- ══ 01 主题选型 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>先选型：六款口碑 Jekyll 主题</h2><span class="hint">00196</span></div>
+    <p class="lede">原笔记按「开发者中口碑不错」的口径列了六款主题，各自定位不同：要<b>现代技术博客</b>选 Chirpy，要<b>高度自定义</b>选 Minimal Mistakes，要<b>学术简历风</b>选 Minimal Light。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:170px">主题名称</th><th>主要特点</th><th style="width:200px">适用场景</th></tr></thead>
+      <tbody>
+        <tr><td><b>Minimal Light</b></td><td>设计简洁优雅、支持暗黑模式、搜索引擎优化、移动端适配</td><td>学术个人主页、在线简历</td></tr>
+        <tr><td><b>Chirpy</b></td><td>功能丰富（评论、搜索、分类标签）、界面现代、文档详尽</td><td>技术博客、个人日志</td></tr>
+        <tr><td><b>Minimal Mistakes</b></td><td>可高度自定义、响应式设计、布局多样</td><td>多功能网站（博客、作品集等）</td></tr>
+        <tr><td><b>Mr. Green</b></td><td>支持多语言、功能丰富（颜色方案切换、联系表单等）、SEO 友好</td><td>多语言博客、团队官网</td></tr>
+        <tr><td><b>Slate</b></td><td>设计优雅直观、集成 Google Analytics、响应式设计</td><td>个人博客、项目展示</td></tr>
+        <tr><td><b>jekyll-theme-YC</b></td><td>代码高亮、夜间模式、文章搜索、复制版权声明</td><td>技术博客、阅读类网站</td></tr>
+      </tbody>
+    </table></div>
+
+    <p class="lede" style="margin-bottom:10px">原笔记给的三条通用建议：</p>
+    <div class="grid g3">
+      <div class="panel"><dl class="kv">
+        <dt>先试演示</dt><dd>挑选主题时务必亲身体验主题的在线演示，看设计与功能是否符合预期和品味。</dd>
+      </dl></div>
+      <div class="panel"><dl class="kv">
+        <dt>善用文档</dt><dd>遇到问题多查主题自带文档，或到 GitHub 仓库的 Issues 里找解决方案，开发者社区通常很活跃。</dd>
+      </dl></div>
+      <div class="panel"><dl class="kv">
+        <dt>自定义域名</dt><dd>使用 GitHub Pages 时可配置自定义域名，让个人网站看起来更专业。</dd>
+      </dl></div>
+    </div>
+  </section>
+
+  <!-- ══ 02 搭建路径 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>纯网页就能完成的四条搭建路径</h2><span class="hint">00196</span></div>
+    <p class="lede">用户最关心「能不能只在网页上操作、不装本地环境」。原笔记给出的答案：可以，核心依赖 GitHub Pages 的自动构建。四条路径按上手速度从快到慢排列。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:180px">路径</th><th>主要特点</th><th style="width:230px">怎么用网页完成</th></tr></thead>
+      <tbody>
+        <tr><td><b>GitHub Pages 官方主题</b></td><td>GitHub 内置，开箱即用，配置简单，无需本地环境</td><td>仓库 Settings → Pages → Choose a theme 直接选取。</td></tr>
+        <tr><td><b>remote_theme 引用</b></td><td>可用更多现代 Jekyll 主题，主题更新自动同步</td><td>在 _config.yml 加一行 <span style="font-family:var(--mono)">remote_theme: 作者/仓库</span>。</td></tr>
+        <tr><td><b>Use this template 模板</b></td><td>一键复制完整仓库，起点高，自定义空间大</td><td>点绿色按钮「Use this template」→ Create a new repository，命名为 用户名.github.io。</td></tr>
+        <tr><td><b>Fork 仓库</b></td><td>没有模板按钮时的等价替代，得到完整副本</td><td>右上角 Fork → 改仓库名为 用户名.github.io → Rename。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">路径二与路径三怎么选</h3>
+        <dl class="kv">
+          <dt>模板法</dt><dd>上手最快，自带完整目录结构；但主题更新需手动合并同步。推荐给想快速拥有完整网站的新手。</dd>
+          <dt>远程主题法</dt><dd>只改 _config.yml 一行，主题更新自动同步；但自定义灵活性中等。推荐给想在现有仓库上快速换主题的人。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">纯网页操作的通用规则</h3>
+        <ul style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2);line-height:1.8">
+          <li>仓库名必须是 <b>用户名.github.io</b>（项目页则为 用户名.github.io/仓库名，需配 baseurl）。</li>
+          <li>文章用 Markdown 写，放 <b>_posts</b> 目录，文件名遵循 <span style="font-family:var(--mono)">YYYY-MM-DD-title.md</span>。</li>
+          <li>所有改动都用网页端 Commit 保存，无需本地环境。</li>
+          <li>部分主题允许在线改 <span style="font-family:var(--mono)">_sass/_variables.scss</span> 调颜色字体。</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rl" style="margin-top:14px">
+      <h4>红线 · 仓库名与公开度</h4>
+      <div class="mid">仓库必须命名为 用户名.github.io，且必须 Public</div>
+      <p>这是 GitHub Pages 的硬性规定：仓库名决定了能否通过 https://用户名.github.io 直接访问；私有仓库无法使用免费的 GitHub Pages。若用项目仓库名（如 boke），则访问地址变为 https://用户名.github.io/boke，且 _config.yml 里必须配 baseurl: "/boke"、头像等资源路径也要带 /boke 前缀。</p>
+    </div>
+  </section>
+
+  <!-- ══ 03 Chirpy 上线 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>Chirpy 从模板到上线：四步走</h2><span class="hint">00318</span></div>
+    <p class="lede">00318 的完整叙事是：直接用 <b>cotes2020/chirpy-starter</b> 官方模板（专为网页端快速部署设计），不需要在主仓库里找 Use this template，也不需要 Fork。四步走完整覆盖。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:120px">步骤</th><th>动作</th><th>关键配置/注意</th></tr></thead>
+      <tbody>
+        <tr><td><b>第一步</b></td><td>访问 github.com/cotes2020/chirpy-starter，点 <b>Use this template → Create a new repository</b>。</td><td>Owner 选自己账号；Repository name 必须是 用户名.github.io；保持 Public。</td></tr>
+        <tr><td><b>第二步</b></td><td>编辑 <b>_config.yml</b>：填 title、tagline、description、url、username。</td><td>timezone 填 Asia/Shanghai；# 后是注释不生效，只改冒号后的值。</td></tr>
+        <tr><td><b>第三步</b></td><td>仓库 <b>Settings → Pages → Build and deployment</b>，Source 选 <b>GitHub Actions</b>。</td><td>等几分钟构建；首次构建约 5–10 分钟，先看到示例页属正常，刷新即可。</td></tr>
+        <tr><td><b>第四步</b></td><td>进 <b>_posts</b> 目录，Create new file，命名 <span style="font-family:var(--mono)">2025-10-25-标题.md</span>。</td><td>先写 Front Matter（title/date/categories/tags），再写 Markdown 正文。</td></tr>
+      </tbody>
+    </table></div>
+
+    <p class="codecap">第一篇文章的 Front Matter 与正文（照录）</p>
+<pre>---
+title: "欢迎来到我的地平线博客"
+date: 2025-10-25 15:00:00 +0800
+categories: [随笔]
+tags: [欢迎]
+---
+
+这是我的第一篇博客文章！
+
+## 你好，世界！
+
+很高兴能在这里与你分享我的所思所想。
+
+- 这是列表项
+- **这是加粗的文字**</pre>
+
+    <div class="warnbox">
+      <h5>关于「没看到 Use this template 按钮」</h5>
+      <ul>
+        <li>原笔记的兜底方案是直接 <b>Fork</b> 官方仓库 cotes2020/jekyll-theme-chirpy，再到 Settings 把仓库 Rename 为 用户名.github.io。</li>
+        <li>再不行：从 Releases 页面下载源码压缩包，手动新建同名仓库后整包上传。</li>
+        <li>若不想用模板/Fork，也可以一个文件一个文件手建（_config.yml、Gemfile、_tabs/about.md、_tabs/archives.md、_data/contact.yml、index.html），但学习成本高，原笔记不推荐新手走这条。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ 04 配置片段 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>_config.yml 关键配置片段照录</h2><span class="hint">00318 / 00196</span></div>
+    <p class="lede">00318 给了三段逐步叠加的 _config.yml：基础版、加 Cusdis 评论+头像版、以及带上海时区的基础版。00196 另给了 Minimal Mistakes 路线的完整配置。这里只摘<b>与起步直接相关</b>的片段，原文照录。</p>
+
+    <details class="acc st4" open>
+      <summary>Chirpy 基础配置（中文 + 上海时区 + Cusdis）<span class="cnt">00318</span></summary>
+      <div class="body">
+        <p class="lede">用户给的硬要求：上海时区、中文、Cusdis app_id。原文照录如下，直接整段替换 _config.yml 即可。</p>
+<pre># 站点设置
+lang: zh-CN
+title: "地平线"
+tagline: "一个分享知识与思考的地方"
+description: "seamoonappear 的个人博客"
+keywords: "博客, 技术, 思考, 分享"
+url: "https://seamoonappear.github.io"
+
+# 作者信息
+author: "seamoonappear"
+twitter:
+  username: ""
+
+# 构建设置
+theme: jekyll-theme-chirpy
+plugins:
+  - jekyll-sitemap
+  - jekyll-seo-tag
+  - jekyll-feed
+
+# 国际化
+timezone: Asia/Shanghai
+
+# 评论系统 - Cusdis
+comments:
+  active: "cusdis"
+  cusdis:
+    app_id: "a507d22b-3586-405c-a6b5-50563ba8eb75"
+    host: "https://cusdis.com"
+    lang: "zh-cn"
+
+# 其他设置
+paginate: 10
+paginate_path: /page/:num/
+permalink: /posts/:title/
+feed:
+  path: atom.xml
+  posts_limit: 20</pre>
+        <div class="srcnote" style="margin-bottom:0"><b>照录提醒</b>：提交后需到 Cusdis 官网确认域名已正确配置；时区 Asia/Shanghai 后所有时间显示用北京时间；zh-CN 后界面默认中文。</div>
+      </div>
+    </details>
+
+    <details class="acc st4">
+      <summary>Chirpy 侧边栏头像 + Cusdis 完整段（00318）<span class="cnt">00318</span></summary>
+      <div class="body">
+<pre># 侧边栏头像 - 使用你提供的路径
+avatar: /assets/img/avatar.jpg
+
+# ===============================================
+# 评论系统 - Cusdis配置
+# ===============================================
+comments:
+  active: cusdis  # 启用cusdis评论系统
+  cusdis:
+    app_id: "a507d22b-3586-405c-a6b5-50563ba8eb75"  # 你提供的app_id</pre>
+        <p class="lede">前提：头像图片须先上传到仓库的 <span style="font-family:var(--mono)">/assets/img/</span> 目录并命名 avatar.jpg，建议正方形比例，显示效果最佳。</p>
+      </div>
+    </details>
+
+    <details class="acc st4">
+      <summary>Minimal Mistakes 路线的 _config.yml（00196）<span class="cnt">00196</span></summary>
+      <div class="body">
+<pre># 站点基本设置
+title: "海月の港湾"
+name: "海月"
+description: "记录技术与生活的点点滴滴"
+locale: "zh-CN"
+url: "https://seamoonappear.github.io"
+baseurl: "/boke"   # 项目仓库名时必须填；用户名.github.io 仓库则留空
+
+# 主题设置
+remote_theme: mmistakes/minimal-mistakes
+minimal_mistakes_skin: "default"   # 可选 default/air/aqua/contrast/dark/dirt/neon/mint
+search: true
+
+# 移除 Follow 按钮
+follow:
+  button: false
+
+# 默认 Front Matter（适用于所有帖子）
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: single
+      author_profile: true
+      read_time: true
+      comments: true
+      share: true
+      related: true
+      toc: true
+
+# 插件
+plugins:
+  - jekyll-include-cache
+sitemap: true</pre>
+        <div class="warnbox" style="margin-top:12px">
+          <h5>两处易踩</h5>
+          <ul>
+            <li>baseurl：仓库名是 用户名.github.io 时留空；是 boke 这类项目名时填 <span style="font-family:var(--mono)">/boke</span>，且头像路径要写成 <span style="font-family:var(--mono)">/boke/assets/images/bio-photo.jpg</span>。</li>
+            <li>Follow 按钮：只隐藏按钮用 <span style="font-family:var(--mono)">follow: button: false</span>；<span style="font-family:var(--mono)">author_profile: false</span> 会把整块作者信息栏都藏掉，别混用。</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+
+    <details class="acc st4">
+      <summary>GitHub Actions 部署工作流（00196）<span class="cnt">00196</span></summary>
+      <div class="body">
+        <p class="lede">文件路径 <span style="font-family:var(--mono)">.github/workflows/jekyll-gh-pages.yml</span>。含依赖缓存与 production 构建环境。</p>
+<pre>name: "Deploy Jekyll site to GitHub Pages"
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          cache-version: 1
+      - uses: actions/configure-pages@v4
+      - run: bundle install
+      - name: Build with Jekyll
+        run: bundle exec jekyll build --future --unpublished --verbose
+        env:
+          JEKYLL_ENV: production
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./_site
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4</pre>
+      </div>
+    </details>
+  </section>
+
+  <!-- ══ 05 起步排错 ══ -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>起步期三类构建报错与修复</h2><span class="hint">00318</span></div>
+    <p class="lede">00318 末尾连续三次 GitHub Actions 构建失败，都是「_config.yml 里声明了插件、Gemfile 里却没写对应 gem」这一类问题。按报错信息逐条对照修复。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:220px">报错关键信息</th><th>根因</th><th>修复动作</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>cannot load such file -- jekyll-feed</b><br><span style="font-family:var(--mono);font-size:11px">MissingDependencyException</span></td>
+          <td>_config.yml 的 plugins 列了 jekyll-feed，但 Gemfile 里没声明该 gem。</td>
+          <td>Gemfile 补 <span style="font-family:var(--mono)">gem "jekyll-feed"</span>；或直接用 <span style="font-family:var(--mono)">gem "github-pages", group: :jekyll_plugins</span> 一把带上常用插件。</td>
+        </tr>
+        <tr>
+          <td><b>The jekyll-theme-chirpy theme could not be found.</b></td>
+          <td>_config.yml 写了 theme: jekyll-theme-chirpy，但 Bundler 在 Gem 路径里找不到主题 gem。</td>
+          <td>Gemfile 补 <span style="font-family:var(--mono)">gem "jekyll-theme-chirpy", "~> 7.0"</span>（版本按实际，不确定就不锁版本让 Bundler 自选）。</td>
+        </tr>
+        <tr>
+          <td><b>bundler: command not found: htmlproofer</b><br><span style="font-family:var(--mono);font-size:11px">exit code 127</span></td>
+          <td>构建本身已 done in 0.935s，是后续 htmlproofer 这步找不到命令。</td>
+          <td>Gemfile 补 <span style="font-family:var(--mono)">gem "htmlproofer"</span>；并检查 .github/workflows 里调用 htmlproofer 的命令与参数是否正确。</td>
+        </tr>
+      </tbody>
+    </table></div>
+
+    <p class="codecap">修好后的 Gemfile 骨架（照录）</p>
+<pre>source "https://rubygems.org"
+
+gem "jekyll", "~> 4.4.1"
+gem "jekyll-theme-chirpy", "~> 7.0"  # 按实际主题版本调整
+
+# _config.yml 的 plugins 里提到的插件，这里一并声明
+gem "jekyll-sitemap"
+gem "jekyll-seo-tag"
+gem "jekyll-feed"
+
+# 想省心就换成下面这一行，由 GitHub Pages 管依赖版本：
+# gem "github-pages", group: :jekyll_plugins</pre>
+
+    <div class="warnbox">
+      <h5>三条附加纪律（照录原笔记）</h5>
+      <ul>
+        <li>不要提交 _site 目录：.gitignore 必须包含 _site，由构建流程生成，手动提交会导致冲突。</li>
+        <li>Gemfile.lock 建议一并提交，锁定依赖确切版本，保证构建环境一致。</li>
+        <li>首页若仍显示主题预置页：确认根目录 index.md/index.html 的 Front Matter 里写了 <span style="font-family:var(--mono)">layout: home</span>，且 _config.yml 没有用 index:/home: 强制指向别处；改完等 Actions 重建。</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>Jekyll 主题推荐与 Chirpy 入门 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自建站学习笔记，主题名、配置片段与报错信息均照录原笔记，仅作个人知识沉淀参考。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

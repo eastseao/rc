@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230891b2'/%3E%3Cpath d='M20 44V22l15 11 15-11v22' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Chirpy Markdown · 音乐 · 打包 APP · 2025-10</title>
+<meta name="description" content="四篇笔记合并：怎么提问让 AI 输出通篇带 Markdown 符号的博客文章、拿到后如何指定代码块语言与生成 Front Matter；在 Chirpy 文章里加音乐的三种嵌入法（网易云/QQ音乐外链 iframe、HTML5 audio、Front Matter 配 Liquid 播放器）；以及把线上 Chirpy 博客打包成 Android APP 的 WebView 在线封装与 Apache Cordova 两条路线。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--line);border-radius:6px;padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2);margin-bottom:16px;white-space:pre;tab-size:2}
+pre:last-child{margin-bottom:0}
+.codecap{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent-ink);letter-spacing:.04em;margin:14px 0 6px}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:760px){table{min-width:520px;font-size:12.5px}th,td{padding:9px 11px}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 提问模板</a>
+      <a href="#s1" data-sec="s1">02 排版要素</a>
+      <a href="#s2" data-sec="s2">03 加音乐</a>
+      <a href="#s3" data-sec="s3">04 打包 APP</a>
+      <a href="#s4" data-sec="s4">05 前提提醒</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 长文</span>
+  <h1>Chirpy Markdown · 音乐 · 打包 APP</h1>
+  <p class="s-lede">四篇笔记凑成「写—加—打包」一条龙：怎么提问让 AI 每次都输出带完整 Markdown 符号的博客草稿；在 Chirpy 文章里嵌音乐的三种写法；以及把线上 Chirpy 博客打包成 Android APP 的 WebView 在线封装与 Apache Cordova 两条路线。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2025-10-27</b></span>
+    <span>收录笔记 <b>4 篇</b></span>
+    <span>时间跨度 <b>2025-10-17 ~ 2025-10-27</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">Markdown</span>
+    <span class="s-chip">提问模板</span>
+    <span class="s-chip">文章加音乐</span>
+    <span class="s-chip">WebView 打包</span>
+    <span class="s-chip">Cordova</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00330-2025-10-25 如何在 Chirpy 博客中使用 Markdown 语法（1.8KB，提问模板）</li>
+      <li>00302-2025-10-24 如何生成带 Markdown 语法的博客文章（5KB，万能公式 + Front Matter）</li>
+      <li>00263-2025-10-17 Jekyll Chirpy 文章添加音乐方法（3KB，三种嵌入法）</li>
+      <li>00340-2025-10-27 将 Chirpy 博客打包成 APP 教程（5.3KB，WebView / Cordova）</li>
+    </ol>
+  </div>
+
+  <!-- 01 提问模板 -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>让 AI 每次都输出带 Markdown 符号的回答：提问模板</h2><span class="hint">00330 / 00302</span></div>
+    <p class="lede">想让 AI 的回答通篇保留 <span style="font-family:var(--mono)">#</span>、<span style="font-family:var(--mono)">** **</span>、<span style="font-family:var(--mono)">```</span>、<span style="font-family:var(--mono)">| --- |</span> 这些符号、能直接粘进 Chirpy，关键是在提问里把格式要求说死。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">模板</th><th>话术（照录）</th></tr></thead>
+      <tbody>
+        <tr><td><b>基础版</b></td><td>请用 Markdown 格式回答以下问题：[你的问题]</td></tr>
+        <tr><td><b>详细版</b></td><td>请确保回答通篇使用完整的 Markdown 语法，包括：标题分级、代码块标记、表格格式、列表和强调、其他相关 Markdown 元素。我的问题是：[你的问题]</td></tr>
+        <tr><td><b>Chirpy 专用版</b></td><td>作为 Chirpy 博客用户，请用完整的 Markdown 语法回答：[你的具体问题]，要求包含代码块、标题、列表等所有适用的格式元素。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="warnbox">
+      <h5>使用小技巧</h5>
+      <ul>
+        <li>说一次「以后都用 Markdown 回答」，后续对话一般会记住这个偏好；某次没带符号就补一句「请使用 Markdown 语法」。</li>
+        <li>想控制结构就把要求列成编号清单：一级标题作标题、分几点用二级标题、关键句加粗、提到工具给代码块、结尾放对比表格——输出就会照这个骨架走。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 02 排版要素 -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>拿到草稿后：指定代码块语言与生成 Front Matter</h2><span class="hint">00302</span></div>
+    <p class="lede">光说「用 Markdown」还不够好看。再补两条指令，就能让草稿直接带语法高亮和 Jekyll Front Matter，省掉手工排版。</p>
+
+    <p class="codecap">指定代码块语言（你说 → AI 给）</p>
+<pre>你说：「用一个 Python 代码块示例」
+生成：
+```python
+def hello_world():
+    print("Hello, Blog!")
+```</pre>
+
+    <p class="codecap">让 AI 顺手生成文章 Front Matter</p>
+<pre>你说：「为这篇文章生成一个包含标题、日期和标签的 Front Matter」
+生成：
+---
+title: "我的五个高效工作心法"
+date: 2025-10-24
+tags: ["效率", "GTD", "番茄工作法"]
+---</pre>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:160px">想要的排版效果</th><th>怎么在提问里点它</th></tr></thead>
+      <tbody>
+        <tr><td>图片占位</td><td>「在介绍工具部分插入图片占位符，图说写『我的工作台』」→ 得到 <span style="font-family:var(--mono)">![我的工作台](URL)</span>，之后替换 URL</td></tr>
+        <tr><td>对比表格</td><td>「结尾用表格对比不同方法的优缺点」→ 得到 <span style="font-family:var(--mono)">| 方法 | 优点 | 缺点 |</span></td></tr>
+        <tr><td>引用块/链接</td><td>「开头放一句引言，结尾附推荐阅读链接」→ 得到 <span style="font-family:var(--mono)">&gt; 引用</span> 与 <span style="font-family:var(--mono)">[标题](url)</span></td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- 03 加音乐 -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>在 Chirpy 文章里加音乐：三种嵌入法</h2><span class="hint">00263</span></div>
+    <p class="lede">Chirpy 文章里加音乐，从轻到重三种：外链播放器 iframe、HTML5 audio、Front Matter 配 Liquid 自定义播放器。挑一种即可。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">方法</th><th>怎么做</th><th style="width:160px">适合</th></tr></thead>
+      <tbody>
+        <tr><td><b>平台外链 iframe</b></td><td>网易云 / QQ 音乐的「生成外链播放器」，把 iframe 粘进文章</td><td>想让别人直接听到线上歌单</td></tr>
+        <tr><td><b>HTML5 audio</b></td><td>mp3/ogg 放 <span style="font-family:var(--mono)">assets/music/</span>，用 <span style="font-family:var(--mono)">&lt;audio controls&gt;</span> 引入</td><td>自有音频、不想跳出去</td></tr>
+        <tr><td><b>Front Matter + Liquid</b></td><td>文章头写 <span style="font-family:var(--mono)">music:</span> 字段，正文用 <span style="font-family:var(--mono)">{% if page.music %}…{% endif %}</span> 渲染</td><td>想统一样式、多篇复用</td></tr>
+      </tbody>
+    </table></div>
+
+    <p class="codecap">网易云 / QQ 音乐外链播放器（照录，把歌曲 ID 换掉）</p>
+<pre>&lt;iframe frameborder="no" border="0" marginwidth="0" marginheight="0"
+    width=330 height=86
+    src="//music.163.com/outchain/player?type=2&id=歌曲ID&auto=0&height=66"&gt;
+&lt;/iframe&gt;</pre>
+
+    <p class="codecap">Front Matter 配 Liquid 播放器（照录）</p>
+<pre>---
+title: "你的文章标题"
+date: 2024-01-01
+music:
+  url: /assets/music/sample.mp3
+  title: "歌曲名称"
+  artist: "艺术家"
+---</pre>
+<pre>{% if page.music %}
+&lt;div class="music-player"&gt;
+  &lt;audio controls&gt;
+    &lt;source src="{{ page.music.url }}" type="audio/mpeg"&gt;
+  &lt;/audio&gt;
+  &lt;div class="music-info"&gt;
+    &lt;strong&gt;{{ page.music.title }}&lt;/strong&gt; - {{ page.music.artist }}
+  &lt;/div&gt;
+&lt;/div&gt;
+{% endif %}</pre>
+
+    <div class="warnbox">
+      <h5>落地提醒</h5>
+      <ul>
+        <li>音乐文件放 <span style="font-family:var(--mono)">assets/music/</span>，尽量 MP3 + OGG 两种格式保兼容。</li>
+        <li>注意文件大小，别让一首歌把首屏拖慢；嵌入外链前确认版权。</li>
+        <li>播放器样式可在 <span style="font-family:var(--mono)">_sass/custom/custom.scss</span> 里覆写 <span style="font-family:var(--mono)">.music-player</span>。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 04 打包 APP -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>把线上 Chirpy 博客打包成 APP</h2><span class="hint">00340</span></div>
+    <p class="lede">「只会网页操作」也能做——本质是把网页装进一个 APP 壳（内置浏览器 WebView）。两条路线：在线/工具封装最快，Cordova 更专业可扩展。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">方法</th><th>优点</th><th>缺点</th><th>适合谁</th></tr></thead>
+      <tbody>
+        <tr><td><b>在线打包 / HBuilder</b></td><td>极简单，全程网页或点几下；HBuilder 选空模板、把启动页指向博客网址，「发行 → 发行为原生安装包」出 APK</td><td>自定义低，部分在线平台收费或带广告</td><td>只想快速出个 APP 的新手</td></tr>
+        <tr><td><b>Apache Cordova</b></td><td>能调摄像头/GPS 等原生能力，可扩展</td><td>要装 Node.js、命令行建项目，门槛高些</td><td>以后想给 APP 加原生功能的人</td></tr>
+      </tbody>
+    </table></div>
+
+    <p class="codecap">Cordova 路线四步（照录命令）</p>
+<pre>npm install -g cordova
+cordova create MyBlog com.example.myblog MyBlog
+cd MyBlog
+cordova platform add android
+# 改 www/index.html，&lt;head&gt; 里加跳转：
+#   &lt;meta http-equiv="refresh" content="0; url='https://你的博客域名.com'"&gt;
+cordova build android
+# 产物在 platforms/android/app/build/outputs/apk/</pre>
+
+    <div class="warnbox">
+      <h5>给「只会网页操作」的建议</h5>
+      <ul>
+        <li>先从方法一的在线打包工具/HBuilder 试起，最快出第一个 APK；熟悉了再上 Cordova。</li>
+        <li>博客在手机浏览器里长什么样，APP 里就长什么样——先把移动端响应式调好再打包。</li>
+        <li>打包时记得设 App 图标与启动页；非必要别申请通讯录/文件等多余权限。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 05 前提提醒 -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>写—加—打包 之前，先确认这几条</h2><span class="hint">综合</span></div>
+    <p class="lede">把前面四步串成一条流水线，开工前对照这张清单，能少踩很多坑。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:130px">环节</th><th>开工前确认</th></tr></thead>
+      <tbody>
+        <tr><td><b>写作</b></td><td>提问里写死 Markdown 格式要求；要代码高亮就点名语言；要 Front Matter 就说明字段</td></tr>
+        <tr><td><b>加音乐</b></td><td>音频文件已放 assets/music/、大小可控、版权干净；外链播放器的歌曲 ID 已替换</td></tr>
+        <tr><td><b>移动端</b></td><td>博客在手机浏览器里排版正常（这是 APP 内效果的基准）</td></tr>
+        <tr><td><b>打包</b></td><td>博客已上线、有可直接访问的网址；想清楚要不要原生能力——不要就走 WebView 封装</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>Chirpy Markdown · 音乐 · 打包 APP · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自建站学习笔记，代码片段与话术模板均照录原笔记，仅作个人知识沉淀参考。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

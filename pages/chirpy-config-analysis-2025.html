@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Chirpy 配置文件分析与修正 · 2025-10</title>
+<meta name="description" content="Jekyll Chirpy 主题 _config.yml 的三大块结构解析、配置文件清单与工作流原理、六类高频修正点，以及最小可运行三件套（_config.yml / index.html / Gemfile / 工作流）照录与配置类故障排错表。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+pre{background:var(--code);border:1px solid var(--line);border-radius:6px;padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2);margin-bottom:16px;white-space:pre;tab-size:2}
+pre:last-child{margin-bottom:0}
+.codecap{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent-ink);letter-spacing:.04em;margin:14px 0 6px}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 结构解析</a>
+      <a href="#s1" data-sec="s1">02 文件清单</a>
+      <a href="#s2" data-sec="s2">03 修正六要点</a>
+      <a href="#s3" data-sec="s3">04 最小三件套</a>
+      <a href="#s4" data-sec="s4">05 配置排错</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 长文</span>
+  <h1>Chirpy 配置文件分析与修正</h1>
+  <p class="s-lede">把三篇围绕 _config.yml 的笔记合并：先看懂 Jekyll 配置的三大块结构与每个文件的作用，再给出 Chirpy 主题最常踩的六类修正点，最后用一套最小可运行的 _config.yml / index.html / Gemfile / 工作流照录兜底，并把「首页空白、404、分页失效、首页显示原始 front matter」等配置类故障列成排错表。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2025-10-24</b></span>
+    <span>收录笔记 <b>3 篇</b></span>
+    <span>时间跨度 <b>2025-10-10 ~ 2025-10-24</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">Jekyll</span>
+    <span class="s-chip">_config.yml</span>
+    <span class="s-chip">remote_theme</span>
+    <span class="s-chip">GitHub Actions</span>
+    <span class="s-chip">配置排错</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00214-2025-10-10 Jekyll博客配置文件分析（25KB，三大块结构与文件清单）</li>
+      <li>00311-2025-10-24 Jekyll Chirpy主题配置修正（54KB，精简配置与常见问题排查）</li>
+      <li>00315-2025-10-24 Jekyll Chirpy主题配置修正建议（350KB 完整读，含 remote_theme、最小三件套、首页显示原始 front matter 的诊断）</li>
+    </ol>
+  </div>
+
+  <!-- 01 结构解析 -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>_config.yml 的三大块结构</h2><span class="hint">00214</span></div>
+    <p class="lede">00214 把一份 Jekyll 配置拆成三块理解：<b>站点设置</b>决定「这是谁的站」，<b>构建设置</b>决定「怎么产出 _site」，<b>Jekyll 特有设置</b>决定「内容怎么被组织」。看懂这三块，后面所有报错都能定位到对应段落。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">区块</th><th>关键键</th><th>作用</th></tr></thead>
+      <tbody>
+        <tr><td><b>站点设置</b></td><td><span style="font-family:var(--mono)">title / description / url / baseurl / lang / timezone</span></td><td>站点名称、描述、访问地址、是否挂在子目录、界面语言与时区。改这里只影响对外展示，不动构建。</td></tr>
+        <tr><td><b>构建设置</b></td><td><span style="font-family:var(--mono)">source / destination / exclude / include / plugins / markdown</span></td><td>源码与产物目录、哪些文件不参与构建、启用哪些插件、用哪个 Markdown 引擎。报错多半在这里。</td></tr>
+        <tr><td><b>Jekyll 特有</b></td><td><span style="font-family:var(--mono)">permalink / paginate / defaults / collections</span></td><td>URL 规则、分页条数、文章默认 Front Matter、自定义集合（如 Chirpy 的 _tabs）。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="warnbox">
+      <h5>两个最常改错的键</h5>
+      <ul>
+        <li><b>baseurl</b>：仓库是 用户名.github.io 时留空；是 boke 这类项目名时必须填 <span style="font-family:var(--mono)">/boke</span>，否则所有静态资源 404。</li>
+        <li><b>url</b>：必须是 https:// 开头的完整站点地址，不要带尾斜杠，否则 sitemap 与 canonical 链接会错。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 02 文件清单 -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>一个 Jekyll 站到底由哪些文件组成</h2><span class="hint">00214</span></div>
+    <p class="lede">00214 给了一张文件作用清单。排错时先按这张表核对「该在的文件在不在」，比盯着报错信息猜更快。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:200px">路径</th><th>作用</th><th style="width:150px">缺失后果</th></tr></thead>
+      <tbody>
+        <tr><td><span style="font-family:var(--mono)">_config.yml</span></td><td>全局配置，Jekyll 每次启动读一次</td><td>用默认值，标题语言全错</td></tr>
+        <tr><td><span style="font-family:var(--mono)">index.html / index.md</span></td><td>首页入口</td><td>访问根路径 404 或主题默认页</td></tr>
+        <tr><td><span style="font-family:var(--mono)">_posts/</span></td><td>文章目录，文件名 <span style="font-family:var(--mono)">YYYY-MM-DD-title.md</span></td><td>首页与归档为空</td></tr>
+        <tr><td><span style="font-family:var(--mono)">_layouts/</span></td><td>布局模板（用 remote_theme 时由主题提供）</td><td>layout 找不到报错</td></tr>
+        <tr><td><span style="font-family:var(--mono)">_includes/</span></td><td>可复用片段（用 remote_theme 时由主题提供）</td><td>片段渲染失败</td></tr>
+        <tr><td><span style="font-family:var(--mono)">_sass/ 或 assets/</span></td><td>样式与静态资源</td><td>页面无样式 / 资源 404</td></tr>
+        <tr><td><span style="font-family:var(--mono)">Gemfile</span></td><td>声明 jekyll 与插件 gem 版本</td><td>构建时提示缺少依赖</td></tr>
+        <tr><td><span style="font-family:var(--mono)">.github/workflows/*.yml</span></td><td>GitHub Actions 自动构建部署</td><td>推了代码却不更新线上</td></tr>
+      </tbody>
+    </table></div>
+
+    <p class="lede" style="margin-top:14px">Jekyll 的工作流一句话：<b>读 _config.yml → 合并 _layouts/_includes → 把 _posts 与页面渲染进布局 → 输出到 _site/ → GitHub Pages 把 _site 当作静态站托管</b>。理解这条链，排错就是从后往前倒查哪一环断了。</p>
+  </section>
+
+  <!-- 03 修正六要点 -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>Chirpy 配置修正：六个高频点</h2><span class="hint">00315 / 00311</span></div>
+    <p class="lede">00315 的 350KB 对话收敛下来，真正决定「能不能跑起来」的就六点。00311 的完整正确配置也是围绕这六点组织的。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">修正点</th><th>错误写法</th><th>正确做法</th></tr></thead>
+      <tbody>
+        <tr><td><b>主题引入</b></td><td>_config.yml 写 <span style="font-family:var(--mono)">theme: jekyll-theme-chirpy</span>，但仓库里没有主题文件</td><td>GitHub Pages 推荐 <span style="font-family:var(--mono)">remote_theme: "cotes2020/jekyll-theme-chirpy"</span>，由构建环境拉取主题</td></tr>
+        <tr><td><b>插件齐全</b></td><td>_config.yml 的 plugins 列了插件，Gemfile 没写对应 gem</td><td>两边保持一致：feed / paginate / sitemap / seo-tag / archives 都要在 plugins 与 Gemfile 同时出现</td></tr>
+        <tr><td><b>排除列表</b></td><td>漏排 Gemfile.lock、node_modules、vendor，拖慢构建或误处理</td><td>exclude 里补上 <span style="font-family:var(--mono)">Gemfile / Gemfile.lock / node_modules/ / vendor/ / README.md</span></td></tr>
+        <tr><td><b>字符串引号</b></td><td>含中文、冒号、空格的值裸写，YAML 解析报错</td><td>所有字符串值统一加双引号，避免解析歧义</td></tr>
+        <tr><td><b>首页入口</b></td><td>首页写成 index.md，或 Front Matter 用中文键「布局：主页」</td><td>根目录建 index.html，Front Matter 写 <span style="font-family:var(--mono)">layout: home</span>（英文键）</td></tr>
+        <tr><td><b>导航页面</b></td><td>没有 _tabs/，归档/分类/标签页 404</td><td>建 _tabs/archives.md、_tabs/categories.md、_tabs/tags.md、_tabs/about.md，各自带 layout 与 order</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- 04 最小三件套 -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>最小可运行三件套（照录）</h2><span class="hint">00315 / 00311</span></div>
+    <p class="lede">00315 末尾收敛出一个「index 只要几行、内容全靠主题与 _config.yml 生成」的版本。下面四段直接照录，是纯网页操作也能跑通的最小骨架。</p>
+
+    <details class="acc st4" open>
+      <summary>① 最简化 _config.yml<span class="cnt">00315</span></summary>
+      <div class="body">
+<pre># 基础配置
+title: "地平线"
+tagline: "学习，感悟，探索"
+description: "Seamoon的技术博客，分享编程开发、技术实践和个人思考。"
+url: "https://seamoonappear.github.io"
+baseurl: ""
+lang: "zh-CN"
+timezone: "Asia/Shanghai"
+
+# 主题配置
+remote_theme: "cotes2020/jekyll-theme-chirpy"
+
+# 个人信息
+github:
+  username: "seamoonappear"
+
+social:
+  name: "王维"
+  email: ""
+  links:
+    - "https://github.com/seamoonappear"
+    - "rss: /feed.xml"
+
+avatar: "/assets/img/avatar.jpg"
+
+# 功能配置
+comments:
+  active: "cusdis"
+  cusdis:
+    app_id: "a507d22b-3586-405c-a6b5-50563ba8eb75"
+    host: "https://cusdis.com"
+
+toc: true
+paginate: 10
+
+# 导航配置
+tabs:
+  home:
+    name: "首页"
+    url: "/"
+    order: 1
+  archives:
+    name: "归档"
+    url: "/archives/"
+    order: 2
+  categories:
+    name: "分类"
+    url: "/categories/"
+    order: 3
+  tags:
+    name: "标签"
+    url: "/tags/"
+    order: 4
+  about:
+    name: "关于"
+    url: "/about/"
+    order: 5
+
+# 默认配置
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+      comments: true
+      toc: true
+      permalink: "/posts/:title/"
+  - scope:
+      path: "_drafts"
+    values:
+      comments: false
+  - scope:
+      path: ""
+      type: "tabs"
+    values:
+      layout: "page"
+      permalink: "/:title/"
+
+# 插件配置
+plugins:
+  - jekyll-feed
+  - jekyll-paginate
+  - jekyll-sitemap
+  - jekyll-seo-tag
+  - jekyll-archives
+
+# 归档设置
+jekyll-archives:
+  enabled: [categories, tags]
+  layouts:
+    category: category
+    tag: tag
+  permalinks:
+    tag: /tags/:name/
+    category: /categories/:name/</pre>
+      </div>
+    </details>
+
+    <details class="acc st4">
+      <summary>② 根目录 index.html（只有几行 Front Matter）<span class="cnt">00315</span></summary>
+      <div class="body">
+<pre>---
+layout: home
+title: 地平线
+description: 学习，感悟，探索 - Seamoon的技术博客
+permalink: /
+---
+
+&lt;!-- 首页内容完全由 Chirpy 主题自动生成 --&gt;</pre>
+        <p class="lede" style="margin-top:10px">侧边栏、头像、导航、文章列表与分页全部由 Chirpy 主题的 <span style="font-family:var(--mono)">layout: home</span> 自动渲染，不需要在 index.html 里写任何 HTML。</p>
+      </div>
+    </details>
+
+    <details class="acc st4">
+      <summary>③ _tabs/ 导航页面四个文件<span class="cnt">00315</span></summary>
+      <div class="body">
+        <p class="codecap">_tabs/archives.md</p>
+<pre>---
+layout: archive
+title: 归档
+icon: fas fa-archive
+order: 2
+---</pre>
+        <p class="codecap">_tabs/categories.md</p>
+<pre>---
+layout: categories
+title: 分类
+icon: fas fa-folder-open
+order: 3
+---</pre>
+        <p class="codecap">_tabs/tags.md</p>
+<pre>---
+layout: tags
+title: 标签
+icon: fas fa-tags
+order: 4
+---</pre>
+        <p class="codecap">_tabs/about.md</p>
+<pre>---
+layout: page
+title: 关于
+icon: fas fa-info-circle
+order: 5
+---
+
+# 关于地平线
+
+地平线代表着远方与希望、界限与无限、永恒的追寻。</pre>
+      </div>
+    </details>
+
+    <details class="acc st4">
+      <summary>④ Gemfile 与 GitHub Actions 工作流<span class="cnt">00315</span></summary>
+      <div class="body">
+        <p class="codecap">Gemfile</p>
+<pre>source "https://rubygems.org"
+
+gem "jekyll", "~> 4.3.0"
+gem "jekyll-theme-chirpy", "~> 6.0.0"
+
+group :jekyll_plugins do
+  gem "jekyll-feed", "~> 0.17.0"
+  gem "jekyll-paginate", "~> 1.1.0"
+  gem "jekyll-sitemap", "~> 1.4.0"
+  gem "jekyll-seo-tag", "~> 2.8.0"
+  gem "jekyll-archives", "~> 2.2.1"
+end</pre>
+        <p class="codecap">.github/workflows/pages.yml</p>
+<pre>name: Deploy to GitHub Pages
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: 3.1
+      - uses: actions/cache@v3
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+      - run: bundle install
+      - run: bundle exec jekyll build
+      - uses: actions/upload-pages-artifact@v2
+        with:
+          path: ./_site
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/deploy-pages@v2</pre>
+      </div>
+    </details>
+  </section>
+
+  <!-- 05 配置排错 -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>配置类故障排错表</h2><span class="hint">00311 / 00315</span></div>
+    <p class="lede">把三篇里反复出现的配置类故障归成一张表。每条都是「症状 → 根因 → 修法」，按表对照即可。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:200px">症状</th><th>根因</th><th>修法</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>首页一片空白</b></td>
+          <td>index.html 的 Front Matter 缺 <span style="font-family:var(--mono)">layout: home</span>，或文件写成了 index.md。</td>
+          <td>根目录建 index.html，首行 <span style="font-family:var(--mono)">---</span>，第二行 <span style="font-family:var(--mono)">layout: home</span>，再 <span style="font-family:var(--mono)">---</span>。</td>
+        </tr>
+        <tr>
+          <td><b>首页显示「--- layout: home ---」原文</b></td>
+          <td>Front Matter 用了中文键「布局：主页」，或 <span style="font-family:var(--mono)">---</span> 分隔符不被识别，Jekyll 没把它当头处理。</td>
+          <td>键名必须是英文 <span style="font-family:var(--mono)">layout</span>；文件必须是 .html 不是 .md；<span style="font-family:var(--mono)">---</span> 独占一行且文件首行就是它。</td>
+        </tr>
+        <tr>
+          <td><b>页面无样式 / 资源 404</b></td>
+          <td>baseurl 与仓库名不匹配，资源路径少了前缀。</td>
+          <td>项目仓库名时 <span style="font-family:var(--mono)">baseurl: "/boke"</span>，头像等资源路径也带 /boke；用户名.github.io 仓库则留空。</td>
+        </tr>
+        <tr>
+          <td><b>点击「查看文章 / 进入地平线」404</b></td>
+          <td>CTA 链接指向 /posts/ 或 /archives/，但对应 _tabs 文件没建，或路径拼错。</td>
+          <td>建 <span style="font-family:var(--mono)">_tabs/archives.md</span>（layout: archive），链接统一写 <span style="font-family:var(--mono)">/archives/</span>。</td>
+        </tr>
+        <tr>
+          <td><b>分页不工作 / 无法翻页</b></td>
+          <td>用了 <span style="font-family:var(--mono)">jekyll-paginate</span> 但 index.html 没有走 home 布局的文章循环，或 Gemfile 缺该 gem。</td>
+          <td>plugins 与 Gemfile 都加 <span style="font-family:var(--mono)">jekyll-paginate</span>；_config.yml 设 <span style="font-family:var(--mono)">paginate: 10</span>；首页用 <span style="font-family:var(--mono)">layout: home</span> 让主题渲染分页。</td>
+        </tr>
+        <tr>
+          <td><b>侧边栏 / 头像 / 导航不显示</b></td>
+          <td>没有 collections.tabs 输出，或 social / avatar 路径错。</td>
+          <td>_config.yml 加 <span style="font-family:var(--mono)">collections: tabs: output: true</span>；avatar 指向 /assets/img/avatar.jpg。</td>
+        </tr>
+      </tbody>
+    </table></div>
+
+    <div class="warnbox">
+      <h5>纯网页操作时的三步自检（00315 反复强调）</h5>
+      <ul>
+        <li>提交后到仓库 <b>Actions</b> 页看构建是否绿；红了就点进失败步骤读日志，不要盲目改配置。</li>
+        <li>构建绿了仍不对，等 1–2 分钟再硬刷新（Ctrl+F5），GitHub Pages 有 CDN 缓存。</li>
+        <li>首页若还是旧版：确认 _site 由工作流生成、根目录没有手写的 index.html 把主题覆盖掉。</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>Chirpy 配置文件分析与修正 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自建站学习笔记，配置片段与排错条目均照录原笔记，仅作个人知识沉淀参考。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

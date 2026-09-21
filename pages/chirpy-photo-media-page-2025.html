@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Chirpy 照片与 Media 页面 · 2025-10</title>
+<meta name="description" content="Chirpy 主题新增 media 页面的四步流程、多分类占位符内容骨架、照片网格页（圆角+caption+响应式）、可切换标签相册（nav-highlight 高亮条+点击放大模态框），以及页面点进去一片空白的排查路径。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--line);border-radius:6px;padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2);margin-bottom:16px;white-space:pre;tab-size:2}
+pre:last-child{margin-bottom:0}
+.codecap{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent-ink);letter-spacing:.04em;margin:14px 0 6px}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 加 media 页</a>
+      <a href="#s1" data-sec="s1">02 占位符骨架</a>
+      <a href="#s2" data-sec="s2">03 照片网格页</a>
+      <a href="#s3" data-sec="s3">04 标签相册</a>
+      <a href="#s4" data-sec="s4">05 空白排查</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 长文</span>
+  <h1>Chirpy 照片与 Media 页面</h1>
+  <p class="s-lede">围绕「给 Chirpy 博客加一个放生活照片与读物影音的页面」三篇笔记合并：先按四步加一个 media 页面并留出多分类占位符，再把它升级成圆角网格+图注的照片页，最后做成可切换标签、点击放大的相册页，末尾把「点进去一片空白」的排查路径单列一节。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2025-10-12</b></span>
+    <span>收录笔记 <b>3 篇</b></span>
+    <span>时间跨度 <b>2025-10-11 ~ 2025-10-12</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">Chirpy</span>
+    <span class="s-chip">media 页</span>
+    <span class="s-chip">相册</span>
+    <span class="s-chip">标签切换</span>
+    <span class="s-chip">灯箱</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00218-2025-10-11 Chirpy主题添加media页面步骤（13KB，四步流程与空白页排查）</li>
+      <li>00223-2025-10-11 导航栏添加照片页面（5.9KB，照片网格页完整代码）</li>
+      <li>00228-2025-10-12 Photo 页面需求整理（30KB，标签切换相册与优化版实现）</li>
+    </ol>
+  </div>
+
+  <!-- 01 加 media 页 -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>四步加一个 media 页面</h2><span class="hint">00218</span></div>
+    <p class="lede">00218 的核心结论：Chirpy 里加新页面 = <b>建一个 md 文件 + 在 navigation.yml 加一行</b>。路径都要可复制，不要靠猜。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:110px">步骤</th><th>关键操作</th><th>涉及路径</th></tr></thead>
+      <tbody>
+        <tr><td><b>1. 建页面文件</b></td><td>根目录新建 Markdown 文件，带 Front Matter</td><td><span style="font-family:var(--mono)">/media.md</span></td></tr>
+        <tr><td><b>2. 配导航栏</b></td><td>_data/navigation.yml 按格式加 media 链接</td><td><span style="font-family:var(--mono)">/_data/navigation.yml</span></td></tr>
+        <tr><td><b>3. 写页面内容</b></td><td>用 Front Matter + Markdown 写正文</td><td><span style="font-family:var(--mono)">/media.md</span></td></tr>
+        <tr><td><b>4. 本地测试</b></td><td>起 Jekyll 服务预览</td><td><span style="font-family:var(--mono)">bundle exec jekyll serve</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <p class="codecap">media.md 最小骨架（照录）</p>
+<pre>---
+layout: page   # 必须有，告诉 Jekyll 用 page 布局
+title: Media
+---
+
+# 欢迎来到我的媒体库
+
+这里可以展示图片、视频或其他媒体内容。</pre>
+
+    <p class="codecap">navigation.yml 里加一行（照录）</p>
+<pre># 在 _data/navigation.yml 中添加，注意缩进
+- title: "Media"   # 导航栏中显示的名称
+  url: /media      # 指向刚创建的 media.md 页面</pre>
+
+    <div class="warnbox">
+      <h5>资源放哪</h5>
+      <ul>
+        <li>图片视频放 <span style="font-family:var(--mono)">/assets/img/</span> 或 <span style="font-family:var(--mono)">/assets/media/</span>，再用 Markdown/HTML 引用。</li>
+        <li>页面 md 直接放项目根目录，访问路径才干净（/media）。</li>
+        <li>改 navigation.yml 前先备份。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 02 占位符骨架 -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>多分类占位符内容骨架</h2><span class="hint">00218</span></div>
+    <p class="lede">用户要 media 页放「爱好、读过的书、喜欢的电影、音乐、其他」，每类后续再填。00218 给了带占位符的整页骨架——每类一节，先用斜体占位符占住，以后往里填。</p>
+
+    <p class="codecap">media.md 多分类骨架（照录节选）</p>
+<pre>---
+layout: page
+title: Media
+description: "我的媒体库 - 记录我的爱好、阅读和娱乐生活"
+---
+
+# 我的媒体库
+
+## 📚 我的爱好
+*// 占位符：后续将添加更多爱好相关内容*
+
+## 📖 读过的书
+### 正在阅读
+- *书籍标题将在这里显示*
+### 已读完
+- *已读书籍列表将在这里展示*
+### 想读清单
+- *计划阅读的书籍将列在这里*
+
+## 🎬 喜欢的电影
+### 经典收藏 / 近期观看 / 期待上映
+
+## 🎵 音乐
+### 最爱歌手/乐队 / 近期循环 / 心情歌单
+
+## 🌟 其他
+### 播客推荐 / 游戏收藏 / 其他发现</pre>
+
+    <p class="lede" style="margin-top:14px">配套建议：给媒体资源建专属子目录，后续填图时路径清晰。</p>
+    <pre>assets/
+└── media/
+    ├── books/      # 书籍封面
+    ├── movies/     # 电影海报
+    ├── music/      # 专辑封面
+    └── hobbies/    # 爱好相关图</pre>
+  </section>
+
+  <!-- 03 照片网格页 -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>照片网格页：圆角 + 图注 + 响应式</h2><span class="hint">00223</span></div>
+    <p class="lede">00223 给的是一整页可复制代码：photos.md 用 CSS Grid 每行自适应排布，图片统一高度圆角，下方一行图注，手机端自动变窄。核心片段照录。</p>
+
+    <p class="codecap">photos.md 网格与图注（照录节选）</p>
+<pre>&lt;div class="photos-container"&gt;
+  &lt;div class="photos-grid"&gt;
+    &lt;div class="photo-item"&gt;
+      &lt;img src="/assets/img/photos/photo1.jpg" alt="瞬间1" loading="lazy"&gt;
+      &lt;div class="photo-caption"&gt;晨光微熹 · 2023&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="photo-item"&gt;
+      &lt;img src="/assets/img/photos/photo2.jpg" alt="瞬间2" loading="lazy"&gt;
+      &lt;div class="photo-caption"&gt;山色空蒙 · 2023&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;style&gt;
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+.photo-item img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;          /* 统一裁切，不变形 */
+  display: block;
+}
+@media (max-width: 576px) {
+  .photos-grid { grid-template-columns: 1fr; }   /* 手机端单列 */
+}
+&lt;/style&gt;</pre>
+
+    <div class="warnbox">
+      <h5>接入与组织图片</h5>
+      <ul>
+        <li>_config.yml 的 tabs 加：<span style="font-family:var(--mono)">- name: 照片 / path: /photos/</span>。</li>
+        <li>图片目录：<span style="font-family:var(--mono)">assets/img/photos/photo1.jpg …</span>。</li>
+        <li>图片命名用语义化文件名（如 2023-10-beijing-sunset.jpg），图片先压缩再上传。</li>
+        <li>代码里已带 <span style="font-family:var(--mono)">loading="lazy"</span> 懒加载；想点开大图可后续加灯箱 JS。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 04 标签相册 -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>可切换标签相册：高亮条 + 点击放大</h2><span class="hint">00228</span></div>
+    <p class="lede">00228 的需求更完整：标签栏（风景/人物/生活/猫/随手拍）点击切换图片区，激活标签底部一条高亮条 <span style="font-family:var(--mono)">nav-highlight</span>，图片圆角网格，点任意图弹放大层、点任意处关闭。纯原生 JS，不依赖插件。</p>
+
+    <p class="codecap">标签导航与高亮条（照录）</p>
+<pre>&lt;nav class="photo-nav"&gt;
+  &lt;div class="nav-container"&gt;
+    &lt;button class="nav-btn active" data-tab="scenery"&gt;风景&lt;/button&gt;
+    &lt;button class="nav-btn" data-tab="people"&gt;人物&lt;/button&gt;
+    &lt;button class="nav-btn" data-tab="life"&gt;生活&lt;/button&gt;
+    &lt;button class="nav-btn" data-tab="cat"&gt;猫&lt;/button&gt;
+    &lt;button class="nav-btn" data-tab="random"&gt;随手拍&lt;/button&gt;
+    &lt;div class="nav-highlight"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/nav&gt;
+
+&lt;style&gt;
+.nav-highlight {
+  position: absolute;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  border-radius: 1px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+&lt;/style&gt;</pre>
+
+    <p class="codecap">切换标签与移动高亮条的 JS（照录核心）</p>
+<pre>nav.addEventListener('click', (e) => {
+  const button = e.target.closest('.nav-btn');
+  if (!button) return;
+  const targetTab = button.dataset.tab;
+
+  buttons.forEach(b => b.classList.remove('active'));
+  button.classList.add('active');
+
+  panes.forEach(p => p.classList.remove('active'));
+  const targetPane = document.getElementById(targetTab);
+  if (targetPane) targetPane.classList.add('active');
+
+  // 移动高亮条到当前按钮下方
+  const rect = button.getBoundingClientRect();
+  const containerRect = button.parentElement.getBoundingClientRect();
+  highlight.style.width  = rect.width + 'px';
+  highlight.style.left   = (rect.left - containerRect.left) + 'px';
+});</pre>
+
+    <p class="codecap">点击放大层（照录）</p>
+<pre>&lt;div class="photo-modal" id="photoModal"&gt;
+  &lt;div class="modal-content"&gt;
+    &lt;img class="modal-image" src="" alt=""&gt;
+    &lt;div class="modal-info"&gt;&lt;/div&gt;
+    &lt;button class="modal-close" aria-label="关闭"&gt;&times;&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+// 点卡片 → 填大图与说明 → 打开模态框
+document.querySelectorAll('.photo-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const img  = card.querySelector('img');
+    const info = card.querySelector('.photo-info');
+    modalImage.src   = img.src;
+    modalInfo.textContent = info.textContent;
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  });
+});
+// 点关闭按钮 / 点遮罩 / 按 Esc 都关
+closeBtn.addEventListener('click', closeModal);
+modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+});
+&lt;/script&gt;</pre>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:200px">需求点</th><th>实现要点</th></tr></thead>
+      <tbody>
+        <tr><td>标签切换</td><td>button 带 data-tab，对应同 id 的 .tab-pane，切 active 类</td></tr>
+        <tr><td>激活高亮条</td><td>绝对定位的 .nav-highlight，JS 算按钮位置移动它</td></tr>
+        <tr><td>图片网格</td><td>repeat(auto-fill, minmax(280px,1fr))，object-fit:cover 统一高度</td></tr>
+        <tr><td>图注固定</td><td>.photo-info 常驻缩略图下方，不点放大也可见</td></tr>
+        <tr><td>点击放大</td><td>fixed 全屏遮罩 .photo-modal，点遮罩/关闭/Esc 关闭</td></tr>
+        <tr><td>手机端</td><td>标签栏横向滚动隐藏滚动条；网格 minmax 降到 160px，小屏两列</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- 05 空白排查 -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>页面点进去一片空白：排查路径</h2><span class="hint">00218</span></div>
+    <p class="lede">00218 真实遇到「导航点 media 进一片空白」。按「内容 → 编码 → 本地构建 → 线上日志」从近到远排。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:180px">排查点</th><th>怎么查</th><th>修法</th></tr></thead>
+      <tbody>
+        <tr><td><b>页面文件为空</b></td><td>打开 media.md，看有没有 Front Matter 与正文</td><td>补 <span style="font-family:var(--mono)">layout: page</span> 与正文内容</td></tr>
+        <tr><td><b>文件带 BOM</b></td><td>Windows 上 UTF-8 带 BOM 会让 Jekyll 认不出 Front Matter</td><td>VS Code 另存为 <b>UTF-8 无 BOM</b></td></tr>
+        <tr><td><b>导航路径错</b></td><td>navigation.yml 的 url 与文件名对不上</td><td>统一 <span style="font-family:var(--mono)">url: /media/</span>，Jekyll 自动找 media.md</td></tr>
+        <tr><td><b>本地缓存旧</b></td><td>Jekyll 缓存没清</td><td><span style="font-family:var(--mono)">bundle exec jekyll clean</span> 再 serve</td></tr>
+        <tr><td><b>线上构建失败</b></td><td>本地好、线上坏，看仓库 Actions 日志</td><td>按日志修语法；Gemfile 用 <span style="font-family:var(--mono)">github-pages</span> 对齐依赖</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="warnbox">
+      <h5>一句话优先级</h5>
+      <ul>
+        <li>先看 Actions 红不红——红了就别碰文件，先读日志。</li>
+        <li>绿了还空白，九成是 Front Matter 缺 <span style="font-family:var(--mono)">layout</span> 或文件带 BOM。</li>
+        <li>都对了还不显示，硬刷新清 CDN 缓存再看。</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>Chirpy 照片与 Media 页面 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自建站学习笔记，代码片段均照录原笔记，仅作个人知识沉淀参考。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

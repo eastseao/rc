@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%237c3aed'/%3E%3Cpath d='M18 22h28M18 32h28M18 42h18' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+<title>Jekyll theme-den 主题全面解析 · 2025-10</title>
+<meta name="description" content="theme-den（Hugo-theme-den）主题全面解析：内容优先的设计哲学与霞鹜文楷中文字体、子模块安装与 config.toml 关键配置、视觉/页面结构/代码高亮等功能特色、Pagefind 站内搜索与 GitHub Pages 部署、优缺点评价，以及 Fork 后样式不加载的排查步骤。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--line);border-radius:6px;padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2);margin-bottom:16px;white-space:pre;tab-size:2}
+pre:last-child{margin-bottom:0}
+.codecap{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent-ink);letter-spacing:.04em;margin:14px 0 6px}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:760px){table{min-width:520px;font-size:12.5px}th,td{padding:9px 11px}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 概览</a>
+      <a href="#s1" data-sec="s1">02 安装配置</a>
+      <a href="#s2" data-sec="s2">03 功能特色</a>
+      <a href="#s3" data-sec="s3">04 搜索与部署</a>
+      <a href="#s4" data-sec="s4">05 评价与排查</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 长文</span>
+  <h1>Jekyll theme-den 主题全面解析</h1>
+  <p class="s-lede">theme-den（hugo-theme-den）是一款「内容优先」、以中文阅读体验见长的静态站主题：简洁界面、霞鹜文楷字体、精致代码高亮。本页从设计哲学讲起，落到子模块安装、config.toml 关键配置、Pagefind 搜索与 GitHub Pages 部署，再给出优缺点评价，以及 Fork 后样式不加载的排查步骤。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2025-10-09</b></span>
+    <span>收录笔记 <b>1 篇</b></span>
+    <span>原文更新 <b>2025-10-09</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">theme-den</span>
+    <span class="s-chip">内容优先</span>
+    <span class="s-chip">霞鹜文楷</span>
+    <span class="s-chip">Pagefind</span>
+    <span class="s-chip">GitHub Pages</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本页来源</b>（单文件合并页）：
+    <ol>
+      <li>00188-2025-10-09 Hugo-theme-den 主题全面解析（13KB，主题概览 / 安装配置 / 功能 / 搜索部署 / 评价 / Fork 后样式排查）</li>
+    </ol>
+  </div>
+
+  <!-- 01 概览 -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>主题概览：内容优先的阅读型主题</h2><span class="hint">00188</span></div>
+    <p class="lede">theme-den 由开发者 pseudoyu 创建并维护，后经社区多位贡献者改进。设计哲学是「内容优先」——界面干净清爽、去掉冗余视觉元素，让读者专注文章。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">维度</th><th>特点</th></tr></thead>
+      <tbody>
+        <tr><td><b>设计哲学</b></td><td>内容优先，减少视觉干扰，适合技术/笔记/文学类博客</td></tr>
+        <tr><td><b>中文字体</b></td><td>全站用「霞鹜文楷」，中文阅读体验是它的招牌</td></tr>
+        <tr><td><b>细节打磨</b></td><td>合理排版间距、精致代码高亮</td></tr>
+        <tr><td><b>作者</b></td><td>pseudoyu（区块链 / Web3 方向活跃开发者，维护个人技术博客）</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- 02 安装配置 -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>安装与 config.toml 关键配置</h2><span class="hint">00188</span></div>
+    <p class="lede">依赖 Sass/SCSS，务必用 Hugo Extended 版。三步装起来：加子模块、复制 exampleSite、改 config.toml。</p>
+
+    <p class="codecap">安装三步（照录）</p>
+<pre>git submodule add https://github.com/iswbm/hugo-theme-den.git themes/hugo-theme-den
+cp -rf themes/hugo-theme-den/exampleSite/* ./
+# 再按需要改 config.toml 的 baseURL / title / theme</pre>
+
+    <p class="codecap">关键配置项（菜单 + 主题参数）</p>
+<pre># 菜单配置
+[[menu.main]]
+  name = "首页"
+  url = "/"
+  weight = 1
+
+[[menu.main]]
+  name = "归档"
+  url = "/archives"
+  weight = 2
+
+# 主题特定参数
+[params]
+  fontFamily = "霞鹜文楷"
+  enableSearch = true
+  enableTOC = true</pre>
+  </section>
+
+  <!-- 03 功能特色 -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>主要功能与特色</h2><span class="hint">00188</span></div>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:130px">维度</th><th>具体能力</th></tr></thead>
+      <tbody>
+        <tr><td><b>视觉设计</b></td><td>霞鹜文楷中文字体、响应式布局、简洁界面</td></tr>
+        <tr><td><b>页面结构</b></td><td>可自定义首页 Banner、支持二级子菜单的顶部导航、分类筛选的文章列表、带左侧目录的文章页</td></tr>
+        <tr><td><b>内容展示</b></td><td>高质量代码语法高亮、文章页左侧目录、通过 Shortcodes 嵌多媒体</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- 04 搜索与部署 -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>进阶：Pagefind 站内搜索与 GitHub Pages 部署</h2><span class="hint">00188</span></div>
+    <p class="lede">搜索用 Pagefind——构建后离线生成索引，不依赖外部服务。</p>
+
+    <p class="codecap">Pagefind 三步（照录）</p>
+<pre># 1. 安装 Pagefind（macOS 示例）
+wget https://github.com/CloudCannon/pagefind/releases/download/v1.1.0/pagefind-v1.1.0-x86_64-apple-darwin.tar.gz
+tar -xvf pagefind-v1.1.0-x86_64-apple-darwin.tar.gz
+sudo mv pagefind /usr/local/bin/
+
+# 2. Hugo 构建后生成搜索索引
+pagefind --source public --bundle-dir pagefind</pre>
+
+    <p class="codecap">在 content 下建搜索页 search.md</p>
+<pre>---
+title: "搜索"
+layout: "search"
+menu: "main"
+weight: 20
+---</pre>
+
+    <div class="warnbox">
+      <h5>部署到 GitHub Pages</h5>
+      <ul>
+        <li>仓库命名 <span style="font-family:var(--mono)">用户名.github.io</span>，配 GitHub Actions 自动构建发布。</li>
+        <li>记得用 Hugo Extended 版（需要 Sass）；定期 <span style="font-family:var(--mono)">git submodule update --remote</span> 更新主题子模块。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 05 评价与排查 -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>优缺点评价，与 Fork 后样式不加载的排查</h2><span class="hint">00188</span></div>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">优势</th><th>潜在不足</th></tr></thead>
+      <tbody>
+        <tr><td>中文阅读体验佳（文楷字体）；继承 Hugo 构建速度；自带 exampleSite 上手快；代码块美观；社区活跃持续维护</td><td>内置功能相对基础；深度定制要前端知识；相比 Hugo 生态明星主题，社区资源有限</td></tr>
+      </tbody>
+    </table></div>
+
+    <p class="codecap">Fork 后页面「裸奔」无样式的排查顺序（照录）</p>
+<pre>1. 确认 config.toml：theme = "hugo-theme-den"，baseURL / title / languageCode 正确
+2. 目录结构：config.toml / content/_index.md / themes/hugo-theme-den/
+3. cp -r themes/hugo-theme-den/exampleSite/* .   # 拿示例配置兜底
+4. 补 content/_index.md 与 content/posts/first-post.md
+5. hugo server -D  访问 http://localhost:1313</pre>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:160px">症状</th><th>修法</th></tr></thead>
+      <tbody>
+        <tr><td>样式完全丢失</td><td><span style="font-family:var(--mono)">hugo --cleanDestinationDir</span> 再 <span style="font-family:var(--mono)">hugo</span> 清缓存重生成</td></tr>
+        <tr><td>搜索/菜单失效</td><td>检查 config.toml 里 <span style="font-family:var(--mono)">[[menu.main]]</span> 的 name/url/weight 是否完整</td></tr>
+        <tr><td>图片/CSS/JS 404</td><td>静态文件放 <span style="font-family:var(--mono)">static/images/</span> 下</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="warnbox">
+      <h5>一句话总结</h5>
+      <ul>
+        <li>想要「少即是多」、阅读优先、配置简单的中文博客，theme-den 值得一试；想要全功能大主题再另选。</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>Jekyll theme-den 主题全面解析 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 theme-den 主题学习笔记，配置片段均照录原笔记，仅作个人知识沉淀参考。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

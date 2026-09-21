@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Chirpy 导航栏·归档·社交分享·图标 · 2025-10</title>
+<meta name="description" content="Chirpy 主题导航栏改名（归档→时间轴）的四种做法、真做一个时间轴归档页、_data/share.yml 国内分享按钮配置、侧边栏社交图标与国内平台图标对照，以及 navigation.yml / locale.yml 多语言数据文件的写法与 YAML 排错。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--line);border-radius:6px;padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2);margin-bottom:16px;white-space:pre;tab-size:2}
+pre:last-child{margin-bottom:0}
+.codecap{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent-ink);letter-spacing:.04em;margin:14px 0 6px}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 导航改名</a>
+      <a href="#s1" data-sec="s1">02 时间轴页</a>
+      <a href="#s2" data-sec="s2">03 分享按钮</a>
+      <a href="#s3" data-sec="s3">04 社交图标</a>
+      <a href="#s4" data-sec="s4">05 数据文件排错</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 长文</span>
+  <h1>Chirpy 导航栏·归档·社交分享·图标</h1>
+  <p class="s-lede">围绕 Chirpy 主题导航与社交入口的四篇笔记合并：把导航栏「归档」改叫「时间轴」的四种做法、真做一个按年分组的时间轴页、把文章底部分享按钮换成国内平台、把侧边栏社交图标换成国内平台，最后把 navigation.yml / locale.yml 两个数据文件的写法与 YAML 排错单列一节。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2025-10-11</b></span>
+    <span>收录笔记 <b>4 篇</b></span>
+    <span>时间跨度 <b>2025-10-09 ~ 2025-10-11</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">Chirpy</span>
+    <span class="s-chip">导航栏</span>
+    <span class="s-chip">share.yml</span>
+    <span class="s-chip">locale.yml</span>
+    <span class="s-chip">国内社交</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00192-2025-10-09 修改Chirpy主题导航栏标题（2.3KB，远程主题下改名四法）</li>
+      <li>00199-2025-10-10 Jekyll Chirpy主题导航栏归档改时间轴（5.2KB，时间轴页面与 Liquid 分组）</li>
+      <li>00216-2025-10-11 Jekyll Chirpy国内社交平台分享配置（93KB 完整读，含 share.yml / navigation.yml / locale.yml / YAML 报错）</li>
+      <li>00217-2025-10-11 Jekyll Chirpy主题社交图标配置指南（22KB，侧边栏 social 与图标对照）</li>
+    </ol>
+  </div>
+
+  <!-- 01 导航改名 -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>把导航栏「归档」改成「时间轴」：四种做法</h2><span class="hint">00192</span></div>
+    <p class="lede">用户用的是 <b>remote_theme 远程主题</b>，改不到主题源码。00192 给了四种从「最推荐」到「最后手段」的做法，按优先级试。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">做法</th><th>改哪里</th><th style="width:220px">评价</th></tr></thead>
+      <tbody>
+        <tr><td><b>① 改 _config.yml（推荐）</b></td><td>在 tabs 下直接写中文键值</td><td>最符合 Jekyll 主题设计，主题更新不冲突</td></tr>
+        <tr><td><b>② _data/locale.yml 覆盖</b></td><td>建 _data/locale.yml，按语言写 tabs 文案</td><td>支持多语言，改字不动主配置</td></tr>
+        <tr><td><b>③ 自定义 JS 替换</b></td><td>_includes/custom-head.html 里用 JS 找文字替换</td><td>兜底方案，主题更新后可能失效</td></tr>
+        <tr><td><b>④ Fork 主题改源码</b></td><td>Fork 后改主题文件文字，Gemfile 指向自己 fork</td><td>最彻底但要自己维护主题更新</td></tr>
+      </tbody>
+    </table></div>
+
+    <p class="codecap">做法一：_config.yml（照录）</p>
+<pre>tabs:
+  home: 首页
+  archives: 时间轴  # 将"归档"改为"时间轴"
+  categories: 分类
+  tags: 标签
+  about: 关于</pre>
+
+    <p class="codecap">做法二：_data/locale.yml（照录）</p>
+<pre># 中文配置
+zh-CN:
+  tabs:
+    archives: 时间轴
+    home: 首页
+    categories: 分类
+    tags: 标签
+
+# 英文配置（如果需要）
+en:
+  tabs:
+    archives: Timeline</pre>
+
+    <p class="codecap">做法三：_includes/custom-head.html（照录）</p>
+<pre>&lt;script&gt;
+document.addEventListener('DOMContentLoaded', function() {
+  const links = document.querySelectorAll('a');
+  links.forEach(link =&gt; {
+    if (link.textContent.trim() === '归档') {
+      link.textContent = '时间轴';
+    }
+  });
+});
+&lt;/script&gt;</pre>
+
+    <div class="warnbox">
+      <h5>建议</h5>
+      <ul>
+        <li>优先用做法一或做法二，它们不侵入主题源码，主题升级时不会被覆盖或冲突。</li>
+        <li>改完跑 <span style="font-family:var(--mono)">bundle exec jekyll serve</span> 本地看导航栏文字是否已变。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 02 时间轴页 -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>真做一个「时间轴」页面</h2><span class="hint">00199</span></div>
+    <p class="lede">光把导航改名还不够——点进去还是原来的归档页。00199 的做法是<b>新建一个 timeline 页面</b>，用 Chirpy 的 archive 布局，再用 Liquid 按年分组渲染文章。</p>
+
+    <p class="codecap">timeline.md 的 Front Matter</p>
+<pre>---
+layout: archive  # 或者你希望使用的其他布局，如 'page'
+title: "时间轴"   # 这里设置你希望在导航栏和页面顶部显示的文字
+permalink: /timeline/  # 这个链接最好记一下，后面配置导航栏可能会用到
+---</pre>
+
+    <p class="codecap">按年分组的 Liquid 模板（照录）</p>
+<pre>&lt;div class="timeline"&gt;
+  {% assign posts_by_year = site.posts | group_by_exp: "post", "post.date | date: '%Y'" %}
+  {% for year in posts_by_year %}
+    &lt;div class="timeline-year"&gt;{{ year.name }}&lt;/div&gt;
+    &lt;ul class="timeline-posts"&gt;
+      {% for post in year.items %}
+        &lt;li&gt;
+          &lt;span class="post-date"&gt;{{ post.date | date: "%Y-%m-%d" }}&lt;/span&gt;
+          &lt;a href="{{ post.url | relative_url }}"&gt;{{ post.title }}&lt;/a&gt;
+        &lt;/li&gt;
+      {% endfor %}
+    &lt;/ul&gt;
+  {% endfor %}
+&lt;/div&gt;</pre>
+
+    <p class="lede" style="margin-top:14px">如果教程类文章想<b>自定义顺序而非按发布日期</b>，可在文章 Front Matter 加 <span style="font-family:var(--mono)">order</span> 字段，页面里用 <span style="font-family:var(--mono)">sort: "order"</span> 排：</p>
+
+    <p class="codecap">文章里加 order / 页面里按 order 排序</p>
+<pre>---
+layout: post
+title: "你的文章标题"
+order: 1   # 顺序号
+---
+
+{% assign sorted_posts = site.posts | sort: "order" %}
+{% for post in sorted_posts %}
+  &lt;!-- 显示每篇文章 --&gt;
+{% endfor %}</pre>
+
+    <div class="warnbox">
+      <h5>接入导航栏</h5>
+      <ul>
+        <li>_config.yml 的 tabs（或 _data/navigation.yml）里把原来的「归档」项换成时间轴：<span style="font-family:var(--mono)">name: 时间轴 / path: /timeline/</span>。</li>
+        <li>具体配置项名（tabs 还是 header_pages）因 Chirpy 版本而异，以你所用版本为准。</li>
+        <li>不需要原归档页时可从项目与导航配置里移除；时间轴样式按需再加 CSS。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 03 分享按钮 -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>文章底部分享按钮：_data/share.yml 换国内平台</h2><span class="hint">00216</span></div>
+    <p class="lede">Chirpy 文章底部的分享按钮由 <span style="font-family:var(--mono)">_data/share.yml</span> 控制，原版只有 Twitter / Facebook / Telegram。00216 给出去掉国外平台、只留国内平台的完整版本。</p>
+
+    <p class="codecap">_data/share.yml 国内版（照录，已去国外平台）</p>
+<pre># 文章底部的分享选项
+# 图标来自 &lt;https://fontawesome.com/&gt;
+
+platforms:
+  # 微博
+  - type: 微博
+    icon: "fab fa-weibo"
+    link: "https://service.weibo.com/share/share.php?title=TITLE&url=URL"
+
+  # QQ空间
+  - type: QQ空间
+    icon: "fab fa-qq"
+    link: "https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=URL&title=TITLE"
+
+  # 微信 (通过二维码分享)
+  - type: 微信
+    icon: "fab fa-weixin"
+    link: "javascript:void(0)"  # 通常需要配合JavaScript生成二维码
+
+  # 豆瓣
+  - type: 豆瓣
+    icon: "fab fa-douban"
+    link: "https://www.douban.com/share/service?href=URL&name=TITLE"
+
+  # 知乎
+  - type: 知乎
+    icon: "fab fa-zhihu"
+    link: "https://www.zhihu.com/question/19554212/answer/"
+
+  # 钉钉
+  - type: 钉钉
+    icon: "fab fa-dingding"
+    link: "https://im.dingtalk.com/action/createtodo?title=TITLE&url=URL"
+
+  # 百度贴吧
+  - type: 贴吧
+    icon: "fab fa-baidu"
+    link: "http://tieba.baidu.com/f/commit/share/openShareApi?url=URL&title=TITLE"
+
+  # 快手
+  - type: 快手
+    icon: "fas fa-video"  # 暂未找到官方图标，使用通用视频图标
+    link: "https://www.kuaishou.com/"
+
+  # B站
+  - type: B站
+    icon: "fab fa-bilibili"
+    link: "https://t.bilibili.com/"
+
+  # 小红书
+  - type: 小红书
+    icon: "fas fa-book"  # 暂未找到官方图标，使用书籍图标替代
+    link: "https://www.xiaohongshu.com/"
+
+  # 今日头条
+  - type: 今日头条
+    icon: "fas fa-newspaper"
+    link: "https://www.toutiao.com/"
+
+  # QQ
+  - type: QQ
+    icon: "fab fa-qq"
+    link: "https://connect.qq.com/widget/shareqq/index.html?url=URL&title=TITLE"</pre>
+
+    <div class="warnbox">
+      <h5>使用纪律</h5>
+      <ul>
+        <li><b>TITLE 与 URL 是占位符</b>：Chirpy 会在渲染时把当前文章标题与地址替换进去，不要自己填死。</li>
+        <li>建议按需精简到最常用的 5–8 个：微博、QQ空间、微信、豆瓣、QQ 足够。</li>
+        <li>微信分享需额外 JavaScript 生成二维码；部分国内平台没有官方分享接口，链接可能要后续微调。</li>
+        <li>图标用 Font Awesome，确保主题已引入图标库。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 04 社交图标 -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>侧边栏社交图标：social 怎么配才显示</h2><span class="hint">00217 / 00216</span></div>
+    <p class="lede">侧边栏头像下方的社交图标由 _config.yml 的 <span style="font-family:var(--mono)">social.links</span> 控制。Chirpy 会按链接域名自动匹配 Font Awesome 品牌图标，不需要手动指定。00217 给了国内平台链接格式与图标对照。</p>
+
+    <p class="codecap">_config.yml 里的 social.links（国内平台版，照录）</p>
+<pre>social:
+  name: 王维
+  email: # 留空或填写您的邮箱
+  links:
+    # 开发者平台
+    - https://github.com/seamoonappear
+    - https://gitee.com/你的码云用户名
+
+    # 技术社区
+    - https://juejin.cn/user/你的掘金ID
+    - https://blog.csdn.net/你的CSDN用户名
+    - https://www.zhihu.com/people/你的知乎ID
+
+    # 内容平台
+    - https://www.xiaohongshu.com/user/profile/你的小红书ID
+    - https://www.douyin.com/user/你的抖音号
+
+    # 其他平台
+    - https://space.bilibili.com/你的B站ID
+    - https://www.yuque.com/你的语雀用户名
+
+    # RSS订阅
+    - rss: /feed.xml</pre>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th>平台</th><th>Font Awesome 图标类名</th><th style="width:260px">说明</th></tr></thead>
+      <tbody>
+        <tr><td>GitHub</td><td><span style="font-family:var(--mono)">fab fa-github</span></td><td>开发者必备</td></tr>
+        <tr><td>码云 Gitee</td><td><span style="font-family:var(--mono)">fab fa-git-alt</span></td><td>无官方品牌图标，用 git-alt 替代</td></tr>
+        <tr><td>知乎</td><td><span style="font-family:var(--mono)">fab fa-zhihu</span></td><td>有官方品牌图标</td></tr>
+        <tr><td>B站</td><td><span style="font-family:var(--mono)">fab fa-bilibili</span></td><td>有官方品牌图标</td></tr>
+        <tr><td>微博</td><td><span style="font-family:var(--mono)">fab fa-weibo</span></td><td>有官方品牌图标</td></tr>
+        <tr><td>微信</td><td><span style="font-family:var(--mono)">fab fa-weixin</span></td><td>有官方品牌图标</td></tr>
+        <tr><td>掘金</td><td><span style="font-family:var(--mono)">fas fa-gem</span></td><td>无官方图标，常用替代</td></tr>
+        <tr><td>CSDN</td><td><span style="font-family:var(--mono)">fas fa-code</span></td><td>无官方图标，常用替代</td></tr>
+        <tr><td>抖音</td><td><span style="font-family:var(--mono)">fab fa-tiktok</span></td><td>沿用 TikTok 图标</td></tr>
+        <tr><td>小红书</td><td><span style="font-family:var(--mono)">fab fa-weixin</span></td><td>无官方图标，临时替代</td></tr>
+        <tr><td>RSS</td><td><span style="font-family:var(--mono)">fas fa-rss</span></td><td>主题内置，保留即可</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="warnbox">
+      <h5>图标不显示时的排查顺序</h5>
+      <ul>
+        <li>核对链接是完整 URL（https:// 开头），占位符已换成真实用户名。</li>
+        <li>键名/域名与主题约定一致；掘金、CSDN、小红书这类无官方图标，主题会回退到默认链接图标。</li>
+        <li>清缓存重建（<span style="font-family:var(--mono)">bundle exec jekyll build</span>）再硬刷新。</li>
+        <li>实在不行看主题 _includes/social.html 的生成逻辑，或用 _data/contact.yml 自定义图标。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 05 数据文件排错 -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>导航/多语言数据文件：navigation.yml 与 locale.yml</h2><span class="hint">00216</span></div>
+    <p class="lede">00216 后半段的真实故障是：自建了 _data/navigation.yml 与 _data/locale.yml，结果 GitHub Actions 报 <span style="font-family:var(--mono)">Psych::SyntaxError: could not find expected ':'</span>。这一节把两个文件的正确写法与该报错的修法照录。</p>
+
+    <details class="acc st5" open>
+      <summary>_data/navigation.yml 修正版（照录）<span class="cnt">00216</span></summary>
+      <div class="body">
+<pre>- title: 首页
+  url: /
+
+- title: 分类
+  url: /categories/
+
+- title: 标签
+  url: /tags/
+
+- title: 归档
+  url: /archives/
+
+- title: 媒体
+  url: /media/
+
+- title: 关于
+  url: /about/</pre>
+        <p class="lede" style="margin-top:10px">每个导航项保持相同格式，冒号后留一个空格；不需要的项直接删行；调整数组顺序即调整导航显示顺序。</p>
+      </div>
+    </details>
+
+    <details class="acc st5">
+      <summary>_data/locale.yml（en + zh-CN，已加 media、去繁体）<span class="cnt">00216</span></summary>
+      <div class="body">
+<pre># _data/locale.yml
+
+# English (default)
+en:
+  post:
+    share: "Share"
+    updated: "Updated"
+    read_time:
+      unit: "min"
+      prompt: "read"
+  tabs:
+    home: "Home"
+    categories: "Categories"
+    tags: "Tags"
+    archives: "Archives"
+    media: "Media"
+  search:
+    hint: "Search"
+    cancel: "Cancel"
+    no_results: "No results found."
+  panel:
+    toc: "Contents"
+    overview: "Overview"
+  footer:
+    copyright: "Copyright"
+    powered: "Powered by"
+  notification:
+    update_found: "A new version of content is available."
+    update: "Update"
+
+# 中文简体
+zh-CN:
+  post:
+    share: "分享"
+    updated: "更新于"
+    read_time:
+      unit: "分钟"
+      prompt: "阅读"
+  tabs:
+    home: "首页"
+    categories: "分类"
+    tags: "标签"
+    archives: "时间轴"
+    media: "媒体"
+  search:
+    hint: "搜索"
+    cancel: "取消"
+    no_results: "没有找到结果。"
+  panel:
+    toc: "目录"
+    overview: "概览"
+  footer:
+    copyright: "版权"
+    powered: "由"
+  notification:
+    update_found: "内容有新版本可用。"
+    update: "更新"</pre>
+      </div>
+    </details>
+
+    <p class="codecap">真实报错与修法</p>
+<pre>Psych::SyntaxError: (_data/locale.yml): could not find expected ':'
+  while scanning a simple key at line 9 column 5</pre>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:200px">报错点</th><th>原因</th><th>修法</th></tr></thead>
+      <tbody>
+        <tr><td>缺冒号</td><td><span style="font-family:var(--mono)">key value</span> 写成了无冒号</td><td>改成 <span style="font-family:var(--mono)">key: value</span></td></tr>
+        <tr><td>冒号后无空格</td><td><span style="font-family:var(--mono)">key:value</span></td><td>冒号后必须留一个空格</td></tr>
+        <tr><td>缩进混用 Tab/空格</td><td>YAML 依赖严格缩进，Tab 与空格混用</td><td>统一用空格，同层缩进量一致</td></tr>
+        <tr><td>多层结构错位</td><td>嵌套字典子级缩进没比父级多两格</td><td>子级比父级多缩进 2 空格</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="warnbox">
+      <h5>顺带：Ruby 3.3.9 兼容性</h5>
+      <ul>
+        <li>00216 还遇到 Bundler 在 Ruby 3.3.9 下构建失败（exit code 1）。原笔记建议工作流里把 <span style="font-family:var(--mono)">ruby-version</span> 降到 <span style="font-family:var(--mono)">3.2</span>、<span style="font-family:var(--mono)">runs-on</span> 固定 <span style="font-family:var(--mono)">ubuntu-22.04</span>，Gemfile 里 <span style="font-family:var(--mono)">ruby "~> 3.2.0"</span>。</li>
+        <li>修完 YAML 后可用在线 yaml 校验器或 <span style="font-family:var(--mono)">ruby -ryaml -e "YAML.load_file('_data/locale.yml')"</span> 本地验证再提交。</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>Chirpy 导航栏·归档·社交分享·图标 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自建站学习笔记，配置片段与报错信息均照录原笔记，仅作个人知识沉淀参考。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Chirpy PWA 配置与 Feed 订阅 · 2025-10</title>
+<meta name="description" content="PWA 是什么与三大核心特征、Chirpy 主题内置 PWA 的 pwa.enabled / manifest / serviceWorker 配置、只改两行开关 PWA 与开启后首页空白的排查、jekyll-feed 插件启用 /feed.xml，以及拿到 Feed 链接后选阅读器订阅、国内阅读器与 RSSHub 的用法。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+pre{background:var(--code);border:1px solid var(--line);border-radius:6px;padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2);margin-bottom:16px;white-space:pre;tab-size:2}
+pre:last-child{margin-bottom:0}
+.codecap{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent-ink);letter-spacing:.04em;margin:14px 0 6px}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 PWA 是什么</a>
+      <a href="#s1" data-sec="s1">02 Chirpy PWA 配置</a>
+      <a href="#s2" data-sec="s2">03 开关与空白排查</a>
+      <a href="#s3" data-sec="s3">04 启用 Feed</a>
+      <a href="#s4" data-sec="s4">05 订阅使用</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 长文</span>
+  <h1>Chirpy PWA 配置与 Feed 订阅</h1>
+  <p class="s-lede">五篇围绕「PWA 与订阅」的笔记合并：先搞懂 PWA 是什么、靠什么技术实现；再照 Chirpy 内置的 pwa.enabled / manifest / serviceWorker 三段配置；只改两行开关 PWA，并处理开启后首页空白；最后用 jekyll-feed 插件生成 /feed.xml，以及拿到订阅链接后选阅读器、找国内源、用 RSSHub 的完整流程。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2025-10-25</b></span>
+    <span>收录笔记 <b>5 篇</b></span>
+    <span>时间跨度 <b>2025-10-13 ~ 2025-10-25</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">PWA</span>
+    <span class="s-chip">Service Worker</span>
+    <span class="s-chip">manifest</span>
+    <span class="s-chip">RSS / Feed</span>
+    <span class="s-chip">jekyll-feed</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00237-2025-10-13 渐进式网页应用详解（21KB，PWA 概念与 Chirpy 内置配置）</li>
+      <li>00238-2025-10-13 Jekyll PWA配置与优化建议（6.7KB，pwa 段解析与 manifest 建议）</li>
+      <li>00313-2025-10-24 Jekyll Chirpy主题PWA配置检查（12KB，开关两行 + 首页空白排查）</li>
+      <li>00241-2025-10-14 feed（6.8KB，feed 概念与 jekyll-feed 启用）</li>
+      <li>00325-2025-10-25 如何使用Feed链接订阅信息（11KB，阅读器与国内源）</li>
+    </ol>
+  </div>
+
+  <!-- 01 PWA 是什么 -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>PWA 是什么：三大核心特征</h2><span class="hint">00237</span></div>
+    <p class="lede">PWA（渐进式网页应用）是「披着网站外衣的应用程序」——既有网站无需安装、可链接分享、能被搜索的优点，又有原生应用的离线、主屏图标、全屏体验。「渐进式」指对老浏览器可用、对新浏览器逐步解锁更多能力。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:130px">特征</th><th>核心技术</th><th>用户能感知到什么</th></tr></thead>
+      <tbody>
+        <tr><td><b>可靠</b></td><td>Service Worker（后台脚本，拦截网络请求、缓存资源）</td><td>弱网/离线也能秒开已访问过的页面</td></tr>
+        <tr><td><b>快速</b></td><td>应用 Shell 架构（先缓存头部/导航等静态骨架）</td><td>切页面无白屏等待，交互跟手</td></tr>
+        <tr><td><b>吸引人</b></td><td>Web App Manifest（JSON 描述怎么显示）</td><td>可「安装」到主屏、有图标、可全屏沉浸式</td></tr>
+      </tbody>
+    </table></div>
+
+    <p class="lede" style="margin-top:14px">对个人博客来说，<b>核心基础功能收益最大</b>：可安装、离线访问、快速加载。推送通知 iOS 不支持、硬件访问 API 支持有限，属第三阶段，不必先做。</p>
+  </section>
+
+  <!-- 02 Chirpy PWA 配置 -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>Chirpy 内置 PWA 怎么配</h2><span class="hint">00237 / 00238</span></div>
+    <p class="lede">Chirpy 主题本身内置 PWA 支持，不用自己写 sw.js，只要在 _config.yml 开开关、补一份 manifest.json 和图标。</p>
+
+    <p class="codecap">_config.yml 的 pwa 段（照录）</p>
+<pre>pwa:
+  enabled: true
+  cache:
+    enabled: true
+    deny_paths:
+      # - "/admin/"   # 管理页/接口不缓存
+      # - "/api/"
+
+# 或更细的 serviceWorker 配置（按主题版本）
+serviceWorker:
+  enabled: true
+  cache: "networkFirst, cacheFirst"   # 混合策略：页面走网络优先、静态资源走缓存优先
+  exclusion:
+    - "/404.html"
+  preCache:
+    - "/"
+    - "/assets/css/style.css"
+    - "/assets/js/dist/*.js"
+  version: "2024.1.0"   # 改这个版本号强制更新缓存</pre>
+
+    <p class="codecap">assets/manifest.json（照录要点）</p>
+<pre>{
+  "name": "海上升明月",
+  "short_name": "Seamoon博客",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#你的主题色",
+  "icons": [
+    { "src": "/assets/img/favicons/icon-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/assets/img/favicons/icon-512x512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}</pre>
+
+    <div class="warnbox">
+      <h5>图标与验证</h5>
+      <ul>
+        <li>图标放 <span style="font-family:var(--mono)">assets/img/favicons/</span>，至少 192×192 与 512×512；用 Real Favicon Generator / PWA Builder 一键生成。</li>
+        <li>Service Worker 必须 HTTPS——GitHub Pages 自带 HTTPS，满足。</li>
+        <li>改完用 Chrome DevTools 的 Application 标签看 Manifest / Service Worker，跑 Lighthouse 审计。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 03 开关与空白排查 -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>只改两行开 PWA，与开启后首页空白的排查</h2><span class="hint">00313</span></div>
+    <p class="lede">00313 的真实经历：配置里 PWA 是关的（<span style="font-family:var(--mono)">enabled: false</span>），用户要求只动 PWA 段、别的不改。开了之后首页却一片空白——这正是 PWA 缓存最典型的坑。</p>
+
+    <p class="codecap">开启 PWA 只改这两行</p>
+<pre>pwa:
+  enabled: true        # false → true
+  cache:
+    enabled: true      # false → true
+    deny_paths:
+      - "/example"</pre>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:170px">排查点</th><th>怎么查 / 修</th></tr></thead>
+      <tbody>
+        <tr><td><b>资源 404</b></td><td>F12 → Console 看红错、Network 看哪些 CSS/JS 红了；核对 url/baseurl</td></tr>
+        <tr><td><b>PWA 旧缓存</b></td><td>先把 <span style="font-family:var(--mono)">pwa.enabled</span> 改回 false 重建，清浏览器缓存刷新；恢复即说明是缓存问题，再配 deny_paths 或 bump version</td></tr>
+        <tr><td><b>构建不完整</b></td><td>Chirpy 需 <span style="font-family:var(--mono)">npm run build</span>，并把 assets/js/dist、_sass/dist 强制 add 提交</td></tr>
+        <tr><td><b>首页 Front Matter</b></td><td>根目录 index.md 要有 <span style="font-family:var(--mono)">layout: home</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="warnbox">
+      <h5>为什么内容更新后用户看不到新版</h5>
+      <ul>
+        <li>这正是 PWA 缓存的代价：静态资源被 Service Worker 缓存后，用户拿到的是旧版本。</li>
+        <li>修法：发版时把 <span style="font-family:var(--mono)">serviceWorker.version</span> 递增，或在 deny_paths 里排除高频更新路径。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 04 启用 Feed -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>让博客支持 Feed 订阅：jekyll-feed</h2><span class="hint">00241</span></div>
+    <p class="lede">网页上那个橙色方块 Feed 图标，代表「订阅本网站更新的通道」。Chirpy 内置了生成能力，只要确认插件开着，就能在 /feed.xml 拿到订阅源。</p>
+
+    <p class="codecap">三步确认 Feed 已启用</p>
+<pre># 1. Gemfile 里有插件
+group :jekyll_plugins do
+  gem 'jekyll-feed'
+end
+
+# 2. _config.yml 的 plugins 里列上
+plugins:
+  - jekyll-feed
+
+# 3. 主题 head 模板里有（Chirpy 通常自带，无需手改）
+{% feed_meta %}</pre>
+
+    <p class="codecap">可选的 Feed 自定义</p>
+<pre>feed:
+  posts_limit: 10        # Feed 里放最近多少篇
+  path: feed.xml          # 想换路径时改这里（默认 /feed.xml）</pre>
+
+    <div class="warnbox">
+      <h5>验证</h5>
+      <ul>
+        <li>本地 <span style="font-family:var(--mono)">bundle exec jekyll serve</span> 后访问 <span style="font-family:var(--mono)">http://127.0.0.1:4000/feed.xml</span>，看到 XML 文档即成功。</li>
+        <li>线上订阅地址是 <span style="font-family:var(--mono)">https://用户名.github.io/feed.xml</span>。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 05 订阅使用 -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>拿到 Feed 链接后怎么用</h2><span class="hint">00325</span></div>
+    <p class="lede">拿到 feed 链接的核心动作：<b>找一个 RSS 阅读器，把链接粘进去，让更新自动推给你</b>。像订报纸——报社出新刊自动送报箱，不用每天跑报社。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">阅读器类型</th><th>代表</th><th style="width:200px">特点</th></tr></thead>
+      <tbody>
+        <tr><td><b>在线网页版（推荐新手）</b></td><td>Feedly、Inoreader、BazQux</td><td>跨平台同步，开箱即用</td></tr>
+        <tr><td><b>本地应用</b></td><td>Fluent Reader（Win/Mac/Linux）、NetNewsWire（iOS/macOS）、Reeder（Mac）</td><td>数据在本地，免费开源多</td></tr>
+        <tr><td><b>自托管</b></td><td>Tiny Tiny RSS、yarr</td><td>数据自己掌控，适合折腾</td></tr>
+        <tr><td><b>浏览器扩展</b></td><td>Feedbro 等</td><td>轻量，免注册</td></tr>
+      </tbody>
+    </table></div>
+
+    <p class="codecap">订阅四步</p>
+<pre>1. 注册/登录阅读器（如 Feedly）
+2. 点「Add Content / +」
+3. 粘贴 feed 链接 → 确认
+4. 阅读器自动抓取历史与最新文章</pre>
+
+    <div class="warnbox">
+      <h5>找源与进阶</h5>
+      <ul>
+        <li>没标 RSS 图标的站，试着在域名后加 <span style="font-family:var(--mono)">/feed</span> 或 <span style="font-family:var(--mono)">/rss</span>。</li>
+        <li>网站本身不提供 RSS（如部分社媒），用开源的 <b>RSSHub</b> 生成订阅源。</li>
+        <li>想自动归档：用 IFTTT / Zapier / 集简云 把「有新文章」触发为「保存到笔记」。</li>
+        <li>有道云笔记官方没有内置 RSS 阅读器，靠上述自动化或「网页剪报」手动保存。</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>Chirpy PWA 配置与 Feed 订阅 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自建站学习笔记，配置片段均照录原笔记，仅作个人知识沉淀参考。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
