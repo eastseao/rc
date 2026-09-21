@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>办公网络微信聊天隐私 · 微信授权用户信息删除</title>
+<meta name="description" content="两篇合规笔记合并：办公 Wi-Fi 下用自己的电脑，微信聊天内容到底会不会被监控、什么情况风险变高；以及微信团队要求开发者在用户撤回授权后主动删除用户信息的法律依据、每日邮件与事件通知两种机制和四类应用接入方式。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+/* 顶栏 */
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+/* 文档头部 */
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+/* 主体 */
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+/* 章节 */
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+/* 表格 */
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+/* 手风琴 */
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+/* 页脚 */
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+/* 板块主题色开关 */
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 聊天监控风险</a>
+      <a href="#s1" data-sec="s1">02 授权删除义务</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 隐私与合规</span>
+  <h1>办公网络微信聊天隐私 · 微信授权用户信息删除</h1>
+  <p class="s-lede">把两篇微信隐私合规笔记并到一起：一篇回答「用办公 Wi-Fi、电脑是自己的，微信聊天会不会被监控」，按四种监控场景拆解风险等级；另一篇解读微信团队发给开发者的通知——用户撤回授权后，开发者必须主动删除用户信息，并讲清每日邮件与事件通知两条处理通道、四类应用分别怎么接。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2025-10-24</b></span>
+    <span>收录笔记 <b>2 篇</b></span>
+    <span>时间跨度 <b>2025-10-23 ~ 2025-10-24</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">微信隐私</span>
+    <span class="s-chip">网络监控</span>
+    <span class="s-chip">授权撤回</span>
+    <span class="s-chip">个人信息保护法</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00291-2025-10-23 办公网络下微信聊天隐私风险分析</li>
+      <li>00307-2025-10-24 微信授权用户信息删除要求解读</li>
+    </ol>
+  </div>
+
+  <!-- ══ 01 办公网络下微信聊天监控风险 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>办公网络下，微信聊天会不会被监控</h2><span class="hint">00291 · 2025-10-23</span></div>
+    <p class="lede">结论先行：<b>存在被监控的可能性，但主要不取决于网络，而取决于你的电脑上是否被公司要求安装了特定的监控软件。</b>微信聊天内容本身受 SSL 加密保护，只连公司 Wi-Fi 而电脑完全由自己掌控时，内容大概率是安全的。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:190px">监控场景</th><th style="width:180px">聊天内容被看到的可能性</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>仅连接公司 Wi-Fi</b>（无公司软件）</td><td><b>极低</b></td><td>微信聊天内容受 SSL 技术加密保护，公司网络设备截获的通常是无法破解的乱码。</td></tr>
+        <tr><td><b>电脑被安装监控软件</b></td><td><b>高</b></td><td>公司可通过装在办公电脑上的监控软件（如 WorkWin、安企神、洞察眼 MIT 等）实时记录屏幕、记录聊天内容，或通过关键词触发警报。</td></tr>
+        <tr><td><b>使用企业微信</b>（公司开通存档）</td><td><b>高</b></td><td>若公司为员工开通企业微信「<b>会话内容存档</b>」并履行告知义务，文字、图片、语音，甚至已撤回的消息，都可能被查看。</td></tr>
+        <tr><td><b>使用个人微信</b></td><td><b>低</b></td><td>个人微信聊天记录默认存于用户设备本地并加密，腾讯不会向公司提供这些数据。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">如何保护个人聊天隐私</h3>
+        <dl class="kv">
+          <dt>设备分离</dt><dd>最稳妥的做法是<b>用自己的手机流量进行私人聊天</b>，并确保手机不连公司 Wi-Fi，与公司网络环境彻底隔离。</dd>
+          <dt>检查本机软件</dt><dd>留意电脑上是否被安装了未知监控软件；公司若以管理为由要求在个人电脑上装特定软件，需知晓其中的监控风险。</dd>
+          <dt>了解公司政策</dt><dd>入职时细读劳动合同与规章制度，弄清公司对办公设备、网络使用与隐私的具体规定。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">法律意识</h3>
+        <p style="font-size:13.5px;color:var(--ink-2);margin-bottom:12px">如果公司<b>未经你明确同意</b>，通过在你个人设备上安装软件来监控你的个人聊天记录，这种行为可能侵犯你的隐私权。</p>
+        <div class="warnbox" style="margin-top:0">
+          <h5>一句话判断</h5>
+          <ul><li>只连公司 Wi-Fi、电脑完全自己掌控 → 聊天大概率安全；一旦公司软件出现在电脑上，性质就完全不同了。</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 02 微信授权用户信息删除义务 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>用户撤回授权后，开发者必须删数据</h2><span class="hint">00307 · 2025-10-24</span></div>
+    <p class="lede">微信团队这封通知本质是一份<b>合规要求与操作指南</b>：根据法律，用户取消对你的授权后，你必须删除其个人信息；微信现在告诉你哪些用户取消了授权，并指导你如何操作。</p>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">法律背景 · 硬性要求</span><h3>核心要求：撤回同意 → 主动删除</h3></div>
+      <div class="card-b">
+        <dl class="kv">
+          <dt>法律依据</dt><dd>「根据相关法律法规」指《个人信息保护法》等，其中明确：个人信息处理者在用户<b>撤回同意后，应当主动删除</b>其个人信息。</dd>
+          <dt>删除范围</dt><dd>用户在你的小程序 / 公众号 / App / 网站通过微信登录后取消授权，你就必须从服务器和数据库中删除此前通过微信获取的数据（如昵称、头像、OpenID 等）。这是<b>硬性要求，不是建议</b>。</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">通知机制 · 两条通道</span><h3>微信如何告诉你「谁撤回了授权」</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:170px">通道</th><th style="width:230px">方式</th><th>责任与特点</th></tr></thead>
+          <tbody>
+            <tr><td><b>每日邮件通知</b><br>（异步、批量）</td><td>平台每天一次通过邮件发送一个列表（通常为附件），包含过去 24 小时内撤回授权的用户信息。</td><td>需每天检查邮件、解析附件，在系统中找到对应用户并删除。适合批量处理，但<b>有最多 24 小时延迟</b>。</td></tr>
+            <tr><td><b>接收事件通知</b><br>（实时、即时）</td><td>在微信开放平台配置「消息与事件」接收 URL，用户撤回授权时微信服务器实时向你的服务器推送事件。</td><td>服务器需接收并解析通知，立即触发删除流程。实时性强、符合最佳实践，但需额外开发量。</td></tr>
+          </tbody>
+        </table></div>
+        <div class="srcnote" style="margin-bottom:0"><b>建议</b>：新项目或重要项目强烈建议采用<b>事件通知</b>方式以确保及时响应；每日邮件可作为备份或审计手段。</div>
+      </div>
+    </div>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">适用范围 · 四类应用</span><h3>按应用类型查对应官方文档</h3></div>
+      <div class="card-b">
+        <p class="lede" style="margin-bottom:12px">通知列出四种应用场景并分别给出官方文档链接，需按你的应用类型查阅；文档里会写明事件通知的数据格式、邮件附件字段含义，以及需要删除的具体数据范围（例如只删 access_token / refresh_token，还是连头像昵称一起删）。</p>
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:200px">应用类型</th><th>用户在哪里撤回</th></tr></thead>
+          <tbody>
+            <tr><td><b>小程序用户撤回</b></td><td>在小程序设置「通知管理」关闭消息，或在「权限管理」中撤销某些授权。</td></tr>
+            <tr><td><b>公众号 H5 授权撤回</b></td><td>在公众号内运行的网页（H5），用户可在公众号设置中解除授权。</td></tr>
+            <tr><td><b>移动应用用户撤回</b></td><td>使用微信一键登录的独立手机 App。</td></tr>
+            <tr><td><b>网站应用用户撤回</b></td><td>使用微信登录的 PC 或移动端网站。</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <details class="acc st5" open>
+      <summary>开发者落地五步行动清单<span class="cnt">收到通知后照做</span></summary>
+      <div class="body">
+        <ul>
+          <li><b>确认应用类型</b>：明确产品属于小程序、公众号、移动应用还是网站应用。</li>
+          <li><b>阅读官方文档</b>：点对应链接，弄清技术细节与数据格式。</li>
+          <li><b>选择处理方式</b>：方案 A（推荐）开发并配置「事件通知」接口实现实时删除；方案 B（最低要求）建立每日处理邮件的流程，手动或自动解析附件后删除。</li>
+          <li><b>实施删除逻辑</b>：在后台数据库按用户唯一标识（如 OpenID、UnionID）找到记录，永久删除通过微信授权获取的所有个人信息。</li>
+          <li><b>记录与审计</b>：保留删除操作日志，以备合规检查。</li>
+        </ul>
+        <div class="rl" style="margin-top:14px">
+          <h4>一句话总结</h4>
+          <div class="mid">法律有要求，用户取消授权后你得删数据</div>
+          <p>微信用邮件和事件两种方式通知你是谁取消了授权，收到通知后得马上干活，具体技术细节看对应文档。</p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>微信隐私与授权删除 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页内容整理自微信隐私合规工作笔记，监控风险等级与合规操作均照录原笔记，仅供内部参考，具体技术接入以微信官方最新文档为准。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
