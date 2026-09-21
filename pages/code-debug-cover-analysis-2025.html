@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>代码调试修正与封面代码分析 · 2025-10 ~ 2026-05</title>
+<meta name="description" content="Jekyll Chirpy 配置调试实录：_config.yml 重复粘贴、jekyll-archives 重复键、工作流重复指令；Gemfile 主题依赖冲突与 remote_theme 修复；以及一段按 meta title 决定全屏封面插入的脚本分析与可运行测试。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.code{font-family:var(--mono);font-size:12.5px;background:var(--code);border-radius:6px;padding:12px 14px;overflow:auto;color:var(--ink-2);line-height:1.7;margin-bottom:12px;white-space:pre}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 配置重复与语法</a>
+      <a href="#s1" data-sec="s1">01 依赖冲突修复</a>
+      <a href="#s2" data-sec="s2">02 上传顺序</a>
+      <a href="#s3" data-sec="s3">03 封面代码分析</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 代码调试记录</span>
+  <h1>代码调试修正与封面代码分析</h1>
+  <p class="s-lede">三份 Jekyll Chirpy 调试笔记：00310 排查 _config.yml 整段重复粘贴、jekyll-archives 重复键与工作流重复指令；00317 系统分析用户提供的三个代码模块，定位 Gemfile 里 github-pages 与 jekyll-theme-chirpy 的依赖冲突并给出 remote_theme 修法与上传顺序；01251 逐行分析一段按 meta title 决定是否插入全屏封面的脚本，并给出可运行测试。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-05-31</b></span>
+    <span>收录笔记 <b>3 篇</b></span>
+    <span>时间跨度 <b>2025-10 ~ 2026-05</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">_config.yml</span>
+    <span class="s-chip">YAML 重复键</span>
+    <span class="s-chip">Gemfile 冲突</span>
+    <span class="s-chip">remote_theme</span>
+    <span class="s-chip">封面脚本</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00310-2025-10-24 分析并修正代码问题：配置重复、语法错误、工作流问题</li>
+      <li>00317-2025-10-25 用户提供代码模块，助理保持安静：三模块架构分析与修复建议</li>
+      <li>01251-2026-05-31 封面代码分析与测试：meta title 驱动的全屏封面插入脚本</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 配置重复与语法 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>配置文件重复与语法错误</h2><span class="hint">00310</span></div>
+    <p class="lede">用户把整份 _config.yml 粘进对话要求排查问题。AI 通读后定位三类问题：<b>整段配置被粘贴两次</b>、<b>jekyll-archives 里同名键重复</b>、<b>GitHub Actions 工作流文件里指令与版本重复</b>。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:170px">问题</th><th>现象与修法</th></tr></thead>
+      <tbody>
+        <tr><td><b>配置整段重复</b></td><td>_config.yml 内容被完整粘贴了两次，需删除后半段重复内容，只保留一份。</td></tr>
+        <tr><td><b>YAML 重复键</b></td><td>jekyll-archives 段里 <code>category: /categories/:name/</code> 写了两遍；YAML 不允许同名键重复，后写的会覆盖前写的，必须删到只剩一行。</td></tr>
+        <tr><td><b>工作流重复指令</b></td><td>deploy.yml 里重复的 <code>uses</code> 指令、重复的 <code>ruby-version</code> 配置、以及版本号不一致，去重并统一版本。</td></tr>
+      </tbody>
+    </table></div>
+    <div class="warnbox">
+      <h5>排查套路</h5>
+      <ul>
+        <li>YAML 报「解析失败」先查同名键是否重复，再查整段是否被误粘贴两遍。</li>
+        <li>工作流报错先看 step 是否重复 <code>uses</code>、同一参数是否写了两个值。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ 01 依赖冲突 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>Gemfile 主题依赖冲突</h2><span class="hint">00317</span></div>
+    <p class="lede">用户一次性贴出 _config.yml、Gemfile、deploy 工作流三个模块。AI 系统分析后认为整体配置完善（CI/CD 完整、排除配置合理、中文时区正确、Cusdis 评论、SEO 友好），但最紧急的一处是 <b>Gemfile 同时引入 github-pages 与 jekyll-theme-chirpy 导致版本冲突</b>。</p>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">00317 · 2025-10-25</span><h3>最紧急修复：用 remote_theme，移除本地 theme gem</h3></div>
+      <div class="card-b">
+        <p class="code">source "https://rubygems.org"
+
+gem "github-pages", group: :jekyll_plugins
+gem "webrick", "~&gt; 1.8"
+
+# 移除 jekyll-theme-chirpy，因为 _config.yml 已用 remote_theme
+# gem "jekyll-theme-chirpy"   # 删除此行</p>
+        <p class="lede" style="margin-bottom:0">_config.yml 里改用 <code>remote_theme: cotes2020/jekyll-theme-chirpy</code> 拉远端主题，Gemfile 不再重复声明主题 gem，避免 github-pages 锁定的版本与主题 gem 版本打架。</p>
+      </div>
+    </div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">插件冗余</h3>
+        <p style="font-size:13.5px;color:var(--ink-2);margin-bottom:10px">jekyll-paginate、jekyll-sitemap、jekyll-feed、jekyll-seo-tag、jekyll-archives 已包含在 github-pages 包里，Gemfile 里重复声明可删。</p>
+        <p class="code" style="margin-bottom:0">group :jekyll_plugins do
+  gem "github-pages"
+  # jekyll-paginate / sitemap / feed
+  # / seo-tag / archives 均已内置
+end</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">可选优化</h3>
+        <dl class="kv">
+          <dt>构建缓存</dt><dd>setup-ruby 后加 actions/cache 缓存 .jekyll-cache 与 vendor/bundle。</dd>
+          <dt>环境变量</dt><dd>deploy.yml 加 <code>JEKYLL_ENV: production</code>、<code>BUNDLE_PATH: vendor/bundle</code>。</dd>
+          <dt>SASS 压缩</dt><dd><code>sass.style: compressed</code>、<code>sourcemap: never</code>。</dd>
+          <dt>安全头</dt><dd>security_headers 打开，csp 放行 self 与 cusdis.com。</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 02 上传顺序 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>三模块完整代码与上传顺序</h2><span class="hint">00317</span></div>
+    <p class="lede">用户接着要「三个板块的完整代码，并给上传顺序」。三个板块即 _config.yml、Gemfile、deploy 工作流；上传按依赖先后：先 Gemfile 锁定环境，再 _config.yml 配主题，最后 deploy 工作流负责构建。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:70px">顺序</th><th style="width:180px">文件</th><th>作用</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><code>Gemfile</code></td><td>用 GitHub Pages 官方 gem，确保与构建环境完全兼容；Ruby 3.0+ 补 webrick。</td></tr>
+        <tr><td>2</td><td><code>_config.yml</code></td><td>remote_theme 指向 Chirpy；语言 zh-CN、时区 Asia/Shanghai；排除 vendor 目录避免处理其中模板。</td></tr>
+        <tr><td>3</td><td><code>.github/workflows/deploy.yml</code></td><td>官方 Pages 构建部署流程，setup Ruby + 缓存 + 构建。</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ══ 03 封面代码分析 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>封面插入脚本分析与测试</h2><span class="hint">01251</span></div>
+    <p class="lede">01251 是一段独立的前端脚本分析：根据 <code>&lt;meta name="title"&gt;</code> 的 content 决定是否把一个全屏封面插到 body 最前。AI 先讲清逻辑流程与四个潜在问题，再给两段可直接运行的测试代码。</p>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">01251 · 2026-05-31</span><h3>原始脚本逻辑与四个隐患</h3></div>
+      <div class="card-b">
+        <p class="code">var $cover = document.querySelector("#_export_cover");
+var title = document.querySelector("meta[name='title']").getAttribute("content");
+if(!title || title == "${title}") {
+  $cover.remove();            // 无标题或占位符未替换 → 删封面
+} else {
+  document.body.insertBefore($cover, document.body.childNodes[0]);
+  $cover.querySelector("#_export_title").textContent = title;
+}</p>
+        <div class="tblwrap" style="margin-bottom:0"><table>
+          <thead><tr><th style="width:160px">隐患</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>占位符未替换</td><td><code>${title}</code> 是后端模板占位符；若当静态 HTML 跑，content 就是字面量 "${title}"，条件成立封面被删，看不到效果。</td></tr>
+            <tr><td>meta 不存在会报错</td><td>页面没有 <code>&lt;meta name="title"&gt;</code> 时 querySelector 返回 null，再 getAttribute 直接抛错，需先判空。</td></tr>
+            <tr><td>封面初始位置</td><td>cover 原本在文档流中间或尾部，靠 insertBefore 提到最前；条件不满足则被 remove 不残留。</td></tr>
+            <tr><td>缺样式重置</td><td>cover 用 height:100vh，建议补 margin/padding 重置，避免受父元素影响出现滚动条。</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <div class="card st5">
+      <div class="card-h"><span class="tag">01251 · 2026-05-31</span><h3>加固后的核心逻辑（测试版）</h3></div>
+      <div class="card-b">
+        <p class="code">(function() {
+  const cover = document.querySelector("#_export_cover");
+  const titleMeta = document.querySelector("meta[name='title']");
+  if (!titleMeta) {                 // meta 不存在：直接删封面
+    if (cover) cover.remove();
+    return;
+  }
+  const title = titleMeta.getAttribute("content");
+  if (!title || title === "${title}") {   // 空或占位符：删封面
+    if (cover) cover.remove();
+  } else {                          // 有真实标题：提到 body 最前并填入
+    document.body.insertBefore(cover, document.body.firstChild);
+    const titleDiv = cover.querySelector("#_export_title");
+    if (titleDiv) titleDiv.textContent = title;
+  }
+})();</p>
+        <div class="warnbox" style="margin-bottom:0">
+          <h5>测试方法</h5>
+          <ul>
+            <li>静态版：meta 填真实标题，打开即见全屏渐变封面居中显示标题，滚动见正文。</li>
+            <li>交互版：输入框改标题，置空或填 "${title}" 时封面消失，填其他文字封面重新出现并显示该文字。</li>
+            <li>核心判断 <code>!title || title == "${title}"</code> 完整保留，只加了 meta 判空与 firstChild 写法。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>代码调试与封面分析 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 Jekyll 配置调试与前端脚本分析对话笔记，代码与结论照录原对话，仅作个人开发记录。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

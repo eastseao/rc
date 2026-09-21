@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>消费页面 layout 与 stop 页面开发 · 2025-10</title>
+<meta name="description" content="Jekyll Chirpy 博客「消费」媒体页的 layout/page/title/permalink 配置与 tab 导航结构，以及在 _tabs 里新增 stop 停留城市页面、navigation.yml 挂导航的完整做法。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.code{font-family:var(--mono);font-size:12.5px;background:var(--code);border-radius:6px;padding:12px 14px;overflow:auto;color:var(--ink-2);line-height:1.7;margin-bottom:12px;white-space:pre}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 消费页配置</a>
+      <a href="#s1" data-sec="s1">01 标签页结构</a>
+      <a href="#s2" data-sec="s2">02 stop 页面</a>
+      <a href="#s3" data-sec="s3">03 文件组织</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 代码项目开发记录</span>
+  <h1>消费页面 layout 与 stop 页面开发</h1>
+  <p class="s-lede">同一 Jekyll Chirpy 博客的两个相邻改动：一是把媒体页定名「消费」，定下 layout / title / permalink / icon / order 五个 Front Matter 字段，并用 media-nav + tab-pane 把爱好、书、电影、系列、游戏、其他收成一个标签页；二是在 _tabs 目录新增 stop.md 停留城市页，并在 navigation.yml 挂导航。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2025-10-11</b></span>
+    <span>收录笔记 <b>2 篇</b></span>
+    <span>技术栈 <b>Jekyll · Chirpy · _tabs</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">layout/page</span>
+    <span class="s-chip">Front Matter</span>
+    <span class="s-chip">tab 导航</span>
+    <span class="s-chip">stop 停留页</span>
+    <span class="s-chip">_tabs</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00222-2025-10-11 layout / pagetitle「消费」per：媒体消费页的 Front Matter 与 tab 导航多轮迭代</li>
+      <li>00224-2025-10-11 增加 stop 页面：在导航栏加入记录停留城市的 stop 页，及 media 的 _tabs 文件</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 消费页配置 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>消费页的 layout / pagetitle 配置</h2><span class="hint">00222</span></div>
+    <p class="lede">媒体页最终定名「消费」，放在 <code>_tabs/media.md</code>。五个关键字段：<code>layout: page</code>、<code>title: "消费"</code>、<code>permalink: /media/</code>、<code>icon: fas fa-book</code>、<code>order: 4</code>。<b>permalink 必须与 navigation.yml 里的 url 完全一致</b>。</p>
+
+    <div class="card st1">
+      <div class="card-h"><span class="tag">00222 · 2025-10-11</span><h3>media.md 头部定稿</h3></div>
+      <div class="card-b">
+        <p class="code">---
+layout: page
+title: "消费"
+permalink: /media/
+icon: fas fa-book
+order: 4
+---
+
+# 媒体消费</p>
+        <div class="tblwrap" style="margin-bottom:0"><table>
+          <thead><tr><th style="width:130px">字段</th><th style="width:180px">取值</th><th>作用</th></tr></thead>
+          <tbody>
+            <tr><td><b>layout</b></td><td>page</td><td>用 Chirpy 的独立页面布局，不走文章 post。</td></tr>
+            <tr><td><b>title</b></td><td>"消费"</td><td>页面标题，也是浏览器标签与导航显示名。</td></tr>
+            <tr><td><b>permalink</b></td><td>/media/</td><td>固定访问链接；必须与导航 url 一致。</td></tr>
+            <tr><td><b>icon</b></td><td>fas fa-book</td><td>Font Awesome 图标，从 fa-photo-video 换成 fa-book 表阅读。</td></tr>
+            <tr><td><b>order</b></td><td>4</td><td>导航栏排序序号，数字越小越靠前。</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 01 标签页结构 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>消费页的 tab 导航结构</h2><span class="hint">00222</span></div>
+    <p class="lede">正文用一组 <code>.media-nav</code> 按钮切换六个标签：爱好、书、电影、系列、游戏、其他；每个标签对应一个 <code>.tab-pane</code>，条目用 <code>.media-item</code> 行（左侧名称、右侧时长或作者）。</p>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">00222 · 2025-10-11</span><h3>media-nav 按钮与 tab-pane 骨架</h3></div>
+      <div class="card-b">
+        <p class="code">&lt;div class="media-nav"&gt;
+  &lt;button class="nav-btn active" data-tab="hobby"&gt;爱好&lt;/button&gt;
+  &lt;button class="nav-btn" data-tab="books"&gt;书&lt;/button&gt;
+  &lt;button class="nav-btn" data-tab="movies"&gt;电影&lt;/button&gt;
+  &lt;button class="nav-btn" data-tab="series"&gt;系列&lt;/button&gt;
+  &lt;button class="nav-btn" data-tab="games"&gt;游戏&lt;/button&gt;
+  &lt;button class="nav-btn" data-tab="others"&gt;其他&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class="tab-content"&gt;
+  &lt;div id="hobby" class="tab-pane active"&gt;
+    &lt;h2&gt;我的爱好&lt;/h2&gt;
+    &lt;div class="media-item"&gt;
+      &lt;span class="item-name"&gt;摄影&lt;/span&gt;
+      &lt;span class="item-duration"&gt;5年&lt;/span&gt;
+    &lt;/div&gt;
+    ...
+  &lt;/div&gt;
+
+  &lt;div id="books" class="tab-pane"&gt;
+    &lt;h3&gt;小说类&lt;/h3&gt;
+    &lt;div class="media-item"&gt;
+      &lt;span class="item-name"&gt;《三体》&lt;/span&gt;
+      &lt;span class="item-author"&gt;刘慈欣&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</p>
+        <div class="warnbox" style="margin-bottom:0">
+          <h5>结构约定</h5>
+          <ul>
+            <li>按钮 <code>data-tab</code> 与面板 <code>id</code> 一一对应；<code>active</code> 标记当前显示项。</li>
+            <li>爱好类条目用 <code>item-duration</code>（持续年数），书类条目用 <code>item-author</code>（作者）。</li>
+            <li>示例数据：摄影 5 年、游泳 8 年、徒步 3 年、瑜伽 2 年、模型制作 4 年、手账记录 6 年；书含《三体》《活着》《百年孤独》《围城》《挪威的森林》。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 02 stop 页面 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>新增 stop 停留城市页面</h2><span class="hint">00224</span></div>
+    <p class="lede">用户要在导航栏加一个 stop 页记录停留城市。做法是两步：<code>_tabs/stop.md</code> 建页面，<code>_data/navigation.yml</code> 加导航项；可选再做一个 <code>_layouts/stop.html</code> 带时间线样式。</p>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">00224 · 2025-10-11</span><h3>stop.md 完整内容（_tabs/stop.md）</h3></div>
+      <div class="card-b">
+        <p class="code">---
+layout: page
+title: "停留城市"
+permalink: /stop/
+icon: fas fa-map-marker-alt
+order: 5
+---
+
+# 我的停留城市记录
+
+这里记录了我曾经停留过的城市和相关的回忆。
+
+## 🌍 城市足迹
+
+### 🏙️ 国内城市
+| 城市 | 停留时间 | 印象深刻的经历 |
+| 北京 | 2020-2021 | 参观了故宫和长城 |
+| 上海 | 2019-2020 | 在外滩欣赏夜景 |
+| 杭州 | 2022     | 西湖边的漫步 |
+
+## 📍 未来想去的地方
+- [ ] 拉萨 - 感受高原的神秘
+- [ ] 三亚 - 享受海滩阳光
+
+&gt; "旅行不是为了到达目的地，而是为了享受旅途中的每一刻。"</p>
+        <div class="tblwrap" style="margin-bottom:0"><table>
+          <thead><tr><th style="width:160px">可选图标</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td><code>fas fa-map-marker-alt</code></td><td>定位标记，默认选用。</td></tr>
+            <tr><td><code>fas fa-plane</code> / <code>fas fa-globe-americas</code></td><td>飞机 / 地球，偏旅行主题。</td></tr>
+            <tr><td><code>fas fa-suitcase</code> / <code>fas fa-road</code></td><td>行李箱 / 道路，偏途中主题。</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">00224 · 2025-10-11</span><h3>导航栏挂 stop 项（_data/navigation.yml）</h3></div>
+      <div class="card-b">
+        <p class="code">- title: 首页
+  url: /
+
+- title: 分类
+  url: /categories/
+
+- title: 标签
+  url: /tags/
+
+- title: 归档
+  url: /archives/
+
+- title: 停留
+  url: /stop/
+
+- title: 关于
+  url: /about/</p>
+        <p class="lede" style="margin-bottom:0">归档页图标用户要求从 <code>fas fa-archive</code> 换成「印刷」，推荐 <code>fas fa-print</code>（打印）、<code>fas fa-newspaper</code>（报纸）、<code>fas fa-file-alt</code>（文件）三选一。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 03 文件组织 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>_tabs 文件组织与生效验证</h2><span class="hint">00224</span></div>
+    <p class="lede">Chirpy 的导航栏页面统一放在 <code>_tabs/</code>，主题遍历 <code>site.data.navigation</code> 生成导航链接。新增页面要「页面文件 + 导航项」两头对齐。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:200px">文件</th><th>职责</th></tr></thead>
+      <tbody>
+        <tr><td><code>_tabs/about.md</code> / <code>categories.md</code> / <code>tags.md</code> / <code>archives.md</code></td><td>Chirpy 自带的导航栏页面。</td></tr>
+        <tr><td><code>_tabs/stop.md</code></td><td>新增：停留城市记录，permalink /stop/。</td></tr>
+        <tr><td><code>_tabs/media.md</code></td><td>新增：媒体消费页，title「消费」，permalink /media/。</td></tr>
+        <tr><td><code>_data/navigation.yml</code></td><td>导航数据文件，加 title + url（+ 可选 children 下拉）。</td></tr>
+      </tbody>
+    </table></div>
+    <div class="warnbox">
+      <h5>验证步骤</h5>
+      <ul>
+        <li>页面文件放进 _tabs 目录；navigation.yml 里的 url 与页面 permalink 完全一致。</li>
+        <li>提交推送后等 GitHub Actions 构建成功，导航栏即出现新项，通常立即生效。</li>
+        <li>图标依赖 Font Awesome，确认主题已引入该图标库，否则图标不显示。</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>消费页与 stop 页面开发 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 Jekyll Chirpy 博客页面开发对话笔记，配置项与代码照录原对话，仅作个人开发记录。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

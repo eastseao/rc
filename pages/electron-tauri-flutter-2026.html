@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Electron·Tauri·Flutter 桌面框架对比 · 2026-06</title>
+<meta name="description" content="Electron / Tauri / Flutter 三大桌面框架的特点、对比表与选型：Electron 优势与代价、Tauri 架构与案例、Flutter 自绘引擎、Electron 替代框架、MIT 许可证翻译、看板展现形式，以及微信 PC 端 Qt+C++ 真实案例。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 三框架特点</a>
+      <a href="#s1" data-sec="s1">01 对比与替代</a>
+      <a href="#s2" data-sec="s2">02 许可与看板</a>
+      <a href="#s3" data-sec="s3">03 微信PC案例</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 桌面框架选型</span>
+  <h1>Electron·Tauri·Flutter 桌面框架对比</h1>
+  <p class="s-lede">七篇笔记合并：先讲清 Electron、Tauri、Flutter 各自的核心特点与取舍，再用对比表把三框架与 Wails/Bunlet/Dioxus 等替代方案摆在一起；附 Electron 的 MIT 许可证中文翻译、Electron 应用里「看板」的五种展现形式，以及微信 PC 端从 WebView+Duilib 迁到 Qt+C++ 的真实架构案例。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-06-28</b></span>
+    <span>收录笔记 <b>7 篇</b></span>
+    <span>时间跨度 <b>2026-06-16 ~ 2026-06-28</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">Electron</span>
+    <span class="s-chip">Tauri</span>
+    <span class="s-chip">Flutter</span>
+    <span class="s-chip">MIT 许可</span>
+    <span class="s-chip">微信PC架构</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>01310-2026-06-16 Electron 桌面应用特点</li>
+      <li>01312-2026-06-16 全方位介绍 Tauri（含与 Electron 对比表）</li>
+      <li>01309-2026-06-16 Flutter 应用特点解析</li>
+      <li>01340-2026-06-26 Electron 替代框架推荐（含替代框架对比表与 Tauri 案例）</li>
+      <li>01323-2026-06-18 翻译 Electron 许可证</li>
+      <li>01352-2026-06-28 Electron 看板展现形式</li>
+      <li>01315-2026-06-16 微信 PC 端框架解析</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 三框架特点 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>三框架核心特点与取舍</h2><span class="hint">01310 / 01312 / 01309</span></div>
+    <p class="lede">Electron 用 Web 技术换开发效率与跨平台一致性，代价是内存与体积；Tauri 用系统 WebView + Rust 内核做设计哲学升级；Flutter 用自绘引擎追求跨端一致与接近原生的性能。</p>
+
+    <div class="grid g3">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">Electron</h3>
+        <dl class="kv">
+          <dt>本质</dt><dd>Chromium + Node.js 打包，主进程调 Node API。</dd>
+          <dt>优势</dt><dd>跨平台成本极低；复用 React/Vue/npm 生态；系统级能力；热更新。</dd>
+          <dt>代价</dt><dd>内存几十~上百 MB 起；Hello World 打包 70MB+（压缩约 50MB）；配置不当 XSS 可致远程代码执行。</dd>
+          <dt>代表</dt><dd>VS Code、Figma、Discord、Notion、Slack。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">Tauri</h3>
+        <dl class="kv">
+          <dt>本质</dt><dd>系统 WebView（Win WebView2 / mac WKWebView / Linux WebKitGTK）+ Rust 后端。</dd>
+          <dt>架构</dt><dd>Rust 核心进程 + 沙盒 WebView 进程，JSON 命令 IPC。</dd>
+          <dt>优势</dt><dd>包体 &lt;5MB（约 4MB）；内存可共享；无 Node 层、精细权限、CSP；2.0 支持移动。</dd>
+          <dt>局限</dt><dd>WebView 兼容性需测试；要会 Rust；插件生态年轻。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">Flutter</h3>
+        <dl class="kv">
+          <dt>本质</dt><dd>Dart，Skia/Impeller 自绘引擎，不依赖平台原生控件。</dd>
+          <dt>优势</dt><dd>一套代码全端；60/120fps 接近原生；Hot Reload 亚秒生效；像素级 UI。</dd>
+          <dt>取舍</dt><dd>空包十几 MB；无内置动态化；Platform Channel 调原生。</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 01 对比与替代 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>桌面框架对比表与替代方案</h2><span class="hint">01312 / 01340</span></div>
+    <p class="lede">两张对比表合并：01312 的 Tauri vs Electron 九维对比，加上 01340 针对「列表一多页面就卡」给出的替代框架横评。结论：想最小代价迁移并提性能首选 Tauri，熟悉 Go 选 Wails，愿意重写选 Flutter/Dioxus；长列表无论哪套都要上<b>虚拟列表</b>。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:120px">维度</th><th style="width:22%">Electron</th><th style="width:22%">Tauri</th><th>Flutter</th></tr></thead>
+      <tbody>
+        <tr><td><b>后端语言</b></td><td>Node.js（灵活生态大）</td><td>Rust（高性能内存安全）</td><td>Dart（AOT/JIT）</td></tr>
+        <tr><td><b>渲染引擎</b></td><td>捆绑 Chromium</td><td>系统内置 WebView</td><td>Skia/Impeller 自绘</td></tr>
+        <tr><td><b>包体积</b></td><td>大（&gt;100MB）</td><td>极小（≈4MB）</td><td>中（空包十几 MB）</td></tr>
+        <tr><td><b>内存</b></td><td>高（每应用独享 Chromium）</td><td>低（多应用共享 WebView）</td><td>中</td></tr>
+        <tr><td><b>安全性</b></td><td>中（需自行加固，禁 nodeIntegration）</td><td>极高（沙盒+精细权限+CSP）</td><td>—</td></tr>
+        <tr><td><b>跨端</b></td><td>Win/mac/Linux</td><td>桌面 + 移动（2.0+）</td><td>移动 + 桌面 + Web 全端</td></tr>
+        <tr><td><b>学习曲线</b></td><td>仅 JS/Node</td><td>需 Rust 基础</td><td>需 Dart，UI 需重写</td></tr>
+        <tr><td><b>适合场景</b></td><td>复杂桌面、需庞大 Node 生态</td><td>体积/性能/安全敏感工具</td><td>移动桌面一套代码、极致 UI 一致</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:120px">替代框架</th><th style="width:110px">语言</th><th style="width:110px">体积</th><th>特点与迁移成本</th></tr></thead>
+      <tbody>
+        <tr><td><b>Wails</b></td><td>Go+JS/TS</td><td>小（10-20MB）</td><td>Go 生态、开发体验好；熟悉 Go 后端者首选。</td></tr>
+        <tr><td><b>Bunlet</b></td><td>TypeScript</td><td>小（20-40MB）</td><td>Electron API 高度兼容 + Bun 运行时，迁移成本极低。</td></tr>
+        <tr><td><b>Dioxus</b></td><td>Rust</td><td>小</td><td>一套 Rust 代码跑 Web/桌面/移动；需重写 UI。</td></tr>
+        <tr><td>NW.js</td><td>JS/TS</td><td>大（类 Electron）</td><td>与 Electron 同源更早，性能一般，维护老项目用。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">01340 · 2026-06-26</span><h3>Tauri 迁移实证：POS 收银系统重构</h3></div>
+      <div class="card-b">
+        <div class="tblwrap" style="margin-bottom:0"><table>
+          <thead><tr><th style="width:150px">指标</th><th>Electron → Tauri</th></tr></thead>
+          <tbody>
+            <tr><td>安装包</td><td>200MB+ 缩减至 5-8MB。</td></tr>
+            <tr><td>内存占用</td><td>900MB+ 降至 150-220MB。</td></tr>
+            <tr><td>冷启动</td><td>8-12 秒缩短到 1.5-2.5 秒。</td></tr>
+            <tr><td>其他案例</td><td>HuLa 即时通讯（Tauri+Vue3+TS）、Defguard、Cardo 播客、SwitchShuttle、PasteBar/EcoPaste 剪贴板。</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 02 许可与看板 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>Electron 许可证与看板展现形式</h2><span class="hint">01323 / 01352</span></div>
+    <p class="lede">01323 是 Electron 官方 MIT 许可证的全文中译；01352 讲 Electron 应用里「看板」的五种界面模式。</p>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">01323 · 2026-06-18</span><h3>Electron 许可证（MIT）中文要点</h3></div>
+      <div class="card-b">
+        <p style="font-size:13.5px;color:var(--ink-2);margin-bottom:10px">版权归 Electron 贡献者与 2013-2020 GitHub Inc.。许可证授予任何人免费使用、复制、修改、合并、发布、分发、再许可、出售本软件的权利，<b>唯一条件是在所有副本或实质部分中保留上述版权声明与许可声明</b>；软件按「现状」提供，不附带任何明示或暗示保证，作者不承担任何索赔与损害责任。</p>
+        <p class="lede" style="margin-bottom:0">即 MIT 许可证：商用、闭源、修改都允许，只需保留版权声明，无 copyleft 传染。</p>
+      </div>
+    </div>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:160px">看板类型</th><th>特点与典型</th></tr></thead>
+      <tbody>
+        <tr><td><b>信息型看板</b></td><td>网格/分栏集中展示关键信息；考试看板（左时间科目状态、右科目列表）、系统状态监控、赛事比分。</td></tr>
+        <tr><td><b>仪表盘型</b></td><td>折线/柱状/饼图 + 数字卡片 + 表格；ECharts、Chart.js，@trops/dash-react 提供 Panel/Widget。</td></tr>
+        <tr><td><b>多面板工作区</b></td><td>可调整/拖拽/独立关闭的多 Panel，类 IDE 布局；@principal-ade/panel-layouts 管理布局与持久化。</td></tr>
+        <tr><td><b>菜单栏/托盘看板</b></td><td>常驻菜单栏或托盘，点击弹小窗；实时时间、CPU/内存、天气、未读消息。</td></tr>
+        <tr><td><b>组件库</b></td><td>Onyx、Lumina 等桌面端组件库；Elektron 管理后台模板提供预设布局。</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ══ 03 微信PC案例 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>真实案例：微信 PC 端框架演进</h2><span class="hint">01315</span></div>
+    <p class="lede">微信 Windows 客户端分新旧两阶段：4.0 之前 WebView+JS/Duilib 混合，4.0 起（2023 底测试版）彻底转向 Qt + C++ 原生。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">阶段</th><th>技术栈</th></tr></thead>
+      <tbody>
+        <tr><td><b>旧架构（4.0 前）</b></td><td>WebView（CEF）加载 HTML/CSS/JS 构界面，UI 框架 Duilib（XML 描述）；开发快但启动慢、内存高、易卡顿。</td></tr>
+        <tr><td><b>新架构（4.0 起）</b></td><td>Qt 5.15.14（QWidget 而非 QML）+ C++；模块化 UI 层/业务逻辑层/网络层，性能与扩展性大幅提升。</td></tr>
+        <tr><td>自研基础组件 Mars</td><td>C++ 写的与业务/平台无关的终端组件，接入 Android/iOS/Mac/Windows 全端。</td></tr>
+        <tr><td>数据库 WCDB</td><td>腾讯自研开源数据库引擎。</td></tr>
+        <tr><td>小程序运行时</td><td>内置 Chromium 渲染小程序视图层并执行 JS。</td></tr>
+        <tr><td>并行计算 PPL</td><td>业务层用并行模式库以任务形式高效执行。</td></tr>
+      </tbody>
+    </table></div>
+    <p class="lede" style="margin-bottom:0">这个案例说明：当混合 Web 架构遇到性能瓶颈，大厂最终选择回到 Qt+C++ 原生路线——与 01340 「Electron 替代」结论互为印证。</p>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>桌面框架对比 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自桌面框架技术选型对话笔记，对比数据与案例照录原对话，仅作个人选型参考。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

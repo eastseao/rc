@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>桌面 EXE·小程序转桌面·1024 桌面版开发 · 2026-03 ~ 2026-06</title>
+<meta name="description" content="从零做 Windows 桌面 EXE 的九步流程与各技术栈打包命令；微信小程序/网页转桌面软件的 Electron·Tauri·Uni-app·PWA 方案；Python+Pygame 做 1024 桌面游戏并 PyInstaller 打包；以及微信小程序发布流程与个人主体开发限制。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.code{font-family:var(--mono);font-size:12.5px;background:var(--code);border-radius:6px;padding:12px 14px;overflow:auto;color:var(--ink-2);line-height:1.7;margin-bottom:12px;white-space:pre}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 EXE 九步</a>
+      <a href="#s1" data-sec="s1">01 小程序转桌面</a>
+      <a href="#s2" data-sec="s2">02 1024 桌面版</a>
+      <a href="#s3" data-sec="s3">03 小程序发布</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 桌面开发实录</span>
+  <h1>桌面 EXE·小程序转桌面·1024 桌面版开发</h1>
+  <p class="s-lede">六条实操笔记合并：开发 Windows 桌面 EXE 的通用九步路线与各技术栈打包命令；把微信小程序或网页应用转成独立桌面软件的 Electron / Tauri / Uni-app / PWA / Nativefier 方案（含 Python+PyQt5+SQLite 采购系统案例）；用 Python+Pygame 从零做 1024 桌面游戏并 PyInstaller 打包；以及微信小程序发布全流程与个人主体的功能限制。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-06-28</b></span>
+    <span>收录笔记 <b>6 篇</b></span>
+    <span>时间跨度 <b>2026-03 ~ 2026-06</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">桌面 EXE</span>
+    <span class="s-chip">PyInstaller</span>
+    <span class="s-chip">Electron/Tauri</span>
+    <span class="s-chip">Pygame 1024</span>
+    <span class="s-chip">小程序发布</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>01272-2026-06-06 桌面 EXE 开发步骤指南</li>
+      <li>00781-2026-03-22 小程序转桌面软件方法（含本地采购管理系统方案）</li>
+      <li>00957-2026-04-17 1024 桌面版制作指南（含 3×3 无限改版）</li>
+      <li>01316-2026-06-16 小程序发布流程</li>
+      <li>01350-2026-06-28 个人开发微信小程序指南</li>
+      <li>01351-2026-06-28 个人开发小程序指南（与 01350 同题，含 BOM 查询小程序案例）</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 EXE 九步 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>桌面 EXE 开发九步与技术栈</h2><span class="hint">01272</span></div>
+    <p class="lede">无论选哪种技术，做 Windows 桌面 EXE 都走「需求 → 选栈 → 环境 → 编码 → 调试 → 打包 → 安装包 → 签名分发 → 维护」九步。新手推荐 C# WinForms 或 Python+PyInstaller。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">技术栈</th><th style="width:180px">打包方式</th><th>适合场景</th></tr></thead>
+      <tbody>
+        <tr><td><b>C# WinForms/WPF</b></td><td>VS Release 发布，.NET 5+ 可单文件</td><td>传统企业软件、工具类。</td></tr>
+        <tr><td><b>C++ Qt</b></td><td>windeployqt 收依赖 + Inno Setup/NSIS</td><td>工业软件、复杂图形。</td></tr>
+        <tr><td><b>Electron</b></td><td><code>npx electron-builder --win</code></td><td>跨平台工具、聊天软件。</td></tr>
+        <tr><td><b>Python+PyQt/Tkinter</b></td><td><code>pyinstaller --onefile --windowed</code></td><td>脚本化/内部工具。</td></tr>
+        <tr><td><b>Flutter Desktop</b></td><td><code>flutter build windows</code></td><td>移动桌面统一体验。</td></tr>
+        <tr><td><b>Rust+Tauri</b></td><td><code>npm run tauri build</code></td><td>小体积高性能新项目。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">关键步骤</h3>
+        <dl class="kv">
+          <dt>打包后必测</dt><dd>在<b>没装开发环境的纯净 Windows</b> 上跑，查缺 VCRUNTIME140.dll 等运行库。</dd>
+          <dt>安装包工具</dt><dd>Inno Setup（免费经典）、NSIS、WiX（MSI 企业）、Advanced Installer（商业）。</dd>
+          <dt>代码签名</dt><dd>买 DigiCert/Sectigo 证书签名，避免杀毒误报与「未知发布者」警告。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">新手最快路线</h3>
+        <p style="font-size:13.5px;color:var(--ink-2);margin-bottom:0">装 VS2022 Community 选「.NET 桌面开发」→ 新建 WinForms 项目 → 拖拽控件双击写事件 → 切 Release 生成解决方案 → 到 bin\Release 把 exe 连同同目录 dll/config 一起压缩发给朋友即可。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 01 小程序转桌面 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>小程序转桌面软件的四条路径</h2><span class="hint">00781</span></div>
+    <p class="lede">微信小程序依赖微信环境，无法直接转 .exe；按「你手上的是什么」分情况选方案。最通用的是 Electron 复用前端代码，要小体积选 Tauri，不想写代码用 PWA 或 Nativefier 一行命令。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:160px">方案</th><th>做法与取舍</th></tr></thead>
+      <tbody>
+        <tr><td><b>Electron（推荐）</b></td><td>wxml→html、wxss→css、js 逻辑微调后放进 Electron 项目，配窗口图标，electron-builder 打包。1 小时能跑起来桌面窗口。</td></tr>
+        <tr><td><b>Tauri</b></td><td>系统 WebView 打包，体积约为 Electron 的 1/10（&lt;10MB），需 Rust 环境。</td></tr>
+        <tr><td><b>Uni-app 转换</b></td><td>原小程序若用 uni-app 开发，manifest.json 配桌面端后 HBuilderX 直接编译 Win/macOS 安装包。</td></tr>
+        <tr><td><b>PWA / Nativefier</b></td><td>HTTPS+ServiceWorker 的网页用 Chrome/Edge「安装」到桌面；或 <code>npm i -g nativefier &amp;&amp; nativefier "网址"</code> 一行打包。无法深调系统底层。</td></tr>
+        <tr><td><b>Python 脚本</b></td><td>PyWebView/Eel 让 Python 当后端浏览器当前端，再 PyInstaller 打单 exe；或 Tkinter/PyQt5 重写界面。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">00781 · 2026-03-22</span><h3>案例：本地采购管理系统（Python+SQLite+PyQt5）</h3></div>
+      <div class="card-b">
+        <dl class="kv">
+          <dt>技术栈</dt><dd>Python 3.9+ / SQLite（文件即库，免服务器）/ PyQt5 / PyInstaller。</dd>
+          <dt>核心模块</dt><dd>供应商、商品、采购订单（选供应商+商品+数量，自动算总价）、入库更新库存、库存查询。</dd>
+          <dt>建表</dt><dd>suppliers / products（含 stock）/ purchase_orders（order_no 唯一、status pending·completed）/ order_items（order_id+product_id+quantity+price+amount）四张表。</dd>
+          <dt>界面</dt><dd>QTabWidget 三标签页，每模块一个 QWidget 子类：QTableView + QStandardItemModel 显示，QFormLayout 录入，增删改刷新按钮绑信号。</dd>
+          <dt>打包</dt><dd><code>pyinstaller --onefile --windowed --name 采购管理系统 main.py</code>，产物在 dist/。</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 02 1024 桌面版 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>1024 桌面版：Pygame 游戏与 EXE 打包</h2><span class="hint">00957</span></div>
+    <p class="lede">小白也能跟着做：Python+Pygame 写 4×4 合成游戏（方向键移动、相同数合并、合成 1024 胜利、R 重开），再 PyInstaller 打 EXE。后续应要求改成 <b>3×3 九宫格、不设数字上限</b>。</p>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">开发四步</h3>
+        <dl class="kv">
+          <dt>装环境</dt><dd>python.org 装 Python 3.8+（勾 Add to PATH），<code>pip install pygame pyinstaller</code>。</dd>
+          <dt>写代码</dt><dd>桌面建 1024_Game 文件夹，新建 game.py 粘贴完整代码。</dd>
+          <dt>运行</dt><dd><code>python game.py</code>，方向键移动，R 重开。</dd>
+          <dt>打包</dt><dd><code>pyinstaller --onefile --windowed --name "1024" game.py</code>，dist/ 里出 exe。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">3×3 无限版改动</h3>
+        <dl class="kv">
+          <dt>网格</dt><dd>SIZE=3，TILE_SIZE 120。</dd>
+          <dt>胜利</dt><dd>移除「合成 1024 胜利」逻辑，可无限合成。</dd>
+          <dt>颜色</dt><dd>预定义到 65536，超大数用 log2 对数渐变；数字超 1000/10000 自动缩字号。</dd>
+          <dt>主循环</dt><dd>方向键触发 move_left/right/up/down，有移动才 add_new_tile，填满即游戏结束。</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="warnbox">
+      <h5>常见问题</h5>
+      <ul>
+        <li>「python 不是内部命令」= 装时没勾 Add to PATH，重装勾选。</li>
+        <li>打包后 EXE 报 Failed to execute script：去掉 --windowed 重打看错误；本代码只用默认字体一般不缺资源。</li>
+        <li>360 等杀毒误报是 PyInstaller 常见现象，加信任即可。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ 03 小程序发布 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>小程序发布流程与个人主体限制</h2><span class="hint">01316 / 01350 / 01351</span></div>
+    <p class="lede">01316 讲完整发布四步，01350/01351 同题补充个人开发者的关键限制。核心链路：<b>注册认证 → 开发测试 → 提交审核 → 发布上线</b>，ICP 备案与资质最耗时要提前办。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">阶段</th><th>要点</th></tr></thead>
+      <tbody>
+        <tr><td><b>注册认证</b></td><td>mp.weixin.qq.com 选「小程序」注册；个人身份证即可，企业营业执照+法人身份证，企业认证 300 元/年（个人免费）；拿 AppID；上线必须 ICP 备案（5-20 工作日）。</td></tr>
+        <tr><td><b>开发测试</b></td><td>装微信开发者工具，用 AppID 建项目；后台配 HTTPS 合法域名白名单；预览扫码真机调试不同机型；上传成开发版本→设体验版。</td></tr>
+        <tr><td><b>提交审核</b></td><td>填功能描述、测试账号、功能截图；审核 1-7 工作日，特殊类目更久；驳回按原因改完重提。</td></tr>
+        <tr><td><b>发布上线</b></td><td>全量发布或分阶段灰度；发布后用户可搜索到。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">01351 · 2026-06-28</span><h3>个人主体的硬限制（照录）</h3></div>
+      <div class="card-b">
+        <div class="tblwrap" style="margin-bottom:0"><table>
+          <thead><tr><th style="width:150px">限制项</th><th>取值/说明</th></tr></thead>
+          <tbody>
+            <tr><td>微信支付</td><td>个人主体无法开通，盈利主要靠广告。</td></tr>
+            <tr><td>服务类目</td><td>仅工具、资讯等基础类目；电商、社交需企业资质。</td></tr>
+            <tr><td>命名</td><td>不能用「官方」「旗舰店」「企业」「公司」等词。</td></tr>
+            <tr><td>主包体积</td><td>不超过 2MB。</td></tr>
+            <tr><td>页面层级</td><td>跳转深度不超过 10 层。</td></tr>
+            <tr><td>本地存储</td><td>上限 10MB。</td></tr>
+            <tr><td>合规</td><td>首启弹《隐私保护指引》；UGC 走官方安全接口；请求全 HTTPS+白名单；禁诱导分享、强制授权。</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+    <p class="lede" style="margin-bottom:0">案例「企业产品 BOM 查询」：核心是父子型一张表（父件编码/子件编码/用量）做正查（向下展开）反查（向上追溯）；因个人主体不能含「企业」字样且无支付，建议注册<b>个体工商户</b>（一张执照，成本低，功能介于个人与企业之间）。</p>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>桌面 EXE 与小程序开发 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自桌面开发与小程序发布对话笔记，命令与限制照录原对话，仅作个人开发记录。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

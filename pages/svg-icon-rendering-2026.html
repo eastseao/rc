@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>SVG 图标渲染与数据网址生成 · 2026-05 ~ 2026-06</title>
+<meta name="description" content="三份 SVG 图标工作记录：游戏风宝箱图标的分层叠加渲染、矩形/侧边栏图标的 data:image/svg+xml 数据网址生成，以及 Emind 思维导图 Windows 桌面应用的 SVG 应用图标设计与主流思维导图格式。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.code{font-family:var(--mono);font-size:12.5px;background:var(--code);border-radius:6px;padding:12px 14px;overflow:auto;color:var(--ink-2);line-height:1.7;margin-bottom:12px;white-space:pre;word-break:break-all}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 宝箱图标</a>
+      <a href="#s1" data-sec="s1">01 数据网址</a>
+      <a href="#s2" data-sec="s2">02 Emind 图标</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 图标设计记录</span>
+  <h1>SVG 图标渲染与数据网址生成</h1>
+  <p class="s-lede">三段 SVG 图标工作：把一段简陋的宝箱 SVG 重写成带阴影、高光、锁孔的游戏风图标；把给定的线段几何直接编码成 data:image/svg+xml 数据网址（矩形 / L 形侧边栏图标）；以及为 Windows 桌面应用 Emind（思维导图阅读器）设计一套深蓝科技风应用图标，并顺带理清主流思维导图格式。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-06-15</b></span>
+    <span>收录笔记 <b>3 篇</b></span>
+    <span>时间跨度 <b>2026-05 ~ 2026-06</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">SVG</span>
+    <span class="s-chip">游戏图标</span>
+    <span class="s-chip">data URL</span>
+    <span class="s-chip">应用图标</span>
+    <span class="s-chip">思维导图格式</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>01224-2026-05-27 SVG 宝箱图标渲染</li>
+      <li>01277-2026-06-07 矩形图标 SVG 数据网址生成</li>
+      <li>01304-2026-06-13 Emind 思维导图图标设计（含主流思维导图格式梳理）</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 宝箱图标 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>游戏风宝箱图标的分层渲染</h2><span class="hint">01224</span></div>
+    <p class="lede">用户先给了一个扁平的宝箱 SVG（红箱体 + 深红上沿 + 金色竖条 + 顶部小三角）。AI 把它重写成 128×128、保留 64 视口的立体游戏图标：在原几何上叠加阴影、高光、锁孔，层次自下而上堆叠。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:180px">图层（自下而上）</th><th>几何与配色</th></tr></thead>
+      <tbody>
+        <tr><td>背景阴影</td><td>rect 10,18 44×40 rx6，黑色 opacity 0.2，让图标浮起。</td></tr>
+        <tr><td>红色箱体</td><td>rect 12,20 40×36 rx4，fill #e74c3c。</td></tr>
+        <tr><td>箱体高光</td><td>rect 14,22 36×4 rx2，#ff5e4a opacity 0.4。</td></tr>
+        <tr><td>深红上沿</td><td>rect 8,16 48×6 rx2，#c0392b。</td></tr>
+        <tr><td>金色中轴</td><td>rect 28,20 8×36，#f39c12；叠 #fdd835 opacity 0.5 高光。</td></tr>
+        <tr><td>顶部皇冠</td><td>polygon 32,8 40,16 32,12 24,16，#f1c40f；叠 #fff59d opacity 0.6 高光。</td></tr>
+        <tr><td>金属锁孔</td><td>circle cx32 cy40 r3 + rect 31,40 2×6，#2c3e50，居中深色。</td></tr>
+      </tbody>
+    </table></div>
+    <p class="lede" style="margin-bottom:0">设计要点：红箱体为主、深色上沿压重、金色中轴提亮、顶部皇冠点题，中心加深色锁孔后更像「可解锁宝箱」。</p>
+  </section>
+
+  <!-- ══ 01 数据网址 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>线段几何到 SVG 数据网址</h2><span class="hint">01277</span></div>
+    <p class="lede">用户给出四条线段构成的矩形（左下角 -1,0、右上角 3,4）以及另一组 L 形线段，要「给出图标的网址」。做法是把 path 直接嵌进 <code>data:image/svg+xml</code>，<code>&lt;&gt;#</code> 等字符做 URL 编码，可直接粘进浏览器地址栏或 img src。</p>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">01277 · 2026-06-07</span><h3>两个侧边栏图标的数据网址</h3></div>
+      <div class="card-b">
+        <p class="lede" style="margin-bottom:8px">第一个（矩形，代表展开侧边栏）：</p>
+        <p class="code">data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-2 -1 4 6'%3E%3Cpath d='M-1,0 L-1,4 M-1,0 L1,0 M-1,4 L1,4 M1,0 L1,4' stroke='black' fill='none' /%3E%3C/svg%3E</p>
+        <p class="lede" style="margin-bottom:8px">第二个（L 形，代表收起侧边栏）：</p>
+        <p class="code" style="margin-bottom:0">data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-8 -8 16 16'%3E%3Cpath d='M-7,-7 L7,-7 M7,-7 L7,7' stroke='black' fill='none' /%3E%3C/svg%3E</p>
+      </div>
+    </div>
+    <div class="warnbox">
+      <h5>编码要点</h5>
+      <ul>
+        <li><code>&lt;</code>→%3C、<code>&gt;</code>→%3E、<code>#</code>→%23；属性用单引号包裹避免转义双引号。</li>
+        <li>按用户给的几何形状直接转换，不擅自改成 FontAwesome 风格；要标准图标库网址需另行说明。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ 02 Emind 图标 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>Emind 应用图标设计与思维导图格式</h2><span class="hint">01304</span></div>
+    <p class="lede">用户要做一款 Windows 桌面应用 Emind，用来读取思维导图文件，先设计 SVG 图标。AI 给了一套 512×512 深蓝渐变圆角方形、中心 E 标识、四周曲线连八个功能节点的方案；随后又梳理了 Windows 主流思维导图格式与 Typora 能否读取 mindmap。</p>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">01304 · 2026-06-13</span><h3>Emind 图标的结构拆解</h3></div>
+      <div class="card-b">
+        <dl class="kv">
+          <dt>背景</dt><dd>Win11 风圆角方形（rx100），深科技蓝渐变 #1e293b→#0f172a，外投 feDropShadow。</dd>
+          <dt>中心节点</dt><dd>200×200 rx40 方形，靛蓝→青绿渐变 #4f46e5→#06b6d4，内部三层网络线纹 + 白色「E」笔画。</dd>
+          <dt>连接线</dt><dd>八条贝塞尔曲线从中心连到八向，白色 0.15 透明度；交点处画发光数据圆点。</dd>
+          <dt>八个分支节点</dt><dd>上下左右 + 四角，青→蓝渐变方块，分别画 +（添加）、❤（收藏）、📁（文件）、🔗（链接）、💡（灵感）、⚙️（设置）、📄（文档）、👤（用户）白色小图标。</dd>
+          <dt>氛围点缀</dt><dd>一圈 #38bdf8 半透明小圆点，模拟神经元火花。</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:130px">软件</th><th style="width:110px">原生格式</th><th>定位</th></tr></thead>
+      <tbody>
+        <tr><td><b>XMind</b></td><td>.xmind</td><td>主流标准，默认格式；也含 .xmap。</td></tr>
+        <tr><td><b>MindManager</b></td><td>.mmap</td><td>企业级标准（另有 .mapx/.mmat），XMind 可导入。</td></tr>
+        <tr><td><b>FreeMind</b></td><td>.mm</td><td>开源轻量标准，格式简单被广泛兼容。</td></tr>
+        <tr><td><b>亿图脑图</b></td><td>.emmx</td><td>国产新秀，XMind 支持导入。</td></tr>
+        <tr><td><b>WPS / 百度脑图</b></td><td>自有 / .km</td><td>在线与办公集成。</td></tr>
+        <tr><td><b>iMindMap / Ayoa</b></td><td>.imx</td><td>手绘风格，Tony Buzan 公司出品。</td></tr>
+      </tbody>
+    </table></div>
+    <p class="lede" style="margin-bottom:12px">几乎所有软件都支持导出 PNG、PDF、Word、Excel、Markdown、OPML 等通用格式供分享集成。</p>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">Typora 能读 mindmap 吗</h3>
+        <p style="font-size:13.5px;color:var(--ink-2);margin-bottom:0">不能直接读 .xmind / .mmap 这类二进制源文件。变通：导图导出 Markdown（丢图形层级）、导出 PNG 嵌入（不可编辑）、或用 Typora 原生 Mermaid <code>mindmap</code> 画文本导图。反向：Typora 大纲导出 OPML 再导入 XMind 生成导图。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">名词</h3>
+        <dl class="kv" style="margin-bottom:0">
+          <dt>英文</dt><dd>思维导图 = Mind Map（标准写法两个词，也写作 MindMap）。</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>SVG 图标渲染与数据网址 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 SVG 图标设计对话笔记，代码与数据网址照录原对话，仅作个人设计记录。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

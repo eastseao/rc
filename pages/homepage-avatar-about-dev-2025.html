@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>首页头像点击「关于」页面开发 · 2025-10</title>
+<meta name="description" content="用 Jekyll + Chirpy 主题在 GitHub 上从零搭建个人博客「海上生明月」：首页左上角头像点击进入关于我、左侧折叠栏、社交分享与明暗主题切换、文章置顶与分类、Media 二级导航与访客统计。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.code{font-family:var(--mono);font-size:12.5px;background:var(--code);border-radius:6px;padding:12px 14px;overflow:auto;color:var(--ink-2);line-height:1.7;margin-bottom:12px;white-space:pre}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 需求规格</a>
+      <a href="#s1" data-sec="s1">01 头像与侧栏</a>
+      <a href="#s2" data-sec="s2">02 导航与文章</a>
+      <a href="#s3" data-sec="s3">03 媒体与统计</a>
+      <a href="#s4" data-sec="s4">04 技术与部署</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 代码项目开发记录</span>
+  <h1>首页头像点击「关于」页面开发</h1>
+  <p class="s-lede">用户要在 GitHub 上用 Jekyll + Chirpy 主题从零搭一个纯网页端操作的个人博客「海上生明月」：首页左上角头像点击进入「关于我」，左侧折叠栏自上而下排头像、一句话简介、所在位置、导航菜单与访客统计；头像旁挂微信/QQ/微博分享图标与明暗主题切换。本页合并两轮同题对话（2025-10-06 初版与 2025-10-07 侧边栏改版）。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2025-10-07</b></span>
+    <span>收录笔记 <b>2 篇</b></span>
+    <span>技术栈 <b>Jekyll · Chirpy · GitHub Pages</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">Jekyll Chirpy</span>
+    <span class="s-chip">头像关于页</span>
+    <span class="s-chip">侧边栏折叠</span>
+    <span class="s-chip">主题切换</span>
+    <span class="s-chip">Front Matter</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00182-2025-10-06 需求整理：首页左上角头像点击进入「关于」（初版方案，含主题初始化、布局、文章系统、媒体页、访客统计与完整首页代码）</li>
+      <li>00184-2025-10-07 同题迭代：定站名为「海上生明月」，侧边栏改为左侧折叠栏并重排导航顺序</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 需求规格 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>需求规格与整体布局</h2><span class="hint">00182 / 00184</span></div>
+    <p class="lede">用户硬性前提：<b>从零开始、所有文件由代码生成、全程只能在网页端操作</b>（本地不装环境）。技术选型固定为 Jekyll + Chirpy 主题，GitHub 用户名 seamoonappear，00184 轮把站名定为「海上生明月」，并把布局从「顶部导航 + 侧边头像」改为<b>左侧折叠栏</b>。</p>
+
+    <div class="card st1">
+      <div class="card-h"><span class="tag">00184 · 2025-10-07</span><h3>左侧折叠栏的自上而下顺序（改版定稿）</h3></div>
+      <div class="card-b">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:90px">顺序</th><th style="width:170px">区块</th><th>内容要点</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td><b>头像</b></td><td>左上角头像，点击进入「关于我」页面；头像旁挂微信 / QQ / 微博分享图标，以及黑 / 灰背景的风格切换按钮。</td></tr>
+            <tr><td>2</td><td>一句话简介</td><td>作者 bio。</td></tr>
+            <tr><td>3</td><td>所在位置</td><td>地理位置显示。</td></tr>
+            <tr><td>4</td><td>导航菜单</td><td>首页、Blog、媒体、归档、标签、分类、关于我、访问统计。</td></tr>
+            <tr><td>5</td><td>访客统计</td><td>侧边栏底部挂访问量统计。</td></tr>
+          </tbody>
+        </table></div>
+        <p class="lede" style="margin-bottom:0">顶部一级导航均匀排列「文章 / 媒体」，二级导航在点开一级页面后才出现（文章页下挂归档、标签、职场、笔记、知识库、百科、情感）。</p>
+      </div>
+    </div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">首页与文章列表</h3>
+        <dl class="kv">
+          <dt>首页列表</dt><dd>每篇文章显示标题、日期、标签；支持文章置顶；列表右侧显示热门标签。</dd>
+          <dt>文章页布局</dt><dd>左侧文章正文，右侧热门标签 + 分类列表；每篇文章底部有评价系统，需填昵称才能留言。</dd>
+          <dt>分类体系</dt><dd>职场、流程图、笔记、知识库、百科、情感、其他。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">媒体页面与文章更新</h3>
+        <dl class="kv">
+          <dt>媒体二级导航</dt><dd>书籍、影视、视频（嵌入媒体）、音乐、驻足点、随手拍、其他爱好；点击二级导航切换对应内容。</dd>
+          <dt>文章更新</dt><dd>通过 Front Matter + Markdown 文件管理；支持网页端上传 Markdown，不依赖本地部署。</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 01 头像与侧栏 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>头像点击与侧边栏实现</h2><span class="hint">00182</span></div>
+    <p class="lede">「头像点击进关于」的核心就是把头像包成一个指向 <code>/about/</code> 的链接；社交分享与主题切换按钮并排放在头像旁边。Chirpy 用 <code>_includes/sidebar.html</code> 定制侧边栏。</p>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">00182 · 2025-10-06</span><h3>侧边栏结构：头像链接 + 社交分享 + 主题切换</h3></div>
+      <div class="card-b">
+        <p class="code">&lt;div class="profile-wrapper"&gt;
+  &lt;!-- 头像：点击进入关于我 --&gt;
+  &lt;a href="/about/" class="profile-avatar"&gt;
+    &lt;img src="{{ site.author.avatar | relative_url }}"
+         alt="{{ site.author.name }}"&gt;
+  &lt;/a&gt;
+
+  &lt;!-- 社交分享图标 --&gt;
+  &lt;div class="social-share"&gt;
+    &lt;a href="javascript:void(0)" onclick="shareWechat()" title="微信"&gt;
+      &lt;i class="fab fa-weixin"&gt;&lt;/i&gt;
+    &lt;/a&gt;
+    &lt;a href="https://connect.qq.com/widget/sharewebsite/index.html?url={{ site.url }}" title="QQ" target="_blank"&gt;
+      &lt;i class="fab fa-qq"&gt;&lt;/i&gt;
+    &lt;/a&gt;
+    &lt;a href="http://service.weibo.com/share/share.php?url={{ site.url }}&amp;title={{ site.title }}" title="微博" target="_blank"&gt;
+      &lt;i class="fab fa-weibo"&gt;&lt;/i&gt;
+    &lt;/a&gt;
+  &lt;/div&gt;
+
+  &lt;!-- 主题切换按钮 --&gt;
+  &lt;button id="theme-toggle" class="btn btn-sm btn-theme-toggle" title="切换主题"&gt;
+    &lt;i class="fas fa-palette"&gt;&lt;/i&gt;
+  &lt;/button&gt;
+&lt;/div&gt;</p>
+        <div class="warnbox">
+          <h5>实现要点</h5>
+          <ul>
+            <li>头像本身即 <code>&lt;a href="/about/"&gt;</code>，无需额外 JS 跳转；Chirpy 原生支持 <code>/about/</code> 页面。</li>
+            <li>微信分享没有网页端直链，需准备二维码图，点击后弹出「请使用微信扫描分享」。</li>
+            <li>QQ 走 <code>connect.qq.com/widget/sharewebsite</code>，微博走 <code>service.weibo.com/share/share.php</code>，均带当前页 url 与 title。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">00182 · 2025-10-06</span><h3>明暗主题切换：localStorage + data-mode</h3></div>
+      <div class="card-b">
+        <p class="lede">主题切换按钮写在 <code>assets/js/theme-toggle.js</code>：读取 localStorage 里的 theme，默认 light；点击在 light / dark 间切换，把结果写到 <code>&lt;html data-mode&gt;</code> 并持久化，刷新不丢。</p>
+        <p class="code">class ThemeToggle {
+  constructor() {
+    this.theme = localStorage.getItem('theme') || 'light';
+    this.init();
+  }
+  init() {
+    this.applyTheme(this.theme);
+    this.createToggleButton();
+  }
+  applyTheme(theme) {
+    document.documentElement.setAttribute('data-mode', theme);
+    localStorage.setItem('theme', theme);
+  }
+  createToggleButton() {
+    const btn = document.getElementById('theme-toggle');
+    if (btn) {
+      btn.addEventListener('click', () =&gt; {
+        this.theme = this.theme === 'light' ? 'dark' : 'light';
+        this.applyTheme(this.theme);
+      });
+    }
+  }
+}
+document.addEventListener('DOMContentLoaded', () =&gt; new ThemeToggle());</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 02 导航与文章 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>导航菜单与文章系统</h2><span class="hint">00182</span></div>
+    <p class="lede">导航在 <code>_data/navigation.yml</code> 里配置一级 + 二级菜单；文章用 Front Matter + Markdown 管理，首页列表取标题 / 日期 / 标签并支持置顶，文章页左正文右侧栏。</p>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">00182 · 2025-10-06</span><h3>导航菜单配置（_data/navigation.yml）</h3></div>
+      <div class="card-b">
+        <p class="code">header:
+  - title: "首页"
+    url: "/"
+  - title: "文章"
+    url: "/posts/"
+    children:
+      - title: "归档"
+        url: "/archives/"
+      - title: "标签"
+        url: "/tags/"
+      - title: "职场"
+        url: "/categories/职场/"
+      - title: "笔记"
+        url: "/categories/笔记/"
+      - title: "知识库"
+        url: "/categories/知识库/"
+      - title: "百科"
+        url: "/categories/百科/"
+      - title: "情感"
+        url: "/categories/情感/"
+  - title: "媒体"
+    url: "/media/"
+    children:
+      - title: "书籍"
+        url: "/media/books/"
+      - title: "影视"
+        url: "/media/movies/"
+      - title: "视频"
+        url: "/media/videos/"
+      - title: "音乐"
+        url: "/media/music/"
+      - title: "驻足点"
+        url: "/media/travel/"
+      - title: "随手拍"
+        url: "/media/photos/"
+      - title: "其他爱好"
+        url: "/media/hobbies/"
+  - title: "关于我"
+    url: "/about/"</p>
+        <p class="lede" style="margin-bottom:0">二级导航只在点开一级页面后显示；00184 改版后侧边栏顺序为首页 → Blog → 媒体 → 归档 → 标签 → 分类 → 关于我 → 访问统计。</p>
+      </div>
+    </div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">文章 Front Matter 模板</h3>
+        <p class="code" style="margin-bottom:0">---
+title: 文章标题
+date: 2025-10-06 21:47
+categories: 职场
+tags: [标签一, 标签二]
+pin: true        # 置顶
+---</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">网页端写作流程</h3>
+        <dl class="kv">
+          <dt>新建文章</dt><dd>在仓库 <code>_posts/</code> 新建 Markdown，文件名 <code>YYYY-MM-DD-标题.md</code>，按模板填 Front Matter。</dd>
+          <dt>上传方式</dt><dd>全程网页端操作，GitHub 网页新建 / 上传文件，GitHub Actions 自动构建部署。</dd>
+          <dt>热门标签</dt><dd>首页列表右侧由标签聚合页自动生成高频标签云。</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 03 媒体与统计 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>Media 页面与访客统计</h2><span class="hint">00182</span></div>
+    <p class="lede">Media 页面用二级导航切换书籍 / 影视 / 视频 / 音乐 / 驻足点 / 随手拍 / 其他爱好，视频类页面嵌入媒体播放器；访客统计挂在侧边栏底部，用第三方统计脚本接入。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">功能</th><th>实现方式（照录方案）</th></tr></thead>
+      <tbody>
+        <tr><td>媒体二级导航</td><td>七个子页面各自独立，点击二级导航显示对应内容；视频页面内嵌播放器 iframe。</td></tr>
+        <tr><td>评论 / 留言</td><td>使用 Disqus，在 <code>_config.yml</code> 填 <code>disqus.shortname</code>；留言需填写昵称。</td></tr>
+        <tr><td>访客统计</td><td>侧边栏底部接入统计脚本（百度统计 / Google Analytics 二选一），在 <code>_config.yml</code> 填对应 ID。</td></tr>
+        <tr><td>社交链接</td><td><code>_data/contact.yml</code> 配置 GitHub、邮箱、微信二维码、QQ、微博等链接与图标。</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ══ 04 技术与部署 ══ -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>技术栈与部署发布</h2><span class="hint">00182</span></div>
+    <p class="lede">整套方案的前提是「纯网页端、不本地部署」，因此建仓、改配置、写文章全部在 GitHub 网页完成，构建交给 GitHub Actions。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:160px">步骤</th><th>操作</th></tr></thead>
+      <tbody>
+        <tr><td>Fork 主题</td><td>访问 cotes2020/jekyll-theme-chirpy，点 Fork，仓库重命名为 <code>seamoonappear.github.io</code>。</td></tr>
+        <tr><td>基础配置</td><td>改 <code>_config.yml</code>：title、url <code>https://seamoonappear.github.io</code>、author.name / avatar / bio / email、lang zh-CN、timezone Asia/Shanghai。</td></tr>
+        <tr><td>插件与构建</td><td>启用 jekyll-paginate、jekyll-seo-tag 等插件；GitHub Pages 用 Actions 构建部署。</td></tr>
+        <tr><td>上线</td><td>推送后 Actions 自动构建，访问 seamoonappear.github.io 即为「海上生明月」。</td></tr>
+      </tbody>
+    </table></div>
+    <div class="warnbox">
+      <h5>注意事项（照录）</h5>
+      <ul>
+        <li>所有文件由代码生成，全程网页端操作，不本地安装 Ruby / Jekyll 环境。</li>
+        <li>Disqus、百度 / Google 统计需先去对应官网注册拿 shortname / ID，再填回配置。</li>
+        <li>头像与社交二维码需先放到 <code>assets/img/</code>，配置里用相对路径引用。</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>首页头像关于页面开发 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 Jekyll + Chirpy 博客搭建对话笔记，配置项与代码片段照录原对话，仅作个人开发记录，不构成部署承诺。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
