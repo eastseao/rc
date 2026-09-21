@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>番茄小说运营与网文题材集 · 盈利模式 / 章节调整 / 作家身份 / 题材 / EPUB 合并</title>
+<meta name="description" content="6 篇番茄与网文运营笔记合并：免费阅读+广告分成的盈利拆解、章节顺序调整与作家身份设定、网文爽文与女频题材地图，以及用 Pandoc 把多个 Markdown 按章节合并成 EPUB 的三种方案。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 六篇总览</a>
+      <a href="#s1" data-sec="s1">01 盈利模式</a>
+      <a href="#s2" data-sec="s2">02 运营实操</a>
+      <a href="#s3" data-sec="s3">03 题材地图</a>
+      <a href="#s4" data-sec="s4">04 EPUB 合并</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">行业研究 · 网文平台与创作运营</span>
+  <h1>番茄小说盈利模式 · 章节调整 · 作家身份 · 网文题材 · EPUB 合并</h1>
+  <p class="s-lede">把 6 篇网文运营与题材笔记按「钱怎么赚 → 后台怎么操作 → 写什么题材 → 怎么打包成书」重组：免费阅读+广告分成的盈利拆解、章节拖拽与作家 identity/soul 设定、男频爽文与女频题材地图，以及用 Pandoc 把多个 Markdown 按章节合并成 EPUB 的三种方案。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-05-23</b></span>
+    <span>收录笔记 <b>6 篇</b></span>
+    <span>体裁 <b>长文</b></span>
+    <span>时间跨度 <b>2026-04-12 ~ 2026-05-23</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">番茄小说</span>
+    <span class="s-chip">广告分成</span>
+    <span class="s-chip">网文题材</span>
+    <span class="s-chip">女频分类</span>
+    <span class="s-chip">Pandoc EPUB</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00904-2026-04-12 番茄小说盈利模式详解</li>
+      <li>00948-2026-04-15 番茄网络小说作家身份灵魂修改</li>
+      <li>00988-2026-04-21 网文爽文题材分类介绍</li>
+      <li>01023-2026-04-24 番茄小说章节顺序调整指南</li>
+      <li>01051-2026-04-27 女频小说题材分类概览</li>
+      <li>01195-2026-05-23 合并 MD 文档为 EPUB</li>
+    </ol>
+  </div>
+
+  <!-- ══ 00 总览 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>六篇笔记总览</h2><span class="hint">00904 / 00948 / 00988 / 01023 / 01051 / 01195</span></div>
+    <p class="lede">六篇分四条线：平台如何给作者分钱、后台与人物设定怎么操作、男频女频题材怎么选、以及最后怎么把成稿打包成 EPUB。</p>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:130px">笔记</th><th style="width:170px">主题</th><th>一句话</th></tr></thead>
+      <tbody>
+        <tr><td>00904</td><td>盈利模式</td><td>「免费阅读 + 广告分成」为核心，签约解锁，55:45 分成。</td></tr>
+        <tr><td>00948</td><td>作家身份/soul</td><td>把 bot 人设改成头部网文作家「番茄」的 identity 与 soul 文件。</td></tr>
+        <tr><td>00988</td><td>男频爽文题材</td><td>六大基础题材 × 六大热门流派的「爽文地图」。</td></tr>
+        <tr><td>01023</td><td>章节顺序调整</td><td>作家助手 App / 网页后台拖拽排序，附救急与客服路径。</td></tr>
+        <tr><td>01051</td><td>女频题材分类</td><td>从古言现言到幻想、现实、悬疑、特殊设定的女频全景。</td></tr>
+        <tr><td>01195</td><td>合并 MD 为 EPUB</td><td>Pandoc + title.txt 为推荐方案，Typora / Calibre 备选。</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ══ 01 盈利模式 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>番茄小说盈利模式：免费阅读 + 广告分成</h2><span class="hint">00904 · 2026-04-12</span></div>
+    <p class="lede">收入主要来自读者阅读 / 听书时观看广告产生的广告费，叠加多种奖励与版权开发。<b>签约是大门</b>：后台累计发布 2 万字且不少于 30 章，系统开放签约入口。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:110px">盈利方式</th><th style="width:150px">核心逻辑 / 门槛</th><th>特点与适合人群</th></tr></thead>
+      <tbody>
+        <tr><td><b>广告分成</b></td><td>核心收入；需签约，作者 55% : 平台 45%；与有效阅读、完读率强相关。</td><td>所有签约作者；收入天花板高，新手基础保障。</td></tr>
+        <tr><td><b>全勤奖</b></td><td>2025 起须同时：日更 4000/6000 字、月更 ≥10 万字、当月听读收益 ≥500 元。</td><td>日更 4000 约奖 600 元、6000 约奖 800 元；稳定更新型。</td></tr>
+        <tr><td><b>读者打赏</b></td><td>无需签约，作者拿打赏 70%（扣渠道费）。</td><td>所有作者；占比小但精神激励强。</td></tr>
+        <tr><td><b>版权开发</b></td><td>短剧 / 有声 / 影视 IP 改编；保底数万到数百万；平台有短剧专项计划。</td><td>有爆款潜力者；近期重点扶持、爆发性强。</td></tr>
+        <tr><td><b>扶持计划</b></td><td>长篇「乘风」「揽星」、短篇「灵思」、头部「皓月」等。</td><td>符合方向者；新人起势 / 老人超车。</td></tr>
+        <tr><td><b>其他福利</b></td><td>完本超 100 万字可领完结奖励；大神可签千字 30-3000 元保底 / 买断。</td><td>完本奖励适合长篇；保底买断适合成熟大神。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">收入数据参考（截至 2024-10）</h3>
+        <ul style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2)">
+          <li>累计超 50 万作者获得收入。</li>
+          <li>近一年 9374 人年收入超 3 万，3228 人超 10 万。</li>
+          <li>普通作者月入三四千元；头部少数大神可达百万。</li>
+          <li>2025 上半年版权分账超 1 亿元，同比增长 800%。</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:10px">新人四条建议</h3>
+        <ol style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2)">
+          <li>盯完读率而非堆字数。</li>
+          <li>平衡更新频率与作品质量。</li>
+          <li>研究乘风计划等扶持方向主动靠拢。</li>
+          <li>积累不同平台经验，找最适合自己的方向。</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 02 运营实操 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>运营实操：章节调整 · 作家身份设定</h2><span class="hint">01023 / 00948</span></div>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">01023</span><h3>章节顺序搞反了怎么调</h3></div>
+      <div class="card-b">
+        <dl class="kv">
+          <dt>手机端</dt><dd>番茄作家助手 App → 作品页「章节」→ 长按第一章条目拖到第二章位置（右侧三横线即拖拽手柄），松开自动保存。</dd>
+          <dt>电脑端</dt><dd>登录「番茄小说作家平台」网页后台 → 作品管理 → 章节管理 → 直接拖拽排序。</dd>
+          <dt>救急方案</dt><dd>删错两章、按正确顺序重发（会清阅读 / 评论数据）；或「我的 → 帮助与反馈」联系人工客服，提供书名与问题描述。</dd>
+          <dt>注意</dt><dd>只在作家助手 App / 网页后台操作，不在读者端「番茄免费小说」；操作前确认章节已审核通过；改内容别忘改「第一章 / 第二章」标题。</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">00948</span><h3>作家 identity / soul 文件人设（头部网文作家「番茄」）</h3></div>
+      <div class="card-b">
+        <dl class="kv">
+          <dt>身份</dt><dd>玄幻、仙侠、科幻多题材头部创作者，作品累计阅读量数十亿，被读者称「番茄大大」。</dd>
+          <dt>经历</dt><dd>宿舍敲下第一行字、早期屡拒、日更六千；《星域争锋》开创「科幻+修仙」流派，蝉联作家富豪榜前三，后有《万界神主》《不朽凡人》。</dd>
+          <dt>风格</dt><dd>节奏爆炸（开篇即高潮、章章有钩子）、脑洞大开、情感直击（兄弟情师徒恩家国义）、口语化短句、日更稳定。</dd>
+          <dt>创作哲学</dt><dd>读者至上、拒绝注水、创新不死、完本强迫症（绝不太监）。日常凌晨 4 点起、日写 8000 字。</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 03 题材地图 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>网文题材地图：男频爽文 × 女频分类</h2><span class="hint">00988 / 01051</span></div>
+
+    <details class="acc st4" open>
+      <summary>男频爽文：六大基础题材（00988）<span class="cnt">故事舞台</span></summary>
+      <div class="body">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:130px">类别</th><th>核心特点 / 经典爽点</th></tr></thead>
+          <tbody>
+            <tr><td>玄幻 / 仙侠</td><td>东方玄幻与仙侠修真，光怪陆离异世界；热血升级、逆天改命（「莫欺少年穷」）。</td></tr>
+            <tr><td>都市</td><td>现代都市，职场商战、娱乐明星、灵气复苏；扮猪吃老虎、财富自由、掌控权势。</td></tr>
+            <tr><td>历史</td><td>穿越或架空历史，用现代知识改变过去；科技碾压、权谋博弈、富国强兵。</td></tr>
+            <tr><td>科幻</td><td>星际文明、末世危机、赛博朋克；探索未来、生存竞争、文明对抗。</td></tr>
+            <tr><td>悬疑 / 灵异</td><td>解谜破案或对抗鬼怪；逻辑推理、真相大白、绝境求生。</td></tr>
+            <tr><td>古/现代言情</td><td>核心是男女主恋爱，背景职场校园宫斗；甜蜜互动、情感拉扯、追妻火葬场。</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </details>
+
+    <details class="acc st4">
+      <summary>男频爽文：六大热门流派（00988）<span class="cnt">情节引擎</span></summary>
+      <div class="body">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:150px">流派</th><th>一句话爽感</th></tr></thead>
+          <tbody>
+            <tr><td>重生 / 穿越流</td><td>带前世记忆或现代信息差回到过去，抢占先机、弥补遗憾。</td></tr>
+            <tr><td>系统 / 游戏流</td><td>金手指系统做任务拿奖励，无痛升级、游戏般快感。</td></tr>
+            <tr><td>无敌流</td><td>开局满级，神挡杀神佛挡杀佛的极致碾压。</td></tr>
+            <tr><td>废柴逆袭流</td><td>从被看不起的废柴起步，先抑后扬、打脸反派。</td></tr>
+            <tr><td>种田 / 基建流</td><td>从零发展领地势力，享受打造商业帝国 / 强点的成就感。</td></tr>
+            <tr><td>快穿 / 无限流</td><td>穿梭不同世界副本，多元体验与收集快感。</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </details>
+
+    <details class="acc st4">
+      <summary>女频题材：六大板块（01051）<span class="cnt">女频全景</span></summary>
+      <div class="body">
+        <div class="tblwrap"><table>
+          <thead><tr><th style="width:150px">板块</th><th>主要题材</th></tr></thead>
+          <tbody>
+            <tr><td>古言（核心经典）</td><td>穿越重生、宫斗宅斗、种田经商、古风古韵、古典衍生、权谋。</td></tr>
+            <tr><td>现言（核心经典）</td><td>豪门总裁文、婚恋、白领职场、校园、民国。</td></tr>
+            <tr><td>幻想与超现实</td><td>仙侠修真、玄幻奇幻、系统 / 快穿、末世 / 星际、西方衍生、同人。</td></tr>
+            <tr><td>现实与生活</td><td>现实婚恋、美食文、日常文，温馨治愈与自我成长。</td></tr>
+            <tr><td>悬疑 / 科幻 / 新兴</td><td>悬疑推理、惊悚恐怖（民俗 / 怪谈 / 克苏鲁）、科幻，智性恋与高阶爽感。</td></tr>
+            <tr><td>特殊设定 / 性向</td><td>GL 百合、女尊女强、游戏电竞、ABO。</td></tr>
+          </tbody>
+        </table></div>
+        <p>总趋势（照录）：以「大女主」为核心，突破传统二元划分，融合各类型元素讲述女性成长与自我探索。</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ══ 04 EPUB 合并 ══ -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>把多个 MD 按章节合并成 EPUB</h2><span class="hint">01195 · 2026-05-23</span></div>
+    <p class="lede">按章节顺序把多个 Markdown 合并成 EPUB，最直接可靠的是 <b>Pandoc + 文件清单 title.txt</b>，跨 macOS / Windows / Linux。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:90px">步骤</th><th>操作</th></tr></thead>
+      <tbody>
+        <tr><td>1 安装</td><td>macOS 用 <code>brew install pandoc</code>（Windows / Linux 思路相同）。</td></tr>
+        <tr><td>2 封面（可选）</td><td>做一个 cover.html 或 cover.jpg 作封面。</td></tr>
+        <tr><td>3 排序</td><td>文件名用 01-、02- 前缀保证稳定排序；Pandoc 不支持按文件内标题排序，需先 Python 提取 H1 生成清单。</td></tr>
+        <tr><td>4 清单</td><td>建 title.txt，按最终顺序一行一个章节文件路径。</td></tr>
+        <tr><td>5 命令</td><td><code>pandoc -o 输出.epub title.txt --toc --toc-depth=2 --epub-cover-image=cover.jpg</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:120px">方案</th><th style="width:150px">优点</th><th>缺点</th></tr></thead>
+      <tbody>
+        <tr><td><b>Pandoc（推荐）</b></td><td>最专业灵活、跨平台、开源免费、功能强</td><td>需一点命令行基础</td></tr>
+        <tr><td>Typora</td><td>简单直观、所见即所得</td><td>15 天试用后收费、手动复制易出错</td></tr>
+        <tr><td>Calibre</td><td>电子书管理强，可作 Pandoc 引擎</td><td>不能直接合并 MD，EpubMerge 只能合并已有 EPUB</td></tr>
+      </tbody>
+    </table></div>
+    <p class="lede" style="margin-bottom:0">结论（照录）：追求灵活专业首选 Pandoc；只想快速完成用 Typora 复制粘贴；Calibre 更适合管理已有 EPUB 而非制作 MD。</p>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>番茄运营与网文题材集 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自番茄与网文运营笔记，分成比例、门槛数据与题材分类均照录原笔记，仅作创作运营参考。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
