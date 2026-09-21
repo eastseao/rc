@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>OpenClaw 技能文件格式与写作规范</title>
+<meta name="description" content="OpenClaw 技能文件 SKILL.md 的 YAML+Markdown 混合格式与字段说明、文档可视化与微信洗稿两个实战技能示例，以及工作文件写作与生成规范 v1.0 的文件分类编码、元数据区与多格式输出模板体系。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+pre.code{background:var(--code);border:1px solid var(--line);border-radius:var(--radius-sm);padding:13px 16px;font-family:var(--mono);font-size:12.5px;line-height:1.75;color:var(--ink-2);overflow-x:auto;margin:0 0 16px;white-space:pre;word-break:normal}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 技能文件格式</a>
+      <a href="#s1" data-sec="s1">02 示例·文档可视化</a>
+      <a href="#s2" data-sec="s2">03 示例·微信洗稿</a>
+      <a href="#s3" data-sec="s3">04 写作规范 v1.0</a>
+      <a href="#s4" data-sec="s4">05 模板文件体系</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 手册</span>
+  <h1>OpenClaw 技能文件格式与写作规范</h1>
+  <p class="s-lede">OpenClaw 通过 SKILL.md 这类 Markdown 文件来加载新技能，是「Markdown 前端 + 逻辑后端」的混合格式；在此基础上，又沉淀了一套工作文件的写作与生成规范 v1.0，覆盖文件分类编码、元数据区与多格式输出模板。本页合并三份笔记，技能示例与写作规范均以代码块与结构组件照录。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-05-08</b></span>
+    <span>收录笔记 <b>3 篇</b></span>
+    <span>时间跨度 <b>2026-04 ~ 2026-05</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">SKILL.md</span>
+    <span class="s-chip">YAML frontmatter</span>
+    <span class="s-chip">技能示例</span>
+    <span class="s-chip">文件写作规范</span>
+    <span class="s-chip">EastSeaO</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00856-2026-04-07 OpenClaw技能文件格式</li>
+      <li>00934-2026-04-14 OpenClaw洗稿技能方案</li>
+      <li>01120-2026-05-08 OpenClaw文件写作规范设计</li>
+    </ol>
+  </div>
+
+  <!-- ══ 01 技能文件格式 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>SKILL.md：YAML + Markdown 混合格式</h2><span class="hint">00856</span></div>
+    <p class="lede">OpenClaw 技能文件本质是一个 Markdown 文件（<code>.md</code>），但它结合了 <b>YAML</b>（一种配置语言）和 <b>Markdown</b>（一种文本格式化语言）的优点。核心结构分两部分：<b>Frontmatter 元数据区</b>（YAML 头，夹在两行 <code>---</code> 之间）和<b>正文内容区</b>（Markdown 主体）。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:130px">字段</th><th style="width:120px">必填/可选</th><th>作用</th></tr></thead>
+      <tbody>
+        <tr><td><code>name</code></td><td><b>必填</b></td><td>技能的名称，用小写字母加连字符（kebab-case），如 <code>my-awesome-skill</code>。这是技能在 OpenClaw 系统中的唯一标识。</td></tr>
+        <tr><td><code>description</code></td><td><b>必填</b></td><td>简短描述这个技能是做什么的。这个描述非常关键，是 OpenClaw 在用户提问时判断是否应调用这个技能的主要依据。</td></tr>
+        <tr><td><code>version</code></td><td>可选</td><td>技能的版本号，使用标准的语义化版本号（Semantic Versioning），如 <code>1.0.0</code>。</td></tr>
+        <tr><td><code>author</code></td><td>可选</td><td>技能的作者或来源。</td></tr>
+        <tr><td><code>allowed-tools</code></td><td>可选</td><td>一个列表，指定该技能允许使用的工具，如 <code>["bash", "read_file", "write_file"]</code>，用于增强安全性。</td></tr>
+      </tbody>
+    </table></div>
+
+    <p class="lede">正文内容区在 Frontmatter 结束后，用标准 Markdown 编写，由几个关键部分构成：</p>
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">① # 标题</h3>
+        <p style="font-size:13px;color:var(--ink-2)">一个一级标题，明确技能名称。</p>
+        <h3 style="font-size:15px;font-weight:700;margin:12px 0 8px">② ## 简介/功能说明</h3>
+        <p style="font-size:13px;color:var(--ink-2)">详细解释技能的用途、适用场景和具体功能，相当于一份「说明书」。</p>
+        <h3 style="font-size:15px;font-weight:700;margin:12px 0 8px">③ ## 使用指南</h3>
+        <p style="font-size:13px;color:var(--ink-2)">说明如何触发技能、需要哪些输入、有哪些可选项、预期输出是什么。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">④ ## 示例</h3>
+        <p style="font-size:13px;color:var(--ink-2)">提供输入和输出的例子，帮助 OpenClaw 更好理解如何应用技能。</p>
+        <h3 style="font-size:15px;font-weight:700;margin:12px 0 8px">⑤ ## 注意事项/限制</h3>
+        <p style="font-size:13px;color:var(--ink-2)">描述技能的边界、潜在陷阱、或需要用户特别注意的地方。</p>
+      </div>
+    </div>
+
+    <p class="lede" style="margin-top:14px">复杂技能还可在正文中使用 <code>### Tools</code>、<code>### Scripts</code>、<code>### Templates</code> 等更高级结构，以及子目录组织。最标准的示例骨架如下：</p>
+    <pre class="code">---
+name: example-skill
+description: A brief description of what this skill does and when to use it.
+version: 1.0.0
+author: OpenClaw User
+allowed-tools: ["bash", "read_file", "write_file"]
+---
+
+# Example Skill
+
+## Introduction
+This skill provides a detailed explanation of its purpose and functionality.
+
+## Usage
+1.  **Trigger**: Describe how to activate this skill.
+2.  **Input**: List any required inputs.
+3.  **Process**: Explain the steps the OpenClaw agent will take.
+
+## Examples
+Provide concrete examples of input and output.
+
+## Notes
+Include any important caveats or limitations.</pre>
+  </section>
+
+  <!-- ══ 02 示例·文档可视化 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>实战示例：文档可视化技能</h2><span class="hint">00856 · doc_visualizer</span></div>
+    <p class="lede">这是一个完整的技能文件示例：当用户提供结构化数据或请求可视化（如「制作一个月度支出图表」）时，它会生成并执行脚本以创建图表。其 Frontmatter 元数据与正文照录如下。</p>
+
+    <pre class="code">---
+name: doc_visualizer
+description: Use this skill whenever a user asks to visualize data, create charts, or generate reports from structured information (like JSON, CSV, or tables). It handles the entire process of generating scripts and executing them to produce visual outputs.
+version: 1.1.0
+author: DataVizPro
+allowed-tools: ["bash", "read_file", "write_file", "python_repl"]
+---
+
+# Document Visualizer Skill
+
+## Introduction
+The Document Visualizer is an advanced tool designed to transform raw data into clear, insightful, and visually appealing charts and graphs. Whether you need a simple bar chart, a complex line graph, or a comprehensive report, this skill automates the process using Python.
+
+## Features
+*   **Multiple Chart Types**: Supports bar charts, line graphs, pie charts, scatter plots, and histograms.
+*   **Customizable Styles**: Allows control over colors, labels, titles, and themes.
+*   **Report Generation**: Can combine multiple charts into a single HTML report for easy sharing.
+*   **Data Parsing**: Automatically detects and parses data from JSON, CSV, or Markdown tables.
+
+## Usage
+1.  **Provide Data**: Share your data in a structured format (e.g., a JSON array or a CSV snippet).
+2.  **Specify Chart Type**: Tell me what kind of chart you want (e.g., "pie chart showing market share").
+3.  **Request Execution**: Say "generate the visualization" or "create the chart".
+
+## Example
+**User Input:**
+```json
+{
+  "labels": ["Q1", "Q2", "Q3", "Q4"],
+  "values": [150, 230, 180, 290]
+}
+```
+"Create a bar chart of this quarterly revenue data."
+
+**Expected Output:**
+The skill will generate a Python script using `matplotlib`, execute it, and save the output as `quarterly_revenue.png` in the current directory.
+
+## Notes
+*   The generated chart file path will be reported back to you.
+*   Ensure the data format is consistent to avoid parsing errors.
+*   This skill requires the `python_repl` tool to be enabled in your OpenClaw configuration.</pre>
+  </section>
+
+  <!-- ══ 03 示例·微信洗稿 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>实战示例：微信爆款推文洗稿技能</h2><span class="hint">00934 · wechat-rewriter-skill</span></div>
+    <p class="lede">目标是让 OpenClaw 自动读取微信公众号文章，<b>拆解逻辑、提炼观点、重新撰写</b>成原创度更高的文章，生成全新的结构、案例和表达方式。目录结构照录如下。</p>
+
+    <pre class="code">wechat-rewriter-skill/
+├── SKILL.md              # 技能定义文件（必须放在第一行）
+├── scripts/              # 辅助脚本（可选，用于批量处理或工具调用）
+│   ├── extract_article.py   # 从 URL 或文件中提取正文
+│   └── rewrite_engine.py    # 调用大模型 API 进行改写
+└── examples/             # 示例输入输出（可选，用于引导模型）
+    ├── sample_input.txt
+    └── sample_output.md</pre>
+
+    <p class="lede">SKILL.md 的核心定义照录如下（OpenClaw 会优先读取 frontmatter 中的 <code>name</code> 和 <code>description</code> 来决定是否激活）：</p>
+    <pre class="code">---
+name: wechat-rewriter-skill
+description: |
+  当用户需要对微信公众号文章进行洗稿、改写、扩写或生成新文章时，激活此技能。
+  支持输入文章 URL、文本内容或文件路径，输出符合微信公众号风格的原创文章。
+version: 1.0.0
+author: OpenClaw User
+allowed-tools: ["read_file", "write_file", "bash", "python_repl"]
+---
+
+# 微信爆款推文洗稿技能
+
+## 功能说明
+本技能帮助用户快速将一篇微信文章改写为原创度更高、结构更清晰、更具传播性的新文章。它会自动完成以下步骤：
+1.  **拆解原文**：分析标题逻辑、段落结构、核心观点和情绪节奏。
+2.  **重构内容**：基于原文观点，重新组织语言，加入新的案例、比喻或数据。
+3.  **优化标题**：生成 3-5 个备选标题，吸引点击。
+4.  **排版输出**：生成适合微信公众号编辑器的 Markdown 或 HTML 格式。
+
+## 使用指南
+**触发方式**：用户输入以下任意一种：
+*   "帮我洗稿这篇文章" + 文章链接/文本
+*   "把这段文字改成原创风格"
+*   "根据这篇推文写一篇新文章"
+
+**输入要求**：
+*   文章链接（需可公开访问）
+*   或直接粘贴文章文本
+*   或指定本地文件路径（如 `./articles/source.md`）
+
+**输出格式**：
+*   默认输出为 Markdown 格式，保存到 `./output/` 目录
+*   文件名格式：`rewritten_YYYYMMDD_HHMMSS.md`
+*   同时在对话中展示完整文章内容
+
+## 处理流程（Step 1-6）
+Step 1: **读取与清洗** - 提取正文，去除公众号特有的装饰性符号、广告和无关片段。
+Step 2: **结构分析** - 识别原文的"钩子-展开-高潮-收尾"结构。
+Step 3: **观点提取** - 用简洁语言列出原文的 3-5 个核心观点。
+Step 4: **重构写作** - 基于核心观点，用全新的表达和案例重写，保持原意但改变句法。
+Step 5: **标题生成** - 结合爆款公式生成 3-5 个备选标题。
+Step 6: **格式输出** - 按微信公众号排版习惯输出（短句、分段、加小标题）。
+
+## 环境变量配置
+如需调用外部 API 进行改写，可在 `~/.openclaw/.env` 中配置：
+```bash
+OPENAI_API_KEY=sk-...
+OPENAI_BASE_URL=https://api.openai.com/v1
+REWRITER_MODEL=gpt-4o-mini
+```
+
+## 示例输入输出
+**输入示例**（片段）：
+> 今天分享一个让效率翻倍的小技巧...
+**输出示例**（片段）：
+> 你是否也曾每天忙到飞起，却感觉什么都没做完？今天这招，可能会彻底改变你的工作节奏...
+
+## 注意事项
+*   仅供学习与参考，请勿用于抄袭或侵权内容。
+*   改写后的文章需人工审核，确保事实准确。
+*   长文章建议分段处理，避免超出模型上下文限制。</pre>
+
+    <div class="tblwrap"><table style="margin-top:6px"><caption style="text-align:left;font-family:var(--mono);font-size:11px;color:var(--muted-2);padding-bottom:6px">标题公式库（技能内置，可组合使用）</caption>
+      <thead><tr><th style="width:130px">公式类型</th><th>示例结构</th></tr></thead>
+      <tbody>
+        <tr><td><b>数字清单式</b></td><td>「X 个让你 XXX 的技巧，第 X 个最容易被忽略」</td></tr>
+        <tr><td><b>痛点提问式</b></td><td>「为什么你 XXX 却还是 XXX？答案可能和你想的不一样」</td></tr>
+        <tr><td><b>反常识式</b></td><td>「别再 XXX 了！真正的高手都在这样做」</td></tr>
+        <tr><td><b>身份代入式</b></td><td>「30 岁后才明白：XXX 的人，往往都有这个习惯」</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="rl" style="margin-top:6px">
+      <h4>合规与风险提示</h4>
+      <div class="mid">仅供学习参考，改写内容需人工审核</div>
+      <p>洗稿存在版权和原创性风险：① 仅供个人学习参考，不要直接用于商业发布；② 大模型改写可能引入事实错误，务必人工核对；③ 对于有明确版权的文章，改写发布可能构成侵权；④ 建议将技能定位为「灵感启发」和「初稿辅助」，而非全自动抄袭工具。</p>
+    </div>
+  </section>
+
+  <!-- ══ 04 写作规范 v1.0 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>工作文件写作与生成规范 v1.0</h2><span class="hint">01120</span></div>
+    <p class="lede">这是一套「工作文件写作与生成规范」，目的是让每一份工作文档结构规范、信息完整、方便追溯——<b>所有项目中产生的工作文件，都必须遵循此规范进行写作与生成</b>。核心原则：标题精确、内容分层、格式统一、可追溯。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:120px">文件类型</th><th style="width:120px">编码前缀</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr><td><b>会议纪要</b></td><td><code>MEET</code></td><td>记录会议议题、讨论结论、待办事项。</td></tr>
+        <tr><td><b>需求文档</b></td><td><code>REQ</code></td><td>描述需求背景、功能点、验收标准。</td></tr>
+        <tr><td><b>设计文档</b></td><td><code>DES</code></td><td>记录技术方案、架构设计、接口定义。</td></tr>
+        <tr><td><b>工作计划</b></td><td><code>PLAN</code></td><td>拆解任务、分配责任人、设定时间节点。</td></tr>
+        <tr><td><b>项目报告</b></td><td><code>RPT</code></td><td>阶段性总结、进度汇报、数据统计。</td></tr>
+        <tr><td><b>复盘文档</b></td><td><code>RETRO</code></td><td>分析项目成败原因、沉淀经验教训。</td></tr>
+        <tr><td><b>普通笔记</b></td><td><code>NOTE</code></td><td>临时性记录、灵感碎片、调研素材。</td></tr>
+        <tr><td><b>规范说明</b></td><td><code>SPEC</code></td><td>本规范类文档自身的说明与修订。</td></tr>
+      </tbody>
+    </table></div>
+
+    <p class="lede">标题统一格式为：<code>[编码前缀] 文档标题 - 项目名 - 日期</code>，例如 <code>[MEET] 项目周会纪要 - RC智能体 - 2026-05-08</code>。文件内容按「元数据区 → 正文区 → 附录区」分层，元数据区以 YAML frontmatter 开头，照录如下。</p>
+
+    <pre class="code">---
+doc_title: "文档标题"
+sub_title: "文档副标题"
+file_type: "MEET | REQ | DES | PLAN | RPT | RETRO | NOTE | SPEC"
+project: "所属项目名称"
+version: "v1.0.0"
+author: "EastSeaO"
+created_date: "2026-05-08"
+last_updated: "2026-05-08"
+tags: ["标签1", "标签2"]
+---
+
+# 正文标题
+
+## 一、背景与目标
+（说明文档产生的背景、要解决的问题、预期目标）
+
+## 二、核心内容
+（根据文件类型填充对应章节：会议纪要记结论与待办；需求文档写功能点与验收标准；设计文档画架构与接口……）
+
+## 三、后续行动
+（待办事项、责任人、时间节点）
+
+---
+## 附录
+（链接、参考资料、补充说明）</pre>
+
+    <div class="grid g2" style="margin-top:14px">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">高频文件模板要点</h3>
+        <ul style="margin:0;padding-left:18px;font-size:13px;color:var(--ink-2);line-height:1.7">
+          <li><b>MEET</b>：参会人、议题、结论、待办（Action Item 含责任人与截止日）。</li>
+          <li><b>REQ</b>：需求背景、功能点列表、验收标准、优先级。</li>
+          <li><b>DES</b>：技术选型、架构图、接口定义、数据库设计。</li>
+          <li><b>RPT</b>：进度概览、数据指标、风险与下周计划。</li>
+          <li><b>RETRO</b>：做得好、待改进、行动计划。</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">格式与追溯原则</h3>
+        <ul style="margin:0;padding-left:18px;font-size:13px;color:var(--ink-2);line-height:1.7">
+          <li>同一文档可按 <code>.md / .pdf / .docx / .xlsx</code> 多格式输出，但源稿统一用 Markdown。</li>
+          <li>版本号语义化递增（major.minor.patch），每次修订更新 <code>last_updated</code>。</li>
+          <li>作者统一署名 <b>EastSeaO</b>。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 05 模板文件体系 ══ -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>多格式输出与模板文件体系</h2><span class="hint">01120</span></div>
+    <p class="lede">为了让规范可自动化执行，规范设计了「6 个核心设定文件 + 1 个生成指令文件」的模板体系，并对 PDF / DOCX / XLSX 三种输出格式分别定义了页面、页眉页脚、样式映射等要求。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">全局信息字段</th><th style="width:130px">默认值 / 格式</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code>doc_title</code></td><td>必填</td><td>文档主标题。</td></tr>
+        <tr><td><code>sub_title</code></td><td>可空</td><td>文档副标题。</td></tr>
+        <tr><td><code>author</code></td><td><code>EastSeaO</code></td><td>作者，统一署名。</td></tr>
+        <tr><td><code>org</code></td><td>可空</td><td>所属组织/团队。</td></tr>
+        <tr><td><code>date</code></td><td><code>YYYY-MM-DD</code></td><td>文档日期。</td></tr>
+        <tr><td><code>version</code></td><td><code>v1.0</code></td><td>文档版本。</td></tr>
+        <tr><td><code>classification</code></td><td>内部 / 公开 / 机密</td><td>密级。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid g2">
+      <div class="card st5">
+        <div class="card-h"><span class="tag">PDF 输出</span><h3>页面 / 页眉页脚 / 标题层级</h3></div>
+        <div class="card-b">
+          <dl class="kv">
+            <dt>页面设置</dt><dd>A4，页边距上下左右统一，中文正文用衬线字体、英文/代码用等宽字体。</dd>
+            <dt>页眉</dt><dd>左：文档标题；右：密级；下方一条细分隔线。</dd>
+            <dt>页脚</dt><dd>居中：作者 + 日期；右侧：页码 <code>第 X 页 / 共 Y 页</code>。</dd>
+            <dt>标题层级</dt><dd>一级标题居中加粗，二级标题左对齐加粗，正文首行缩进。</dd>
+            <dt>封面</dt><dd>大标题居中，副标题、作者、日期、版本依次排列。</dd>
+          </dl>
+        </div>
+      </div>
+      <div class="card st4">
+        <div class="card-h"><span class="tag">DOCX 输出</span><h3>内置属性 / 样式映射</h3></div>
+        <div class="card-b">
+          <dl class="kv">
+            <dt>文档属性</dt><dd>标题、作者（EastSeaO）、主题、关键词、版本、密级写入 Word 内置属性。</dd>
+            <dt>节设置</dt><dd>首页不同、奇偶页不同，正文另起一页。</dd>
+            <dt>样式映射</dt><dd>Markdown 标题 → Word「标题 1/2/3」；表格 → Word 网格表。</dd>
+            <dt>大词风格</dt><dd>正文采用「大词风格」Word 模板，字距行距宽松、可读性优先。</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <div class="card st3" style="margin-top:14px">
+      <div class="card-h"><span class="tag">XLSX 输出</span><h3>工作表结构 / 打印与封面</h3></div>
+      <div class="card-b">
+        <div class="grid g2">
+          <div>
+            <p class="lede" style="margin-bottom:8px">工作表结构（以表格类文件为例）：</p>
+            <ul style="margin:0;padding-left:18px;font-size:13px;color:var(--ink-2);line-height:1.7">
+              <li>表头行冻结、加粗、带底色。</li>
+              <li>数据行交替底色，单元格自动换行。</li>
+              <li>列宽按内容自适应，数字列右对齐。</li>
+            </ul>
+          </div>
+          <div>
+            <p class="lede" style="margin-bottom:8px">打印与封面：</p>
+            <ul style="margin:0;padding-left:18px;font-size:13px;color:var(--ink-2);line-height:1.7">
+              <li>打印页眉：左文档名、右密级。</li>
+              <li>打印页脚：作者、日期、页码。</li>
+              <li>首页为封面：大标题 + 副标题 + 作者 + 日期 + 版本。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="lede" style="margin-top:14px">整套模板体系由以下文件组成，可通过 <code>build_templates.py</code> 脚本一键生成：</p>
+    <pre class="code"># 6 个核心设定文件 + 1 个生成指令文件
+metadata.yaml      # 全局元数据（标题/作者/日期/版本/密级）
+template.md        # Markdown 源稿模板
+pdf-style.css      # PDF 输出样式
+template.docx      # Word 模板（大词风格）
+template.xlsx      # Excel 模板（封面 + 数据表）
+generate.yaml      # 生成流程配置（或 prompt.md 自然语言指令）
+
+# 文件命名规范（源稿）
+YYYY-MM-DD_版本号.md
+# 示例
+2026-05-08_v1.0.md</pre>
+
+    <div class="srcnote" style="margin-bottom:0"><b>自然语言生成入口</b>：规范同时提供一份可直接喂给大模型的自然语言 prompt（<code>prompt.md</code>），让 OpenClaw 按上述设定自动产出符合版式的文档；生成时图片用占位符、避免生成实心黑块。作者统一署名 <b>EastSeaO</b>，版本号随修订递增。</div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>OpenClaw 技能与写作规范 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页技能示例与写作规范均照录原笔记，含 92KB 写作规范设计笔记全文要点；字段、代码块与模板以原笔记为准，使用时请以最新版本规范为准。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

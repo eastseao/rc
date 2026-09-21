@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>QClaw 功能与使用</title>
+<meta name="description" content="腾讯 QClaw 本地 AI 智能体的功能介绍、可下达任务方向、生成文件改存 E 盘的四种方法，以及每日 800 积分的赠送与充值机制。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+/* 顶栏 */
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+/* 文档头部 */
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+/* 主体 */
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+/* 章节 */
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+/* 表格 */
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+/* 代码块 */
+pre.code{background:var(--code);border:1px solid var(--line);border-radius:var(--radius-sm);padding:13px 16px;font-family:var(--mono);font-size:12.5px;line-height:1.75;color:var(--ink-2);overflow-x:auto;margin:0 0 16px;white-space:pre;word-break:normal}
+
+/* 手风琴 */
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+/* 页脚 */
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+/* 板块主题色开关 */
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 功能与能力</a>
+      <a href="#s1" data-sec="s1">02 任务方向</a>
+      <a href="#s2" data-sec="s2">03 文件存 E 盘</a>
+      <a href="#s3" data-sec="s3">04 积分与充值</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 工具</span>
+  <h1>QClaw 功能与使用</h1>
+  <p class="s-lede">腾讯推出的本地 AI 智能体 QClaw，主打「微信直连、零门槛部署」——在微信里发句话，它就能在你的电脑上远程干活。本页合并四份笔记，覆盖它能做什么、可以下达哪些任务、生成文件如何改存 E 盘，以及每日赠送积分与充值机制。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-05-15</b></span>
+    <span>收录笔记 <b>4 篇</b></span>
+    <span>时间跨度 <b>2026-03 ~ 2026-05</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">QClaw</span>
+    <span class="s-chip">微信直连</span>
+    <span class="s-chip">远程操控</span>
+    <span class="s-chip">Skill 技能</span>
+    <span class="s-chip">积分充值</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>00784-2026-03-23 QClaw功能介绍</li>
+      <li>00799-2026-03-24 QClaw任务询问</li>
+      <li>00892-2026-04-10 QClaw文件存E盘方法</li>
+      <li>01151-2026-05-15 QCLAW积分充值支持</li>
+    </ol>
+  </div>
+
+  <!-- ══ 01 功能与能力 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>QClaw 是什么与核心能力</h2><span class="hint">00784</span></div>
+    <p class="lede">QClaw 是腾讯推出的本地 AI 智能体，你可以把它想象成电脑里的「数字员工」：<b>无需守在电脑前，在微信里下达指令，它就会自动执行</b>。配置时推荐选择 Kimi、DeepSeek 等大模型，任务执行会更聪明。</p>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">远程操控电脑（核心能力）</h3>
+        <dl class="kv">
+          <dt>文件整理</dt><dd>把桌面录屏文件整理进文件夹、整理发票目录。</dd>
+          <dt>信息处理</dt><dd>搜索 AI 科技新闻、总结文档、生成分析报告。</dd>
+          <dt>日程管理</dt><dd>帮你写文档、订日程、安排会议和待办。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">打通应用与扩展技能</h3>
+        <dl class="kv">
+          <dt>多平台远控</dt><dd>除微信外，还支持 QQ、企业微信、飞书、钉钉等入口。</dd>
+          <dt>Skill 技能扩展</dt><dd>官方 SkillHub 已聚合超 <b>1.3 万</b>个安全技能，覆盖文案润色、代码生成等场景。</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="grid g2" style="margin-top:14px">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">特色交互与玩法</h3>
+        <ul style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2);line-height:1.7">
+          <li><b>像素工作室</b>：AI 化身一个像素风「打工人」，让你直观看到它的工作状态。</li>
+          <li><b>可视化定时任务</b>：在界面集中管理，设置新闻推送、喝水提醒等周期性任务。</li>
+        </ul>
+      </div>
+      <div class="rl">
+        <h4>注意事项 · 能力边界</h4>
+        <div class="mid">目前不能订酒店/机票，也无法自动发红包或读聊天记录</div>
+        <p>涉及支付安全的操作暂不支持，请勿相信网上相关谣言。需要特定功能（如小红书运营）时，去官方 SkillHub 安装对应技能即可。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 02 任务方向 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>可以下达哪些任务</h2><span class="hint">00799</span></div>
+    <p class="lede">这篇早期笔记记录了对「QClaw 可以下达哪些任务」的一次梳理。由于当时 QClaw 这个名称还不常见，回答先按「Claw（爪）」这一意象推测了四类常见任务方向，再请用户补充背景以便给出更具体的清单。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:170px">任务方向</th><th>典型任务内容</th></tr></thead>
+      <tbody>
+        <tr><td><b>数据抓取与采集</b></td><td>若它是爬虫或数据工具，任务可能包括抓取网页内容、提取结构化数据、监控网站更新，或下载特定格式的文件。</td></tr>
+        <tr><td><b>文件与资源管理</b></td><td>若涉及系统运维，可能包括批量文件整理、归档压缩、日志清理，或按规则自动删除过期文件。</td></tr>
+        <tr><td><b>系统监控与响应</b></td><td>作为监控脚本，它可以执行端口探测、服务状态检查、异常告警，或在检测到特定条件时自动执行修复操作。</td></tr>
+        <tr><td><b>网络与安全</b></td><td>在安全测试场景下，可能用于子域名收集、目录爆破、漏洞验证，或流量分析。</td></tr>
+      </tbody>
+    </table></div>
+    <p>实际使用时，结合第 01 节的核心能力——文件整理、信息处理、日程管理、多平台远控与 Skill 扩展——即可按自己的场景下达指令；提供更具体的平台与使用背景，能梳理出更精准的可用任务清单。</p>
+  </section>
+
+  <!-- ══ 03 文件存 E 盘 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>生成文件改存 E 盘的四种方法</h2><span class="hint">00892</span></div>
+    <p class="lede">QClaw 生成的文件完全可以保存在 E 盘，甚至可以把整个程序都安装在 E 盘，以此避免占用宝贵的 C 盘空间。下面四种方法按推荐程度排列。</p>
+
+    <details class="acc st3" open>
+      <summary>方法一：安装时设置（最推荐）<span class="cnt">图形化</span></summary>
+      <div class="body">
+        <p class="lede">在软件安装过程中，系统会询问安装位置（默认 C 盘）。此时点击「浏览」按钮，将路径直接改为 <code>E:\QClaw</code> 或其他你喜欢的 E 盘文件夹即可。</p>
+      </div>
+    </details>
+
+    <details class="acc st3">
+      <summary>方法二：修改配置文件（永久设置）<span class="cnt">config.yaml</span></summary>
+      <div class="body">
+        <p class="lede">如果软件已经装好，可以通过修改配置文件来更改默认工作目录。QClaw 的主配置文件 <code>config.yaml</code> 通常位于 <code>%APPDATA%\QClaw\</code> 目录下：</p>
+        <ul>
+          <li>用记事本等文本编辑器打开 <code>config.yaml</code>。</li>
+          <li>找到 <code>base_dir:</code> 这一行。</li>
+          <li>将其值修改为 E 盘下的目标路径，例如 <code>base_dir: "E:\MyQClawWorkspace"</code>。</li>
+          <li>保存文件并重启 QClaw，设置即可生效。</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="acc st3">
+      <summary>方法三：使用命令行启动（临时生效）<span class="cnt">-w 参数</span></summary>
+      <div class="body">
+        <p class="lede">如果只是临时用一次，按 <code>Win + R</code> 打开「运行」窗口，输入 <code>cmd</code> 回车打开命令提示符，然后用以下命令启动 QClaw，本次会话生成的所有文件都会保存在指定的临时文件夹中：</p>
+        <pre class="code">qclaw.exe -w E:\MyTempWorkspace</pre>
+      </div>
+    </details>
+
+    <details class="acc st3">
+      <summary>方法四：创建符号链接（高级操作）<span class="cnt">mklink</span></summary>
+      <div class="body">
+        <p class="lede">如果你已有固定文件夹结构不想改动，但又希望文件实际存储在 E 盘，可以使用「符号链接」。先确保 QClaw 没有运行，在 E 盘创建新文件夹（如 <code>E:\QClawData</code>），把默认工作目录（如 <code>C:\Program Files\QClaw\workspace</code>）重命名为 <code>workspace_old</code> 备份，再以管理员身份打开命令提示符执行：</p>
+        <pre class="code">mklink /D "C:\Program Files\QClaw\workspace" "E:\QClawData"</pre>
+        <p>执行后，QClaw 会认为文件仍在 C 盘，但实际上所有数据都会写入到 E 盘的 <code>QClawData</code> 文件夹中。</p>
+      </div>
+    </details>
+
+    <div class="warnbox">
+      <h5>几个小建议</h5>
+      <ul>
+        <li><b>路径中避免使用中文</b>：新建文件夹路径建议只包含英文和数字，防止出现意外问题。</li>
+        <li><b>注意读写权限</b>：确保为 QClaw 指定的 E 盘文件夹拥有读写权限。</li>
+        <li><b>遇到路径问题</b>：使用中提示文件路径错误时，可在指令中明确文件的绝对路径，例如 <code>E:\文档\报告.docx</code>。</li>
+        <li><b>查看实时路径</b>：运行 <code>qclaw --debug-path</code>，可实时查看程序解析的路径，帮助排查问题。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ 04 积分与充值 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>每日积分与充值机制</h2><span class="hint">01151</span></div>
+    <p class="lede">QCLAW 积分用完后<b>是支持充值的</b>，不过更建议先了解它每天都会赠送的免费积分——其核心策略是鼓励用户利用好每日赠送的额度。</p>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">每日免费积分</h3>
+        <dl class="kv">
+          <dt>每日赠送</dt><dd>目前采用每日刷新制，<b>每天赠送 800 积分</b>；当天没用完的积分不会累积，会在次日刷新重置。</dd>
+          <dt>消耗机制</dt><dd>不同的任务和使用的模型，消耗的积分额度也不一样；在客户端「设置」页面可随时查看用量统计。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">积分充值</h3>
+        <p style="font-size:13.5px;color:var(--ink-2);line-height:1.7;margin-bottom:10px">积分用完后需要充值，具体的充值方式和价格请参考官网的定价页面——这是最准确的官方信息来源。如果感觉赠送的 800 积分不够用，也可以通过官网的充值渠道继续使用服务。</p>
+        <div class="srcnote" style="margin-bottom:0"><b>口径说明</b>：每日 800 积分为笔记记录时的免费额度策略，官方可能调整，以官网与客户端「设置」页为准。</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>QClaw 功能与使用 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页内容整理自 QClaw 使用笔记，积分额度、功能边界等均照录原笔记，可能随官方版本更新变化，以官方渠道为准。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

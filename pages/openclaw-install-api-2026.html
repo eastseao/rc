@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>OpenClaw 桌面/Ubuntu 安装与 API 设置</title>
+<meta name="description" content="OpenClaw 在 Windows 一键脚本、桌面客户端与 Ubuntu 命令行下的安装步骤，API Key 图形界面/环境变量/openclaw.json 三种设置方式，以及接入 Qwen2.5 的应用场景与配置要点。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+pre.code{background:var(--code);border:1px solid var(--line);border-radius:var(--radius-sm);padding:13px 16px;font-family:var(--mono);font-size:12.5px;line-height:1.75;color:var(--ink-2);overflow-x:auto;margin:0 0 16px;white-space:pre;word-break:normal}
+
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 桌面安装</a>
+      <a href="#s1" data-sec="s1">02 Ubuntu 安装</a>
+      <a href="#s2" data-sec="s2">03 API 设置</a>
+      <a href="#s3" data-sec="s3">04 接入 Qwen2.5</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 手册</span>
+  <h1>OpenClaw 桌面/Ubuntu 安装与 API 设置</h1>
+  <p class="s-lede">OpenClaw 本身不是 AI 模型，需要接入外部大模型「大脑」才能干活。本页合并五份笔记：Windows 一键脚本与桌面客户端安装、Ubuntu 命令行从登录到初始化的完整流程、API Key 的三种设置方式，以及接入 Qwen2.5 7B 的应用场景与配置要点。所有安装命令与 API 配置照录原笔记。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-06-11</b></span>
+    <span>收录笔记 <b>5 篇</b></span>
+    <span>时间跨度 <b>2026-04 ~ 2026-06</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">OpenClaw</span>
+    <span class="s-chip">一键安装脚本</span>
+    <span class="s-chip">Ubuntu</span>
+    <span class="s-chip">API Key</span>
+    <span class="s-chip">Qwen2.5</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>01040-2026-04-27 OpenClaw Desktop安装指南</li>
+      <li>01042-2026-04-27 OpenClaw桌面应用咨询</li>
+      <li>01297-2026-06-11 Ubuntu登录后安装OpenClaw</li>
+      <li>01298-2026-06-11 OpenClaw API设置指南</li>
+      <li>01063-2026-04-28 OpenClaw调用Qwen2.5应用场景</li>
+    </ol>
+  </div>
+
+  <!-- ══ 01 桌面安装 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>Windows 一键脚本与桌面客户端</h2><span class="hint">01040 / 01042</span></div>
+    <p class="lede">安装 OpenClaw 主要有两条官方途径：<b>一键安装脚本</b>（官方推荐，一行命令自动配置环境）和<b>官方/第三方桌面客户端</b>（图形界面、解压即用）。开始前先备份重要数据，并<b>暂时关闭</b> 360、腾讯电脑管家、火绒等第三方杀毒软件及 Windows Defender 实时防护，避免误报导致安装失败。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">项</th><th>要求</th></tr></thead>
+      <tbody>
+        <tr><td><b>操作系统</b></td><td>Windows 10/11（建议 64 位专业版/企业版）、macOS 12+，或主流 Linux 发行版（如 Ubuntu 22.04+）。</td></tr>
+        <tr><td><b>内存空间</b></td><td>建议 4GB 以上内存，以及至少 4GB 的空闲硬盘空间。</td></tr>
+        <tr><td><b>安装时长</b></td><td>脚本全自动完成（含检测安装 Node.js 等环境），全程约 3-5 分钟。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="card st1">
+      <div class="card-h"><span class="tag">方法一 · 官方推荐</span><h3>一键安装脚本</h3></div>
+      <div class="card-b">
+        <p class="lede">Windows：在开始菜单搜索 <b>PowerShell</b>，右键选择「以管理员身份运行」。国内用户推荐镜像加速：</p>
+        <pre class="code">iwr -useb https://open-claw.org.cn/install-cn.ps1 | iex</pre>
+        <p class="lede">国际用户则用官方源：</p>
+        <pre class="code">iwr -useb https://openclaw.ai/install.ps1 | iex</pre>
+        <p class="lede">macOS / Linux：打开终端，国内用户用镜像加速：</p>
+        <pre class="code">curl -fsSL https://open-claw.org.cn/install-cn.sh | bash</pre>
+        <p class="lede">国际用户：</p>
+        <pre class="code">curl -fsSL https://openclaw.ai/install.sh | bash</pre>
+        <dl class="kv">
+          <dt>初始化</dt><dd>脚本完成后自动进入 <code>onboard</code> 交互式配置向导；意外中断后可随时运行 <code>openclaw onboard</code> 重新进入。</dd>
+          <dt>验证安装</dt><dd>终端输入 <code>openclaw --version</code> 并回车，能正确显示版本号即核心程序安装成功。</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">方法二 · Windows</span><h3>OpenClaw Desktop 桌面客户端</h3></div>
+      <div class="card-b">
+        <ol style="margin:0 0 14px;padding-left:20px;font-size:13.5px;color:var(--ink-2);line-height:1.8">
+          <li>从 GitHub Releases 页面或网盘链接下载对应系统的安装包，<b>务必先解压</b>到纯英文路径（如 <code>D:\OpenClaw</code>），切勿在压缩包内直接运行。</li>
+          <li>双击 <code>Openclaw Windows 一键启动.exe</code>；出现 Windows 安全提示时，点「更多信息」→「仍要运行」。</li>
+          <li>图形化安装界面中，安装路径<b>务必使用纯英文路径</b>，不能包含中文、空格或特殊符号。</li>
+          <li>勾选同意用户协议，点「开始安装」，等待自动部署完成（约 3-5 分钟）。</li>
+          <li>首次运行初始化，当主界面右上角显示「<b>Gateway 在线</b>」时，即表示部署成功。</li>
+        </ol>
+        <div class="warnbox">
+          <h5>常见问题排查</h5>
+          <ul>
+            <li><b>安装中断/失败</b>：检查是否已关闭所有杀毒软件，安装路径无中文字符/空格，建议以管理员身份运行。</li>
+            <li><b>网络连接问题</b>：优先使用国内镜像加速命令。</li>
+            <li><b>提示缺少 Node.js</b>：一键脚本通常自动安装，未成功可手动从 Node.js 官网下载安装 LTS 版本。</li>
+            <li><b>Windows 安全中心拦截</b>：出现「Windows 已保护你的电脑」弹窗时，点「更多信息」→「仍要运行」即可。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <p class="lede" style="margin-top:14px">笔记 01042 还梳理了市面上几款把命令行变成图形界面的 Windows 桌面应用，供选型参考：</p>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:160px">应用</th><th style="width:120px">定位</th><th>核心特点与体验</th></tr></thead>
+      <tbody>
+        <tr><td><b>ClawX</b></td><td>新手开箱即用</td><td>内置运行时，命令行转直观 UI，支持多渠道管理、定时任务和技能扩展；原生支持中文、社区活跃。</td></tr>
+        <tr><td><b>OpenClaw Windows Node</b></td><td>系统级重度用户</td><td>微软技术专家主导，专为 Win10/11 打造，系统托盘常驻，可深度操控文件、进程等系统底层。</td></tr>
+        <tr><td><b>OpenClaw Desktop（小龙虾）</b></td><td>专业控制台</td><td>开源免费、功能全面，可视化管理面板，支持远程连接管理远端实例，适配 Windows/macOS/Linux。</td></tr>
+        <tr><td><b>EasyClaw AI</b></td><td>安全沙箱</td><td>零配置且带安全沙箱环境，为 AI 智能体提供隔离运行环境，适合对安全性要求较高的开发者与专业用户。</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ══ 02 Ubuntu 安装 ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>Ubuntu 命令行：从登录到初始化</h2><span class="hint">01297</span></div>
+    <p class="lede">在 TTY 命令行模式下看到 <code>HomePC login:</code> 很正常——系统在等待你手动登录后才能继续安装。OpenClaw 强烈依赖 Node.js 环境，需要先更新系统并装好 Node.js。</p>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">第一步</span><h3>登录 Ubuntu 系统</h3></div>
+      <div class="card-b">
+        <dl class="kv">
+          <dt>输入用户名</dt><dd>在 <code>login:</code> 后输入用户名，按 <code>Enter</code>。</dd>
+          <dt>输入密码</dt><dd>出现 <code>Password:</code> 提示后输入用户密码（屏幕上<b>不会显示</b>，属正常），回车即登录，看到类似 <code>username@HomePC:~$</code> 的提示符。</dd>
+        </dl>
+        <p style="font-size:13.5px;color:var(--ink-2);margin-top:10px">习惯图形化界面的话，可试按 <code>Ctrl + Alt + F1</code> 或 <code>Ctrl + Alt + F7</code> 切换回桌面环境。</p>
+      </div>
+    </div>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">第二步</span><h3>准备环境：更新系统并安装 Node.js 22.x</h3></div>
+      <div class="card-b">
+        <p class="lede">OpenClaw 需要 Node.js 22.x 或更高版本。先更新软件源：</p>
+        <pre class="code">sudo apt update</pre>
+        <p class="lede">添加 NodeSource 官方仓库（自动配置 Node.js 22.x 安装源）：</p>
+        <pre class="code">curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -</pre>
+        <p class="lede">安装 Node.js：</p>
+        <pre class="code">sudo apt install -y nodejs</pre>
+        <p class="lede">验证是否安装成功，正确显示版本号（如 <code>v22.x.x</code>）即装好：</p>
+        <pre class="code">node --version</pre>
+        <p class="lede">（可选但推荐）安装基础开发工具包，确保编译过程顺利：</p>
+        <pre class="code">sudo apt install -y build-essential</pre>
+      </div>
+    </div>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">第三、四步</span><h3>安装 OpenClaw 并初始化</h3></div>
+      <div class="card-b">
+        <p class="lede">优先用官方安装脚本，它能自动处理大部分配置：</p>
+        <pre class="code">curl -fsSL https://openclaw.ai/install.sh | bash</pre>
+        <p class="lede">验证安装：</p>
+        <pre class="code">openclaw --version</pre>
+        <p class="lede">初始化向导自动启动，也可手动运行（首次安装直接一路回车选默认 <code>QuickStart</code> 最顺畅）：</p>
+        <pre class="code">openclaw onboard --install-daemon</pre>
+        <dl class="kv">
+          <dt>AI 提供商</dt><dd>快速上手可优先选 <b>Qwen</b>（通义千问），对初次体验提供免费额度，熟练后再切换其他服务商。</dd>
+          <dt>模型选择</dt><dd>保持默认即可。</dd>
+          <dt>聊天渠道</dt><dd>初始化阶段可直接「跳过」，不影响核心功能。</dd>
+          <dt>技能和钩子</dt><dd>先保持默认或跳过，后续有需要再详细配置。</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="grid g2" style="margin-top:14px">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">通过 Web 界面使用（推荐）</h3>
+        <p style="font-size:13.5px;color:var(--ink-2);margin-bottom:8px">浏览器访问 <code>http://127.0.0.1:18789/</code> 进入 Web 管理界面；提示配对时，终端运行 <code>openclaw dashboard</code>，把输出的带令牌完整链接复制到浏览器打开。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">通过终端界面使用</h3>
+        <pre class="code" style="margin-bottom:0">openclaw tui</pre>
+      </div>
+    </div>
+
+    <div class="warnbox" style="margin-top:14px">
+      <h5>Ubuntu 常见问题与排查</h5>
+      <ul>
+        <li><b>Command 'openclaw' not found</b>：重启终端，或重新运行安装脚本。</li>
+        <li><b>端口占用</b>：Web 界面无法访问时检查端口，<code>sudo lsof -i :18789</code>。</li>
+        <li><b>Token 不匹配</b>：重新运行 <code>openclaw dashboard</code>，把输出完整链接复制到浏览器。</li>
+        <li><b>AI 认证失效</b>：第二天重启可能需重新认证，如用 Qwen 运行 <code>openclaw models auth login --provider qwen-portal</code>。</li>
+        <li><b>Qwen 登录问题</b>：默认 <code>qwen-portal</code> 通常指向国际版，<b>可能无法用支付宝或国内手机号登录</b>，需用 Google 或 GitHub 账号。</li>
+        <li><b>Permission denied</b>：命令前加 <code>sudo</code> 重试。</li>
+        <li><b>服务不自启动</b>：启用 linger 服务 <code>sudo loginctl enable-linger $(whoami)</code>。</li>
+        <li><b>Gateway closed 报错</b>：在 <code>openclaw</code> 目录下运行 <code>npm run gateway</code> 重启网关。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ 03 API 设置 ══ -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>API 的三种设置方式</h2><span class="hint">01298</span></div>
+    <p class="lede">配置大模型 API 是使用 OpenClaw 的关键一步——OpenClaw 本身并非 AI 模型，需要接入外部大模型服务（它的「大脑」）才能理解并执行指令。设置 API 主要有三种途径。</p>
+
+    <div class="grid g3">
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">① 图形界面 GUI</h3>
+        <p style="font-size:13px;color:var(--ink-2)">最直观，适合桌面客户端（尤其 Windows/macOS）。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">② 命令行/环境变量</h3>
+        <p style="font-size:13px;color:var(--ink-2)">适合服务器部署或技术用户，灵活度高。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">③ 配置文件编辑</h3>
+        <p style="font-size:13px;color:var(--ink-2)">适合批量或精准配置，改 <code>openclaw.json</code>。</p>
+      </div>
+    </div>
+
+    <div class="card st3">
+      <div class="card-h"><span class="tag">方法一</span><h3>图形界面（GUI）设置 · 以阿里云百炼为例</h3></div>
+      <div class="card-b">
+        <ol style="margin:0 0 14px;padding-left:20px;font-size:13.5px;color:var(--ink-2);line-height:1.8">
+          <li>主界面<b>右上角</b>点「设置」。</li>
+          <li>左侧菜单栏选「模型配置」板块。</li>
+          <li>右侧模型提供商列表中点需要的服务商（如「阿里云百炼」）。</li>
+          <li>把从服务商获取的 <code>API Key</code>（通常 <code>sk-</code> 开头）粘贴到对应输入框。</li>
+          <li>点「测试」检查连接是否成功，通过后点右上角「保存全部配置」。</li>
+          <li>回聊天页面，在模型下拉列表选刚配置好的模型即可对话。</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">方法二</span><h3>命令行 / 环境变量设置</h3></div>
+      <div class="card-b">
+        <p class="lede">用向导配置（<code>configure</code> 与 <code>onboard</code> 等效）：</p>
+        <pre class="code">openclaw onboard</pre>
+        <p class="lede">常驻运行的服务器场景推荐环境变量，OpenClaw 检测到后会自动启用对应提供商：</p>
+        <pre class="code"># 例如，为 NVIDIA 设置 API 密钥
+export NVIDIA_API_KEY="nvapi-..."</pre>
+        <div class="srcnote" style="margin-bottom:0"><b>环境变量存放位置</b>：临时运行直接在终端 <code>export</code> 即可；守护进程（如 systemd、launchd）建议写入 <code>~/.openclaw/.env</code>，守护进程才能读到。</div>
+      </div>
+    </div>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">方法三</span><h3>配置文件编辑 openclaw.json</h3></div>
+      <div class="card-b">
+        <p class="lede">核心配置文件 <code>openclaw.json</code> 默认存放在 <code>~/.openclaw/</code> 目录下，替换 <code>apiKey</code> 字段即可：</p>
+        <pre class="code">{
+  "env": {
+    // 如果你想用环境变量，可以把 API Key 写在这里
+  },
+  "models": {
+    "providers": {
+      "siliconflow": {
+        "baseUrl": "https://api.siliconflow.cn/v1",
+        "apiKey": "你的_API_密钥", // 将你的 API 密钥粘贴到这里
+        "api": "openai-completions"
+      }
+    }
+  }
+}</pre>
+      </div>
+    </div>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:200px">关键命令 / 路径</th><th>作用</th></tr></thead>
+      <tbody>
+        <tr><td><code>~/.openclaw/openclaw.json</code></td><td>核心配置文件。</td></tr>
+        <tr><td><code>openclaw doctor</code></td><td>诊断命令。</td></tr>
+        <tr><td><code>openclaw models status</code></td><td>测试/查看模型连接状态。</td></tr>
+        <tr><td><code>openclaw config file</code></td><td>查看活动配置文件路径。</td></tr>
+        <tr><td><code>openclaw config schema</code></td><td>查看配置结构。</td></tr>
+        <tr><td>Web 控制台 <code>http://127.0.0.1:18789</code></td><td>浏览器中进行配置管理和修改。</td></tr>
+        <tr><td><code>/etc/openclaw/conf.d/</code> 下 .env 文件</td><td>生产环境更规范的密钥管理方式。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="card st5">
+      <div class="card-h"><span class="tag">实操示例</span><h3>把 DeepSeek API 配置进 OpenClaw</h3></div>
+      <div class="card-b">
+        <p class="lede">方式一：用官方推荐的一键配置 <code>onboard</code>，按提示选择 <code>Yes</code> 免责声明 → <code>QuickStart</code> 模式 → 服务提供商选 <code>DeepSeek</code> → 粘贴 API 密钥 → 默认模型新手推荐 <code>deepseek-v4-flash</code>：</p>
+        <pre class="code">openclaw onboard --install-daemon</pre>
+        <p class="lede">方式三：在 <code>openclaw.json</code> 的 <code>models.providers</code> 中为 DeepSeek 添加/修改如下配置：</p>
+        <pre class="code">{
+  "models": {
+    "providers": {
+      "deepseek": {
+        "baseUrl": "https://api.deepseek.com",
+        "apiKey": "你的_DeepSeek_API_密钥"
+      }
+    }
+  }
+}</pre>
+        <p class="lede">配置完成后验证：聊天界面模型选择框搜索 <code>deepseek</code> 并选中（如 <code>deepseek-v4-flash</code>），或终端运行 <code>openclaw models status</code> 查看连接状态。</p>
+      </div>
+    </div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">从哪里获取 API Key</h3>
+        <dl class="kv">
+          <dt>国内/免费平台</dt><dd>阿里云百炼、MiniMax、Kimi、智谱 AI 等，免费额度多、访问稳定。</dd>
+          <dt>国际商业平台</dt><dd>OpenAI（GPT 系列）、Anthropic（Claude 系列），能力强但需海外支付、国内访问可能不稳。</dd>
+          <dt>本地模型</dt><dd>Ollama、LM Studio 等，数据隐私好、无需联网，但对显卡有要求。</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">OpenAI 兼容接口关键参数</h3>
+        <dl class="kv">
+          <dt>API Key</dt><dd>服务凭证，示例 <code>sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>。</dd>
+          <dt>Base URL</dt><dd>服务地址，如 <code>https://api.openai-proxy.com/v1</code>；官方 OpenAI 用户无需填写。</dd>
+          <dt>Model Name</dt><dd>实际能用的模型名，如 <code>gpt-4-turbo</code>、<code>claude-3-opus-20240229</code>。</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 04 接入 Qwen2.5 ══ -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>接入大模型：以 Qwen2.5 7B 为例</h2><span class="hint">01063</span></div>
+    <p class="lede">通过 OpenClaw 调用 Qwen2.5 7B Instruct，意味着拥有一位由大语言模型驱动的「智能数字员工」——它能听懂自然语言指令，并实际操作电脑完成任务。两者结合了 Qwen2.5 <b>强大的指令遵循、中文处理与代码数学能力</b>和 OpenClaw <b>操作执行工具的能力</b>。</p>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">办公与开发自动化</h3>
+        <ul style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2);line-height:1.7">
+          <li><b>会议纪要助手</b>：读取录音/文字记录，生成要点突出的纪要。</li>
+          <li><b>智能文档处理</b>：批量处理合同、报告，提取关键信息、格式转换、生成摘要。</li>
+          <li><b>邮件与报表</b>：草拟邮件、分析 Excel 数据生成图表、撰写分析报告。</li>
+          <li><b>代码生成与调试</b>：自然语言生成代码、审查问题、执行 Git 命令与测试脚本。</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">数据信息与生活服务</h3>
+        <ul style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2);line-height:1.7">
+          <li><b>智能爬虫与分析</b>：抓取网页/新闻/商品信息并输出总结报告。</li>
+          <li><b>结构化信息抽取</b>：从客户评价、问卷中提取信息输出规整 JSON。</li>
+          <li><b>个人知识库问答</b>：基于本地笔记、PDF 问答，保障数据隐私。</li>
+          <li><b>信息管家</b>：通过微信、Telegram 下达指令，获取会议提醒、天气、新闻推送；支持 29+ 种语言，可做翻译伙伴。</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="warnbox" style="margin-top:14px">
+      <h5>配置与使用关键提醒</h5>
+      <ul>
+        <li><b>模型选择</b>：务必选<b>通用对话模型</b>（如 <code>qwen2.5:7b-instruct</code>），<b>不要选</b>专为特定任务的 <code>coder</code> 模型，否则 Agent 在聊天等任务中可能无法正常回复。</li>
+        <li><b>上下文窗口</b>：为最大化 32K 长上下文能力，建议把 OpenClaw 配置文件中的上下文长度设为 <b>32K 或更高</b>。</li>
+        <li><b>善用技能扩展</b>：官方插件库（如 <code>clawhub.ai</code>）安装技能包，如 <code>File System</code> 读写本地文件、<code>Shell Execution</code> 执行终端命令。</li>
+        <li><b>API 与本地运行</b>：可通过阿里云 DashScope 调用 Qwen2.5 的 API，或用 Ollama 等本地运行，本地运行更保护隐私、避免 API 费用。</li>
+      </ul>
+    </div>
+
+    <div class="rl" style="margin-top:14px">
+      <h4>模型局限性</h4>
+      <div class="mid">纯文本模型，不具备视觉能力；7B 规模复杂推理弱于更大版本</div>
+      <p>它是纯文本模型，<b>不具备识别和解读图像、视频等视觉信息的能力</b>；7B 参数规模在极其复杂的推理任务上效果不如 72B 或更大版本；联网搜索等操作通常需要额外工具支持，而非模型本身直接支持。</p>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>OpenClaw 安装与 API 设置 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页安装命令与 API 配置均照录原笔记，软件版本与镜像地址可能随官方更新变化，操作前请以官方最新文档为准。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>EasyClaw 安装与积分体系</title>
+<meta name="description" content="EasyClaw AI 的图形界面与命令行两种安装方式、国内零门槛版本与社区技能包，以及积分与 token 不固定兑换、按模型类型动态换算的计费逻辑。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.rl{border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+
+pre.code{background:var(--code);border:1px solid var(--line);border-radius:var(--radius-sm);padding:13px 16px;font-family:var(--mono);font-size:12.5px;line-height:1.75;color:var(--ink-2);overflow-x:auto;margin:0 0 16px;white-space:pre;word-break:normal}
+
+details.acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:760px){
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+</style>
+</head>
+
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 安装方式</a>
+      <a href="#s1" data-sec="s1">02 积分与 token</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">效率工具 · 手册</span>
+  <h1>EasyClaw 安装与积分体系</h1>
+  <p class="s-lede">EasyClaw 的安装有图形界面与命令行两条路，国内用户还有零配置版本；它的积分与 token 并不是固定兑换率，而是按实际 token 调用量、随模型类型动态换算。本页合并两份安装与计费笔记。</p>
+  <div class="s-meta">
+    <span>发布日期 <b>2026-04-27</b></span>
+    <span>收录笔记 <b>2 篇</b></span>
+    <span>时间跨度 <b>2026-04-27</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">EasyClaw</span>
+    <span class="s-chip">图形界面安装</span>
+    <span class="s-chip">命令行安装</span>
+    <span class="s-chip">积分兑换</span>
+    <span class="s-chip">token 计费</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本文合并自以下笔记</b>（序号即原笔记编号，括号内为笔记日期）：
+    <ol>
+      <li>01037-2026-04-27 EasyClaw AI 安装指南</li>
+      <li>01038-2026-04-27 EasyClaw积分与token兑换关系</li>
+    </ol>
+  </div>
+
+  <!-- ══ 01 安装方式 ══ -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>两种安装方式与国内版本</h2><span class="hint">01037</span></div>
+    <p class="lede">EasyClaw 的安装主要有图形界面与命令行两种方式，国内用户还可选用零门槛专属版本；基础安装完成后，可通过「技能商店」扩展功能。</p>
+
+    <div class="grid g2">
+      <div class="card st1">
+        <div class="card-h"><span class="tag">推荐新手</span><h3>方式一：图形界面安装</h3></div>
+        <div class="card-b">
+          <dl class="kv">
+            <dt>下载</dt><dd>访问官网 <code>https://www.easyclaw.app/</code>，按操作系统（Windows、macOS 或 Linux）下载对应安装包。</dd>
+            <dt>运行</dt><dd>双击运行安装包，程序自动检测系统环境并引导完成安装。</dd>
+            <dt>配置密钥</dt><dd>启动应用后，按提示输入所选 AI 模型（如 OpenAI、Anthropic）的 API 密钥。</dd>
+          </dl>
+          <div class="srcnote" style="margin-top:14px;margin-bottom:0"><b>Windows 备用</b>：遇到环境问题可访问备用安装指南；该版本还支持 DeepSeek、Qwen 等模型，并提供免 API 密钥的 Gemini 访问选项。</div>
+        </div>
+      </div>
+
+      <div class="card st2">
+        <div class="card-h"><span class="tag">适合开发者</span><h3>方式二：命令行安装</h3></div>
+        <div class="card-b">
+          <p class="lede">更习惯终端、或需要在服务器上部署时，命令行效率更高。在 macOS 或 Linux 终端粘贴并运行以下脚本，它会自动完成环境检测、依赖安装和配置流程：</p>
+          <pre class="code">curl -fsSL https://openclaw.ai/install.sh | bash</pre>
+          <p style="font-size:13.5px;color:var(--ink-2);line-height:1.7">该命令来源于 EasyClaw 官方，适用于 macOS 和 Linux；Windows 用户请走备用安装指南。运行后留意终端提示完成后续配置。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g2" style="margin-top:14px">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">国内用户专属版本（零门槛）</h3>
+        <ul style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2);line-height:1.7">
+          <li>访问 <code>https://easyclaw.cn/</code> 下载专属安装程序。</li>
+          <li>双击运行，安装程序自动完成所有配置。</li>
+          <li>已内置国内主流 AI 模型支持，<b>无需自行申请和配置 API Key</b>，开箱即用。</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">进阶：安装「社区技能包」</h3>
+        <p style="font-size:13.5px;color:var(--ink-2);line-height:1.7;margin-bottom:10px">打开客户端，点击左侧「技能商店」，搜索需要的技能，再点「安装」等待完成即可。</p>
+        <div class="warnbox" style="margin-top:0">
+          <h5>安全提示</h5>
+          <ul><li>安装前提防恶意插件，优先选择带「官方认证」标签的插件包。</li></ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="tblwrap" style="margin-top:14px"><table>
+      <thead><tr><th style="width:150px">安装前环境</th><th>要求</th></tr></thead>
+      <tbody>
+        <tr><td><b>操作系统</b></td><td>支持 macOS、Windows、Linux；建议 Windows 10/11 或较新版本的 macOS/Linux。</td></tr>
+        <tr><td><b>硬件要求</b></td><td>无特殊配置，能流畅运行主流操作系统即可；本地运行 AI 模型（如 LLaMA）会占用更多内存和显存。</td></tr>
+        <tr><td><b>软件依赖</b></td><td><b>无需手动安装</b> Python 或 Docker 等环境。</td></tr>
+        <tr><td><b>其他依赖</b></td><td>API 密钥等所有配置均在安装程序中自动引导，无需额外准备。</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ══ 02 积分与 token ══ -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>积分与 token 的兑换关系</h2><span class="hint">01038</span></div>
+    <p class="lede">关于 EasyClaw 的积分和 token 比例，<b>目前没有一个公开固定的兑换率，不是一个常数</b>。1 积分对应的实际 token 数量会根据多种因素动态调整。</p>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">计费逻辑</span><h3>积分价值如何判定</h3></div>
+      <div class="card-b">
+        <p class="lede">EasyClaw 采用基于<b>实际 token 调用量</b>的计费模式，并通过「积分」体系计量。积分的核心价值并非与 token <b>数量</b>直接固定挂钩，而是与 token 在<b>不同模型</b>下的<b>实际货币成本</b>相关联。官方协议也强调：「积分由系统根据用户实际使用 AI 功能时消耗的 Token 量及<b>模型类型</b>自动换算抵扣」。</p>
+        <div class="grid g2">
+          <div class="panel">
+            <dl class="kv">
+              <dt>使用高级模型</dt><dd>调用 GPT-5.2、Claude 这类更强大的大模型，通常消耗更多积分来「购买」同等数量的 token。</dd>
+              <dt>执行复杂任务</dt><dd>指令越复杂、任务越长期，对话历史越长，消耗的 token 总数越高，所需积分也就越多。</dd>
+            </dl>
+          </div>
+          <div class="panel">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:8px">三大影响因素</h3>
+            <ul style="margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2);line-height:1.7">
+              <li><b>对话长度</b>：任务越复杂、轮次越多，token 消耗越多。</li>
+              <li><b>上下文长度</b>：AI 能「记住」的信息量，长文档/长对话消耗更多。</li>
+              <li><b>生成内容长度</b>：生成报告、代码或长文时，输出 token 消耗也很大。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:170px">参考标尺</th><th style="width:200px">数值</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>EasyClaw 免费版</b></td><td>每日赠送 <b>200 积分</b></td><td>最直观的标尺，可直接体验 200 积分能完成怎样的任务量。</td></tr>
+        <tr><td>QClaw（同行对比）</td><td>每日免费 4000 万 token</td><td>来自第三方评测，仅供参考，非官方准确值。</td></tr>
+        <tr><td>悟空 Wukong（同行对比）</td><td>每日免费约 500 万 token</td><td>同上，用于建立数量级概念。</td></tr>
+      </tbody>
+    </table></div>
+    <p>结合以上信息大致估算：对于普通或中等强度的模型，<b>1 积分大致可能对应相当于数万 token 的调用成本</b>。</p>
+
+    <div class="grid g2" style="margin-top:14px">
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">个人版：按量「日用」</h3>
+        <p style="font-size:13.5px;color:var(--ink-2);line-height:1.7">更像一个「日用」工具，每天 200 积分是上限，用完即止；每次任务的实际消耗建议在使用中留意系统反馈。</p>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:10px">企业版：按需采购</h3>
+        <p style="font-size:13.5px;color:var(--ink-2);line-height:1.7">积分是充值后获得的一种「虚拟信用额度」，用于灵活管理和分配团队成本。最精确的实时兑换率，请以产品内的充值或使用页面公示为准。</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>EasyClaw 安装与积分体系 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页内容整理自 EasyClaw 使用笔记，安装方式与积分规则均照录原笔记，兑换率与免费额度可能随官方策略调整，以官方渠道为准。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
