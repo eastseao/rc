@@ -573,7 +573,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);
 
 | 断点 | 触发条件 | 归属 | 动作 |
 |---|---|---|---|
-| **1270px** | 节点图放不下「节点流 + 340px 粘性侧栏」两栏 | 重型组件 | `.flow-layout` 转纵向，`.detail` 退回节点图下方（节点流仍是 4 个一行） |
+| **1270px** | ① 节点图放不下「节点流 + 340px 粘性侧栏」两栏；② 首页顶栏分类 chip 自然宽约 1189px、超过视口 | 重型组件 / 骨架 | ① `.flow-layout` 转纵向，`.detail` 退回节点图下方（节点流仍是 4 个一行）；② 首页 `#catnav` 开横向滚动（隐藏滚动条） |
 | **1100px** | 三列卡排不下 | 布局 | `.g3` → 2 列 |
 | **900px** | 顶栏项目排不下 | 骨架 | `.s-main` 内边距收窄；`.s-nav` 开横向滚动（隐藏滚动条）；下拉面板改 `position:fixed` 相对视口定位 |
 | **760px** | 宽表被压成「一字一列」 | 组件 | `.tblwrap` 横向滚动 + `table{min-width:600px;font-size:12.5px}`；同时 `.g3`/`.g2` → 1 列 |
@@ -611,7 +611,8 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);
 2. **不硬编码正文列宽度**：`max-width:1180px` 这类一律换成 `var(--maxw-read)`。
 3. **不给 `p` 加 `margin-inline:auto`** —— 段落会与左对齐的标题错位。
 4. **不在 `theme.css` 注释里写 `*` 紧邻 `/`**。
-5. **不给 `.s-nav` 加 `overflow-x:auto`** —— 桌面档会把下拉面板裁掉；它只在 900 断点里开。
+5. **不给 `.s-nav` 加 `overflow-x:auto`** —— 它是全站 379 个子页共用的组件，桌面档会把下拉面板裁掉；它只在 900 断点里开。
+   **唯一例外**：首页 `#catnav`（该 id 全站仅 index.html 使用，内部只有 `<a>`、无下拉面板；搜索面板是 `position:fixed` 挂在 `body` 上）在 `≤1270` 档开了横向滚动 —— 因为分类增至 8 个后 chip 自然宽约 1189px 会撑破 1024 档。**新写页面若要类似兜底，必须用页面专属 id，不得改 `.s-nav` 类。**
 6. **不引 CDN、webfont、外部 JS 或图标字体** —— 全站零构建、零外部依赖，图标一律内联 SVG。
 7. **不把 `.s-disc` 当段落用**：必须是 `<div class="s-disc"><p>…</p></div>`。
 
@@ -626,7 +627,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);
   kind: "手册",          // 手册 / 长文 / 工具 / 仪表盘 / 收藏
   url: "pages/新页.html",
   date: "2026-09-21",    // 决定列表排序与页脚「最近更新」
-  category: "行业研究",   // 行业研究 / 效率工具 / 金融分析 / 生活
+  category: "包装包材",   // 包装包材 / 采购与供应链 / 产品与渠道 / 本草与健康 / 建站与技术 / AI与Agent / 写作与创作 / 生活杂记
   tags: ["关键词一", "关键词二", "关键词三"]
 }
 ```
