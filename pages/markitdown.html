@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MarkItDown · 文件转 Markdown</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📄</text></svg>">
+<meta name="description" content="基于微软开源项目 MarkItDown 的网页版：PDF/Word/Excel/PPT/图片/HTML/ZIP/EPUB 等文件在浏览器本地转换为 Markdown，支持批量与下载。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--sans); background: var(--bg); color: var(--ink);
+    font-size: 14px; line-height: 1.65; min-height: 100vh; -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  :focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+
+  /* ── 顶栏（与全站工具页一致） ── */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: #0f172a; border-bottom: 1px solid transparent;
+    padding: 9px 32px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: baseline; gap: 8px; white-space: nowrap; }
+  .site-home { font-family: var(--mono); font-size: 14px; font-weight: 600; letter-spacing: .04em; color: #fff; }
+  .site-home:hover { color: #5eead4; }
+  .crumb-sep { color: #64748b; font-size: 13px; }
+  .brand-name { font-size: 14px; font-weight: 600; color: #f1f5f9; }
+  .top-actions { display: flex; gap: 8px; align-items: center; margin-inline-start: auto; }
+  .badge { font-family: var(--mono); font-size: 11px; color: #94a3b8; border: 1px solid rgba(255,255,255,.16); border-radius: 999px; padding: 3px 10px; }
+
+  /* ── 主体 ── */
+  .layout { max-width: var(--maxw-read); margin: 0 auto; padding: 30px 32px 80px; }
+  .page-head { margin-bottom: 22px; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: var(--accent); }
+  .eyebrow::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+  h1 { font-size: clamp(22px, 2.8vw, 30px); font-weight: 700; letter-spacing: -.014em; line-height: 1.3; margin: 12px 0 10px; }
+  .lede { color: var(--muted); font-size: 14.5px; line-height: 1.8; max-width: 720px; }
+  .lede a { color: var(--accent-ink); text-decoration: underline; text-underline-offset: 3px; }
+
+  .card {
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    padding: 20px 22px; margin-bottom: 16px;
+  }
+  .card h2 { font-size: 16px; font-weight: 700; letter-spacing: -.01em; margin-bottom: 6px; }
+  .card .sub { color: var(--muted); font-size: 13px; margin-bottom: 14px; line-height: 1.7; }
+
+  /* 上传区 */
+  .drop {
+    border: 2px dashed var(--line-2); border-radius: 10px; padding: 34px 20px;
+    text-align: center; color: var(--muted); cursor: pointer; transition: border-color .18s, background .18s;
+    background: var(--band);
+  }
+  .drop:hover, .drop.drag { border-color: var(--accent); background: var(--accent-soft); }
+  .drop .big { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+  .drop .hint { font-size: 12.5px; }
+  .drop input[type="file"] { display: none; }
+
+  .filelist { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .file-item {
+    display: flex; align-items: center; gap: 10px; padding: 9px 12px;
+    border: 1px solid var(--line); border-radius: 8px; background: var(--band); font-size: 13px;
+  }
+  .file-item .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+  .file-item .sz { font-family: var(--mono); font-size: 11px; color: var(--muted-2); white-space: nowrap; }
+  .file-item .st { font-family: var(--mono); font-size: 11px; white-space: nowrap; }
+  .file-item .st.ok { color: #0d9488; }
+  .file-item .st.err { color: #dc2626; }
+  .file-item .st.run { color: var(--accent); }
+  .file-item .del { background: none; border: 0; cursor: pointer; color: var(--muted-2); font-size: 14px; padding: 2px 4px; }
+  .file-item .del:hover { color: #dc2626; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .chip {
+    font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 3px 9px;
+    border-radius: 999px; background: var(--accent-soft); color: var(--accent);
+  }
+  .chip.off { background: var(--band); color: var(--muted-2); }
+
+  .actions { display: flex; align-items: center; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+  .btn {
+    padding: 8px 16px; border-radius: 8px; border: 1px solid var(--line-2);
+    background: #fff; color: var(--ink); font-size: 13px; font-family: inherit;
+    cursor: pointer; transition: background .15s, border-color .15s; font-weight: 600; white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-ink); border-color: var(--accent-ink); }
+  .progress { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+  /* 输出区 */
+  .out-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .out-head .info { font-family: var(--mono); font-size: 11.5px; color: var(--muted-2); }
+  .out-head .info b { color: var(--ink); }
+  pre.out {
+    font-family: var(--mono); font-size: 12.5px; line-height: 1.7; color: var(--ink-2);
+    background: var(--band); border: 1px solid var(--line); border-radius: 8px;
+    padding: 16px; max-height: 520px; overflow: auto; white-space: pre-wrap; word-break: break-word;
+  }
+  .out-empty { color: var(--muted-2); }
+
+  /* 限制说明 */
+  .warn {
+    background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px;
+    padding: 12px 14px; font-size: 12.5px; color: #92400e; line-height: 1.75; margin-top: 14px;
+  }
+  .warn code { font-family: var(--mono); background: rgba(0,0,0,.06); border-radius: 4px; padding: 1px 5px; font-size: 11.5px; }
+
+  @media (max-width: 640px) {
+    .topbar { padding: 9px 16px; }
+    .layout { padding: 24px 16px 60px; }
+    .card { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <a class="site-home" href="../index.html">GERVAS</a>
+    <span class="crumb-sep">/</span>
+    <span class="brand-name">MarkItDown</span>
+  </div>
+  <div class="top-actions">
+    <span class="badge">文件转 Markdown · 本地处理</span>
+  </div>
+</header>
+
+<main class="layout">
+
+  <div class="page-head">
+    <span class="eyebrow">微软开源项目 · markitdown</span>
+    <h1>MarkItDown · 文件转 Markdown</h1>
+    <p class="lede">基于微软开源项目
+      <a href="https://github.com/microsoft/markitdown" target="_blank" rel="noopener">MarkItDown</a>
+      （v0.1.8）能力的浏览器本地版：上传文件即转换为 Markdown，适合喂给 LLM 与文本分析管线。
+      所有转换均在浏览器本地完成，文件不会上传到任何服务器。
+      官方 Python 版支持更完整的音频转写、YouTube 转录与 Azure 云端增强，见页尾说明。</p>
+  </div>
+
+  <!-- 上传与转换 -->
+  <section class="card">
+    <h2>1 · 选择文件</h2>
+    <p class="sub">支持多选与拖放。可转换：PDF / Word / PowerPoint / Excel / 图片(OCR) / HTML / CSV / JSON / XML / ZIP / EPUB / 纯文本。</p>
+    <div class="drop" id="drop">
+      <div class="big">点击选择文件，或将文件拖到这里</div>
+      <div class="hint">可一次拖入多个文件，ZIP/EPUB 会递归转换内部内容</div>
+      <input type="file" id="file" multiple
+        accept=".pdf,.docx,.pptx,.xlsx,.xls,.csv,.json,.xml,.html,.htm,.txt,.md,.log,.png,.jpg,.jpeg,.gif,.webp,.bmp,.zip,.epub,.mp3,.wav,.m4a,.aac,.ogg,.flac,.msg">
+    </div>
+    <div class="filelist" id="filelist"></div>
+    <div class="chips" style="margin-top:14px">
+      <span class="chip">PDF</span><span class="chip">DOCX</span><span class="chip">PPTX</span><span class="chip">XLSX/XLS</span>
+      <span class="chip">图片 OCR</span><span class="chip">HTML</span><span class="chip">CSV/JSON/XML</span>
+      <span class="chip">ZIP</span><span class="chip">EPUB</span><span class="chip">TXT/MD</span>
+      <span class="chip off">音频/YouTube/Outlook（受限）</span>
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary" id="run" disabled>开始转换</button>
+      <button class="btn" id="clear">清空</button>
+      <span class="progress" id="prog"></span>
+    </div>
+  </section>
+
+  <!-- 输出 -->
+  <section class="card" id="outcard">
+    <div class="out-head">
+      <h2 style="margin:0">2 · 转换结果</h2>
+      <div class="info" id="outinfo">尚未转换</div>
+      <div style="display:flex;gap:8px;margin-inline-start:auto">
+        <button class="btn" id="copy" disabled>复制</button>
+        <button class="btn" id="dl" disabled>下载 .md</button>
+      </div>
+    </div>
+    <pre class="out out-empty" id="out"></pre>
+  </section>
+
+  <!-- 限制与官方用法 -->
+  <section class="card">
+    <h2>浏览器限制与官方用法</h2>
+    <p class="sub">以下能力受浏览器沙箱限制，本页无法完全复现，建议使用官方 Python 版本：</p>
+    <div class="warn">
+      · <b>音频转写</b>（mp3/wav 等语音转文字）与 <b>YouTube 转录</b>：浏览器端无法对本地音频文件/视频链接直接转写，本页不处理。<br>
+      · <b>Outlook .msg</b>：前端无可用解析库，暂不支持。<br>
+      · <b>图片描述（LLM Vision）</b>：官方版可接 OpenAI 等大模型生成图片描述，浏览器版仅提供本地 OCR 文字识别。<br>
+      · 本页实现为纯前端近似版，与官方输出可能存在结构差异；高保真转换请用官方 CLI：<br>
+      <code>pip install 'markitdown[all]'</code> &nbsp;→&nbsp;
+      <code>markitdown 文件.pdf -o 输出.md</code>
+    </div>
+  </section>
+
+</main>
+
+<!-- 转换引擎：CDN 库（失败时页面会提示） -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/turndown/7.1.2/turndown.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.4/tesseract.min.js"></script>
+<script>
+(function(){
+  'use strict';
+  var $ = function(id){ return document.getElementById(id); };
+  var files = [];
+  var outText = '';
+
+  /* ── 工具 ─────────────────────────────────────── */
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]); }); }
+  function fmtSize(n){ if (!n) return '0 B'; if (n < 1024) return n + ' B'; if (n < 1048576) return (n/1024).toFixed(1) + ' KB'; return (n/1048576).toFixed(2) + ' MB'; }
+  function extOf(name){ var i = name.lastIndexOf('.'); return i >= 0 ? name.slice(i+1).toLowerCase() : ''; }
+  function baseOf(name){ var i = name.lastIndexOf('.'); return i >= 0 ? name.slice(0,i) : name; }
+  function loadLib(name){
+    var ok = { jszip: 'JSZip', mammoth: 'mammoth', xlsx: 'XLSX', turndown: 'TurndownService', pdf: 'pdfjsLib', tesseract: 'Tesseract' }[name];
+    if (name === 'turndown' ? (typeof TurndownService === 'undefined') : (typeof window[ok] === 'undefined')) {
+      throw new Error('依赖库加载失败：' + name + '（可能被网络拦截，请刷新重试）');
+    }
+    return name === 'turndown' ? TurndownService : window[ok];
+  }
+  function td(){ return new (loadLib('turndown'))({ headingStyle:'atx', bulletListMarker:'-', codeBlockStyle:'fenced' }); }
+
+  function arrbuf(buf){ return buf.slice(0); }
+  function textOf(buf){ return new TextDecoder('utf-8').decode(buf); }
+  function blobOf(buf, name){ return new Blob([buf], { type: 'application/octet-stream' }); }
+
+  /* ── 转换器：各格式 → Markdown ───────────────── */
+  function pdfToMd(buf){
+    var pdfjsLib = loadLib('pdf');
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    return pdfjsLib.getDocument({ data: arrbuf(buf) }).promise.then(function(doc){
+      var tasks = [];
+      for (var i = 1; i <= doc.numPages; i++) {
+        tasks.push(doc.getPage(i).then(function(pg){ return pg.getTextContent(); }).then(function(tc){
+          var lines = [], last = null;
+          tc.items.forEach(function(it){
+            var t = (it.str || '').trim();
+            if (!t) return;
+            if (last && Math.abs(it.transform[5] - last) < 3) { lines[lines.length-1] += t; }
+            else { lines.push(t); }
+            last = it.transform[5];
+          });
+          return lines.join('\n');
+        }));
+      }
+      return Promise.all(tasks).then(function(parts){
+        return parts.map(function(t, i){ return '<!-- page ' + (i+1) + ' -->\n' + t; }).join('\n\n');
+      });
+    });
+  }
+
+  function docxToMd(buf){
+    var mammoth = loadLib('mammoth');
+    return mammoth.convertToHtml({ arrayBuffer: arrbuf(buf) }).then(function(res){
+      var html = res.value;
+      html = html.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '');
+      var md = td().turndown(html);
+      return md.replace(/\n{3,}/g, '\n\n').trim();
+    });
+  }
+
+  function pptxToMd(buf){
+    var JSZip = loadLib('jszip');
+    return JSZip.loadAsync(arrbuf(buf)).then(function(zip){
+      var slideFiles = Object.keys(zip.files).filter(function(n){ return /^ppt\/slides\/slide\d+\.xml$/.test(n); })
+        .sort(function(a,b){ return parseInt(a.match(/slide(\d+)/)[1]) - parseInt(b.match(/slide(\d+)/)[1]); });
+      return Promise.all(slideFiles.map(function(n){ return zip.file(n).async('text'); })).then(function(xmls){
+        return xmls.map(function(xml, i){
+          var doc = new DOMParser().parseFromString(xml, 'application/xml');
+          var paras = Array.prototype.map.call(doc.getElementsByTagName('a:p'), function(p){
+            var runs = Array.prototype.map.call(p.getElementsByTagName('a:t'), function(t){ return t.textContent; });
+            return runs.join('').trim();
+          }).filter(Boolean);
+          return '## Slide ' + (i+1) + '\n\n' + paras.join('\n\n');
+        }).join('\n\n---\n\n');
+      });
+    });
+  }
+
+  function xlsxToMd(buf){
+    var XLSX = loadLib('xlsx');
+    var wb = XLSX.read(arrbuf(buf), { type: 'array', cellDates: true });
+    var parts = [];
+    wb.SheetNames.forEach(function(name){
+      var ws = wb.Sheets[name];
+      var rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+      if (!rows.length) return;
+      var w = rows.reduce(function(mx, r){ return Math.max(mx, r.length); }, 0);
+      var md = '### ' + name + '\n\n';
+      rows.forEach(function(r, ri){
+        var cells = [];
+        for (var c = 0; c < w; c++) { var v = r[c]; cells.push(String(v == null ? '' : v).replace(/\|/g,'\\|').replace(/\n/g,' ')); }
+        md += '| ' + cells.join(' | ') + ' |\n';
+        if (ri === 0) { md += '|' + new Array(w).fill('---').join('|') + '|\n'; }
+      });
+      parts.push(md);
+    });
+    return parts.join('\n');
+  }
+
+  function csvToMd(buf){
+    var text = textOf(buf).replace(/^\uFEFF/, '');
+    var rows = parseCsv(text);
+    if (!rows.length) return '';
+    var w = rows.reduce(function(mx, r){ return Math.max(mx, r.length); }, 0);
+    var md = '';
+    rows.forEach(function(r, ri){
+      var cells = [];
+      for (var c = 0; c < w; c++) { cells.push(String(r[c] == null ? '' : r[c]).replace(/\|/g,'\\|').replace(/\n/g,' ')); }
+      md += '| ' + cells.join(' | ') + ' |\n';
+      if (ri === 0) { md += '|' + new Array(w).fill('---').join('|') + '|\n'; }
+    });
+    return md;
+  }
+  function parseCsv(text){
+    var rows = [], row = [], cur = '', inQ = false;
+    for (var i = 0; i < text.length; i++) {
+      var ch = text[i];
+      if (inQ) {
+        if (ch === '"') { if (text[i+1] === '"') { cur += '"'; i++; } else { inQ = false; } }
+        else { cur += ch; }
+      } else if (ch === '"') { inQ = true; }
+      else if (ch === ',') { row.push(cur); cur = ''; }
+      else if (ch === '\n' || ch === '\r') {
+        if (ch === '\r' && text[i+1] === '\n') i++;
+        row.push(cur); cur = ''; rows.push(row); row = [];
+      } else { cur += ch; }
+    }
+    if (cur.length || row.length) { row.push(cur); rows.push(row); }
+    return rows;
+  }
+
+  function jsonToMd(buf){
+    var raw = textOf(buf).replace(/^\uFEFF/, '');
+    try {
+      var j = JSON.parse(raw);
+      var wrap = function(o){ return '```json\n' + JSON.stringify(o, null, 2) + '\n```'; };
+      if (Array.isArray(j) && j.length && j[0] && typeof j[0] === 'object' && !Array.isArray(j[0])) {
+        var keys = Object.keys(j[0]);
+        var md = '| ' + keys.join(' | ') + ' |\n|' + keys.map(function(){ return '---'; }).join('|') + '|\n';
+        j.forEach(function(o){ md += '| ' + keys.map(function(k){ return String(o[k] == null ? '' : o[k]).replace(/\|/g,'\\|').replace(/\n/g,' '); }).join(' | ') + ' |\n'; });
+        return md;
+      }
+      return wrap(j);
+    } catch (e) { return '```json\n' + raw + '\n```'; }
+  }
+
+  function xmlToMd(buf){
+    var raw = textOf(buf).replace(/^\uFEFF/, '');
+    return '```xml\n' + raw + '\n```';
+  }
+
+  function htmlToMd(buf){
+    var raw = textOf(buf).replace(/^\uFEFF/, '');
+    var doc = new DOMParser().parseFromString(raw, 'text/html');
+    var body = doc.body || doc.documentElement;
+    if (body) {
+      Array.prototype.forEach.call(body.querySelectorAll('script,style,noscript,iframe,svg'), function(n){ n.remove(); });
+    }
+    return td().turndown(body).replace(/\n{3,}/g, '\n\n').trim();
+  }
+
+  function textToMd(buf, name){
+    return textOf(buf).replace(/^\uFEFF/, '');
+  }
+
+  function imageToMd(buf, name){
+    var Tesseract = loadLib('tesseract');
+    var blob = new Blob([arrbuf(buf)]);
+    var meta = '<!-- 文件: ' + name + ' · 大小: ' + fmtSize(buf.byteLength) + ' · OCR 文字识别 -->\n';
+    return Tesseract.recognize(blob, 'chi_sim+eng').then(function(res){
+      var t = (res.data && res.data.text || '').trim();
+      return meta + '\n' + (t || '（未识别到文字）');
+    });
+  }
+
+  function zipToMd(buf, name){
+    var JSZip = loadLib('jszip');
+    return JSZip.loadAsync(arrbuf(buf)).then(function(zip){
+      var items = [];
+      zip.forEach(function(path, entry){
+        if (entry.dir) return;
+        items.push({ path: path, entry: entry });
+      });
+      items.sort(function(a,b){ return a.path.localeCompare(b.path); });
+      return items.reduce(function(p, it){
+        return p.then(function(){
+          return it.entry.async('arraybuffer').then(function(inner){
+            var nm = it.path.split('/').pop();
+            return convertBuffer(inner, nm).then(function(md){
+              return { path: it.path, md: md };
+            }).catch(function(e){ return { path: it.path, md: '（转换失败：' + e.message + '）' }; });
+          });
+        }).then(function(r){ return r; });
+      }, Promise.resolve()).then(function(list){
+        return '<!-- ZIP 内容: ' + name + ' -->\n\n' + list.map(function(r){
+          return '<!-- 文件: ' + r.path + ' -->\n' + r.md;
+        }).join('\n\n---\n\n');
+      });
+    });
+  }
+
+  function epubToMd(buf, name){
+    var JSZip = loadLib('jszip');
+    return JSZip.loadAsync(arrbuf(buf)).then(function(zip){
+      function read(path){ var f = zip.file(path); return f ? f.async('text') : Promise.resolve(''); }
+      return read('META-INF/container.xml').then(function(container){
+        var opfPath = 'OEBPS/content.opf';
+        var m = container.match(/full-path="([^"]+)"/);
+        if (m) opfPath = m[1];
+        return read(opfPath).then(function(opf){
+          var spine = Array.prototype.map.call(
+            new DOMParser().parseFromString(opf, 'application/xml').getElementsByTagName('itemref'),
+            function(n){ return n.getAttribute('idref'); }
+          );
+          var hrefs = {};
+          var manifest = new DOMParser().parseFromString(opf, 'application/xml').getElementsByTagName('item');
+          Array.prototype.forEach.call(manifest, function(n){
+            hrefs[n.getAttribute('id')] = n.getAttribute('href');
+          });
+          var base = opfPath.replace(/[^/]*$/, '');
+          var targets = spine.map(function(id){ return base + (hrefs[id] || ''); });
+          return targets.reduce(function(p, t){
+            return p.then(function(acc){
+              var f = zip.file(t);
+              if (!f) return acc;
+              return f.async('text').then(function(xml){
+                var doc = new DOMParser().parseFromString(xml, 'text/html');
+                var body = doc.body || doc.documentElement;
+                if (body) Array.prototype.forEach.call(body.querySelectorAll('script,style,noscript,svg'), function(n){ n.remove(); });
+                var md = td().turndown(body).replace(/\n{3,}/g, '\n\n').trim();
+                return acc + '\n\n<!-- 章节: ' + t.split('/').pop() + ' -->\n\n' + md;
+              });
+            });
+          }, '').then(function(all){
+            return '<!-- EPUB: ' + name + ' -->\n' + all.trim();
+          });
+        });
+      });
+    });
+  }
+
+  /* ── 受限格式：返回说明 ─────────────────────── */
+  function limitedToMd(ext){
+    var tips = {
+      audio: '音频转写（' + ext + '）在浏览器中不可用。官方用法：pip install "markitdown[audio-transcription]"，然后 markitdown 文件.' + ext + ' -o 输出.md',
+      msg: 'Outlook .msg 解析暂不支持，请用官方 CLI：pip install markitdown，markitdown 文件.msg -o 输出.md'
+    };
+    return '<!-- 受限：' + tips[ext] + ' -->';
+  }
+
+  /* ── 分发 ─────────────────────────────────────── */
+  function convertBuffer(buf, name){
+    var ext = extOf(name);
+    switch (ext) {
+      case 'pdf': return pdfToMd(buf);
+      case 'docx': return docxToMd(buf);
+      case 'pptx': return pptxToMd(buf);
+      case 'xlsx': case 'xls': return xlsxToMd(buf);
+      case 'csv': return Promise.resolve(csvToMd(buf));
+      case 'json': return Promise.resolve(jsonToMd(buf));
+      case 'xml': return Promise.resolve(xmlToMd(buf));
+      case 'html': case 'htm': return Promise.resolve(htmlToMd(buf));
+      case 'txt': case 'md': case 'log': case 'markdown': return Promise.resolve(textToMd(buf, name));
+      case 'png': case 'jpg': case 'jpeg': case 'gif': case 'webp': case 'bmp': case 'tif': case 'tiff':
+        return imageToMd(buf, name);
+      case 'zip': return zipToMd(buf, name);
+      case 'epub': return epubToMd(buf, name);
+      case 'mp3': case 'wav': case 'm4a': case 'aac': case 'ogg': case 'flac': case 'wma':
+        return Promise.resolve(limitedToMd('audio'));
+      case 'msg': return Promise.resolve(limitedToMd('msg'));
+      default: return Promise.resolve('<!-- 暂不支持该格式：.' + ext + '（支持 PDF/DOCX/PPTX/XLSX/CSV/JSON/XML/HTML/图片/ZIP/EPUB/文本） -->');
+    }
+  }
+
+  /* ── 文件列表 UI ─────────────────────────────── */
+  function renderFiles(){
+    var box = $('filelist');
+    if (!files.length) { box.innerHTML = ''; $('run').disabled = true; return; }
+    $('run').disabled = false;
+    box.innerHTML = files.map(function(f, i){
+      var st = f.status === 'ok' ? '<span class="st ok">✓ 完成</span>'
+        : f.status === 'err' ? '<span class="st err">✗ ' + esc(f.error || '失败') + '</span>'
+        : f.status === 'run' ? '<span class="st run">… 转换中</span>'
+        : '<span class="st">待转换</span>';
+      return '<div class="file-item"><span class="nm">' + esc(f.name) + '</span>'
+        + '<span class="sz">' + fmtSize(f.size) + '</span>' + st
+        + '<button class="del" type="button" data-i="' + i + '" title="移除">✕</button></div>';
+    }).join('');
+    Array.prototype.forEach.call(box.querySelectorAll('.del'), function(b){
+      b.addEventListener('click', function(){ files.splice(+b.dataset.i, 1); renderFiles(); resetOut(); });
+    });
+  }
+  function addFiles(list){
+    Array.prototype.forEach.call(list, function(file){
+      if (!files.some(function(f){ return f.name === file.name && f.size === file.size; })) {
+        files.push({ name: file.name, size: file.size, file: file, status: '' });
+      }
+    });
+    renderFiles();
+  }
+
+  /* ── 转换主流程 ─────────────────────────────── */
+  function resetOut(){ outText = ''; $('out').textContent = '尚未转换'; $('out').classList.add('out-empty'); $('outinfo').textContent = '尚未转换'; $('copy').disabled = true; $('dl').disabled = true; }
+
+  function run(){
+    if (!files.length) return;
+    $('run').disabled = true; $('clear').disabled = true;
+    var parts = [];
+    var done = 0;
+    $('prog').textContent = '';
+    function next(i){
+      if (i >= files.length) { finish(parts); return; }
+      var f = files[i];
+      f.status = 'run'; renderFiles();
+      f.file.arrayBuffer().then(function(buf){
+        return convertBuffer(buf, f.name);
+      }).then(function(md){
+        f.status = 'ok'; parts.push('<!-- 文件: ' + f.name + ' -->\n\n' + md);
+      }).catch(function(e){
+        f.status = 'err'; f.error = e.message; parts.push('<!-- 文件: ' + f.name + ' → 失败: ' + e.message + ' -->');
+      }).then(function(){
+        done++; $('prog').textContent = done + ' / ' + files.length;
+        renderFiles(); next(i + 1);
+      });
+    }
+    next(0);
+  }
+  function finish(parts){
+    outText = parts.join('\n\n---\n\n');
+    var n = files.filter(function(f){ return f.status === 'ok'; }).length;
+    $('out').textContent = outText || '（无输出）';
+    $('out').classList.toggle('out-empty', !outText);
+    $('outinfo').innerHTML = '共 ' + files.length + ' 个文件，成功 ' + n + ' 个 · <b>' + outText.length.toLocaleString() + '</b> 字符';
+    $('copy').disabled = !outText; $('dl').disabled = !outText;
+    $('run').disabled = false; $('clear').disabled = false; $('prog').textContent = '';
+  }
+
+  /* ── 事件绑定 ───────────────────────────────── */
+  var drop = $('drop'), input = $('file');
+  drop.addEventListener('click', function(){ input.click(); });
+  input.addEventListener('change', function(){ addFiles(input.files); input.value = ''; });
+  ['dragenter','dragover'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.add('drag'); }); });
+  ['dragleave','drop'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.remove('drag'); }); });
+  drop.addEventListener('drop', function(e){ addFiles(e.dataTransfer.files); });
+
+  $('run').addEventListener('click', run);
+  $('clear').addEventListener('click', function(){ files = []; renderFiles(); resetOut(); });
+  $('copy').addEventListener('click', function(){
+    if (!outText) return;
+    navigator.clipboard.writeText(outText).then(function(){ $('prog').textContent = '已复制'; })
+      .catch(function(){ $('prog').textContent = '复制失败'; });
+  });
+  $('dl').addEventListener('click', function(){
+    if (!outText) return;
+    var blob = new Blob([outText], { type: 'text/markdown;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (files.length === 1 ? baseOf(files[0].name) : 'markitdown-输出') + '.md';
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 400);
+  });
+
+  /* 首次渲染 */
+  renderFiles();
+  resetOut();
+})();
+</script>
+
+<a class="g-pill" href="../index.html" title="返回日常首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+</body>
+</html>
