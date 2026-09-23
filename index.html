@@ -118,6 +118,15 @@
   .empty{grid-column:1/-1;text-align:center;padding:56px 20px;color:var(--muted);border:1px dashed var(--line-2);border-radius:var(--radius)}
   .empty .big{font-family:var(--mono);font-size:26px;margin-bottom:8px;opacity:.5}
 
+  /* 分页 */
+  .pager{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:28px;font-family:var(--mono)}
+  .pager[hidden]{display:none}
+  .pager .pg-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;font-size:12.5px;font-family:var(--mono);
+    border:1px solid var(--line-2);border-radius:var(--radius-sm);background:#fff;color:var(--muted);cursor:pointer;transition:.15s}
+  .pager .pg-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent-ink)}
+  .pager .pg-btn:disabled{opacity:.4;cursor:default}
+  .pager .pg-info{color:var(--muted-2);font-size:12px;letter-spacing:.04em;padding:0 4px}
+
   /* ── 6. 页脚 ─────────────────────────────────────── */
   .s-foot{background:var(--band);border-top:1px solid var(--line)}
   .s-foot-in{max-width:var(--maxw);margin:0 auto;padding:40px 32px 30px;display:grid;grid-template-columns:1.6fr 1fr 1.2fr 1fr;gap:30px}
@@ -208,6 +217,9 @@
 
     <!-- 卡片网格 -->
     <div class="grid" id="grid"></div>
+
+    <!-- 分页（每页 20 卡） -->
+    <nav class="pager" id="pager" aria-label="分页"></nav>
   </main>
 
 </div>
@@ -5754,6 +5766,8 @@ const ARROW = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" strok
 
 let currentCat = "全部";
 let keyword = "";
+const PAGE_SIZE = 20;
+let page = 1;
 
 function esc(s){
   return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
@@ -5803,6 +5817,7 @@ function syncActive(){
 }
 function setCat(cat){
   currentCat = cat;
+  page = 1;
   syncActive();
   renderFeature();
   renderGrid();
@@ -5843,13 +5858,18 @@ function renderWorksHead(){
   document.getElementById('works-hint').textContent = keyword ? '· 「' + keyword + '」' : '';
 }
 
-/* ── 卡片网格 ─────────────────────────────────────── */
+/* ── 卡片网格（每页 20 卡） ───────────────────────── */
+function totalPages(){ return Math.max(1, Math.ceil(gridItems().length / PAGE_SIZE)); }
 function renderGrid(){
   const grid = document.getElementById('grid');
   const list = gridItems();
+  if (page > totalPages()) page = totalPages();
+  const start = (page - 1) * PAGE_SIZE;
+  const slice = list.slice(start, start + PAGE_SIZE);
   const personal = PAGES.filter(p => p.personal);
+  const isLast = page === totalPages();
 
-  let html = list.map(p => `
+  let html = slice.map(p => `
     <article class="card">
       <div class="crow"><span class="cat">${esc(p.category)}</span><span class="date">${esc(p.date)}</span></div>
       <h3><a href="${p.url}">${esc(p.title)}</a></h3>
@@ -5858,8 +5878,8 @@ function renderGrid(){
       <div class="foot"><a class="link-arrow" href="${p.url}">阅读全文 ${ARROW}</a></div>
     </article>`).join('');
 
-  /* 「关于」卡仅在「全部 + 无搜索」时出现在网格末位 */
-  if (currentCat === "全部" && !keyword) {
+  /* 「关于」卡仅在「全部 + 无搜索」时出现在末页网格末位 */
+  if (currentCat === "全部" && !keyword && isLast) {
     html += personal.map(p => `
       <article class="card personal" id="about">
         <span class="kicker">${esc(p.kicker)}</span>
@@ -5872,6 +5892,31 @@ function renderGrid(){
 
   grid.innerHTML = html || `<div class="empty"><div class="big">[ 空 ]</div>没有匹配的作品${keyword ? `：<b>${esc(keyword)}</b>` : ''}</div>`;
   renderWorksHead();
+  renderPager();
+}
+
+/* ── 分页 ─────────────────────────────────────────── */
+function renderPager(){
+  const box = document.getElementById('pager');
+  const t = totalPages();
+  if (t <= 1) { box.hidden = true; box.innerHTML = ''; return; }
+  box.hidden = false;
+  const prev = `<button type="button" class="pg-btn" id="pg-prev"${page <= 1 ? ' disabled' : ''}>‹ 上一页</button>`;
+  const info = `<span class="pg-info">第 ${page} / ${t} 页</span>`;
+  const next = `<button type="button" class="pg-btn" id="pg-next"${page >= t ? ' disabled' : ''}>下一页 ›</button>`;
+  box.innerHTML = prev + info + next;
+  const p = box.querySelector('#pg-prev');
+  const n = box.querySelector('#pg-next');
+  if (p) p.addEventListener('click', () => goPage(page - 1));
+  if (n) n.addEventListener('click', () => goPage(page + 1));
+}
+function goPage(p){
+  const t = totalPages();
+  if (p < 1 || p > t || p === page) return;
+  page = p;
+  renderGrid();
+  const el = document.getElementById('works');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 /* ── 页脚两栏：跟随登记表自动派生 ───────────────── */
@@ -5908,13 +5953,14 @@ function initSearch(){
     document.body.appendChild(panel);
     const input = panel.querySelector('#q');
     input.focus();
-    input.addEventListener('input', () => { keyword = input.value.trim(); renderFeature(); renderGrid(); });
+    input.addEventListener('input', () => { keyword = input.value.trim(); page = 1; renderFeature(); renderGrid(); });
     panel.querySelector('#qclose').addEventListener('click', close);
     input.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
   });
   function close(){
     if (panel) { panel.remove(); panel = null; }
     keyword = '';
+    page = 1;
     renderFeature();
     renderGrid();
   }
@@ -5929,6 +5975,8 @@ function initAbout(){
     a.addEventListener('click', e => {
       e.preventDefault();
       if (currentCat !== "全部" || keyword) { setCat("全部"); }
+      page = totalPages();
+      renderGrid();
       const el = document.getElementById('about');
       if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
     });
