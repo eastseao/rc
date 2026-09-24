@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>产品BOM查询页面设计 · 2025</title>
+<meta name="description" content="好的 👍 我来帮你把 “产品BOM查询页面” 完整方案设计出来，保持和你现有的“物料查询页面”风格一致。  --- ✅ 页面功能说明页面文件名建议：bom.html  数据文件名建议：bom_data.json 一、页面功能结构- 检索栏">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a><a href="#s2" data-sec="s2">Q2</a><a href="#s3" data-sec="s3">Q3</a><a href="#s4" data-sec="s4">Q4</a><a href="#s5" data-sec="s5">Q5</a><a href="#s6" data-sec="s6">Q6</a><a href="#s7" data-sec="s7">Q7</a><a href="#s8" data-sec="s8">Q8</a><a href="#s9" data-sec="s9">Q9</a><a href="#s10" data-sec="s10">Q10</a><a href="#s11" data-sec="s11">Q11</a><a href="#s12" data-sec="s12">Q12</a><a href="#s15">…Q15</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · 建站
+  <h1 class="s-h1">产品BOM查询页面设计</h1>
+  <p class="s-lede">好的 👍 我来帮你把 “产品BOM查询页面” 完整方案设计出来，保持和你现有的“物料查询页面”风格一致。  --- ✅ 页面功能说明页面文件名建议：bom.html  数据文件名建议：bom_data.json 一、页面功能结构- 检索栏</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>30</b></span>
+    <span>时间范围 <b>2025-10-28 ~ 2025-10-28</b></span>
+    <span>分类 <b>建站与技术</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">建站</span>
+    <span class="s-chip">2025</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>产品BOM的页面要重新部署，数据也变了。1、检索栏品名提供模糊搜索，项目号提供精…</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>产品BOM的页面要重新部署，数据也变了。1、检索栏品名提供模糊搜索，项目号提供精准搜索，只有这两个搜索框。2、有重置按钮，不搜索时不显示。3、查询后列表显示的顺序是项目号、品名、规格、零售价、物料项目号、物料名称、数量和计量单位，其中项目号、品名、规格、零售价这四项每项都可以合并到一起。项目号是父项，后面的物料项目号及物料名称、数量和计量单位都是子项。风格沿用物料查询页面。</p></div>
+      <div class="qa-a"><p>好的 👍 我来帮你把 <strong>“产品BOM查询页面”</strong> 完整方案设计出来，保持和你现有的“物料查询页面”风格一致。  </p>
+<p>---</p>
+<h3 class="sub-h">✅ 页面功能说明</h3>
+<p><strong>页面文件名建议</strong>：<code>bom.html</code>   <strong>数据文件名建议</strong>：<code>bom_data.json</code></p>
+<h4 class="sub-h">一、页面功能结构</h4>
+<ul class="md-ul"><li><strong>检索栏</strong></li></ul>
+<p>  - 输入框①：品名（模糊搜索）   - 输入框②：项目号（精准搜索）   - 按钮：查询、重置   - （页面加载时默认隐藏表格，只有搜索后才显示）</p>
+<ul class="md-ul"><li><strong>数据展示区</strong></li></ul>
+<p>  - 查询结果为 <strong>按“项目号”为父项的分组显示</strong>   - 每个项目下可折叠展示对应的 BOM 子项（物料明细）   - 显示列顺序：     ``<code>     项目号 | 品名 | 规格 | 零售价 | 物料项目号 | 物料名称 | 数量 | 计量单位     </code>``   - 表格样式与“物料查询页”保持一致（Tailwind 风格）</p>
+<p>---</p>
+<h3 class="sub-h">✅ 页面布局与逻辑（HTML + JS）</h3>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;产品BOM查询&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;style&gt;
+    .fade-in { animation: fadeIn 0.4s ease-in; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .parent-row { background-color: #f1f5f9; font-weight: bold; cursor: pointer; }
+    .child-row { background-color: #fff; }
+    .hidden { display: none; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body class=&quot;bg-gray-100 min-h-screen p-4&quot;&gt;
+  &lt;div class=&quot;max-w-6xl mx-auto bg-white p-6 rounded-2xl shadow fade-in&quot;&gt;
+
+    &lt;!-- 搜索栏 --&gt;
+    &lt;h2 class=&quot;text-2xl font-bold mb-4 text-gray-800&quot;&gt;产品BOM查询&lt;/h2&gt;
+    &lt;div class=&quot;flex flex-wrap gap-2 mb-4&quot;&gt;
+      &lt;input id=&quot;searchName&quot; type=&quot;text&quot; placeholder=&quot;按品名模糊搜索&quot;
+             class=&quot;border border-gray-300 rounded px-3 py-2 flex-1 min-w-[180px]&quot;&gt;
+      &lt;input id=&quot;searchProject&quot; type=&quot;text&quot; placeholder=&quot;按项目号精准搜索&quot;
+             class=&quot;border border-gray-300 rounded px-3 py-2 flex-1 min-w-[180px]&quot;&gt;
+      &lt;button id=&quot;searchBtn&quot; class=&quot;bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700&quot;&gt;查询&lt;/button&gt;
+      &lt;button id=&quot;resetBtn&quot; class=&quot;bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400&quot;&gt;重置&lt;/button&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 结果表格 --&gt;
+    &lt;div id=&quot;resultArea&quot; class=&quot;hidden overflow-x-auto&quot;&gt;
+      &lt;table class=&quot;min-w-full border border-gray-300&quot;&gt;
+        &lt;thead class=&quot;bg-gray-200&quot;&gt;
+          &lt;tr&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;项目号&lt;/th&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;品名&lt;/th&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;规格&lt;/th&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;零售价&lt;/th&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;物料项目号&lt;/th&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;物料名称&lt;/th&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;数量&lt;/th&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;计量单位&lt;/th&gt;
+          &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody id=&quot;resultTable&quot; class=&quot;text-sm&quot;&gt;&lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
+
+  &lt;/div&gt;
+
+  &lt;script&gt;
+    let bomData = [];
+
+    // 页面初始化加载JSON数据
+    fetch(&#x27;bom_data.json&#x27;)
+      .then(res =&gt; res.json())
+      .then(data =&gt; bomData = data)
+      .catch(err =&gt; console.error(&#x27;数据加载失败:&#x27;, err));
+
+    const searchBtn = document.getElementById(&#x27;searchBtn&#x27;);
+    const resetBtn = document.getElementById(&#x27;resetBtn&#x27;);
+    const resultArea = document.getElementById(&#x27;resultArea&#x27;);
+    const resultTable = document.getElementById(&#x27;resultTable&#x27;);
+
+    // 查询按钮点击
+    searchBtn.addEventListener(&#x27;click&#x27;, () =&gt; {
+      const name = document.getElementById(&#x27;searchName&#x27;).value.trim();
+      const project = document.getElementById(&#x27;searchProject&#x27;).value.trim();
+
+      if (!name &amp;&amp; !project) {
+        resultArea.classList.add(&#x27;hidden&#x27;);
+        return;
+      }
+
+      // 模糊匹配品名，精准匹配项目号
+      let filtered = bomData.filter(item =&gt;
+        (!name || item.品名.includes(name)) &amp;&amp;
+        (!project || item.项目号 === project)
+      );
+
+      // 分组：按项目号
+      const grouped = {};
+      filtered.forEach(item =&gt; {
+        if (!grouped[item.项目号]) grouped[item.项目号] = [];
+        grouped[item.项目号].push(item);
+      });
+
+      // 清空旧结果
+      resultTable.innerHTML = &#x27;&#x27;;
+
+      Object.keys(grouped).forEach(project =&gt; {
+        const groupItems = grouped[project];
+        const parent = groupItems[0];
+
+        // 父项行
+        const parentRow = document.createElement(&#x27;tr&#x27;);
+        parentRow.className = &#x27;parent-row&#x27;;
+        parentRow.innerHTML = `
+          &lt;td class=&quot;border p-2&quot;&gt;${parent.项目号}&lt;/td&gt;
+          &lt;td class=&quot;border p-2&quot;&gt;${parent.品名}&lt;/td&gt;
+          &lt;td class=&quot;border p-2&quot;&gt;${parent.规格}&lt;/td&gt;
+          &lt;td class=&quot;border p-2&quot;&gt;${parent.零售价}&lt;/td&gt;
+          &lt;td colspan=&quot;4&quot; class=&quot;border p-2 text-gray-500 text-sm&quot;&gt;点击展开物料明细&lt;/td&gt;
+        `;
+        resultTable.appendChild(parentRow);
+
+        // 子项行
+        groupItems.forEach(child =&gt; {
+          const childRow = document.createElement(&#x27;tr&#x27;);
+          childRow.className = &#x27;child-row hidden&#x27;;
+          childRow.innerHTML = `
+            &lt;td colspan=&quot;4&quot; class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${child.物料项目号}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${child.物料名称}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${child.数量}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${child.计量单位}&lt;/td&gt;
+          `;
+          resultTable.appendChild(childRow);
+        });
+
+        // 点击展开/收起
+        parentRow.addEventListener(&#x27;click&#x27;, () =&gt; {
+          groupItems.forEach((_, i) =&gt; {
+            const childRow = resultTable.children[
+              Array.from(resultTable.children).indexOf(parentRow) + 1 + i
+            ];
+            childRow.classList.toggle(&#x27;hidden&#x27;);
+          });
+        });
+      });
+
+      resultArea.classList.remove(&#x27;hidden&#x27;);
+    });
+
+    // 重置按钮
+    resetBtn.addEventListener(&#x27;click&#x27;, () =&gt; {
+      document.getElementById(&#x27;searchName&#x27;).value = &#x27;&#x27;;
+      document.getElementById(&#x27;searchProject&#x27;).value = &#x27;&#x27;;
+      resultArea.classList.add(&#x27;hidden&#x27;);
+    });
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">✅ 示例数据结构（<code>bom_data.json</code>）</h3>
+<div class="codeblock"><pre><code>[
+  {
+    &quot;项目号&quot;: &quot;P2025-001&quot;,
+    &quot;品名&quot;: &quot;纯净水350ml瓶贴&quot;,
+    &quot;规格&quot;: &quot;350ml&quot;,
+    &quot;零售价&quot;: &quot;2.5&quot;,
+    &quot;物料项目号&quot;: &quot;M001&quot;,
+    &quot;物料名称&quot;: &quot;PET标签&quot;,
+    &quot;数量&quot;: 1,
+    &quot;计量单位&quot;: &quot;个&quot;
+  },
+  {
+    &quot;项目号&quot;: &quot;P2025-001&quot;,
+    &quot;品名&quot;: &quot;纯净水350ml瓶贴&quot;,
+    &quot;规格&quot;: &quot;350ml&quot;,
+    &quot;零售价&quot;: &quot;2.5&quot;,
+    &quot;物料项目号&quot;: &quot;M002&quot;,
+    &quot;物料名称&quot;: &quot;胶水&quot;,
+    &quot;数量&quot;: 0.2,
+    &quot;计量单位&quot;: &quot;kg&quot;
+  },
+  {
+    &quot;项目号&quot;: &quot;P2025-002&quot;,
+    &quot;品名&quot;: &quot;苏打水500ml瓶贴&quot;,
+    &quot;规格&quot;: &quot;500ml&quot;,
+    &quot;零售价&quot;: &quot;3.0&quot;,
+    &quot;物料项目号&quot;: &quot;M003&quot;,
+    &quot;物料名称&quot;: &quot;PVC标签&quot;,
+    &quot;数量&quot;: 1,
+    &quot;计量单位&quot;: &quot;个&quot;
+  }
+]</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">✅ 特点总结</h3>
+<ul class="md-ul"><li>保持与“物料查询页”统一风格（Tailwind简洁风）  </li><li>检索栏仅两项（模糊 + 精准）  </li><li>查询前隐藏表格  </li><li>分组结构清晰（父项 + 可折叠子项）  </li><li>重置按钮可快速清空  </li></ul>
+<p>---</p>
+<p>是否希望我帮你直接生成一份可用的 <code>bom.html</code> + <code>bom_data.json</code> 文件压缩包？   可以直接上传到 GitHub Pages。</p></div>
+    </section>
+    <section id="s2" class="st2">
+      <div class="sec-h"><span class="idx st2">Q2</span><h2>(index):64 cdn.tailwindcss.com should no…</h2><span class="hint">第 2 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>(index):64 cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation (anonymous) @ (index):64 FloatingAssistant.d52f9211.js:1 trtjkqh.github.io 5index.html:79 Uncaught TypeError: bomData.filter is not a function     at HTMLButtonElement.&lt;anonymous&gt; (index.html:79:30)</p></div>
+      <div class="qa-a"><p>非常好，说明你现在已经部署好了页面 👍    报错信息其实很明确，我们一条条分析、修复即可：  </p>
+<p>---</p>
+<h3 class="sub-h">🧩 报错 1：</h3>
+<div class="codeblock"><pre><code>cdn.tailwindcss.com should not be used in production</code></pre></div>
+<blockquote class="md-quote"><strong>解释：</strong>  </blockquote>
+<p>Tailwind 官方提醒不要在正式环境用 CDN（会降低加载性能），不是致命错误。  </p>
+<blockquote class="md-quote">✅ <strong>解决方案：</strong></blockquote>
+<p>你可以 <strong>忽略</strong>，或者：</p>
+<ol class="md-ol"><li>在生产环境用 Hugo / PostCSS 构建 Tailwind；</li><li>或者换一个稳定 CDN（例如 jsDelivr）：  </li></ol>
+<div class="codeblock"><pre><code>   &lt;script src=&quot;https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.js&quot;&gt;&lt;/script&gt;</code></pre></div>
+<p>但如果你只是 GitHub Pages 的小工具站，<strong>继续用 <code>cdn.tailwindcss.com</code> 也完全没问题。</strong></p>
+<p>---</p>
+<h3 class="sub-h">🧩 报错 2：</h3>
+<div class="codeblock"><pre><code>Uncaught TypeError: bomData.filter is not a function</code></pre></div>
+<blockquote class="md-quote"><strong>解释：</strong></blockquote>
+<p>这说明 <code>bomData</code> <strong>不是数组</strong>，可能是：</p>
+<ul class="md-ul"><li><code>bom_data.json</code> 的内容不是 <code>[...]</code> 数组格式；</li><li>或者请求返回的不是 JSON（例如路径不对、404）。</li></ul>
+<p>---</p>
+<h4 class="sub-h">✅ 检查与修复步骤：</h4>
+<h5 class="sub-h"><strong>1️⃣ 检查 JSON 文件格式</strong></h5>
+<p>打开你仓库中的 <code>bom_data.json</code> 文件，看是否是类似下面的数组格式：</p>
+<div class="codeblock"><pre><code>[
+  {
+    &quot;项目号&quot;: &quot;P2025-001&quot;,
+    &quot;品名&quot;: &quot;纯净水350ml瓶贴&quot;,
+    &quot;规格&quot;: &quot;350ml&quot;,
+    &quot;零售价&quot;: &quot;2.5&quot;,
+    &quot;物料项目号&quot;: &quot;M001&quot;,
+    &quot;物料名称&quot;: &quot;PET标签&quot;,
+    &quot;数量&quot;: 1,
+    &quot;计量单位&quot;: &quot;个&quot;
+  },
+  {
+    &quot;项目号&quot;: &quot;P2025-001&quot;,
+    &quot;品名&quot;: &quot;纯净水350ml瓶贴&quot;,
+    &quot;规格&quot;: &quot;350ml&quot;,
+    &quot;零售价&quot;: &quot;2.5&quot;,
+    &quot;物料项目号&quot;: &quot;M002&quot;,
+    &quot;物料名称&quot;: &quot;胶水&quot;,
+    &quot;数量&quot;: 0.2,
+    &quot;计量单位&quot;: &quot;kg&quot;
+  }
+]</code></pre></div>
+<p>❌ 如果你看到是：</p>
+<div class="codeblock"><pre><code>{
+  &quot;data&quot;: [...]
+}</code></pre></div>
+<p>或者</p>
+<div class="codeblock"><pre><code>{&quot;P2025-001&quot;: {...}}</code></pre></div>
+<p>就会出错，因为 <code>.filter()</code> 只能用于数组。</p>
+<blockquote class="md-quote">✅ <strong>修复方式：</strong></blockquote>
+<p>确保 <code>bom_data.json</code> 最外层是中括号 <code>[]</code> 包含的数组。</p>
+<p>---</p>
+<h5 class="sub-h"><strong>2️⃣ 检查路径是否正确</strong></h5>
+<p>在控制台（F12 → Network）看看有没有：</p>
+<div class="codeblock"><pre><code>GET bom_data.json 404</code></pre></div>
+<p>如果是 404，说明路径不对。</p>
+<blockquote class="md-quote">✅ <strong>修复方式：</strong></blockquote>
+<p>确保文件和页面在同一目录，例如：</p>
+<div class="codeblock"><pre><code>/
+├── index.html
+├── bom.html
+└── bom_data.json</code></pre></div>
+<p>或者如果放在 <code>assets/</code> 下，修改加载路径：</p>
+<div class="codeblock"><pre><code>fetch(&#x27;assets/bom_data.json&#x27;)</code></pre></div>
+<p>---</p>
+<h5 class="sub-h"><strong>3️⃣ 增强代码容错（推荐修改）</strong></h5>
+<p>你可以修改加载部分，加上防护：</p>
+<div class="codeblock"><pre><code>fetch(&#x27;bom_data.json&#x27;)
+  .then(res =&gt; res.json())
+  .then(data =&gt; {
+    // 如果 data 不是数组，则尝试转换
+    if (Array.isArray(data)) {
+      bomData = data;
+    } else if (data.data &amp;&amp; Array.isArray(data.data)) {
+      bomData = data.data;
+    } else {
+      console.error(&#x27;JSON格式不正确，需为数组&#x27;);
+      bomData = [];
+    }
+  })
+  .catch(err =&gt; {
+    console.error(&#x27;数据加载失败:&#x27;, err);
+    bomData = [];
+  });</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">✅ 总结修复重点</h3>
+<div class="tblwrap"><table><thead><tr><th>问题</th><th>可能原因</th><th>解决方案</th></tr></thead><tbody><tr><td><code>bomData.filter is not a function</code></td><td><code>bom_data.json</code> 不是数组</td><td>把 JSON 改成数组形式 <code>[...]</code></td></tr><tr><td><code>bom_data.json</code> 加载失败</td><td>路径错误</td><td>确认 JSON 文件和 HTML 在同级目录</td></tr><tr><td>Tailwind 警告</td><td>CDN 加载方式</td><td>可以忽略或改用 jsDelivr</td></tr></tbody></table></div>
+<p>---</p>
+<p>我可以帮你检查一下你的 <code>bom_data.json</code> 格式是否正确——   请直接贴出你当前 <code>bom_data.json</code> 的<strong>前几行内容</strong>（前 10~20 行），我来帮你定位问题点。</p></div>
+    </section>
+    <section id="s3" class="st3">
+      <div class="sec-h"><span class="idx st3">Q3</span><h2>(index):64 cdn.tailwindcss.com should no…</h2><span class="hint">第 3 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>(index):64 cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation (anonymous) @ (index):64 FloatingAssistant.d52f9211.js:1 trtjkqh.github.io px.effirst.com/api/v1/jconfig?wpk-header=app%3Dchat-sdk%26tm%3D1761642475%26ud%3Db5eef1f5-c72a-4210-bb42-5eeaa7d8fa49%26sver%3D2.3.27%26sign%3Dc41e43c828c16c16a6eb1c9c1e68e8ce:1 </p>
+<p>       Failed to load resource: net::ERR_BLOCKED_BY_CLIENT 5index.html:79 Uncaught TypeError: bomData.filter is not a function     at HTMLButtonElement.&lt;anonymous&gt; (index.html:79:30)</p></div>
+      <div class="qa-a"><p>非常好 👍   你这个错误信息非常关键，我们可以一步步精准修复。  </p>
+<p>---</p>
+<h3 class="sub-h">🧩 问题复现说明</h3>
+<p>从你的日志：</p>
+<div class="codeblock"><pre><code>5index.html:79 Uncaught TypeError: bomData.filter is not a function</code></pre></div>
+<p>👉 说明在执行到这一行：</p>
+<div class="codeblock"><pre><code>let filtered = bomData.filter(item =&gt; ...)</code></pre></div>
+<p>时报错。   <strong>结论：<code>bomData</code> 不是一个数组。</strong></p>
+<p>---</p>
+<h3 class="sub-h">✅ 重点排查 3 步</h3>
+<h4 class="sub-h"><strong>① 检查 JSON 文件内容格式</strong></h4>
+<p>请打开你的仓库中 <code>bom_data.json</code> 文件，确认它的内容结构是不是这样👇</p>
+<p>✅ <strong>正确格式（数组）</strong></p>
+<div class="codeblock"><pre><code>[
+  {
+    &quot;项目号&quot;: &quot;P2025-001&quot;,
+    &quot;品名&quot;: &quot;纯净水350ml瓶贴&quot;,
+    &quot;规格&quot;: &quot;350ml&quot;,
+    &quot;零售价&quot;: &quot;2.5&quot;,
+    &quot;物料项目号&quot;: &quot;M001&quot;,
+    &quot;物料名称&quot;: &quot;PET标签&quot;,
+    &quot;数量&quot;: 1,
+    &quot;计量单位&quot;: &quot;个&quot;
+  },
+  {
+    &quot;项目号&quot;: &quot;P2025-001&quot;,
+    &quot;品名&quot;: &quot;纯净水350ml瓶贴&quot;,
+    &quot;规格&quot;: &quot;350ml&quot;,
+    &quot;零售价&quot;: &quot;2.5&quot;,
+    &quot;物料项目号&quot;: &quot;M002&quot;,
+    &quot;物料名称&quot;: &quot;胶水&quot;,
+    &quot;数量&quot;: 0.2,
+    &quot;计量单位&quot;: &quot;kg&quot;
+  }
+]</code></pre></div>
+<p>❌ <strong>错误格式（object 包裹）</strong></p>
+<div class="codeblock"><pre><code>{
+  &quot;data&quot;: [
+    {...},
+    {...}
+  ]
+}</code></pre></div>
+<p>或者</p>
+<div class="codeblock"><pre><code>{
+  &quot;P2025-001&quot;: {...}
+}</code></pre></div>
+<p>这两种情况都会导致 <code>.filter()</code> 报错。</p>
+<blockquote class="md-quote">✅ <strong>修复方法：</strong></blockquote>
+<p>改成最外层为数组 <code>[...]</code>，不要有 <code>data:</code> 或键名。</p>
+<p>---</p>
+<h4 class="sub-h"><strong>② 检查 JSON 文件路径</strong></h4>
+<p>确保你的目录结构是这样的：</p>
+<div class="codeblock"><pre><code>/
+├── index.html
+├── bom.html
+└── bom_data.json</code></pre></div>
+<p>否则 fetch 找不到文件时也会导致 <code>bomData</code> 为空。</p>
+<blockquote class="md-quote">如果你的 JSON 文件放在 <code>assets/</code> 文件夹下，请改成：</blockquote>
+<div class="codeblock"><pre><code>fetch(&#x27;assets/bom_data.json&#x27;)</code></pre></div>
+<p>你可以在浏览器中直接访问：</p>
+<div class="codeblock"><pre><code>https://你的用户名.github.io/bom_data.json</code></pre></div>
+<p>如果能看到数据，说明路径没问题。</p>
+<p>---</p>
+<h4 class="sub-h"><strong>③ 添加防御式写法（避免再次报错）</strong></h4>
+<p>为了避免报错，你可以这样修改加载部分代码：</p>
+<div class="codeblock"><pre><code>fetch(&#x27;bom_data.json&#x27;)
+  .then(res =&gt; res.json())
+  .then(data =&gt; {
+    if (Array.isArray(data)) {
+      bomData = data;
+    } else if (data.data &amp;&amp; Array.isArray(data.data)) {
+      bomData = data.data;
+    } else {
+      console.error(&quot;JSON格式不正确，必须为数组&quot;);
+      bomData = [];
+    }
+  })
+  .catch(err =&gt; {
+    console.error(&#x27;数据加载失败:&#x27;, err);
+    bomData = [];
+  });</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">🧩 关于 Tailwind 和 px.effirst.com 的提示</h3>
+<div class="tblwrap"><table><thead><tr><th>消息</th><th>含义</th><th>是否严重</th><th>建议</th></tr></thead><tbody><tr><td><code>cdn.tailwindcss.com should not be used in production</code></td><td>官方提醒，不影响功能</td><td>❌ 无影响</td><td>可忽略</td></tr><tr><td><code>px.effirst.com ERR_BLOCKED_BY_CLIENT</code></td><td>被浏览器广告拦截插件屏蔽的统计脚本</td><td>❌ 无影响</td><td>忽略</td></tr></tbody></table></div>
+<p>---</p>
+<h3 class="sub-h">✅ 一句话修复总结</h3>
+<blockquote class="md-quote">🔧 <strong>你只需要确保 <code>bom_data.json</code> 的最外层是一个数组 <code>[...]</code>，而不是对象 <code>{}</code>。</strong></blockquote>
+<p>---</p>
+<p>如果你愿意，把你当前的 <code>bom_data.json</code> <strong>前 20 行贴上来</strong>，   我可以直接告诉你要怎么改成正确格式。</p></div>
+    </section>
+    <section id="s4" class="st4">
+      <div class="sec-h"><span class="idx st4">Q4</span><h2>是这个格式：[  {    &quot;项目号&quot;: &quot;QZ100078&quot;,    &quot;品名&quot;…</h2><span class="hint">第 4 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>是这个格式：</p>
+<p>[</p>
+<p>  {</p>
+<p>    "项目号": "QZ100078",</p>
+<p>    "品名": "鲜冬虫夏草",</p>
+<p>    "规格": "1A(0.4-0.6克/条) 30条",</p>
+<p>    "零售价（元）": 1379,</p>
+<p>    "物料项目号": 74000805,</p>
+<p>    "物料名称": "一等鲜冬虫夏草-1A",</p>
+<p>    "数量": 30,</p>
+<p>    "计量单位": "RO"</p>
+<p>  },</p>
+<p>  {</p>
+<p>    "项目号": "QZ100078",</p>
+<p>    "品名": "鲜冬虫夏草",</p>
+<p>    "规格": "1A(0.4-0.6克/条) 30条",</p>
+<p>    "零售价（元）": 1379,</p>
+<p>    "物料项目号": 81011085,</p>
+<p>    "物料名称": "鲜草通用瓶子/10支装",</p>
+<p>    "数量": 3,</p>
+<p>    "计量单位": "EA"</p>
+<p>  }</p>
+<p>]</p></div>
+      <div class="qa-a"><p>非常好 👏   你的 <code>bom_data.json</code> <strong>格式完全正确</strong>，确实是一个数组，所以 <code>.filter()</code> 本身应该能正常使用。   接下来我们要确认问题出在 <strong>加载阶段</strong>。  </p>
+<p>---</p>
+<h3 class="sub-h">✅ 可能的真实原因</h3>
+<p><code>bomData.filter is not a function</code>   👉 表明 <code>bomData</code> <strong>在执行 <code>.filter()</code> 时还不是数组</strong>。   最常见的两种情况：</p>
+<h4 class="sub-h"><strong>① fetch 还没加载完你就点击查询了</strong></h4>
+<p>比如你写的逻辑是：</p>
+<div class="codeblock"><pre><code>let bomData;
+fetch(&#x27;bom_data.json&#x27;)
+  .then(res =&gt; res.json())
+  .then(data =&gt; bomData = data);</code></pre></div>
+<p>然后立刻点了“查询”，此时 <code>bomData</code> 还没赋值（是 <code>undefined</code>）。   → 就会报 <code>.filter is not a function</code>。</p>
+<blockquote class="md-quote">✅ 解决办法：</blockquote>
+<p>只在数据加载完后再允许点击“查询”。</p>
+<p>例如：</p>
+<div class="codeblock"><pre><code>let bomData = [];
+
+fetch(&#x27;bom_data.json&#x27;)
+  .then(res =&gt; res.json())
+  .then(data =&gt; {
+    bomData = data;
+    console.log(&quot;数据加载成功&quot;, bomData.length);
+    document.getElementById(&quot;searchBtn&quot;).disabled = false; // 数据加载完再启用按钮
+  })
+  .catch(err =&gt; console.error(&quot;加载失败:&quot;, err));</code></pre></div>
+<p>初始按钮禁用：</p>
+<div class="codeblock"><pre><code>&lt;button id=&quot;searchBtn&quot; disabled&gt;查询&lt;/button&gt;</code></pre></div>
+<p>---</p>
+<h4 class="sub-h"><strong>② fetch 返回的不是你预期的 JSON</strong></h4>
+<p>比如路径写错或 GitHub Pages 缓存错误，返回的是 HTML 404 页面。   那 <code>res.json()</code> 会把 HTML 转成字符串，导致 <code>bomData</code> 不是数组。</p>
+<blockquote class="md-quote">✅ 解决办法：  </blockquote>
+<p>在控制台 <strong>Network</strong> 面板检查：</p>
+<ul class="md-ul"><li>找到 <code>bom_data.json</code></li><li>看返回的 Response 内容是否真的是上面那段 JSON</li></ul>
+<p>如果是 404 或 <code>&lt;html&gt;...&lt;/html&gt;</code>，就说明路径错。</p>
+<blockquote class="md-quote">可尝试访问：</blockquote>
+<div class="codeblock"><pre><code>https://seamoonappear.github.io/你的仓库名/bom_data.json</code></pre></div>
+<p>如果能打开 JSON 数据，说明路径没问题。</p>
+<p>---</p>
+<h3 class="sub-h">✅ 建议最终加载逻辑（可直接替换）</h3>
+<div class="codeblock"><pre><code>&lt;script&gt;
+let bomData = [];
+
+fetch(&#x27;bom_data.json&#x27;)
+  .then(res =&gt; {
+    if (!res.ok) throw new Error(&quot;文件加载失败&quot;);
+    return res.json();
+  })
+  .then(data =&gt; {
+    if (Array.isArray(data)) {
+      bomData = data;
+      console.log(&quot;✅ 数据加载成功&quot;, bomData.length);
+      document.getElementById(&quot;searchBtn&quot;).disabled = false;
+    } else {
+      throw new Error(&quot;数据格式错误，必须为数组&quot;);
+    }
+  })
+  .catch(err =&gt; {
+    console.error(&quot;❌ 加载出错:&quot;, err);
+    alert(&quot;数据加载失败，请检查路径或格式&quot;);
+  });
+
+document.getElementById(&quot;searchBtn&quot;).addEventListener(&quot;click&quot;, () =&gt; {
+  if (!Array.isArray(bomData)) {
+    alert(&quot;数据尚未加载，请稍后再试&quot;);
+    return;
+  }
+
+  const nameKeyword = document.getElementById(&quot;nameSearch&quot;).value.trim();
+  const projectID = document.getElementById(&quot;projectSearch&quot;).value.trim();
+
+  const filtered = bomData.filter(item =&gt;
+    (!nameKeyword || item.品名.includes(nameKeyword)) &amp;&amp;
+    (!projectID || item.项目号 === projectID)
+  );
+
+  console.log(&quot;筛选结果&quot;, filtered);
+});
+&lt;/script&gt;</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">✅ 最后确认事项</h3>
+<p>请检查：</p>
+<ol class="md-ol"><li><code>bom_data.json</code> 和 HTML 在同一个文件夹；</li><li>HTML 中的 fetch 路径写对；</li><li>打开页面后 <strong>不要立刻点查询</strong>，看控制台是否出现：</li></ol>
+<div class="codeblock"><pre><code>   ✅ 数据加载成功 123</code></pre></div>
+<p>   如果没有这一行，就说明数据没加载成功。</p>
+<p>---</p>
+<p>如果你愿意贴出你当前的 <strong>index.html（或 bom.html）完整脚本部分</strong>，   我可以帮你直接修改成稳定可用版（带模糊搜索、重置、父子合并显示、加载完再启用按钮）。   要我直接帮你改完整页吗？</p></div>
+    </section>
+    <section id="s5" class="st5">
+      <div class="sec-h"><span class="idx st5">Q5</span><h2>好的</h2><span class="hint">第 5 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>好的</p></div>
+      <div class="qa-a"><p>太好了 👍 那我来帮你写一个完整的、可直接部署的 <strong>产品BOM查询页面（index.html）</strong>，  </p>
+<p>✅ 满足你之前提的所有要求：</p>
+<ol class="md-ol"><li><strong>两个搜索框</strong>：  </li></ol>
+<p>   - 品名 → 模糊搜索      - 项目号 → 精准搜索  </p>
+<ol class="md-ol"><li><strong>重置按钮</strong>  </li></ol>
+<p>   - 点击后清空搜索框和结果      - 未搜索时不显示结果区  </p>
+<ol class="md-ol"><li><strong>表格显示顺序</strong>：  </li></ol>
+<p>   项目号、品名、规格、零售价、物料项目号、物料名称、数量、计量单位  </p>
+<ol class="md-ol"><li><strong>父子项结构</strong>：  </li></ol>
+<p>   - 项目号、品名、规格、零售价 作为父项      - 物料项目号、物料名称、数量、计量单位 作为子项显示  </p>
+<ol class="md-ol"><li><strong>沿用物料查询页面风格（Tailwind CSS）</strong></li></ol>
+<p>---</p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot; /&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+  &lt;title&gt;产品BOM查询&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;style&gt;
+    body {
+      background-color: #f9fafb;
+      font-family: &quot;Microsoft YaHei&quot;, sans-serif;
+    }
+    .card {
+      background-color: white;
+      border-radius: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .child-row {
+      background-color: #f3f4f6;
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body class=&quot;p-6&quot;&gt;
+  &lt;div class=&quot;max-w-5xl mx-auto&quot;&gt;
+    &lt;h1 class=&quot;text-2xl font-bold mb-6 text-center&quot;&gt;📦 产品BOM查询&lt;/h1&gt;
+
+    &lt;!-- 搜索栏 --&gt;
+    &lt;div class=&quot;card&quot;&gt;
+      &lt;div class=&quot;flex flex-col md:flex-row gap-4 items-center&quot;&gt;
+        &lt;input id=&quot;nameSearch&quot; type=&quot;text&quot; placeholder=&quot;输入品名（支持模糊搜索）&quot;
+          class=&quot;border rounded-lg p-2 flex-1 w-full&quot; /&gt;
+        &lt;input id=&quot;projectSearch&quot; type=&quot;text&quot; placeholder=&quot;输入项目号（精准搜索）&quot;
+          class=&quot;border rounded-lg p-2 flex-1 w-full&quot; /&gt;
+        &lt;button id=&quot;searchBtn&quot; class=&quot;bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400&quot;&gt;查询&lt;/button&gt;
+        &lt;button id=&quot;resetBtn&quot; class=&quot;bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600&quot;&gt;重置&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 结果列表 --&gt;
+    &lt;div id=&quot;resultArea&quot; class=&quot;card hidden&quot;&gt;
+      &lt;h2 class=&quot;text-lg font-semibold mb-4&quot;&gt;查询结果&lt;/h2&gt;
+      &lt;table class=&quot;min-w-full border-collapse border border-gray-300 text-sm&quot;&gt;
+        &lt;thead class=&quot;bg-gray-100&quot;&gt;
+          &lt;tr&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;项目号&lt;/th&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;品名&lt;/th&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;规格&lt;/th&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;零售价&lt;/th&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;物料项目号&lt;/th&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;物料名称&lt;/th&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;数量&lt;/th&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;计量单位&lt;/th&gt;
+          &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody id=&quot;resultBody&quot;&gt;&lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;script&gt;
+    let bomData = [];
+
+    // 加载数据
+    fetch(&#x27;bom_data.json&#x27;)
+      .then(res =&gt; {
+        if (!res.ok) throw new Error(&quot;文件加载失败&quot;);
+        return res.json();
+      })
+      .then(data =&gt; {
+        if (Array.isArray(data)) {
+          bomData = data;
+          console.log(&quot;✅ 数据加载成功&quot;, bomData.length);
+          document.getElementById(&quot;searchBtn&quot;).disabled = false;
+        } else {
+          throw new Error(&quot;数据格式错误，必须为数组&quot;);
+        }
+      })
+      .catch(err =&gt; {
+        console.error(&quot;❌ 加载出错:&quot;, err);
+        alert(&quot;数据加载失败，请检查路径或格式&quot;);
+      });
+
+    // 查询按钮
+    document.getElementById(&quot;searchBtn&quot;).addEventListener(&quot;click&quot;, () =&gt; {
+      const nameKeyword = document.getElementById(&quot;nameSearch&quot;).value.trim();
+      const projectID = document.getElementById(&quot;projectSearch&quot;).value.trim();
+
+      if (!nameKeyword &amp;&amp; !projectID) {
+        alert(&quot;请输入至少一个查询条件！&quot;);
+        return;
+      }
+
+      const filtered = bomData.filter(item =&gt;
+        (!nameKeyword || item.品名.includes(nameKeyword)) &amp;&amp;
+        (!projectID || item.项目号 === projectID)
+      );
+
+      renderResult(filtered);
+    });
+
+    // 重置按钮
+    document.getElementById(&quot;resetBtn&quot;).addEventListener(&quot;click&quot;, () =&gt; {
+      document.getElementById(&quot;nameSearch&quot;).value = &quot;&quot;;
+      document.getElementById(&quot;projectSearch&quot;).value = &quot;&quot;;
+      document.getElementById(&quot;resultArea&quot;).classList.add(&quot;hidden&quot;);
+      document.getElementById(&quot;resultBody&quot;).innerHTML = &quot;&quot;;
+    });
+
+    // 渲染结果（父子结构）
+    function renderResult(data) {
+      const resultArea = document.getElementById(&quot;resultArea&quot;);
+      const resultBody = document.getElementById(&quot;resultBody&quot;);
+      resultBody.innerHTML = &quot;&quot;;
+
+      if (data.length === 0) {
+        resultArea.classList.remove(&quot;hidden&quot;);
+        resultBody.innerHTML = `&lt;tr&gt;&lt;td colspan=&quot;8&quot; class=&quot;text-center p-4 text-gray-500&quot;&gt;无匹配结果&lt;/td&gt;&lt;/tr&gt;`;
+        return;
+      }
+
+      // 按项目号分组
+      const grouped = {};
+      data.forEach(item =&gt; {
+        if (!grouped[item.项目号]) grouped[item.项目号] = [];
+        grouped[item.项目号].push(item);
+      });
+
+      for (const [proj, items] of Object.entries(grouped)) {
+        const parent = items[0];
+        const parentRow = `
+          &lt;tr class=&quot;bg-blue-50 font-semibold&quot;&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${parent.项目号}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${parent.品名}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${parent.规格}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${parent[&quot;零售价（元）&quot;] ?? parent.零售价 ?? &quot;&quot;}&lt;/td&gt;
+            &lt;td class=&quot;border p-2 text-center&quot; colspan=&quot;4&quot;&gt;物料明细如下 ↓&lt;/td&gt;
+          &lt;/tr&gt;
+        `;
+        resultBody.insertAdjacentHTML(&quot;beforeend&quot;, parentRow);
+
+        items.forEach(child =&gt; {
+          const childRow = `
+            &lt;tr class=&quot;child-row&quot;&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${child.物料项目号}&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${child.物料名称}&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${child.数量}&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${child.计量单位}&lt;/td&gt;
+            &lt;/tr&gt;
+          `;
+          resultBody.insertAdjacentHTML(&quot;beforeend&quot;, childRow);
+        });
+      }
+
+      resultArea.classList.remove(&quot;hidden&quot;);
+    }
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">🚀 部署方法</h4>
+<ol class="md-ol"><li>把这个文件保存为 <code>index.html</code>（或 <code>bom.html</code>）。  </li><li>确保你的 <code>bom_data.json</code> 文件与它在同一目录。  </li><li>推送到 GitHub Pages 仓库（例如 <code>seamoonappear.github.io/tools/bom/</code>）。  </li><li>打开网页测试。</li></ol>
+<p>---</p>
+<p>是否希望我帮你再加一个「📤 导出 Excel」按钮（把查询结果导出为一个表）？   可以直接放在表格上方。</p></div>
+    </section>
+    <section id="s6" class="st1">
+      <div class="sec-h"><span class="idx st1">Q6</span><h2>(index):64 cdn.tailwindcss.com should no…</h2><span class="hint">第 6 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>(index):64 cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation (anonymous) @ (index):64 index.html:81 ❌ 加载出错: Error: 数据格式错误，必须为数组     at index.html:77:17 (anonymous) @ index.html:81 FloatingAssistant.d52f9211.js:1 trtjkqh.github.io px.effirst.com/api/v1/jconfig?wpk-header=app%3Dchat-sdk%26tm%3D1761648845%26ud%3D8d3e2121-8702-4c55-9e8c-e93a286d4c78%26sver%3D2.3.27%26sign%3Dc41e43c828c16c16a6eb1c9c1e68e8ce:1 </p>
+<p>       Failed to load resource: net::ERR_BLOCKED_BY_CLIENT</p></div>
+      <div class="qa-a"><p>这个报错非常关键👇  </p>
+<blockquote class="md-quote">❌ 加载出错: Error: 数据格式错误，必须为数组  </blockquote>
+<p>说明你的 <code>data.json</code> 文件内容<strong>不是一个纯数组</strong>，可能外层多了一个对象或者 BOM 数据不是直接放在 <code>[]</code> 里。   我们来检查下最常见的几种错误情况 👇  </p>
+<p>---</p>
+<h4 class="sub-h">✅ 正确格式（必须这样写）</h4>
+<p><code>data.json</code> 必须是一个<strong>纯数组</strong>：</p>
+<div class="codeblock"><pre><code>[
+  {
+    &quot;项目号&quot;: &quot;QZ100078&quot;,
+    &quot;品名&quot;: &quot;鲜冬虫夏草&quot;,
+    &quot;规格&quot;: &quot;1A(0.4-0.6克/条) 30条&quot;,
+    &quot;零售价（元）&quot;: 1379,
+    &quot;物料项目号&quot;: 74000805,
+    &quot;物料名称&quot;: &quot;一等鲜冬虫夏草-1A&quot;,
+    &quot;数量&quot;: 30,
+    &quot;计量单位&quot;: &quot;RO&quot;
+  },
+  {
+    &quot;项目号&quot;: &quot;QZ100078&quot;,
+    &quot;品名&quot;: &quot;鲜冬虫夏草&quot;,
+    &quot;规格&quot;: &quot;1A(0.4-0.6克/条) 30条&quot;,
+    &quot;零售价（元）&quot;: 1379,
+    &quot;物料项目号&quot;: 81011085,
+    &quot;物料名称&quot;: &quot;鲜草通用瓶子/10支装&quot;,
+    &quot;数量&quot;: 3,
+    &quot;计量单位&quot;: &quot;EA&quot;
+  }
+]</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">❌ 错误格式示例（常见）</h4>
+<div class="codeblock"><pre><code>{
+  &quot;data&quot;: [
+    { &quot;项目号&quot;: &quot;QZ100078&quot;, ... }
+  ]
+}</code></pre></div>
+<p>或</p>
+<div class="codeblock"><pre><code>{
+  &quot;bom&quot;: [
+    { &quot;项目号&quot;: &quot;QZ100078&quot;, ... }
+  ]
+}</code></pre></div>
+<p>这样就会触发 <code>数据格式错误，必须为数组</code>。</p>
+<p>---</p>
+<h4 class="sub-h">🔍 解决方法</h4>
+<p>请打开你的 <code>data.json</code> 文件，确认它：</p>
+<ol class="md-ol"><li>最外层是方括号 <code>[]</code>；</li><li>没有外层对象；</li><li>文件第一行是 <code>[</code>，最后一行是 <code>]</code>。</li></ol>
+<p>---</p>
+<p>如果你想，我可以帮你检查并修正完整的 <code>data.json</code>。   👉 请把你的当前 <code>data.json</code> 内容（前几行或全部）发上来。</p></div>
+    </section>
+    <section id="s7" class="st2">
+      <div class="sec-h"><span class="idx st2">Q7</span><h2>检查了没问题</h2><span class="hint">第 7 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>检查了没问题</p></div>
+      <div class="qa-a"><p>非常好 👍 那我们现在重点排查另一个可能：<strong>浏览器加载的其实不是你刚才改好的 <code>data.json</code></strong>。   这种情况在 GitHub Pages 或本地缓存时最常见。下面是完整排查步骤👇  </p>
+<p>---</p>
+<h3 class="sub-h">🧩 一、确认路径是否正确</h3>
+<p>请检查你在 <code>index.html</code> 里的这行代码（第 70 行附近）：</p>
+<div class="codeblock"><pre><code>const response = await fetch(&quot;data.json&quot;);</code></pre></div>
+<p>✅ 你的 <code>data.json</code> 必须和 <code>index.html</code> 在<strong>同一个文件夹</strong>里。   例如：</p>
+<div class="codeblock"><pre><code>/bom/
+  ├── index.html
+  └── data.json</code></pre></div>
+<p>如果不是，请改成正确路径，例如：</p>
+<div class="codeblock"><pre><code>const response = await fetch(&quot;assets/data/data.json&quot;);</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">🧼 二、清空缓存重新加载</h3>
+<p>有时候 GitHub Pages 或浏览器缓存旧的 JSON 文件（尤其当文件名相同）。</p>
+<p>请尝试：</p>
+<ol class="md-ol"><li>打开浏览器 → 按 <code>Ctrl + F5</code> 强制刷新；</li><li>或者改名为 <code>data_v2.json</code>；</li><li>然后在 HTML 里也改成：</li></ol>
+<div class="codeblock"><pre><code>   const response = await fetch(&quot;data_v2.json&quot;);</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">🔍 三、打印加载结果验证</h3>
+<p>为了确认真实返回的内容，请在第 75 行前后加一行打印：</p>
+<div class="codeblock"><pre><code>const response = await fetch(&quot;data.json&quot;);
+const text = await response.text();
+console.log(&quot;🔎 加载到的原始内容：&quot;, text); // 新增这一行
+const bomData = JSON.parse(text);
+if (!Array.isArray(bomData)) throw new Error(&quot;数据格式错误，必须为数组&quot;);</code></pre></div>
+<p>然后重新打开网页 → 打开控制台 → 看看输出的是什么内容。</p>
+<p>---</p>
+<h3 class="sub-h">🔧 四、可能的异常情况</h3>
+<div class="tblwrap"><table><thead><tr><th>情况</th><th>表现</th><th>解决</th></tr></thead><tbody><tr><td>GitHub Pages 缓存旧文件</td><td>输出旧版本或空字符串</td><td>改文件名、强制刷新</td></tr><tr><td>JSON 编码错误</td><td>加载内容乱码或带 BOM</td><td>用 UTF-8 编码重新保存</td></tr><tr><td>fetch 路径不对</td><td>输出 <code>404 Not Found</code></td><td>改成正确路径</td></tr></tbody></table></div>
+<p>---</p>
+<p>如果你愿意，可以直接贴出控制台打印的那行：</p>
+<div class="codeblock"><pre><code>🔎 加载到的原始内容：</code></pre></div>
+<p>我可以一眼看出问题。</p></div>
+    </section>
+    <section id="s8" class="st3">
+      <div class="sec-h"><span class="idx st3">Q8</span><h2>数据加载失败，请检查路径或格式</h2><span class="hint">第 8 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>数据加载失败，请检查路径或格式</p></div>
+      <div class="qa-a"><p>✅ 很好，这个提示说明脚本逻辑是正常执行的，只是 <strong><code>fetch("data.json")</code> 没有正确加载到文件</strong>。   接下来我们精确定位：路径 or 文件访问问题。  </p>
+<p>---</p>
+<h3 class="sub-h">🧭 一、确定文件结构</h3>
+<p>请确认你的项目文件夹结构是这样（最常见的情况）：</p>
+<div class="codeblock"><pre><code>/bom/
+  ├── index.html
+  └── data.json</code></pre></div>
+<p>如果你的 <code>data.json</code> 在别的路径，请对应修改这行：</p>
+<div class="codeblock"><pre><code>const response = await fetch(&quot;data.json&quot;);</code></pre></div>
+<p>例如👇  </p>
+<div class="tblwrap"><table><thead><tr><th>文件所在位置</th><th>正确写法</th></tr></thead><tbody><tr><td><code>/assets/data/data.json</code></td><td><code>fetch("assets/data/data.json")</code></td></tr><tr><td><code>/bom/data/data.json</code></td><td><code>fetch("data/data.json")</code></td></tr><tr><td><code>/</code> 根目录（与 index.html 同级）</td><td><code>fetch("data.json")</code></td></tr></tbody></table></div>
+<p>---</p>
+<h3 class="sub-h">🧱 二、检查路径是否能直接访问</h3>
+<p>在浏览器地址栏里直接访问你的 JSON 文件，例如：</p>
+<div class="codeblock"><pre><code>https://seamoonappear.github.io/bom/data.json</code></pre></div>
+<p>👉 如果能打开并看到一堆 <code>[</code> <code>{</code> 等数据，就是路径对的。   ❌ 如果返回 404 或页面打不开，那就说明路径错了。</p>
+<p>---</p>
+<h3 class="sub-h">🧹 三、GitHub Pages 的缓存问题</h3>
+<p>GitHub Pages 会缓存旧版本文件。解决方法：</p>
+<ol class="md-ol"><li>改个文件名（例如 <code>bomData.json</code>），</li><li>然后改 fetch：</li></ol>
+<div class="codeblock"><pre><code>   const response = await fetch(&quot;bomData.json&quot;);</code></pre></div>
+<ol class="md-ol"><li>再刷新页面（<code>Ctrl + F5</code> 强制刷新）。</li></ol>
+<p>---</p>
+<h3 class="sub-h">🧩 四、本地预览注意</h3>
+<p>如果你是在本地用 <code>file://</code> 打开网页，浏览器会 <strong>禁止 fetch 本地文件</strong>。   🔧 解决：</p>
+<ul class="md-ul"><li>用 VSCode 的 Live Server；</li><li>或在命令行运行：</li></ul>
+<div class="codeblock"><pre><code>  python -m http.server</code></pre></div>
+<p>  然后在浏览器打开 <code>http://localhost:8000/bom/</code>。</p>
+<p>---</p>
+<h3 class="sub-h">🚦 建议你现在做的：</h3>
+<p>请按顺序检查：</p>
+<ol class="md-ol"><li>打开浏览器访问 <code>https://你的用户名.github.io/项目名/data.json</code></li><li>看能否显示数据；</li><li>把完整路径告诉我；</li><li>我帮你改正确的 <code>fetch</code> 路径。</li></ol>
+<p>---</p>
+<p>想快点搞定的话：   请直接告诉我👉   <strong>你的网站完整访问地址（或 GitHub Pages 目录结构）</strong>，   我直接帮你写出应该用的那一行 <code>fetch</code> 路径。</p></div>
+    </section>
+    <section id="s9" class="st4">
+      <div class="sec-h"><span class="idx st4">Q9</span><h2>我的这个库是trtjkqh.github.io</h2><span class="hint">第 9 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>我的这个库是trtjkqh.github.io</p></div>
+      <div class="qa-a"><p>👌 太好了，我们现在能很快定位问题了。  </p>
+<p>你的站点地址是   👉 <code>https://trtjkqh.github.io/</code>  </p>
+<p>接下来关键看你的 <strong><code>index.html</code> 和 <code>data.json</code></strong> 在哪个文件夹下。</p>
+<p>---</p>
+<h4 class="sub-h">🔹 情况 1：它们在仓库根目录（推荐）</h4>
+<div class="codeblock"><pre><code>/ (根目录)
+ ├── index.html
+ └── data.json</code></pre></div>
+<p>✅ 那么 HTML 里应写：</p>
+<div class="codeblock"><pre><code>const response = await fetch(&quot;data.json&quot;);</code></pre></div>
+<p>访问测试：   👉 打开 <a href="https://trtjkqh.github.io/data.json" target="_blank" rel="noopener">https://trtjkqh.github.io/data.json</a>   能显示一堆 JSON 数据，就代表路径完全正确。</p>
+<p>---</p>
+<h4 class="sub-h">🔹 情况 2：它们在子文件夹（例如 /bom/）</h4>
+<div class="codeblock"><pre><code>/bom/
+ ├── index.html
+ └── data.json</code></pre></div>
+<p>✅ 那就改成：</p>
+<div class="codeblock"><pre><code>const response = await fetch(&quot;bom/data.json&quot;);</code></pre></div>
+<p>访问测试：   👉 打开 <a href="https://trtjkqh.github.io/bom/data.json" target="_blank" rel="noopener">https://trtjkqh.github.io/bom/data.json</a></p>
+<p>---</p>
+<h4 class="sub-h">🔹 情况 3：data.json 放在 assets 下</h4>
+<div class="codeblock"><pre><code>/assets/data.json</code></pre></div>
+<p>✅ 那就写：</p>
+<div class="codeblock"><pre><code>const response = await fetch(&quot;assets/data.json&quot;);</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">🚀 快速验证</h4>
+<p>你可以马上在浏览器里访问：</p>
+<ul class="md-ul"><li><a href="https://trtjkqh.github.io/data.json" target="_blank" rel="noopener">https://trtjkqh.github.io/data.json</a></li><li><a href="https://trtjkqh.github.io/bom/data.json" target="_blank" rel="noopener">https://trtjkqh.github.io/bom/data.json</a></li><li><a href="https://trtjkqh.github.io/assets/data.json" target="_blank" rel="noopener">https://trtjkqh.github.io/assets/data.json</a></li></ul>
+<p>哪个能打开、显示你 BOM 数据的 JSON，   我就告诉你对应应该写的那一行 <code>fetch(...)</code>。</p>
+<p>---</p>
+<p>👉 请你回复我一句：   ✅「能打开」或 ❌「404」   然后我立刻给你修正版本的 HTML 代码。</p></div>
+    </section>
+    <section id="s10" class="st5">
+      <div class="sec-h"><span class="idx st5">Q10</span><h2>数据文件是bom_data.json</h2><span class="hint">第 10 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>数据文件是bom_data.json</p></div>
+      <div class="qa-a"><p>完美 ✅ 那我们马上就可以确定要改的那一行路径了。  </p>
+<p>---</p>
+<h3 class="sub-h">✅ 正确写法</h3>
+<p>请在你的 <code>index.html</code> 中找到这行代码（大约在第 70 行附近）：</p>
+<div class="codeblock"><pre><code>const response = await fetch(&quot;data.json&quot;);</code></pre></div>
+<p>把它改成：</p>
+<div class="codeblock"><pre><code>const response = await fetch(&quot;bom_data.json&quot;);</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">⚡ 额外建议（确保加载成功）</h3>
+<p>为了防止缓存问题，你可以再加一点调试代码：</p>
+<div class="codeblock"><pre><code>try {
+  const response = await fetch(&quot;bom_data.json?_v=&quot; + Date.now()); // 加随机数防缓存
+  const text = await response.text();
+  console.log(&quot;🔍 原始内容：&quot;, text); // 打印内容确认加载成功
+  const bomData = JSON.parse(text);
+  if (!Array.isArray(bomData)) throw new Error(&quot;数据格式错误，必须为数组&quot;);
+  // 继续原本逻辑...
+} catch (err) {
+  console.error(&quot;❌ 加载出错:&quot;, err);
+  alert(&quot;数据加载失败，请检查路径或格式&quot;);
+}</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">🚀 验证步骤</h3>
+<ol class="md-ol"><li>把上面这段替换进你的 JS；</li><li>部署或刷新页面（强制刷新 <code>Ctrl + F5</code>）；</li><li>打开控制台；</li><li>如果看到：</li></ol>
+<div class="codeblock"><pre><code>   🔍 原始内容： [ { &quot;项目号&quot;: &quot;QZ100078&quot;, ... } ]</code></pre></div>
+<p>   ✅ 那就加载成功啦！</p>
+<p>---</p>
+<p>如果你想，我可以直接帮你整合出完整的新版 <code>index.html</code>（含模糊搜索、重置、父子表格展示、Tailwind UI 优化），   你只要上传即可部署。   要我帮你生成这一版吗？</p></div>
+    </section>
+    <section id="s11" class="st1">
+      <div class="sec-h"><span class="idx st1">Q11</span><h2>好的</h2><span class="hint">第 11 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>好的</p></div>
+      <div class="qa-a"><p>太好了 😄，我给你整合一版完整可用的 <strong>产品BOM查询页面</strong>，适配你的 <code>bom_data.json</code> 文件，功能如下：</p>
+<ul class="md-ul"><li>两个搜索框：品名（模糊搜索）、项目号（精准搜索）  </li><li>重置按钮  </li><li>父子表格显示：项目号/品名/规格/零售价为父项，物料明细为子项  </li><li>Tailwind 美化风格  </li><li>数据加载完成后才可查询，防止 <code>.filter()</code> 报错  </li></ul>
+<p>---</p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot; /&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+  &lt;title&gt;产品BOM查询&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;style&gt;
+    body { background-color: #f9fafb; font-family: &quot;Microsoft YaHei&quot;, sans-serif; }
+    .card { background-color: white; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 1.5rem; margin-top: 1.5rem; }
+    .child-row { background-color: #f3f4f6; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body class=&quot;p-6&quot;&gt;
+  &lt;div class=&quot;max-w-5xl mx-auto&quot;&gt;
+    &lt;h1 class=&quot;text-2xl font-bold mb-6 text-center&quot;&gt;📦 产品BOM查询&lt;/h1&gt;
+
+    &lt;!-- 搜索栏 --&gt;
+    &lt;div class=&quot;card&quot;&gt;
+      &lt;div class=&quot;flex flex-col md:flex-row gap-4 items-center&quot;&gt;
+        &lt;input id=&quot;nameSearch&quot; type=&quot;text&quot; placeholder=&quot;输入品名（模糊搜索）&quot; class=&quot;border rounded-lg p-2 flex-1 w-full&quot; /&gt;
+        &lt;input id=&quot;projectSearch&quot; type=&quot;text&quot; placeholder=&quot;输入项目号（精准搜索）&quot; class=&quot;border rounded-lg p-2 flex-1 w-full&quot; /&gt;
+        &lt;button id=&quot;searchBtn&quot; class=&quot;bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400&quot; disabled&gt;查询&lt;/button&gt;
+        &lt;button id=&quot;resetBtn&quot; class=&quot;bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600&quot;&gt;重置&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 结果列表 --&gt;
+    &lt;div id=&quot;resultArea&quot; class=&quot;card hidden&quot;&gt;
+      &lt;h2 class=&quot;text-lg font-semibold mb-4&quot;&gt;查询结果&lt;/h2&gt;
+      &lt;table class=&quot;min-w-full border-collapse border border-gray-300 text-sm&quot;&gt;
+        &lt;thead class=&quot;bg-gray-100&quot;&gt;
+          &lt;tr&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;项目号&lt;/th&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;品名&lt;/th&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;规格&lt;/th&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;零售价&lt;/th&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;物料项目号&lt;/th&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;物料名称&lt;/th&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;数量&lt;/th&gt;
+            &lt;th class=&quot;border p-2&quot;&gt;计量单位&lt;/th&gt;
+          &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody id=&quot;resultBody&quot;&gt;&lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;script&gt;
+    let bomData = [];
+
+    // 加载数据
+    fetch(&quot;bom_data.json?_v=&quot; + Date.now()) // 防缓存
+      .then(res =&gt; {
+        if (!res.ok) throw new Error(&quot;文件加载失败&quot;);
+        return res.json();
+      })
+      .then(data =&gt; {
+        if (!Array.isArray(data)) throw new Error(&quot;数据格式错误，必须为数组&quot;);
+        bomData = data;
+        console.log(&quot;✅ 数据加载成功&quot;, bomData.length);
+        document.getElementById(&quot;searchBtn&quot;).disabled = false;
+      })
+      .catch(err =&gt; {
+        console.error(&quot;❌ 加载出错:&quot;, err);
+        alert(&quot;数据加载失败，请检查路径或格式&quot;);
+      });
+
+    // 查询按钮
+    document.getElementById(&quot;searchBtn&quot;).addEventListener(&quot;click&quot;, () =&gt; {
+      const nameKeyword = document.getElementById(&quot;nameSearch&quot;).value.trim();
+      const projectID = document.getElementById(&quot;projectSearch&quot;).value.trim();
+
+      if (!nameKeyword &amp;&amp; !projectID) {
+        alert(&quot;请输入至少一个查询条件！&quot;);
+        return;
+      }
+
+      const filtered = bomData.filter(item =&gt;
+        (!nameKeyword || item.品名.includes(nameKeyword)) &amp;&amp;
+        (!projectID || item.项目号 === projectID)
+      );
+
+      renderResult(filtered);
+    });
+
+    // 重置按钮
+    document.getElementById(&quot;resetBtn&quot;).addEventListener(&quot;click&quot;, () =&gt; {
+      document.getElementById(&quot;nameSearch&quot;).value = &quot;&quot;;
+      document.getElementById(&quot;projectSearch&quot;).value = &quot;&quot;;
+      document.getElementById(&quot;resultArea&quot;).classList.add(&quot;hidden&quot;);
+      document.getElementById(&quot;resultBody&quot;).innerHTML = &quot;&quot;;
+    });
+
+    // 渲染结果（父子结构）
+    function renderResult(data) {
+      const resultArea = document.getElementById(&quot;resultArea&quot;);
+      const resultBody = document.getElementById(&quot;resultBody&quot;);
+      resultBody.innerHTML = &quot;&quot;;
+
+      if (data.length === 0) {
+        resultArea.classList.remove(&quot;hidden&quot;);
+        resultBody.innerHTML = `&lt;tr&gt;&lt;td colspan=&quot;8&quot; class=&quot;text-center p-4 text-gray-500&quot;&gt;无匹配结果&lt;/td&gt;&lt;/tr&gt;`;
+        return;
+      }
+
+      // 按项目号分组
+      const grouped = {};
+      data.forEach(item =&gt; {
+        if (!grouped[item.项目号]) grouped[item.项目号] = [];
+        grouped[item.项目号].push(item);
+      });
+
+      for (const [proj, items] of Object.entries(grouped)) {
+        const parent = items[0];
+        const parentRow = `
+          &lt;tr class=&quot;bg-blue-50 font-semibold&quot;&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${parent.项目号}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${parent.品名}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${parent.规格}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${parent[&quot;零售价（元）&quot;] ?? parent.零售价 ?? &quot;&quot;}&lt;/td&gt;
+            &lt;td class=&quot;border p-2 text-center&quot; colspan=&quot;4&quot;&gt;物料明细如下 ↓&lt;/td&gt;
+          &lt;/tr&gt;
+        `;
+        resultBody.insertAdjacentHTML(&quot;beforeend&quot;, parentRow);
+
+        items.forEach(child =&gt; {
+          const childRow = `
+            &lt;tr class=&quot;child-row&quot;&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${child.物料项目号}&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${child.物料名称}&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${child.数量}&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${child.计量单位}&lt;/td&gt;
+            &lt;/tr&gt;
+          `;
+          resultBody.insertAdjacentHTML(&quot;beforeend&quot;, childRow);
+        });
+      }
+
+      resultArea.classList.remove(&quot;hidden&quot;);
+    }
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">✅ 使用方法</h4>
+<ol class="md-ol"><li>保存为 <code>index.html</code> 或 <code>bom.html</code>  </li><li>确保 <code>bom_data.json</code> 和它在同一个目录  </li><li>部署到 GitHub Pages  </li><li>打开页面，控制台确认：<code>✅ 数据加载成功 ...</code>  </li><li>就可以进行模糊搜索 / 精准搜索了  </li></ol>
+<p>---</p>
+<p>如果你愿意，我可以再帮你<strong>加一个“导出 Excel”按钮</strong>，直接把筛选结果导出为表格，方便采购或物料管理。  </p>
+<p>你希望我加吗？</p></div>
+    </section>
+    <section id="s12" class="st2">
+      <div class="sec-h"><span class="idx st2">Q12</span><h2>已经没问题了，请参考台账查询页面的风格，底部加上© 2025 德令哈采购管理部</h2><span class="hint">第 12 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>已经没问题了，请参考台账查询页面的风格，底部加上© 2025 德令哈采购管理部</p></div>
+      <div class="qa-a"><p>明白了 😄，我帮你在刚才的 BOM 查询页面基础上<strong>增加底部版权信息</strong>，风格参考台账查询页面的设计：  </p>
+<div class="codeblock"><pre><code>&lt;!-- 结果列表下面，整个页面最底部 --&gt;
+&lt;footer class=&quot;mt-8 text-center text-gray-500 text-sm&quot;&gt;
+  © 2025 德令哈采购管理部
+&lt;/footer&gt;</code></pre></div>
+<p>把它放在 <code>&lt;/div&gt;</code> 容器外或者 <code>&lt;/body&gt;</code> 前都可以，完整示例如下：  </p>
+<div class="codeblock"><pre><code>  &lt;/div&gt; &lt;!-- 最大容器结束 --&gt;
+
+  &lt;!-- 底部版权 --&gt;
+  &lt;footer class=&quot;mt-8 text-center text-gray-500 text-sm&quot;&gt;
+    © 2025 德令哈采购管理部
+  &lt;/footer&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<ul class="md-ul"><li><code>mt-8</code> 保证与内容有适当间距  </li><li><code>text-gray-500 text-sm</code> 保持简洁低调风格  </li></ul>
+<p>页面渲染后，底部会居中显示版权信息，整体风格和台账查询页面保持一致。  </p>
+<p>我可以帮你把<strong>整个 BOM 页面整合成带底部版权的最终版本</strong>，直接替换原来的 <code>index.html</code>。  </p>
+<p>你希望我直接生成吗？</p></div>
+    </section>
+    <section id="s13" class="st3">
+      <div class="sec-h"><span class="idx st3">Q13</span><h2>我现在提供物料查询页面的代码，请整体都参考下：&lt;!DOCTYPE html&gt;&lt;h…</h2><span class="hint">第 13 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>我现在提供物料查询页面的代码，请整体都参考下：&lt;!DOCTYPE html&gt;</p>
+<p>&lt;html lang="zh-CN"&gt;</p>
+<p>&lt;head&gt;</p>
+<p>  &lt;meta charset="UTF-8" /&gt;</p>
+<p>  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;</p>
+<p>  &lt;title&gt;采购管理部物料查询系统&lt;/title&gt;</p>
+<p>  &lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p>  &lt;style&gt;</p>
+<p>    @keyframes fadeIn {</p>
+<p>      from { opacity: 0; transform: translateY(10px); }</p>
+<p>      to { opacity: 1; transform: translateY(0); }</p>
+<p>    }</p>
+<p>    .fade-in { animation: fadeIn 0.4s ease-in; }</p>
+<p>    table th { position: sticky; top: 0; }</p>
+<p>  &lt;/style&gt;</p>
+<p>&lt;/head&gt;</p>
+<p>&lt;body class="bg-gray-100 font-sans leading-relaxed text-gray-800"&gt;</p>
+<p>  &lt;!-- 页头：红色渐变 + LOGO --&gt;</p>
+<p>  &lt;header class="bg-gradient-to-r from-red-600 to-red-400 text-white py-6 shadow flex flex-col items-center justify-center"&gt;</p>
+<p>  &lt;img src="/assets/img/trtlogo.png" alt="LOGO" class="h-16 w-auto mb-2 object-contain"&gt;</p>
+<p>  &lt;h1 class="text-2xl font-bold tracking-wide"&gt;生产物料查询系统&lt;/h1&gt;</p>
+<p>&lt;/header&gt;</p>
+<p>  &lt;main class="max-w-6xl mx-auto bg-white mt-8 p-8 rounded-xl shadow-lg fade-in"&gt;</p>
+<p>    &lt;!-- 信息提示（居中样式） --&gt;</p>
+<p>    &lt;div class="bg-gray-50 border border-red-200 text-center text-sm text-gray-700 py-3 rounded-lg mb-6"&gt;</p>
+<p>      &lt;p class="flex flex-wrap justify-center gap-2"&gt;</p>
+<p>         &lt;span class="px-2 text-red-600 font-semibold"&gt;⚠️ 保密声明：所有数据均属内部信息，严禁泄露。&lt;/span&gt;</p>
+<p>        &lt;span class="px-2"&gt;📊 数据来源：采购管理部&lt;/span&gt; </p>
+<p>        &lt;span class="px-2"&gt;🔍 查询范围：2022年1月1日 - 2025年10月14日&lt;/span&gt; </p>
+<p>      &lt;/p&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>    &lt;!-- 查询区域 --&gt;</p>
+<p>    &lt;div class="flex flex-wrap gap-3 mb-6 items-center"&gt;</p>
+<p>      &lt;select id="year" class="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-red-400"&gt;</p>
+<p>        &lt;option value=""&gt;全部年份&lt;/option&gt;</p>
+<p>        &lt;option value="2025"&gt;2025&lt;/option&gt;</p>
+<p>        &lt;option value="2024"&gt;2024&lt;/option&gt;</p>
+<p>        &lt;option value="2023"&gt;2023&lt;/option&gt;</p>
+<p>        &lt;option value="2022"&gt;2022&lt;/option&gt;</p>
+<p>      &lt;/select&gt;</p>
+<p>      &lt;input id="supplier" type="text" placeholder="供应商名称（可简称）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" /&gt;</p>
+<p>      &lt;input id="projectNo" type="text" placeholder="项目号（需精准）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" /&gt;</p>
+<p>      &lt;input id="projectName" type="text" placeholder="项目名称（可简称）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" /&gt;</p>
+<p>      &lt;button onclick="searchData()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"&gt;查询&lt;/button&gt;</p>
+<p>      &lt;button onclick="resetForm()" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition"&gt;重置&lt;/button&gt;</p>
+<p>      &lt;button onclick="exportTableToExcel('查询结果.xlsx')" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"&gt;导出Excel&lt;/button&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>    &lt;!-- 汇总区 --&gt;</p>
+<p>    &lt;div id="summary" class="hidden mb-4 fade-in flex gap-4"&gt;</p>
+<p>      &lt;div class="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 font-semibold"&gt;匹配结果：&lt;span id="count"&gt;&lt;/span&gt; 条&lt;/div&gt;</p>
+<p>      &lt;div class="bg-green-50 border border-green-200 rounded-lg p-3 text-green-700 font-semibold"&gt;金额总计：&lt;span id="total"&gt;&lt;/span&gt; 元&lt;/div&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>    &lt;!-- 查询结果 --&gt;</p>
+<p>    &lt;div id="loading" class="text-center text-red-600 font-medium my-6"&gt;⏳ 数据加载中...&lt;/div&gt;</p>
+<p>    &lt;div id="result" class="fade-in overflow-x-auto"&gt;&lt;/div&gt;</p>
+<p>  &lt;/main&gt;</p>
+<p>  &lt;footer class="text-center text-gray-500 text-sm mt-8 mb-4"&gt;© 2025 德令哈采购管理部&lt;/footer&gt;</p>
+<p>  &lt;script&gt;</p>
+<p>    let dataCache = [];</p>
+<p>    fetch('data.json')</p>
+<p>      .then(res =&gt; res.json())</p>
+<p>      .then(data =&gt; {</p>
+<p>        dataCache = data;</p>
+<p>        document.getElementById("loading").style.display = "none";</p>
+<p>        console.log("✅ 数据已加载:", dataCache.length, "条");</p>
+<p>      })</p>
+<p>      .catch(err =&gt; {</p>
+<p>        console.error("❌ 数据加载失败:", err);</p>
+<p>        document.getElementById("loading").textContent = "❌ 无法加载数据，请检查 data.json 文件路径。";</p>
+<p>      });</p>
+<p>    function searchData() {</p>
+<p>      const year = document.getElementById("year").value.trim();</p>
+<p>      const supplier = document.getElementById("supplier").value.trim();</p>
+<p>      const projectNo = document.getElementById("projectNo").value.trim();</p>
+<p>      const projectName = document.getElementById("projectName").value.trim();</p>
+<p>      if (!year &amp;&amp; !supplier &amp;&amp; !projectNo &amp;&amp; !projectName) {</p>
+<p>        alert("请输入至少一项查询条件！");</p>
+<p>        return;</p>
+<p>      }</p>
+<p>      let filtered = dataCache.filter(item =&gt; {</p>
+<p>        const supplierStr = item["供应商名称"] ? String(item["供应商名称"]) : "";</p>
+<p>        const projectNoStr = item["项目号"] ? String(item["项目号"]) : "";</p>
+<p>        const projectNameStr = item["项目名称"] ? String(item["项目名称"]) : "";</p>
+<p>        const contractNoStr = item["合同编号"] ? String(item["合同编号"]) : "";</p>
+<p>        const matchYear = year ? contractNoStr.includes(year) : true;</p>
+<p>        const matchSupplier = supplier ? supplierStr.includes(supplier) : true;</p>
+<p>        const matchProjectNo = projectNo ? projectNoStr.includes(projectNo) : true;</p>
+<p>        const matchProjectName = projectName ? projectNameStr.includes(projectName) : true;</p>
+<p>        return matchYear &amp;&amp; matchSupplier &amp;&amp; matchProjectNo &amp;&amp; matchProjectName;</p>
+<p>      });</p>
+<p>      filtered.sort((a, b) =&gt; {</p>
+<p>        const aNum = Number(a["合同编号"].match(/\d+/g).join(''));</p>
+<p>        const bNum = Number(b["合同编号"].match(/\d+/g).join(''));</p>
+<p>        return bNum - aNum;</p>
+<p>      });</p>
+<p>      if (filtered.length === 0) {</p>
+<p>        document.getElementById("summary").classList.add("hidden");</p>
+<p>        document.getElementById("result").innerHTML = "&lt;p class='text-center text-gray-500'&gt;未找到匹配的数据。&lt;/p&gt;";</p>
+<p>        return;</p>
+<p>      }</p>
+<p>      let total = filtered.reduce((sum, item) =&gt; sum + Number(item["订单总额"] || 0), 0);</p>
+<p>      document.getElementById("summary").classList.remove("hidden");</p>
+<p>      document.getElementById("count").textContent = filtered.length;</p>
+<p>      document.getElementById("total").textContent = total.toLocaleString(undefined, {minimumFractionDigits: 2});</p>
+<p>      let tableHTML = `</p>
+<p>        &lt;table class="w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm"&gt;</p>
+<p>          &lt;thead class="bg-red-600 text-white"&gt;</p>
+<p>            &lt;tr&gt;</p>
+<p>              &lt;th class="p-2"&gt;项目号&lt;/th&gt;</p>
+<p>              &lt;th class="p-2"&gt;项目名称&lt;/th&gt;</p>
+<p>              &lt;th class="p-2"&gt;数量&lt;/th&gt;</p>
+<p>              &lt;th class="p-2"&gt;单位&lt;/th&gt;</p>
+<p>              &lt;th class="p-2"&gt;采购单价&lt;/th&gt;</p>
+<p>              &lt;th class="p-2"&gt;订单总额&lt;/th&gt;</p>
+<p>              &lt;th class="p-2"&gt;供应商名称&lt;/th&gt;</p>
+<p>              &lt;th class="p-2"&gt;合同编号&lt;/th&gt;</p>
+<p>            &lt;/tr&gt;</p>
+<p>          &lt;/thead&gt;</p>
+<p>          &lt;tbody&gt;</p>
+<p>            ${filtered.map((row, i) =&gt; `</p>
+<p>              &lt;tr class="${i % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-red-50 transition"&gt;</p>
+<p>                &lt;td class="p-2"&gt;${row["项目号"] || ""}&lt;/td&gt;</p>
+<p>                &lt;td class="p-2"&gt;${row["项目名称"] || ""}&lt;/td&gt;</p>
+<p>                &lt;td class="p-2"&gt;${row["数量"] || ""}&lt;/td&gt;</p>
+<p>                &lt;td class="p-2"&gt;${row["单位"] || ""}&lt;/td&gt;</p>
+<p>                &lt;td class="p-2"&gt;${Number(row["采购单价"] || 0).toLocaleString()}&lt;/td&gt;</p>
+<p>                &lt;td class="p-2"&gt;${Number(row["订单总额"] || 0).toLocaleString()}&lt;/td&gt;</p>
+<p>                &lt;td class="p-2"&gt;${row["供应商名称"] || ""}&lt;/td&gt;</p>
+<p>                &lt;td class="p-2"&gt;${row["合同编号"] || ""}&lt;/td&gt;</p>
+<p>              &lt;/tr&gt;</p>
+<p>            `).join('')}</p>
+<p>          &lt;/tbody&gt;</p>
+<p>          &lt;tfoot class="bg-gray-100 font-semibold"&gt;</p>
+<p>            &lt;tr&gt;</p>
+<p>              &lt;td colspan="6" class="p-2 text-right"&gt;金额总计：&lt;/td&gt;</p>
+<p>              &lt;td colspan="2" class="p-2 text-red-700"&gt;${total.toLocaleString(undefined, {minimumFractionDigits: 2})}&lt;/td&gt;</p>
+<p>            &lt;/tr&gt;</p>
+<p>          &lt;/tfoot&gt;</p>
+<p>        &lt;/table&gt;</p>
+<p>      `;</p>
+<p>      document.getElementById("result").innerHTML = tableHTML;</p>
+<p>    }</p>
+<p>    function resetForm() {</p>
+<p>      ["year","supplier","projectNo","projectName"].forEach(id =&gt; document.getElementById(id).value = "");</p>
+<p>      document.getElementById("result").innerHTML = "";</p>
+<p>      document.getElementById("summary").classList.add("hidden");</p>
+<p>    }</p>
+<p>    function exportTableToExcel(filename) {</p>
+<p>      const table = document.querySelector("#result table");</p>
+<p>      if (!table) { alert("请先执行查询！"); return; }</p>
+<p>      const html = table.outerHTML.replace(/ /g, '%20');</p>
+<p>      const link = document.createElement("a");</p>
+<p>      link.href = 'data:application/vnd.ms-excel,' + html;</p>
+<p>      link.download = filename;</p>
+<p>      link.click();</p>
+<p>    }</p>
+<p>  &lt;/script&gt;</p>
+<p>&lt;/body&gt;</p>
+<p>&lt;/html&gt;</p></div>
+      <div class="qa-a"><p>明白了 😄，我会基于你提供的 <strong>物料查询页面</strong> 的风格，帮你生成 <strong>BOM 查询页面的最终版本</strong>，功能保持你之前要求的：  </p>
+<ul class="md-ul"><li>页面风格完全沿用物料查询页面（红色渐变头部、白底卡片、淡入动画、居中提示）  </li><li>两个查询框：品名（模糊搜索）、项目号（精准搜索）  </li><li>重置按钮  </li><li>父子表格展示：项目号/品名/规格/零售价为父项，物料明细为子项  </li><li>底部版权 <code>© 2025 德令哈采购管理部</code>  </li></ul>
+<p>---</p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot; /&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+  &lt;title&gt;产品BOM查询系统&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;style&gt;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeIn 0.4s ease-in; }
+    table th { position: sticky; top: 0; background-color: #fef2f2; }
+    .child-row { background-color: #fef3c7; }
+  &lt;/style&gt;
+&lt;/head&gt;
+
+&lt;body class=&quot;bg-gray-100 font-sans leading-relaxed text-gray-800&quot;&gt;
+  &lt;!-- 页头：红色渐变 + LOGO --&gt;
+  &lt;header class=&quot;bg-gradient-to-r from-red-600 to-red-400 text-white py-6 shadow flex flex-col items-center justify-center&quot;&gt;
+    &lt;img src=&quot;/assets/img/trtlogo.png&quot; alt=&quot;LOGO&quot; class=&quot;h-16 w-auto mb-2 object-contain&quot;&gt;
+    &lt;h1 class=&quot;text-2xl font-bold tracking-wide&quot;&gt;产品BOM查询系统&lt;/h1&gt;
+  &lt;/header&gt;
+
+  &lt;main class=&quot;max-w-6xl mx-auto bg-white mt-8 p-8 rounded-xl shadow-lg fade-in&quot;&gt;
+    &lt;!-- 信息提示 --&gt;
+    &lt;div class=&quot;bg-gray-50 border border-red-200 text-center text-sm text-gray-700 py-3 rounded-lg mb-6&quot;&gt;
+      &lt;p class=&quot;flex flex-wrap justify-center gap-2&quot;&gt;
+        &lt;span class=&quot;px-2 text-red-600 font-semibold&quot;&gt;⚠️ 保密声明：所有数据均属内部信息，严禁泄露。&lt;/span&gt;
+        &lt;span class=&quot;px-2&quot;&gt;📊 数据来源：采购管理部&lt;/span&gt;
+        &lt;span class=&quot;px-2&quot;&gt;🔍 查询范围：2022年1月1日 - 2025年10月28日&lt;/span&gt;
+      &lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 查询区域 --&gt;
+    &lt;div class=&quot;flex flex-wrap gap-3 mb-6 items-center&quot;&gt;
+      &lt;input id=&quot;nameSearch&quot; type=&quot;text&quot; placeholder=&quot;品名（模糊搜索）&quot; class=&quot;border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400&quot; /&gt;
+      &lt;input id=&quot;projectSearch&quot; type=&quot;text&quot; placeholder=&quot;项目号（精准搜索）&quot; class=&quot;border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400&quot; /&gt;
+      &lt;button id=&quot;searchBtn&quot; class=&quot;bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition&quot; disabled&gt;查询&lt;/button&gt;
+      &lt;button id=&quot;resetBtn&quot; class=&quot;bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition&quot;&gt;重置&lt;/button&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 查询结果 --&gt;
+    &lt;div id=&quot;loading&quot; class=&quot;text-center text-red-600 font-medium my-6&quot;&gt;⏳ 数据加载中...&lt;/div&gt;
+    &lt;div id=&quot;result&quot; class=&quot;fade-in overflow-x-auto&quot;&gt;&lt;/div&gt;
+  &lt;/main&gt;
+
+  &lt;footer class=&quot;text-center text-gray-500 text-sm mt-8 mb-4&quot;&gt;© 2025 德令哈采购管理部&lt;/footer&gt;
+
+  &lt;script&gt;
+    let bomData = [];
+
+    // 加载数据
+    fetch(&#x27;bom_data.json?_v=&#x27; + Date.now())
+      .then(res =&gt; res.json())
+      .then(data =&gt; {
+        if(!Array.isArray(data)) throw new Error(&quot;数据格式错误，必须为数组&quot;);
+        bomData = data;
+        document.getElementById(&quot;loading&quot;).style.display = &quot;none&quot;;
+        document.getElementById(&quot;searchBtn&quot;).disabled = false;
+        console.log(&quot;✅ 数据加载成功&quot;, bomData.length, &quot;条&quot;);
+      })
+      .catch(err =&gt; {
+        console.error(&quot;❌ 数据加载失败:&quot;, err);
+        document.getElementById(&quot;loading&quot;).textContent = &quot;❌ 数据加载失败，请检查路径或格式&quot;;
+      });
+
+    // 查询按钮
+    document.getElementById(&quot;searchBtn&quot;).addEventListener(&quot;click&quot;, () =&gt; {
+      const nameKeyword = document.getElementById(&quot;nameSearch&quot;).value.trim();
+      const projectID = document.getElementById(&quot;projectSearch&quot;).value.trim();
+
+      if (!nameKeyword &amp;&amp; !projectID) {
+        alert(&quot;请输入至少一个查询条件！&quot;);
+        return;
+      }
+
+      const filtered = bomData.filter(item =&gt;
+        (!nameKeyword || item.品名.includes(nameKeyword)) &amp;&amp;
+        (!projectID || item.项目号 === projectID)
+      );
+
+      renderResult(filtered);
+    });
+
+    // 重置按钮
+    document.getElementById(&quot;resetBtn&quot;).addEventListener(&quot;click&quot;, () =&gt; {
+      document.getElementById(&quot;nameSearch&quot;).value = &quot;&quot;;
+      document.getElementById(&quot;projectSearch&quot;).value = &quot;&quot;;
+      document.getElementById(&quot;result&quot;).innerHTML = &quot;&quot;;
+    });
+
+    // 渲染结果（父子结构）
+    function renderResult(data) {
+      const resultDiv = document.getElementById(&quot;result&quot;);
+      resultDiv.innerHTML = &quot;&quot;;
+
+      if (data.length === 0) {
+        resultDiv.innerHTML = &quot;&lt;p class=&#x27;text-center text-gray-500&#x27;&gt;未找到匹配结果。&lt;/p&gt;&quot;;
+        return;
+      }
+
+      // 按项目号分组
+      const grouped = {};
+      data.forEach(item =&gt; {
+        if (!grouped[item.项目号]) grouped[item.项目号] = [];
+        grouped[item.项目号].push(item);
+      });
+
+      let tableHTML = `
+        &lt;table class=&quot;w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm&quot;&gt;
+          &lt;thead class=&quot;bg-red-600 text-white&quot;&gt;
+            &lt;tr&gt;
+              &lt;th class=&quot;p-2&quot;&gt;项目号&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;品名&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;规格&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;零售价&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;物料项目号&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;物料名称&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;数量&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;计量单位&lt;/th&gt;
+            &lt;/tr&gt;
+          &lt;/thead&gt;
+          &lt;tbody&gt;
+      `;
+
+      for (const [proj, items] of Object.entries(grouped)) {
+        const parent = items[0];
+        tableHTML += `
+          &lt;tr class=&quot;bg-red-50 font-semibold&quot;&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${parent.项目号}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${parent.品名}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${parent.规格}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${parent[&quot;零售价（元）&quot;] ?? parent.零售价 ?? &quot;&quot;}&lt;/td&gt;
+            &lt;td class=&quot;border p-2 text-center&quot; colspan=&quot;4&quot;&gt;物料明细如下 ↓&lt;/td&gt;
+          &lt;/tr&gt;
+        `;
+        items.forEach(child =&gt; {
+          tableHTML += `
+            &lt;tr class=&quot;child-row&quot;&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${child.物料项目号}&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${child.物料名称}&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${child.数量}&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${child.计量单位}&lt;/td&gt;
+            &lt;/tr&gt;
+          `;
+        });
+      }
+
+      tableHTML += `&lt;/tbody&gt;&lt;/table&gt;`;
+      resultDiv.innerHTML = tableHTML;
+    }
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">🔹 说明</h4>
+<ol class="md-ol"><li>页面头部、提示、按钮样式完全沿用物料查询页面  </li><li>父子表格结构与之前要求一致  </li><li>底部版权信息加上了 <code>© 2025 德令哈采购管理部</code>  </li><li>数据加载失败会显示明确提示  </li></ol>
+<p>---</p>
+<p>如果你愿意，我可以在这版页面上 <strong>加上导出 Excel 功能</strong>，直接导出父子表格，方便内部使用。  </p>
+<p>你希望我加吗？</p></div>
+    </section>
+    <section id="s14" class="st4">
+      <div class="sec-h"><span class="idx st4">Q14</span><h2>搜索后的标题栏文字白色换别的颜色，背景色换别的颜色，让整体更和谐，直接提供完整的…</h2><span class="hint">第 14 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>搜索后的标题栏文字白色换别的颜色，背景色换别的颜色，让整体更和谐，直接提供完整的index吧</p></div>
+      <div class="qa-a"><p>明白了 😄，我帮你调整了<strong>父表格的表头和背景颜色</strong>，让整体色彩更和谐，同时保留之前的风格和功能（父子表格、红色渐变头、底部版权、搜索/重置）。  </p>
+<p>下面是完整可用的 <code>index.html</code>：  </p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot; /&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+  &lt;title&gt;产品BOM查询系统&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;style&gt;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeIn 0.4s ease-in; }
+    table th { position: sticky; top: 0; }
+    .parent-header { background-color: #f87171; color: white; } /* 父表格头部颜色 */
+    .child-row { background-color: #fef3c7; }
+  &lt;/style&gt;
+&lt;/head&gt;
+
+&lt;body class=&quot;bg-gray-100 font-sans leading-relaxed text-gray-800&quot;&gt;
+  &lt;!-- 页头：红色渐变 + LOGO --&gt;
+  &lt;header class=&quot;bg-gradient-to-r from-red-600 to-red-400 text-white py-6 shadow flex flex-col items-center justify-center&quot;&gt;
+    &lt;img src=&quot;/assets/img/trtlogo.png&quot; alt=&quot;LOGO&quot; class=&quot;h-16 w-auto mb-2 object-contain&quot;&gt;
+    &lt;h1 class=&quot;text-2xl font-bold tracking-wide&quot;&gt;产品BOM查询系统&lt;/h1&gt;
+  &lt;/header&gt;
+
+  &lt;main class=&quot;max-w-6xl mx-auto bg-white mt-8 p-8 rounded-xl shadow-lg fade-in&quot;&gt;
+    &lt;!-- 信息提示 --&gt;
+    &lt;div class=&quot;bg-gray-50 border border-red-200 text-center text-sm text-gray-700 py-3 rounded-lg mb-6&quot;&gt;
+      &lt;p class=&quot;flex flex-wrap justify-center gap-2&quot;&gt;
+        &lt;span class=&quot;px-2 text-red-600 font-semibold&quot;&gt;⚠️ 保密声明：所有数据均属内部信息，严禁泄露。&lt;/span&gt;
+        &lt;span class=&quot;px-2&quot;&gt;📊 数据来源：采购管理部&lt;/span&gt;
+        &lt;span class=&quot;px-2&quot;&gt;🔍 查询范围：2022年1月1日 - 2025年10月28日&lt;/span&gt;
+      &lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 查询区域 --&gt;
+    &lt;div class=&quot;flex flex-wrap gap-3 mb-6 items-center&quot;&gt;
+      &lt;input id=&quot;nameSearch&quot; type=&quot;text&quot; placeholder=&quot;品名（模糊搜索）&quot; class=&quot;border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400&quot; /&gt;
+      &lt;input id=&quot;projectSearch&quot; type=&quot;text&quot; placeholder=&quot;项目号（精准搜索）&quot; class=&quot;border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400&quot; /&gt;
+      &lt;button id=&quot;searchBtn&quot; class=&quot;bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition&quot; disabled&gt;查询&lt;/button&gt;
+      &lt;button id=&quot;resetBtn&quot; class=&quot;bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition&quot;&gt;重置&lt;/button&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 查询结果 --&gt;
+    &lt;div id=&quot;loading&quot; class=&quot;text-center text-red-600 font-medium my-6&quot;&gt;⏳ 数据加载中...&lt;/div&gt;
+    &lt;div id=&quot;result&quot; class=&quot;fade-in overflow-x-auto&quot;&gt;&lt;/div&gt;
+  &lt;/main&gt;
+
+  &lt;footer class=&quot;text-center text-gray-500 text-sm mt-8 mb-4&quot;&gt;© 2025 德令哈采购管理部&lt;/footer&gt;
+
+  &lt;script&gt;
+    let bomData = [];
+
+    // 加载数据
+    fetch(&#x27;bom_data.json?_v=&#x27; + Date.now())
+      .then(res =&gt; res.json())
+      .then(data =&gt; {
+        if(!Array.isArray(data)) throw new Error(&quot;数据格式错误，必须为数组&quot;);
+        bomData = data;
+        document.getElementById(&quot;loading&quot;).style.display = &quot;none&quot;;
+        document.getElementById(&quot;searchBtn&quot;).disabled = false;
+        console.log(&quot;✅ 数据加载成功&quot;, bomData.length, &quot;条&quot;);
+      })
+      .catch(err =&gt; {
+        console.error(&quot;❌ 数据加载失败:&quot;, err);
+        document.getElementById(&quot;loading&quot;).textContent = &quot;❌ 数据加载失败，请检查路径或格式&quot;;
+      });
+
+    // 查询按钮
+    document.getElementById(&quot;searchBtn&quot;).addEventListener(&quot;click&quot;, () =&gt; {
+      const nameKeyword = document.getElementById(&quot;nameSearch&quot;).value.trim();
+      const projectID = document.getElementById(&quot;projectSearch&quot;).value.trim();
+
+      if (!nameKeyword &amp;&amp; !projectID) {
+        alert(&quot;请输入至少一个查询条件！&quot;);
+        return;
+      }
+
+      const filtered = bomData.filter(item =&gt;
+        (!nameKeyword || item.品名.includes(nameKeyword)) &amp;&amp;
+        (!projectID || item.项目号 === projectID)
+      );
+
+      renderResult(filtered);
+    });
+
+    // 重置按钮
+    document.getElementById(&quot;resetBtn&quot;).addEventListener(&quot;click&quot;, () =&gt; {
+      document.getElementById(&quot;nameSearch&quot;).value = &quot;&quot;;
+      document.getElementById(&quot;projectSearch&quot;).value = &quot;&quot;;
+      document.getElementById(&quot;result&quot;).innerHTML = &quot;&quot;;
+    });
+
+    // 渲染结果（父子结构）
+    function renderResult(data) {
+      const resultDiv = document.getElementById(&quot;result&quot;);
+      resultDiv.innerHTML = &quot;&quot;;
+
+      if (data.length === 0) {
+        resultDiv.innerHTML = &quot;&lt;p class=&#x27;text-center text-gray-500&#x27;&gt;未找到匹配结果。&lt;/p&gt;&quot;;
+        return;
+      }
+
+      // 按项目号分组
+      const grouped = {};
+      data.forEach(item =&gt; {
+        if (!grouped[item.项目号]) grouped[item.项目号] = [];
+        grouped[item.项目号].push(item);
+      });
+
+      let tableHTML = `
+        &lt;table class=&quot;w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm&quot;&gt;
+          &lt;thead class=&quot;parent-header&quot;&gt;
+            &lt;tr&gt;
+              &lt;th class=&quot;p-2&quot;&gt;项目号&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;品名&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;规格&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;零售价&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;物料项目号&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;物料名称&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;数量&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;计量单位&lt;/th&gt;
+            &lt;/tr&gt;
+          &lt;/thead&gt;
+          &lt;tbody&gt;
+      `;
+
+      for (const [proj, items] of Object.entries(grouped)) {
+        const parent = items[0];
+        tableHTML += `
+          &lt;tr class=&quot;bg-red-50 font-semibold&quot;&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${parent.项目号}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${parent.品名}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${parent.规格}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${parent[&quot;零售价（元）&quot;] ?? parent.零售价 ?? &quot;&quot;}&lt;/td&gt;
+            &lt;td class=&quot;border p-2 text-center&quot; colspan=&quot;4&quot;&gt;物料明细如下 ↓&lt;/td&gt;
+          &lt;/tr&gt;
+        `;
+        items.forEach(child =&gt; {
+          tableHTML += `
+            &lt;tr class=&quot;child-row&quot;&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${child.物料项目号}&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${child.物料名称}&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${child.数量}&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${child.计量单位}&lt;/td&gt;
+            &lt;/tr&gt;
+          `;
+        });
+      }
+
+      tableHTML += `&lt;/tbody&gt;&lt;/table&gt;`;
+      resultDiv.innerHTML = tableHTML;
+    }
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">🔹 修改说明</h4>
+<ol class="md-ol"><li>父表格标题栏使用 <code>.parent-header</code>：  </li></ol>
+<p>   - 背景色 <code>#f87171</code>（柔和红色）      - 字体颜色白色  </p>
+<ol class="md-ol"><li>子表格行背景色仍保留柔和黄色 <code>.child-row</code>，和父表格区分明显  </li><li>页面整体仍保持物料查询页面风格  </li><li>保留底部版权信息  </li></ol>
+<p>---</p>
+<p>如果你希望，我可以再帮你<strong>把父表格标题栏和整个表格颜色做成渐变色或更柔和配色</strong>，让页面整体更加高端美观。  </p>
+<p>你想要我优化这个吗？</p></div>
+    </section>
+    <section id="s15" class="st5">
+      <div class="sec-h"><span class="idx st5">Q15</span><h2>可以</h2><span class="hint">第 15 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>可以</p></div>
+      <div class="qa-a"><p>好的 😄，我帮你把 BOM 查询页面的表格做成<strong>更加柔和且协调的渐变配色</strong>，让父表格标题栏和子表格行都显得更高端，同时保持可读性和物料查询页面的风格。下面是完整的 <code>index.html</code> 版本：  </p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot; /&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+  &lt;title&gt;产品BOM查询系统&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;style&gt;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeIn 0.4s ease-in; }
+    table th { position: sticky; top: 0; }
+
+    /* 父表格标题渐变背景和文字 */
+    .parent-header {
+      background: linear-gradient(90deg, #fbbfbc, #f87171);
+      color: #ffffff;
+    }
+
+    /* 父表格每行渐变背景，浅粉色 */
+    .parent-row {
+      background: linear-gradient(90deg, #ffe4e1, #ffe0e0);
+      font-weight: 600;
+    }
+
+    /* 子表格行淡黄色背景 */
+    .child-row {
+      background: linear-gradient(90deg, #fff8dc, #fffad1);
+    }
+
+    /* 鼠标悬停效果 */
+    tbody tr:hover {
+      background-color: #fce4e4;
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+
+&lt;body class=&quot;bg-gray-100 font-sans leading-relaxed text-gray-800&quot;&gt;
+  &lt;!-- 页头：红色渐变 + LOGO --&gt;
+  &lt;header class=&quot;bg-gradient-to-r from-red-600 to-red-400 text-white py-6 shadow flex flex-col items-center justify-center&quot;&gt;
+    &lt;img src=&quot;/assets/img/trtlogo.png&quot; alt=&quot;LOGO&quot; class=&quot;h-16 w-auto mb-2 object-contain&quot;&gt;
+    &lt;h1 class=&quot;text-2xl font-bold tracking-wide&quot;&gt;产品BOM查询系统&lt;/h1&gt;
+  &lt;/header&gt;
+
+  &lt;main class=&quot;max-w-6xl mx-auto bg-white mt-8 p-8 rounded-xl shadow-lg fade-in&quot;&gt;
+    &lt;!-- 信息提示 --&gt;
+    &lt;div class=&quot;bg-gray-50 border border-red-200 text-center text-sm text-gray-700 py-3 rounded-lg mb-6&quot;&gt;
+      &lt;p class=&quot;flex flex-wrap justify-center gap-2&quot;&gt;
+        &lt;span class=&quot;px-2 text-red-600 font-semibold&quot;&gt;⚠️ 保密声明：所有数据均属内部信息，严禁泄露。&lt;/span&gt;
+        &lt;span class=&quot;px-2&quot;&gt;📊 数据来源：采购管理部&lt;/span&gt;
+        &lt;span class=&quot;px-2&quot;&gt;🔍 查询范围：2022年1月1日 - 2025年10月28日&lt;/span&gt;
+      &lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 查询区域 --&gt;
+    &lt;div class=&quot;flex flex-wrap gap-3 mb-6 items-center&quot;&gt;
+      &lt;input id=&quot;nameSearch&quot; type=&quot;text&quot; placeholder=&quot;品名（模糊搜索）&quot; class=&quot;border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400&quot; /&gt;
+      &lt;input id=&quot;projectSearch&quot; type=&quot;text&quot; placeholder=&quot;项目号（精准搜索）&quot; class=&quot;border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400&quot; /&gt;
+      &lt;button id=&quot;searchBtn&quot; class=&quot;bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition&quot; disabled&gt;查询&lt;/button&gt;
+      &lt;button id=&quot;resetBtn&quot; class=&quot;bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition&quot;&gt;重置&lt;/button&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 查询结果 --&gt;
+    &lt;div id=&quot;loading&quot; class=&quot;text-center text-red-600 font-medium my-6&quot;&gt;⏳ 数据加载中...&lt;/div&gt;
+    &lt;div id=&quot;result&quot; class=&quot;fade-in overflow-x-auto&quot;&gt;&lt;/div&gt;
+  &lt;/main&gt;
+
+  &lt;footer class=&quot;text-center text-gray-500 text-sm mt-8 mb-4&quot;&gt;© 2025 德令哈采购管理部&lt;/footer&gt;
+
+  &lt;script&gt;
+    let bomData = [];
+
+    // 加载数据
+    fetch(&#x27;bom_data.json?_v=&#x27; + Date.now())
+      .then(res =&gt; res.json())
+      .then(data =&gt; {
+        if(!Array.isArray(data)) throw new Error(&quot;数据格式错误，必须为数组&quot;);
+        bomData = data;
+        document.getElementById(&quot;loading&quot;).style.display = &quot;none&quot;;
+        document.getElementById(&quot;searchBtn&quot;).disabled = false;
+        console.log(&quot;✅ 数据加载成功&quot;, bomData.length, &quot;条&quot;);
+      })
+      .catch(err =&gt; {
+        console.error(&quot;❌ 数据加载失败:&quot;, err);
+        document.getElementById(&quot;loading&quot;).textContent = &quot;❌ 数据加载失败，请检查路径或格式&quot;;
+      });
+
+    // 查询按钮
+    document.getElementById(&quot;searchBtn&quot;).addEventListener(&quot;click&quot;, () =&gt; {
+      const nameKeyword = document.getElementById(&quot;nameSearch&quot;).value.trim();
+      const projectID = document.getElementById(&quot;projectSearch&quot;).value.trim();
+
+      if (!nameKeyword &amp;&amp; !projectID) {
+        alert(&quot;请输入至少一个查询条件！&quot;);
+        return;
+      }
+
+      const filtered = bomData.filter(item =&gt;
+        (!nameKeyword || item.品名.includes(nameKeyword)) &amp;&amp;
+        (!projectID || item.项目号 === projectID)
+      );
+
+      renderResult(filtered);
+    });
+
+    // 重置按钮
+    document.getElementById(&quot;resetBtn&quot;).addEventListener(&quot;click&quot;, () =&gt; {
+      document.getElementById(&quot;nameSearch&quot;).value = &quot;&quot;;
+      document.getElementById(&quot;projectSearch&quot;).value = &quot;&quot;;
+      document.getElementById(&quot;result&quot;).innerHTML = &quot;&quot;;
+    });
+
+    // 渲染结果（父子结构）
+    function renderResult(data) {
+      const resultDiv = document.getElementById(&quot;result&quot;);
+      resultDiv.innerHTML = &quot;&quot;;
+
+      if (data.length === 0) {
+        resultDiv.innerHTML = &quot;&lt;p class=&#x27;text-center text-gray-500&#x27;&gt;未找到匹配结果。&lt;/p&gt;&quot;;
+        return;
+      }
+
+      // 按项目号分组
+      const grouped = {};
+      data.forEach(item =&gt; {
+        if (!grouped[item.项目号]) grouped[item.项目号] = [];
+        grouped[item.项目号].push(item);
+      });
+
+      let tableHTML = `
+        &lt;table class=&quot;w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm&quot;&gt;
+          &lt;thead class=&quot;parent-header&quot;&gt;
+            &lt;tr&gt;
+              &lt;th class=&quot;p-2&quot;&gt;项目号&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;品名&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;规格&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;零售价&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;物料项目号&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;物料名称&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;数量&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;计量单位&lt;/th&gt;
+            &lt;/tr&gt;
+          &lt;/thead&gt;
+          &lt;tbody&gt;
+      `;
+
+      for (const [proj, items] of Object.entries(grouped)) {
+        const parent = items[0];
+        tableHTML += `
+          &lt;tr class=&quot;parent-row&quot;&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${parent.项目号}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${parent.品名}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${parent.规格}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${parent[&quot;零售价（元）&quot;] ?? parent.零售价 ?? &quot;&quot;}&lt;/td&gt;
+            &lt;td class=&quot;border p-2 text-center&quot; colspan=&quot;4&quot;&gt;物料明细如下 ↓&lt;/td&gt;
+          &lt;/tr&gt;
+        `;
+        items.forEach(child =&gt; {
+          tableHTML += `
+            &lt;tr class=&quot;child-row&quot;&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${child.物料项目号}&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${child.物料名称}&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${child.数量}&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${child.计量单位}&lt;/td&gt;
+            &lt;/tr&gt;
+          `;
+        });
+      }
+
+      tableHTML += `&lt;/tbody&gt;&lt;/table&gt;`;
+      resultDiv.innerHTML = tableHTML;
+    }
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">🔹 改进点</h4>
+<ol class="md-ol"><li><strong>父表格标题栏</strong>使用柔和红色渐变背景，文字白色，视觉更协调  </li><li><strong>父表格每行</strong>也用浅粉色渐变，和标题呼应  </li><li><strong>子表格行</strong>用柔和黄色渐变，区分父项  </li><li>鼠标悬停时增加浅红色背景，便于阅读  </li><li>保留搜索、重置、父子表格结构及底部版权  </li></ol>
+<p>---</p>
+<p>如果你愿意，我可以在此基础上<strong>增加导出 Excel 的功能</strong>，保持父子结构在 Excel 中也能显示清晰，方便内部管理。  </p>
+<p>你希望我加吗？</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>产品BOM查询页面设计 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：产品BOM查询页面设计（2025-10-28）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11", "s12", "s13", "s14", "s15"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

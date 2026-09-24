@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>折叠导航栏修改 · 2025</title>
+<meta name="description" content="明白了，你希望左侧导航栏可以折叠/展开。我帮你改造一下，用一个折叠按钮实现，同时保留原来的导航功能和动画。下面是修改后的示例：  html&lt;!DOCTYPE html&lt;html lang=&quot;zh-CN&quot;&lt;head  &lt;meta charse">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a><a href="#s2" data-sec="s2">Q2</a><a href="#s3" data-sec="s3">Q3</a><a href="#s4" data-sec="s4">Q4</a><a href="#s5" data-sec="s5">Q5</a><a href="#s6" data-sec="s6">Q6</a><a href="#s7" data-sec="s7">Q7</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · 建站
+  <h1 class="s-h1">折叠导航栏修改</h1>
+  <p class="s-lede">明白了，你希望左侧导航栏可以折叠/展开。我帮你改造一下，用一个折叠按钮实现，同时保留原来的导航功能和动画。下面是修改后的示例：  html&lt;!DOCTYPE html&lt;html lang=&quot;zh-CN&quot;&lt;head  &lt;meta charse</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>14</b></span>
+    <span>时间范围 <b>2025-11-04 ~ 2025-11-04</b></span>
+    <span>分类 <b>建站与技术</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">建站</span>
+    <span class="s-chip">2025</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>&lt;!DOCTYPE html&gt;&lt;html lang=&quot;zh-CN&quot;&gt;&lt;head&gt;…</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>&lt;!DOCTYPE html&gt; &lt;html lang="zh-CN"&gt; &lt;head&gt;   &lt;meta charset="UTF-8" /&gt;   &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;   &lt;title&gt;青海厂内部采购查询&lt;/title&gt;   &lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;   &lt;style&gt;     body, html {       height: 100%;       margin: 0;     }     iframe {       width: 100%;       height: 100%;       border: none;     }   &lt;/style&gt; &lt;/head&gt; &lt;body class="flex flex-col h-screen"&gt;</p>
+<p>&lt;main class="flex flex-1 overflow-hidden h-full"&gt;   &lt;!-- 左侧导航栏 + 系统信息 --&gt;   &lt;aside class="w-64 bg-red-600 flex flex-col p-4 space-y-4 shadow-md text-white overflow-y-auto"&gt;     &lt;!-- Logo --&gt;     &lt;div class="flex justify-center mb-4"&gt;       &lt;img src="/assets/img/trtlogo.png" alt="Logo" class="h-16 w-auto" /&gt;     &lt;/div&gt;</p>
+<p>    &lt;!-- 系统标题 --&gt;     &lt;div class="text-center mb-2"&gt;       &lt;span class="text-xl font-semibold"&gt;采购管理查询工具&lt;/span&gt;     &lt;/div&gt;</p>
+<p>    &lt;!-- 系统提示 --&gt;     &lt;div class="text-sm mb-4 text-center"&gt;       ⚠️ 保密：内部数据严禁外传     &lt;/div&gt;</p>
+<p>    &lt;!-- 导航按钮 --&gt;     &lt;button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg" data-url="/CP/index.html"&gt;成品查询&lt;/button&gt;     &lt;button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg" data-url="/bom/index.html"&gt;产品BOM&lt;/button&gt;     &lt;button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg" data-url="/tz/index.html"&gt;物料查询&lt;/button&gt;     &lt;button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg" data-url="/supplier/index.html"&gt;供应商查询&lt;/button&gt;</p>
+<p>    &lt;!-- 模拟更多内容滚动 --&gt;     &lt;div class="mt-auto text-center text-xs text-white/70"&gt;© 2025 青海基地采购管理部&lt;/div&gt;   &lt;/aside&gt;</p>
+<p>&lt;!-- 右侧内容区 --&gt; &lt;section id="contentArea" class="flex-1 bg-gray-50 flex items-center justify-center overflow-auto"&gt;   &lt;div class="flex flex-wrap justify-center gap-8 mt-10"&gt;     &lt;!-- 保障供应 --&gt;     &lt;div class="card opacity-0 delay-0 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center"&gt;       &lt;div class="text-5xl mb-3"&gt;📦&lt;/div&gt;       &lt;div class="text-red-600 font-bold text-lg"&gt;保障供应&lt;/div&gt;       &lt;div class="text-gray-700 text-sm mt-2 text-center"&gt;确保物料稳定供应，满足生产需求&lt;/div&gt;     &lt;/div&gt;</p>
+<p>    &lt;!-- 控制成本 --&gt;     &lt;div class="card opacity-0 delay-1 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center"&gt;       &lt;div class="text-5xl mb-3"&gt;💰&lt;/div&gt;       &lt;div class="text-red-600 font-bold text-lg"&gt;控制成本&lt;/div&gt;       &lt;div class="text-gray-700 text-sm mt-2 text-center"&gt;在保证质量前提下，降低采购成本&lt;/div&gt;     &lt;/div&gt;</p>
+<p>    &lt;!-- 保证质量 --&gt;     &lt;div class="card opacity-0 delay-2 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center"&gt;       &lt;div class="text-5xl mb-3"&gt;✅&lt;/div&gt;       &lt;div class="text-red-600 font-bold text-lg"&gt;保证质量&lt;/div&gt;       &lt;div class="text-gray-700 text-sm mt-2 text-center"&gt;严格把控采购物料质量，降低风险&lt;/div&gt;     &lt;/div&gt;   &lt;/div&gt; &lt;/section&gt;</p>
+<p>&lt;style&gt;   /* 卡片淡入 + 悬停动画 */   .card {     transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.6s ease;   }</p>
+<p>  .card:hover {     transform: scale(1.05);     box-shadow: 0 12px 25px rgba(239, 68, 68, 0.4);   }</p>
+<p>  /* 顺序淡入动画 */   @keyframes fadeIn {     to { opacity: 1; transform: translateY(0); }   }</p>
+<p>  .delay-0 { animation: fadeIn 0.6s forwards; animation-delay: 0.2s; transform: translateY(20px); }   .delay-1 { animation: fadeIn 0.6s forwards; animation-delay: 0.5s; transform: translateY(20px); }   .delay-2 { animation: fadeIn 0.6s forwards; animation-delay: 0.8s; transform: translateY(20px); } &lt;/style&gt;</p>
+<p>&lt;/main&gt;</p>
+<p>&lt;!-- 页脚 --&gt; &lt;footer class="text-center text-gray-500 text-sm py-3 border-t"&gt;   &lt;a href="/" class="hover:underline"&gt;首页&lt;/a&gt; |   &lt;a href="/tz/index.html" class="hover:underline"&gt;物料单价&lt;/a&gt; |   &lt;a href="/bom/index.html" class="hover:underline"&gt;BOM&lt;/a&gt; |   &lt;a href="/supplier/index.html" class="hover:underline"&gt;供应商&lt;/a&gt; &lt;/footer&gt;</p>
+<p>&lt;script&gt;   const buttons = document.querySelectorAll('.nav-btn');   const contentArea = document.getElementById('contentArea');</p>
+<p>  buttons.forEach(btn =&gt; {     btn.addEventListener('click', () =&gt; {       const url = btn.getAttribute('data-url');       contentArea.innerHTML = <code>&lt;iframe src="${url}"&gt;&lt;/iframe&gt;</code>;       buttons.forEach(b =&gt; b.classList.remove('bg-blue-100', 'text-blue-700'));       btn.classList.add('bg-blue-100', 'text-blue-700');     });   }); &lt;/script&gt;</p>
+<p>&lt;/body&gt; &lt;/html&gt; 左侧导航可折叠</p></div>
+      <div class="qa-a"><p>明白了，你希望左侧导航栏可以折叠/展开。我帮你改造一下，用一个折叠按钮实现，同时保留原来的导航功能和动画。下面是修改后的示例：  </p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot; /&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+  &lt;title&gt;青海厂内部采购查询&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;style&gt;
+    body, html {
+      height: 100%;
+      margin: 0;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    /* 卡片淡入 + 悬停动画 */
+    .card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.6s ease;
+    }
+    .card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 25px rgba(239, 68, 68, 0.4);
+    }
+    /* 顺序淡入动画 */
+    @keyframes fadeIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .delay-0 { animation: fadeIn 0.6s forwards; animation-delay: 0.2s; transform: translateY(20px); }
+    .delay-1 { animation: fadeIn 0.6s forwards; animation-delay: 0.5s; transform: translateY(20px); }
+    .delay-2 { animation: fadeIn 0.6s forwards; animation-delay: 0.8s; transform: translateY(20px); }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body class=&quot;flex flex-col h-screen&quot;&gt;
+
+&lt;main class=&quot;flex flex-1 overflow-hidden h-full&quot;&gt;
+
+  &lt;!-- 左侧导航栏 --&gt;
+  &lt;aside id=&quot;sidebar&quot; class=&quot;w-64 bg-red-600 flex flex-col p-4 space-y-4 shadow-md text-white overflow-y-auto transition-all duration-300&quot;&gt;
+    &lt;!-- 折叠按钮 --&gt;
+    &lt;button id=&quot;toggleBtn&quot; class=&quot;mb-4 bg-red-500 hover:bg-red-400 p-2 rounded-lg text-white&quot;&gt;
+      ☰
+    &lt;/button&gt;
+
+    &lt;!-- Logo --&gt;
+    &lt;div class=&quot;flex justify-center mb-4&quot;&gt;
+      &lt;img src=&quot;/assets/img/trtlogo.png&quot; alt=&quot;Logo&quot; class=&quot;h-16 w-auto&quot; /&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 系统标题 --&gt;
+    &lt;div class=&quot;text-center mb-2&quot;&gt;
+      &lt;span class=&quot;text-xl font-semibold&quot;&gt;采购管理查询工具&lt;/span&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 系统提示 --&gt;
+    &lt;div class=&quot;text-sm mb-4 text-center&quot;&gt;
+      ⚠️ 保密：内部数据严禁外传
+    &lt;/div&gt;
+
+    &lt;!-- 导航按钮 --&gt;
+    &lt;div id=&quot;navBtns&quot; class=&quot;flex flex-col space-y-2&quot;&gt;
+      &lt;button class=&quot;nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg&quot; data-url=&quot;/CP/index.html&quot;&gt;成品查询&lt;/button&gt;
+      &lt;button class=&quot;nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg&quot; data-url=&quot;/bom/index.html&quot;&gt;产品BOM&lt;/button&gt;
+      &lt;button class=&quot;nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg&quot; data-url=&quot;/tz/index.html&quot;&gt;物料查询&lt;/button&gt;
+      &lt;button class=&quot;nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg&quot; data-url=&quot;/supplier/index.html&quot;&gt;供应商查询&lt;/button&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;mt-auto text-center text-xs text-white/70&quot;&gt;© 2025 青海基地采购管理部&lt;/div&gt;
+  &lt;/aside&gt;
+
+  &lt;!-- 右侧内容区 --&gt;
+  &lt;section id=&quot;contentArea&quot; class=&quot;flex-1 bg-gray-50 flex items-center justify-center overflow-auto&quot;&gt;
+    &lt;div class=&quot;flex flex-wrap justify-center gap-8 mt-10&quot;&gt;
+      &lt;!-- 保障供应 --&gt;
+      &lt;div class=&quot;card opacity-0 delay-0 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center&quot;&gt;
+        &lt;div class=&quot;text-5xl mb-3&quot;&gt;📦&lt;/div&gt;
+        &lt;div class=&quot;text-red-600 font-bold text-lg&quot;&gt;保障供应&lt;/div&gt;
+        &lt;div class=&quot;text-gray-700 text-sm mt-2 text-center&quot;&gt;确保物料稳定供应，满足生产需求&lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;!-- 控制成本 --&gt;
+      &lt;div class=&quot;card opacity-0 delay-1 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center&quot;&gt;
+        &lt;div class=&quot;text-5xl mb-3&quot;&gt;💰&lt;/div&gt;
+        &lt;div class=&quot;text-red-600 font-bold text-lg&quot;&gt;控制成本&lt;/div&gt;
+        &lt;div class=&quot;text-gray-700 text-sm mt-2 text-center&quot;&gt;在保证质量前提下，降低采购成本&lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;!-- 保证质量 --&gt;
+      &lt;div class=&quot;card opacity-0 delay-2 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center&quot;&gt;
+        &lt;div class=&quot;text-5xl mb-3&quot;&gt;✅&lt;/div&gt;
+        &lt;div class=&quot;text-red-600 font-bold text-lg&quot;&gt;保证质量&lt;/div&gt;
+        &lt;div class=&quot;text-gray-700 text-sm mt-2 text-center&quot;&gt;严格把控采购物料质量，降低风险&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+
+&lt;/main&gt;
+
+&lt;!-- 页脚 --&gt;
+&lt;footer class=&quot;text-center text-gray-500 text-sm py-3 border-t&quot;&gt;
+  &lt;a href=&quot;/&quot; class=&quot;hover:underline&quot;&gt;首页&lt;/a&gt; |
+  &lt;a href=&quot;/tz/index.html&quot; class=&quot;hover:underline&quot;&gt;物料单价&lt;/a&gt; |
+  &lt;a href=&quot;/bom/index.html&quot; class=&quot;hover:underline&quot;&gt;BOM&lt;/a&gt; |
+  &lt;a href=&quot;/supplier/index.html&quot; class=&quot;hover:underline&quot;&gt;供应商&lt;/a&gt;
+&lt;/footer&gt;
+
+&lt;script&gt;
+  const buttons = document.querySelectorAll(&#x27;.nav-btn&#x27;);
+  const contentArea = document.getElementById(&#x27;contentArea&#x27;);
+
+  buttons.forEach(btn =&gt; {
+    btn.addEventListener(&#x27;click&#x27;, () =&gt; {
+      const url = btn.getAttribute(&#x27;data-url&#x27;);
+      contentArea.innerHTML = `&lt;iframe src=&quot;${url}&quot;&gt;&lt;/iframe&gt;`;
+      buttons.forEach(b =&gt; b.classList.remove(&#x27;bg-blue-100&#x27;, &#x27;text-blue-700&#x27;));
+      btn.classList.add(&#x27;bg-blue-100&#x27;, &#x27;text-blue-700&#x27;);
+    });
+  });
+
+  // 折叠功能
+  const sidebar = document.getElementById(&#x27;sidebar&#x27;);
+  const toggleBtn = document.getElementById(&#x27;toggleBtn&#x27;);
+
+  toggleBtn.addEventListener(&#x27;click&#x27;, () =&gt; {
+    if (sidebar.classList.contains(&#x27;w-64&#x27;)) {
+      sidebar.classList.remove(&#x27;w-64&#x27;);
+      sidebar.classList.add(&#x27;w-16&#x27;);
+      sidebar.querySelectorAll(&#x27;span, .nav-btn, .text-sm, img&#x27;).forEach(el =&gt; {
+        el.style.display = &#x27;none&#x27;;
+      });
+    } else {
+      sidebar.classList.remove(&#x27;w-16&#x27;);
+      sidebar.classList.add(&#x27;w-64&#x27;);
+      sidebar.querySelectorAll(&#x27;span, .nav-btn, .text-sm, img&#x27;).forEach(el =&gt; {
+        el.style.display = &#x27;&#x27;;
+      });
+    }
+  });
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>✅ 功能说明：  </p>
+<ol class="md-ol"><li>左上角的 <strong>☰</strong> 按钮可以折叠/展开导航栏。  </li><li>折叠后，文字和图标会隐藏，只保留侧边栏宽度，点击再次展开显示完整内容。  </li><li>保留原来的导航按钮和右侧内容 iframe 加载逻辑。  </li></ol>
+<p>如果你需要，我可以把折叠时显示 <strong>小图标</strong> 代替文字，让界面在折叠状态下更直观，而不是完全隐藏。  </p>
+<p>你希望我加这个吗？</p></div>
+    </section>
+    <section id="s2" class="st2">
+      <div class="sec-h"><span class="idx st2">Q2</span><h2>可以，并且去掉页脚</h2><span class="hint">第 2 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>可以，并且去掉页脚</p></div>
+      <div class="qa-a"><p>明白，我帮你改造：折叠状态下显示小图标（对应原按钮和 logo），并去掉页脚。下面是完整代码示例：  </p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot; /&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+  &lt;title&gt;青海厂内部采购查询&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;style&gt;
+    body, html {
+      height: 100%;
+      margin: 0;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    /* 卡片淡入 + 悬停动画 */
+    .card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.6s ease;
+    }
+    .card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 25px rgba(239, 68, 68, 0.4);
+    }
+    /* 顺序淡入动画 */
+    @keyframes fadeIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .delay-0 { animation: fadeIn 0.6s forwards; animation-delay: 0.2s; transform: translateY(20px); }
+    .delay-1 { animation: fadeIn 0.6s forwards; animation-delay: 0.5s; transform: translateY(20px); }
+    .delay-2 { animation: fadeIn 0.6s forwards; animation-delay: 0.8s; transform: translateY(20px); }
+
+    /* 导航按钮小图标样式 */
+    .icon-btn {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      padding: 0.5rem;
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body class=&quot;flex flex-col h-screen&quot;&gt;
+
+&lt;main class=&quot;flex flex-1 overflow-hidden h-full&quot;&gt;
+
+  &lt;!-- 左侧导航栏 --&gt;
+  &lt;aside id=&quot;sidebar&quot; class=&quot;w-64 bg-red-600 flex flex-col p-4 space-y-4 shadow-md text-white overflow-y-auto transition-all duration-300&quot;&gt;
+    &lt;!-- 折叠按钮 --&gt;
+    &lt;button id=&quot;toggleBtn&quot; class=&quot;mb-4 bg-red-500 hover:bg-red-400 p-2 rounded-lg text-white&quot;&gt;
+      ☰
+    &lt;/button&gt;
+
+    &lt;!-- Logo --&gt;
+    &lt;div id=&quot;logoContainer&quot; class=&quot;flex justify-center mb-4&quot;&gt;
+      &lt;img src=&quot;/assets/img/trtlogo.png&quot; alt=&quot;Logo&quot; class=&quot;h-16 w-auto&quot; /&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 系统标题 --&gt;
+    &lt;div id=&quot;titleContainer&quot; class=&quot;text-center mb-2&quot;&gt;
+      &lt;span class=&quot;text-xl font-semibold&quot;&gt;采购管理查询工具&lt;/span&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 系统提示 --&gt;
+    &lt;div id=&quot;tipContainer&quot; class=&quot;text-sm mb-4 text-center&quot;&gt;
+      ⚠️ 保密：内部数据严禁外传
+    &lt;/div&gt;
+
+    &lt;!-- 导航按钮 --&gt;
+    &lt;div id=&quot;navBtns&quot; class=&quot;flex flex-col space-y-2&quot;&gt;
+      &lt;button class=&quot;nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center&quot; data-url=&quot;/CP/index.html&quot;&gt;
+        &lt;span class=&quot;btn-text&quot;&gt;成品查询&lt;/span&gt;
+        &lt;span class=&quot;btn-icon hidden text-xl&quot;&gt;📦&lt;/span&gt;
+      &lt;/button&gt;
+      &lt;button class=&quot;nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center&quot; data-url=&quot;/bom/index.html&quot;&gt;
+        &lt;span class=&quot;btn-text&quot;&gt;产品BOM&lt;/span&gt;
+        &lt;span class=&quot;btn-icon hidden text-xl&quot;&gt;📝&lt;/span&gt;
+      &lt;/button&gt;
+      &lt;button class=&quot;nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center&quot; data-url=&quot;/tz/index.html&quot;&gt;
+        &lt;span class=&quot;btn-text&quot;&gt;物料查询&lt;/span&gt;
+        &lt;span class=&quot;btn-icon hidden text-xl&quot;&gt;🔍&lt;/span&gt;
+      &lt;/button&gt;
+      &lt;button class=&quot;nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center&quot; data-url=&quot;/supplier/index.html&quot;&gt;
+        &lt;span class=&quot;btn-text&quot;&gt;供应商查询&lt;/span&gt;
+        &lt;span class=&quot;btn-icon hidden text-xl&quot;&gt;🏭&lt;/span&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+
+    &lt;div id=&quot;footerText&quot; class=&quot;mt-auto text-center text-xs text-white/70&quot;&gt;© 2025 青海基地采购管理部&lt;/div&gt;
+  &lt;/aside&gt;
+
+  &lt;!-- 右侧内容区 --&gt;
+  &lt;section id=&quot;contentArea&quot; class=&quot;flex-1 bg-gray-50 flex items-center justify-center overflow-auto&quot;&gt;
+    &lt;div class=&quot;flex flex-wrap justify-center gap-8 mt-10&quot;&gt;
+      &lt;!-- 保障供应 --&gt;
+      &lt;div class=&quot;card opacity-0 delay-0 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center&quot;&gt;
+        &lt;div class=&quot;text-5xl mb-3&quot;&gt;📦&lt;/div&gt;
+        &lt;div class=&quot;text-red-600 font-bold text-lg&quot;&gt;保障供应&lt;/div&gt;
+        &lt;div class=&quot;text-gray-700 text-sm mt-2 text-center&quot;&gt;确保物料稳定供应，满足生产需求&lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;!-- 控制成本 --&gt;
+      &lt;div class=&quot;card opacity-0 delay-1 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center&quot;&gt;
+        &lt;div class=&quot;text-5xl mb-3&quot;&gt;💰&lt;/div&gt;
+        &lt;div class=&quot;text-red-600 font-bold text-lg&quot;&gt;控制成本&lt;/div&gt;
+        &lt;div class=&quot;text-gray-700 text-sm mt-2 text-center&quot;&gt;在保证质量前提下，降低采购成本&lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;!-- 保证质量 --&gt;
+      &lt;div class=&quot;card opacity-0 delay-2 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center&quot;&gt;
+        &lt;div class=&quot;text-5xl mb-3&quot;&gt;✅&lt;/div&gt;
+        &lt;div class=&quot;text-red-600 font-bold text-lg&quot;&gt;保证质量&lt;/div&gt;
+        &lt;div class=&quot;text-gray-700 text-sm mt-2 text-center&quot;&gt;严格把控采购物料质量，降低风险&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+
+&lt;/main&gt;
+
+&lt;script&gt;
+  const buttons = document.querySelectorAll(&#x27;.nav-btn&#x27;);
+  const contentArea = document.getElementById(&#x27;contentArea&#x27;);
+
+  buttons.forEach(btn =&gt; {
+    btn.addEventListener(&#x27;click&#x27;, () =&gt; {
+      const url = btn.getAttribute(&#x27;data-url&#x27;);
+      contentArea.innerHTML = `&lt;iframe src=&quot;${url}&quot;&gt;&lt;/iframe&gt;`;
+      buttons.forEach(b =&gt; b.classList.remove(&#x27;bg-blue-100&#x27;, &#x27;text-blue-700&#x27;));
+      btn.classList.add(&#x27;bg-blue-100&#x27;, &#x27;text-blue-700&#x27;);
+    });
+  });
+
+  // 折叠功能
+  const sidebar = document.getElementById(&#x27;sidebar&#x27;);
+  const toggleBtn = document.getElementById(&#x27;toggleBtn&#x27;);
+  const logo = document.getElementById(&#x27;logoContainer&#x27;);
+  const title = document.getElementById(&#x27;titleContainer&#x27;);
+  const tip = document.getElementById(&#x27;tipContainer&#x27;);
+  const footerText = document.getElementById(&#x27;footerText&#x27;);
+
+  toggleBtn.addEventListener(&#x27;click&#x27;, () =&gt; {
+    const isExpanded = sidebar.classList.contains(&#x27;w-64&#x27;);
+
+    if (isExpanded) {
+      sidebar.classList.remove(&#x27;w-64&#x27;);
+      sidebar.classList.add(&#x27;w-16&#x27;);
+
+      // 隐藏文字，显示图标
+      logo.querySelector(&#x27;img&#x27;).style.display = &#x27;none&#x27;;
+      title.style.display = &#x27;none&#x27;;
+      tip.style.display = &#x27;none&#x27;;
+      footerText.style.display = &#x27;none&#x27;;
+
+      document.querySelectorAll(&#x27;.btn-text&#x27;).forEach(el =&gt; el.style.display = &#x27;none&#x27;);
+      document.querySelectorAll(&#x27;.btn-icon&#x27;).forEach(el =&gt; el.style.display = &#x27;inline&#x27;);
+    } else {
+      sidebar.classList.remove(&#x27;w-16&#x27;);
+      sidebar.classList.add(&#x27;w-64&#x27;);
+
+      // 显示文字，隐藏图标
+      logo.querySelector(&#x27;img&#x27;).style.display = &#x27;&#x27;;
+      title.style.display = &#x27;&#x27;;
+      tip.style.display = &#x27;&#x27;;
+      footerText.style.display = &#x27;&#x27;;
+
+      document.querySelectorAll(&#x27;.btn-text&#x27;).forEach(el =&gt; el.style.display = &#x27;&#x27;);
+      document.querySelectorAll(&#x27;.btn-icon&#x27;).forEach(el =&gt; el.style.display = &#x27;none&#x27;);
+    }
+  });
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<h4 class="sub-h">✅ 功能说明</h4>
+<ol class="md-ol"><li>左侧折叠按钮 <strong>☰</strong> 控制展开/折叠。  </li><li>折叠状态：导航按钮文字隐藏，仅显示小图标，Logo 隐藏。  </li><li>展开状态：显示完整文字和 Logo。  </li><li>页脚已去掉，不再显示。  </li></ol>
+<p>我可以再帮你加一个小优化：折叠状态下鼠标悬停在图标上显示文字提示，用户不迷路。   你希望加吗？</p></div>
+    </section>
+    <section id="s3" class="st3">
+      <div class="sec-h"><span class="idx st3">Q3</span><h2>好的</h2><span class="hint">第 3 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>好的</p></div>
+      <div class="qa-a"><p>明白，我给你加上 <strong>悬停提示（tooltip）</strong> 的功能，这样折叠状态下鼠标悬停在图标上，会显示文字说明。下面是完整修改后的示例：  </p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot; /&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+  &lt;title&gt;青海厂内部采购查询&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;style&gt;
+    body, html {
+      height: 100%;
+      margin: 0;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    /* 卡片淡入 + 悬停动画 */
+    .card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.6s ease;
+    }
+    .card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 25px rgba(239, 68, 68, 0.4);
+    }
+    /* 顺序淡入动画 */
+    @keyframes fadeIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .delay-0 { animation: fadeIn 0.6s forwards; animation-delay: 0.2s; transform: translateY(20px); }
+    .delay-1 { animation: fadeIn 0.6s forwards; animation-delay: 0.5s; transform: translateY(20px); }
+    .delay-2 { animation: fadeIn 0.6s forwards; animation-delay: 0.8s; transform: translateY(20px); }
+
+    /* Tooltip 样式 */
+    .tooltip {
+      position: absolute;
+      background: #f87171; /* 红色背景 */
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      z-index: 50;
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body class=&quot;flex flex-col h-screen&quot;&gt;
+
+&lt;main class=&quot;flex flex-1 overflow-hidden h-full&quot;&gt;
+
+  &lt;!-- 左侧导航栏 --&gt;
+  &lt;aside id=&quot;sidebar&quot; class=&quot;w-64 bg-red-600 flex flex-col p-4 space-y-4 shadow-md text-white overflow-y-auto transition-all duration-300 relative&quot;&gt;
+    &lt;!-- 折叠按钮 --&gt;
+    &lt;button id=&quot;toggleBtn&quot; class=&quot;mb-4 bg-red-500 hover:bg-red-400 p-2 rounded-lg text-white&quot;&gt;
+      ☰
+    &lt;/button&gt;
+
+    &lt;!-- Logo --&gt;
+    &lt;div id=&quot;logoContainer&quot; class=&quot;flex justify-center mb-4&quot;&gt;
+      &lt;img src=&quot;/assets/img/trtlogo.png&quot; alt=&quot;Logo&quot; class=&quot;h-16 w-auto&quot; /&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 系统标题 --&gt;
+    &lt;div id=&quot;titleContainer&quot; class=&quot;text-center mb-2&quot;&gt;
+      &lt;span class=&quot;text-xl font-semibold&quot;&gt;采购管理查询工具&lt;/span&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 系统提示 --&gt;
+    &lt;div id=&quot;tipContainer&quot; class=&quot;text-sm mb-4 text-center&quot;&gt;
+      ⚠️ 保密：内部数据严禁外传
+    &lt;/div&gt;
+
+    &lt;!-- 导航按钮 --&gt;
+    &lt;div id=&quot;navBtns&quot; class=&quot;flex flex-col space-y-2 relative&quot;&gt;
+      &lt;button class=&quot;nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative&quot; data-url=&quot;/CP/index.html&quot; data-tooltip=&quot;成品查询&quot;&gt;
+        &lt;span class=&quot;btn-text&quot;&gt;成品查询&lt;/span&gt;
+        &lt;span class=&quot;btn-icon hidden text-xl&quot;&gt;📦&lt;/span&gt;
+      &lt;/button&gt;
+      &lt;button class=&quot;nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative&quot; data-url=&quot;/bom/index.html&quot; data-tooltip=&quot;产品BOM&quot;&gt;
+        &lt;span class=&quot;btn-text&quot;&gt;产品BOM&lt;/span&gt;
+        &lt;span class=&quot;btn-icon hidden text-xl&quot;&gt;📝&lt;/span&gt;
+      &lt;/button&gt;
+      &lt;button class=&quot;nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative&quot; data-url=&quot;/tz/index.html&quot; data-tooltip=&quot;物料查询&quot;&gt;
+        &lt;span class=&quot;btn-text&quot;&gt;物料查询&lt;/span&gt;
+        &lt;span class=&quot;btn-icon hidden text-xl&quot;&gt;🔍&lt;/span&gt;
+      &lt;/button&gt;
+      &lt;button class=&quot;nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative&quot; data-url=&quot;/supplier/index.html&quot; data-tooltip=&quot;供应商查询&quot;&gt;
+        &lt;span class=&quot;btn-text&quot;&gt;供应商查询&lt;/span&gt;
+        &lt;span class=&quot;btn-icon hidden text-xl&quot;&gt;🏭&lt;/span&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/aside&gt;
+
+  &lt;!-- 右侧内容区 --&gt;
+  &lt;section id=&quot;contentArea&quot; class=&quot;flex-1 bg-gray-50 flex items-center justify-center overflow-auto&quot;&gt;
+    &lt;div class=&quot;flex flex-wrap justify-center gap-8 mt-10&quot;&gt;
+      &lt;!-- 保障供应 --&gt;
+      &lt;div class=&quot;card opacity-0 delay-0 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center&quot;&gt;
+        &lt;div class=&quot;text-5xl mb-3&quot;&gt;📦&lt;/div&gt;
+        &lt;div class=&quot;text-red-600 font-bold text-lg&quot;&gt;保障供应&lt;/div&gt;
+        &lt;div class=&quot;text-gray-700 text-sm mt-2 text-center&quot;&gt;确保物料稳定供应，满足生产需求&lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;!-- 控制成本 --&gt;
+      &lt;div class=&quot;card opacity-0 delay-1 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center&quot;&gt;
+        &lt;div class=&quot;text-5xl mb-3&quot;&gt;💰&lt;/div&gt;
+        &lt;div class=&quot;text-red-600 font-bold text-lg&quot;&gt;控制成本&lt;/div&gt;
+        &lt;div class=&quot;text-gray-700 text-sm mt-2 text-center&quot;&gt;在保证质量前提下，降低采购成本&lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;!-- 保证质量 --&gt;
+      &lt;div class=&quot;card opacity-0 delay-2 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center&quot;&gt;
+        &lt;div class=&quot;text-5xl mb-3&quot;&gt;✅&lt;/div&gt;
+        &lt;div class=&quot;text-red-600 font-bold text-lg&quot;&gt;保证质量&lt;/div&gt;
+        &lt;div class=&quot;text-gray-700 text-sm mt-2 text-center&quot;&gt;严格把控采购物料质量，降低风险&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+
+&lt;/main&gt;
+
+&lt;!-- Tooltip 元素 --&gt;
+&lt;div id=&quot;tooltip&quot; class=&quot;tooltip&quot;&gt;&lt;/div&gt;
+
+&lt;script&gt;
+  const buttons = document.querySelectorAll(&#x27;.nav-btn&#x27;);
+  const contentArea = document.getElementById(&#x27;contentArea&#x27;);
+  const tooltip = document.getElementById(&#x27;tooltip&#x27;);
+
+  buttons.forEach(btn =&gt; {
+    btn.addEventListener(&#x27;click&#x27;, () =&gt; {
+      const url = btn.getAttribute(&#x27;data-url&#x27;);
+      contentArea.innerHTML = `&lt;iframe src=&quot;${url}&quot;&gt;&lt;/iframe&gt;`;
+      buttons.forEach(b =&gt; b.classList.remove(&#x27;bg-blue-100&#x27;, &#x27;text-blue-700&#x27;));
+      btn.classList.add(&#x27;bg-blue-100&#x27;, &#x27;text-blue-700&#x27;);
+    });
+
+    // tooltip 悬停显示
+    btn.addEventListener(&#x27;mouseenter&#x27;, e =&gt; {
+      if (btn.querySelector(&#x27;.btn-text&#x27;).style.display === &#x27;none&#x27;) {
+        tooltip.textContent = btn.getAttribute(&#x27;data-tooltip&#x27;);
+        tooltip.style.opacity = &#x27;1&#x27;;
+        const rect = btn.getBoundingClientRect();
+        tooltip.style.top = rect.top + rect.height / 2 - tooltip.offsetHeight / 2 + &#x27;px&#x27;;
+        tooltip.style.left = rect.right + 8 + &#x27;px&#x27;;
+      }
+    });
+    btn.addEventListener(&#x27;mouseleave&#x27;, () =&gt; {
+      tooltip.style.opacity = &#x27;0&#x27;;
+    });
+  });
+
+  // 折叠功能
+  const sidebar = document.getElementById(&#x27;sidebar&#x27;);
+  const toggleBtn = document.getElementById(&#x27;toggleBtn&#x27;);
+  const logo = document.getElementById(&#x27;logoContainer&#x27;);
+  const title = document.getElementById(&#x27;titleContainer&#x27;);
+  const tip = document.getElementById(&#x27;tipContainer&#x27;);
+
+  toggleBtn.addEventListener(&#x27;click&#x27;, () =&gt; {
+    const isExpanded = sidebar.classList.contains(&#x27;w-64&#x27;);
+
+    if (isExpanded) {
+      sidebar.classList.remove(&#x27;w-64&#x27;);
+      sidebar.classList.add(&#x27;w-16&#x27;);
+
+      // 隐藏文字，显示图标
+      logo.querySelector(&#x27;img&#x27;).style.display = &#x27;none&#x27;;
+      title.style.display = &#x27;none&#x27;;
+      tip.style.display = &#x27;none&#x27;;
+
+      document.querySelectorAll(&#x27;.btn-text&#x27;).forEach(el =&gt; el.style.display = &#x27;none&#x27;);
+      document.querySelectorAll(&#x27;.btn-icon&#x27;).forEach(el =&gt; el.style.display = &#x27;inline&#x27;);
+    } else {
+      sidebar.classList.remove(&#x27;w-16&#x27;);
+      sidebar.classList.add(&#x27;w-64&#x27;);
+
+      // 显示文字，隐藏图标
+      logo.querySelector(&#x27;img&#x27;).style.display = &#x27;&#x27;;
+      title.style.display = &#x27;&#x27;;
+      tip.style.display = &#x27;&#x27;;
+
+      document.querySelectorAll(&#x27;.btn-text&#x27;).forEach(el =&gt; el.style.display = &#x27;&#x27;);
+      document.querySelectorAll(&#x27;.btn-icon&#x27;).forEach(el =&gt; el.style.display = &#x27;none&#x27;);
+    }
+  });
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<h4 class="sub-h">✅ 新增功能</h4>
+<ol class="md-ol"><li>折叠状态下，鼠标悬停在导航图标上显示文字提示（tooltip）。  </li><li>Tooltip 自动跟随按钮位置，悬停消失。  </li><li>页脚已去掉。  </li></ol>
+<p>如果你需要，我还可以让 <strong>折叠状态下的 sidebar 宽度更小一点，更紧凑</strong>，整体视觉更简洁。   你希望我调整吗？</p></div>
+    </section>
+    <section id="s4" class="st4">
+      <div class="sec-h"><span class="idx st4">Q4</span><h2>打开首页，导航栏是折叠状态</h2><span class="hint">第 4 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>打开首页，导航栏是折叠状态</p></div>
+      <div class="qa-a"><p>明白，你希望 <strong>页面加载时左侧导航栏默认就是折叠状态</strong>。可以通过在 HTML 或 JS 里初始化折叠状态来实现，同时保留小图标和 tooltip 功能。下面是修改后的关键部分：  </p>
+<div class="codeblock"><pre><code>&lt;script&gt;
+  const buttons = document.querySelectorAll(&#x27;.nav-btn&#x27;);
+  const contentArea = document.getElementById(&#x27;contentArea&#x27;);
+  const tooltip = document.getElementById(&#x27;tooltip&#x27;);
+
+  buttons.forEach(btn =&gt; {
+    btn.addEventListener(&#x27;click&#x27;, () =&gt; {
+      const url = btn.getAttribute(&#x27;data-url&#x27;);
+      contentArea.innerHTML = `&lt;iframe src=&quot;${url}&quot;&gt;&lt;/iframe&gt;`;
+      buttons.forEach(b =&gt; b.classList.remove(&#x27;bg-blue-100&#x27;, &#x27;text-blue-700&#x27;));
+      btn.classList.add(&#x27;bg-blue-100&#x27;, &#x27;text-blue-700&#x27;);
+    });
+
+    // tooltip 悬停显示
+    btn.addEventListener(&#x27;mouseenter&#x27;, e =&gt; {
+      if (btn.querySelector(&#x27;.btn-text&#x27;).style.display === &#x27;none&#x27;) {
+        tooltip.textContent = btn.getAttribute(&#x27;data-tooltip&#x27;);
+        tooltip.style.opacity = &#x27;1&#x27;;
+        const rect = btn.getBoundingClientRect();
+        tooltip.style.top = rect.top + rect.height / 2 - tooltip.offsetHeight / 2 + &#x27;px&#x27;;
+        tooltip.style.left = rect.right + 8 + &#x27;px&#x27;;
+      }
+    });
+    btn.addEventListener(&#x27;mouseleave&#x27;, () =&gt; {
+      tooltip.style.opacity = &#x27;0&#x27;;
+    });
+  });
+
+  // 折叠功能
+  const sidebar = document.getElementById(&#x27;sidebar&#x27;);
+  const toggleBtn = document.getElementById(&#x27;toggleBtn&#x27;);
+  const logo = document.getElementById(&#x27;logoContainer&#x27;);
+  const title = document.getElementById(&#x27;titleContainer&#x27;);
+  const tip = document.getElementById(&#x27;tipContainer&#x27;);
+
+  function collapseSidebar() {
+    sidebar.classList.remove(&#x27;w-64&#x27;);
+    sidebar.classList.add(&#x27;w-16&#x27;);
+
+    // 隐藏文字，显示图标
+    logo.querySelector(&#x27;img&#x27;).style.display = &#x27;none&#x27;;
+    title.style.display = &#x27;none&#x27;;
+    tip.style.display = &#x27;none&#x27;;
+
+    document.querySelectorAll(&#x27;.btn-text&#x27;).forEach(el =&gt; el.style.display = &#x27;none&#x27;);
+    document.querySelectorAll(&#x27;.btn-icon&#x27;).forEach(el =&gt; el.style.display = &#x27;inline&#x27;);
+  }
+
+  // 页面加载默认折叠
+  collapseSidebar();
+
+  toggleBtn.addEventListener(&#x27;click&#x27;, () =&gt; {
+    const isExpanded = sidebar.classList.contains(&#x27;w-64&#x27;);
+    if (isExpanded) {
+      collapseSidebar();
+    } else {
+      // 展开
+      sidebar.classList.remove(&#x27;w-16&#x27;);
+      sidebar.classList.add(&#x27;w-64&#x27;);
+
+      logo.querySelector(&#x27;img&#x27;).style.display = &#x27;&#x27;;
+      title.style.display = &#x27;&#x27;;
+      tip.style.display = &#x27;&#x27;;
+
+      document.querySelectorAll(&#x27;.btn-text&#x27;).forEach(el =&gt; el.style.display = &#x27;&#x27;);
+      document.querySelectorAll(&#x27;.btn-icon&#x27;).forEach(el =&gt; el.style.display = &#x27;none&#x27;);
+    }
+  });
+&lt;/script&gt;</code></pre></div>
+<p>✅ 功能说明：  </p>
+<ol class="md-ol"><li>页面加载时，导航栏默认折叠，只显示小图标。  </li><li>tooltip 功能仍然可用，鼠标悬停图标显示文字。  </li><li>点击折叠按钮可展开导航栏，再点击折叠回去。  </li></ol>
+<p>如果你需要，我可以直接给你一份 <strong>完整 HTML 文件</strong>，加载时默认折叠，并且保持之前的所有卡片动画和 iframe 功能。  </p>
+<p>你希望我直接生成完整文件吗？</p></div>
+    </section>
+    <section id="s5" class="st5">
+      <div class="sec-h"><span class="idx st5">Q5</span><h2>好的</h2><span class="hint">第 5 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>好的</p></div>
+      <div class="qa-a"><p>明白，我帮你整合成一份 <strong>完整 HTML 文件</strong>，加载时左侧导航栏默认折叠，小图标可悬停显示文字提示，右侧内容区保留卡片动画和 iframe 加载功能，去掉页脚。  </p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot; /&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+  &lt;title&gt;青海厂内部采购查询&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;style&gt;
+    body, html {
+      height: 100%;
+      margin: 0;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    /* 卡片淡入 + 悬停动画 */
+    .card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.6s ease;
+    }
+    .card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 25px rgba(239, 68, 68, 0.4);
+    }
+    /* 顺序淡入动画 */
+    @keyframes fadeIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .delay-0 { animation: fadeIn 0.6s forwards; animation-delay: 0.2s; transform: translateY(20px); }
+    .delay-1 { animation: fadeIn 0.6s forwards; animation-delay: 0.5s; transform: translateY(20px); }
+    .delay-2 { animation: fadeIn 0.6s forwards; animation-delay: 0.8s; transform: translateY(20px); }
+
+    /* Tooltip 样式 */
+    .tooltip {
+      position: absolute;
+      background: #f87171; /* 红色背景 */
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      z-index: 50;
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body class=&quot;flex flex-col h-screen&quot;&gt;
+
+&lt;main class=&quot;flex flex-1 overflow-hidden h-full&quot;&gt;
+
+  &lt;!-- 左侧导航栏 --&gt;
+  &lt;aside id=&quot;sidebar&quot; class=&quot;w-16 bg-red-600 flex flex-col p-4 space-y-4 shadow-md text-white overflow-y-auto transition-all duration-300 relative&quot;&gt;
+    &lt;!-- 折叠按钮 --&gt;
+    &lt;button id=&quot;toggleBtn&quot; class=&quot;mb-4 bg-red-500 hover:bg-red-400 p-2 rounded-lg text-white&quot;&gt;
+      ☰
+    &lt;/button&gt;
+
+    &lt;!-- Logo --&gt;
+    &lt;div id=&quot;logoContainer&quot; class=&quot;flex justify-center mb-4&quot;&gt;
+      &lt;img src=&quot;/assets/img/trtlogo.png&quot; alt=&quot;Logo&quot; class=&quot;h-16 w-auto&quot; style=&quot;display:none;&quot; /&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 系统标题 --&gt;
+    &lt;div id=&quot;titleContainer&quot; class=&quot;text-center mb-2&quot; style=&quot;display:none;&quot;&gt;
+      &lt;span class=&quot;text-xl font-semibold&quot;&gt;采购管理查询工具&lt;/span&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 系统提示 --&gt;
+    &lt;div id=&quot;tipContainer&quot; class=&quot;text-sm mb-4 text-center&quot; style=&quot;display:none;&quot;&gt;
+      ⚠️ 保密：内部数据严禁外传
+    &lt;/div&gt;
+
+    &lt;!-- 导航按钮 --&gt;
+    &lt;div id=&quot;navBtns&quot; class=&quot;flex flex-col space-y-2 relative&quot;&gt;
+      &lt;button class=&quot;nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative&quot; data-url=&quot;/CP/index.html&quot; data-tooltip=&quot;成品查询&quot;&gt;
+        &lt;span class=&quot;btn-text&quot; style=&quot;display:none;&quot;&gt;成品查询&lt;/span&gt;
+        &lt;span class=&quot;btn-icon text-xl&quot;&gt;📦&lt;/span&gt;
+      &lt;/button&gt;
+      &lt;button class=&quot;nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative&quot; data-url=&quot;/bom/index.html&quot; data-tooltip=&quot;产品BOM&quot;&gt;
+        &lt;span class=&quot;btn-text&quot; style=&quot;display:none;&quot;&gt;产品BOM&lt;/span&gt;
+        &lt;span class=&quot;btn-icon text-xl&quot;&gt;📝&lt;/span&gt;
+      &lt;/button&gt;
+      &lt;button class=&quot;nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative&quot; data-url=&quot;/tz/index.html&quot; data-tooltip=&quot;物料查询&quot;&gt;
+        &lt;span class=&quot;btn-text&quot; style=&quot;display:none;&quot;&gt;物料查询&lt;/span&gt;
+        &lt;span class=&quot;btn-icon text-xl&quot;&gt;🔍&lt;/span&gt;
+      &lt;/button&gt;
+      &lt;button class=&quot;nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative&quot; data-url=&quot;/supplier/index.html&quot; data-tooltip=&quot;供应商查询&quot;&gt;
+        &lt;span class=&quot;btn-text&quot; style=&quot;display:none;&quot;&gt;供应商查询&lt;/span&gt;
+        &lt;span class=&quot;btn-icon text-xl&quot;&gt;🏭&lt;/span&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/aside&gt;
+
+  &lt;!-- 右侧内容区 --&gt;
+  &lt;section id=&quot;contentArea&quot; class=&quot;flex-1 bg-gray-50 flex items-center justify-center overflow-auto&quot;&gt;
+    &lt;div class=&quot;flex flex-wrap justify-center gap-8 mt-10&quot;&gt;
+      &lt;!-- 保障供应 --&gt;
+      &lt;div class=&quot;card opacity-0 delay-0 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center&quot;&gt;
+        &lt;div class=&quot;text-5xl mb-3&quot;&gt;📦&lt;/div&gt;
+        &lt;div class=&quot;text-red-600 font-bold text-lg&quot;&gt;保障供应&lt;/div&gt;
+        &lt;div class=&quot;text-gray-700 text-sm mt-2 text-center&quot;&gt;确保物料稳定供应，满足生产需求&lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;!-- 控制成本 --&gt;
+      &lt;div class=&quot;card opacity-0 delay-1 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center&quot;&gt;
+        &lt;div class=&quot;text-5xl mb-3&quot;&gt;💰&lt;/div&gt;
+        &lt;div class=&quot;text-red-600 font-bold text-lg&quot;&gt;控制成本&lt;/div&gt;
+        &lt;div class=&quot;text-gray-700 text-sm mt-2 text-center&quot;&gt;在保证质量前提下，降低采购成本&lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;!-- 保证质量 --&gt;
+      &lt;div class=&quot;card opacity-0 delay-2 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center&quot;&gt;
+        &lt;div class=&quot;text-5xl mb-3&quot;&gt;✅&lt;/div&gt;
+        &lt;div class=&quot;text-red-600 font-bold text-lg&quot;&gt;保证质量&lt;/div&gt;
+        &lt;div class=&quot;text-gray-700 text-sm mt-2 text-center&quot;&gt;严格把控采购物料质量，降低风险&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+
+&lt;/main&gt;
+
+&lt;!-- Tooltip 元素 --&gt;
+&lt;div id=&quot;tooltip&quot; class=&quot;tooltip&quot;&gt;&lt;/div&gt;
+
+&lt;script&gt;
+  const buttons = document.querySelectorAll(&#x27;.nav-btn&#x27;);
+  const contentArea = document.getElementById(&#x27;contentArea&#x27;);
+  const tooltip = document.getElementById(&#x27;tooltip&#x27;);
+  const sidebar = document.getElementById(&#x27;sidebar&#x27;);
+  const toggleBtn = document.getElementById(&#x27;toggleBtn&#x27;);
+  const logo = document.getElementById(&#x27;logoContainer&#x27;);
+  const title = document.getElementById(&#x27;titleContainer&#x27;);
+  const tip = document.getElementById(&#x27;tipContainer&#x27;);
+
+  buttons.forEach(btn =&gt; {
+    btn.addEventListener(&#x27;click&#x27;, () =&gt; {
+      const url = btn.getAttribute(&#x27;data-url&#x27;);
+      contentArea.innerHTML = `&lt;iframe src=&quot;${url}&quot;&gt;&lt;/iframe&gt;`;
+      buttons.forEach(b =&gt; b.classList.remove(&#x27;bg-blue-100&#x27;, &#x27;text-blue-700&#x27;));
+      btn.classList.add(&#x27;bg-blue-100&#x27;, &#x27;text-blue-700&#x27;);
+    });
+
+    // tooltip 悬停显示
+    btn.addEventListener(&#x27;mouseenter&#x27;, () =&gt; {
+      if (btn.querySelector(&#x27;.btn-text&#x27;).style.display === &#x27;none&#x27;) {
+        tooltip.textContent = btn.getAttribute(&#x27;data-tooltip&#x27;);
+        tooltip.style.opacity = &#x27;1&#x27;;
+        const rect = btn.getBoundingClientRect();
+        tooltip.style.top = rect.top + rect.height / 2 - tooltip.offsetHeight / 2 + &#x27;px&#x27;;
+        tooltip.style.left = rect.right + 8 + &#x27;px&#x27;;
+      }
+    });
+    btn.addEventListener(&#x27;mouseleave&#x27;, () =&gt; {
+      tooltip.style.opacity = &#x27;0&#x27;;
+    });
+  });
+
+  // 折叠功能函数
+  function collapseSidebar() {
+    sidebar.classList.remove(&#x27;w-64&#x27;);
+    sidebar.classList.add(&#x27;w-16&#x27;);
+    logo.querySelector(&#x27;img&#x27;).style.display = &#x27;none&#x27;;
+    title.style.display = &#x27;none&#x27;;
+    tip.style.display = &#x27;none&#x27;;
+    document.querySelectorAll(&#x27;.btn-text&#x27;).forEach(el =&gt; el.style.display = &#x27;none&#x27;);
+    document.querySelectorAll(&#x27;.btn-icon&#x27;).forEach(el =&gt; el.style.display = &#x27;inline&#x27;);
+  }
+
+  function expandSidebar() {
+    sidebar.classList.remove(&#x27;w-16&#x27;);
+    sidebar.classList.add(&#x27;w-64&#x27;);
+    logo.querySelector(&#x27;img&#x27;).style.display = &#x27;&#x27;;
+    title.style.display = &#x27;&#x27;;
+    tip.style.display = &#x27;&#x27;;
+    document.querySelectorAll(&#x27;.btn-text&#x27;).forEach(el =&gt; el.style.display = &#x27;&#x27;);
+    document.querySelectorAll(&#x27;.btn-icon&#x27;).forEach(el =&gt; el.style.display = &#x27;none&#x27;);
+  }
+
+  // 页面加载默认折叠
+  collapseSidebar();
+
+  toggleBtn.addEventListener(&#x27;click&#x27;, () =&gt; {
+    if (sidebar.classList.contains(&#x27;w-64&#x27;)) {
+      collapseSidebar();
+    } else {
+      expandSidebar();
+    }
+  });
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<h4 class="sub-h">功能总结</h4>
+<ol class="md-ol"><li>页面加载时，左侧导航栏 <strong>默认折叠</strong>，只显示小图标。  </li><li>折叠状态下鼠标悬停图标显示文字提示（tooltip）。  </li><li>点击折叠按钮可展开/折叠导航栏。  </li><li>右侧内容区保留原有卡片动画和 iframe 加载功能。  </li><li>页脚已去掉，更简洁。  </li></ol>
+<p>这个版本完全符合你“折叠状态首页默认显示”的需求。</p></div>
+    </section>
+    <section id="s6" class="st1">
+      <div class="sec-h"><span class="idx st1">Q6</span><h2>增加一个页脚， &lt;div class=&quot;mt-auto text-center</h2><span class="hint">第 6 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>增加一个页脚， &lt;div class="mt-auto text-center text-xs text-white/70"&gt;© 2025 青海基地采购管理部&lt;/div&gt;，只提供页脚代码即可</p></div>
+      <div class="qa-a"><div class="codeblock"><pre><code>&lt;footer class=&quot;bg-red-600 py-3&quot;&gt;
+  &lt;div class=&quot;text-center text-xs text-white/70&quot;&gt;
+    © 2025 青海基地采购管理部
+  &lt;/div&gt;
+&lt;/footer&gt;</code></pre></div></div>
+    </section>
+    <section id="s7" class="st2">
+      <div class="sec-h"><span class="idx st2">Q7</span><h2>白色背景</h2><span class="hint">第 7 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>白色背景</p></div>
+      <div class="qa-a"><div class="codeblock"><pre><code>&lt;footer class=&quot;bg-white py-3&quot;&gt;
+  &lt;div class=&quot;text-center text-xs text-gray-500&quot;&gt;
+    © 2025 青海基地采购管理部
+  &lt;/div&gt;
+&lt;/footer&gt;</code></pre></div></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>折叠导航栏修改 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：折叠导航栏修改（2025-11-04）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1", "s2", "s3", "s4", "s5", "s6", "s7"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

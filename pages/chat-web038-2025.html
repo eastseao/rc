@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>展示页面实现方法 · 2025</title>
+<meta name="description" content="非常好的问题 👍  可以的——你完全可以用 index.md（Markdown 文件） 来实现一个美观的 产品系列展示页面，尤其如果你的网站是基于 Hugo、Jekyll 或 GitHub Pages 的。这种方法的优势在于：- ✅ 直接写">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a><a href="#s2" data-sec="s2">Q2</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · 建站
+  <h1 class="s-h1">展示页面实现方法</h1>
+  <p class="s-lede">非常好的问题 👍  可以的——你完全可以用 index.md（Markdown 文件） 来实现一个美观的 产品系列展示页面，尤其如果你的网站是基于 Hugo、Jekyll 或 GitHub Pages 的。这种方法的优势在于：- ✅ 直接写</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>4</b></span>
+    <span>时间范围 <b>2025-10-29 ~ 2025-10-29</b></span>
+    <span>分类 <b>建站与技术</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">建站</span>
+    <span class="s-chip">2025</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>产品系列的展示页面还是不够美观，能通过index.md实现展示吗</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>产品系列的展示页面还是不够美观，能通过index.md实现展示吗</p></div>
+      <div class="qa-a"><p>非常好的问题 👍  </p>
+<p>可以的——你完全可以用 <strong><code>index.md</code>（Markdown 文件）</strong> 来实现一个美观的 <strong>产品系列展示页面</strong>，尤其如果你的网站是基于 <strong>Hugo、Jekyll 或 GitHub Pages</strong> 的。这种方法的优势在于：</p>
+<ul class="md-ul"><li>✅ <strong>直接写 Markdown，无需复杂 HTML</strong>  </li><li>✅ <strong>支持主题样式（如 Beautiful Jekyll）自动美化排版</strong>  </li><li>✅ <strong>方便后期维护与扩展（直接改 Markdown 即可）</strong></li></ul>
+<p>---</p>
+<h3 class="sub-h">💡实现思路</h3>
+<p>假设你在 GitHub Pages 项目中，比如：</p>
+<div class="codeblock"><pre><code>trtjkqh.github.io/products/</code></pre></div>
+<p>你只需要在该目录下创建一个：</p>
+<div class="codeblock"><pre><code>index.md</code></pre></div>
+<p>并写入类似如下的内容👇：</p>
+<div class="codeblock"><pre><code>---
+layout: page
+title: 产品系列展示
+permalink: /products/
+---
+
+# 🌟 产品系列展示
+
+这里展示公司主要的产品系列，点击图片可查看更多详情。
+
+---
+
+## 📦 系列一：Z 系列
+
+&lt;div align=&quot;center&quot;&gt;
+
+| 产品图 | 产品名称 | 简介 |
+|:--:|:--:|:--:|
+| ![Z1](../assets/product/Z1.jpg){: width=&quot;180&quot;} | **Z1 智能控制器** | 高精度工业控制设备，支持远程监控。 |
+| ![Z2](../assets/product/Z1.jpg){: width=&quot;180&quot;} | **Z2 模块** | 模块化设计，适配多种应用场景。 |
+
+&lt;/div&gt;
+
+---
+
+## ⚙️ 系列二：X 系列
+
+&lt;div align=&quot;center&quot;&gt;
+
+| 产品图 | 产品名称 | 简介 |
+|:--:|:--:|:--:|
+| ![X1](../assets/product/Z1.jpg){: width=&quot;180&quot;} | **X1 电源管理单元** | 高效率电源管理方案。 |
+| ![X2](../assets/product/Z1.jpg){: width=&quot;180&quot;} | **X2 控制板** | 稳定可靠，适合长期运行环境。 |
+
+&lt;/div&gt;
+
+---
+
+## 🏢 公司简介
+
+&gt; 我们致力于智能制造与创新，提供高品质的电子与控制系统解决方案。
+
+---
+
+©️ 2025 采购管理部 | 技术支持：trtjkqh.github.io</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">✨ 美化增强技巧</h3>
+<p>如果你的网站使用的是 <strong>Beautiful Jekyll</strong> 或支持 <strong>Bootstrap/Tailwind</strong>，你还可以：</p>
+<h4 class="sub-h">1️⃣ 在 Markdown 里引入卡片布局</h4>
+<p>例如：</p>
+<div class="codeblock"><pre><code>&lt;div class=&quot;grid grid-cols-2 gap-4&quot;&gt;
+  &lt;div class=&quot;rounded-2xl shadow-lg p-4 hover:shadow-xl transition&quot;&gt;
+    &lt;img src=&quot;../assets/product/Z1.jpg&quot; class=&quot;rounded-xl w-full&quot;&gt;
+    &lt;h3 class=&quot;text-center font-bold mt-2&quot;&gt;Z1 智能控制器&lt;/h3&gt;
+    &lt;p class=&quot;text-gray-600 text-sm text-center&quot;&gt;高精度工业控制设备&lt;/p&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;rounded-2xl shadow-lg p-4 hover:shadow-xl transition&quot;&gt;
+    &lt;img src=&quot;../assets/product/Z1.jpg&quot; class=&quot;rounded-xl w-full&quot;&gt;
+    &lt;h3 class=&quot;text-center font-bold mt-2&quot;&gt;Z2 模块&lt;/h3&gt;
+    &lt;p class=&quot;text-gray-600 text-sm text-center&quot;&gt;模块化设计，灵活适配&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre></div>
+<p>你可以直接在 <code>index.md</code> 中混写 <strong>HTML + Markdown</strong>，GitHub Pages 会自动渲染。</p>
+<p>---</p>
+<h3 class="sub-h">🚀 推荐组合方式</h3>
+<div class="tblwrap"><table><thead><tr><th>目的</th><th>文件位置</th><th>推荐方式</th></tr></thead><tbody><tr><td>简单展示</td><td><code>/products/index.md</code></td><td>纯 Markdown 表格</td></tr><tr><td>图片+简介+按钮</td><td><code>/products/index.md</code></td><td>Markdown + HTML 混写</td></tr><tr><td>动态交互（折叠/筛选）</td><td><code>/products/index.html</code></td><td>HTML + Tailwind 或 JS</td></tr></tbody></table></div>
+<p>---</p>
+<p>如果你愿意告诉我：</p>
+<ul class="md-ul"><li>你的网站框架（例如：Jekyll / Hugo / 纯静态 HTML）</li><li>当前产品展示的数据结构（是 JSON 还是手写 Markdown）</li><li>想要哪种风格（如卡片网格 / 图文表格 / 折叠面板）</li></ul>
+<p>我可以直接帮你生成一份完整的 <code>index.md</code> 示例文件，放进你的仓库即可使用。  </p>
+<p>要我现在帮你做一个美观的 Markdown 版本吗？</p></div>
+    </section>
+    <section id="s2" class="st2">
+      <div class="sec-h"><span class="idx st2">Q2</span><h2>纯静态 HTML</h2><span class="hint">第 2 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>纯静态 HTML</p></div>
+      <div class="qa-a"><p>太好了 👍   既然你的网站是 <strong>纯静态 HTML</strong>（也就是直接放在 <code>trtjkqh.github.io/products/</code> 或类似路径下的静态页面），那我们仍然<strong>可以用 <code>index.md</code> 来展示产品系列</strong>，但需要注意几点差异👇：</p>
+<p>---</p>
+<h3 class="sub-h">⚙️ 一句话总结：</h3>
+<blockquote class="md-quote">纯静态 HTML 环境中，<code>index.md</code> 也能用，但前提是 <strong>GitHub Pages 启用了 Markdown 渲染（例如使用 Jekyll）</strong>。   否则，浏览器只会显示纯文本。</blockquote>
+<p>---</p>
+<h3 class="sub-h">🧭 两种实现方式对比</h3>
+<div class="tblwrap"><table><thead><tr><th>方式</th><th>是否需要改配置</th><th>可行性</th><th>特点</th></tr></thead><tbody><tr><td>✅ <strong>方式①：让 GitHub Pages 渲染 Markdown</strong></td><td>需要启用 Jekyll（默认就有）</td><td>✅ 推荐</td><td><code>index.md</code> 自动变成网页</td></tr><tr><td>⚙️ <strong>方式②：手动转换 Markdown → HTML</strong></td><td>不依赖 Jekyll</td><td>✅ 通用</td><td>用工具转好后放 <code>index.html</code></td></tr></tbody></table></div>
+<p>---</p>
+<h3 class="sub-h">✅ 方式①：启用 GitHub Pages 原生渲染 Markdown</h3>
+<p>GitHub Pages 默认会用 <strong>Jekyll</strong> 渲染 <code>.md</code> 文件。   只要你没有 <code>_config.yml</code> 里禁用 Jekyll（或根目录没有 <code>.nojekyll</code> 文件），就可以：</p>
+<ol class="md-ol"><li>在 <code>/products/</code> 目录下创建文件：  </li></ol>
+<div class="codeblock"><pre><code>   products/
+   ├── index.md
+   └── assets/</code></pre></div>
+<ol class="md-ol"><li>内容写成如下：</li></ol>
+<div class="codeblock"><pre><code>   ---
+   title: 产品系列展示
+   ---
+
+   # 🌟 产品系列展示
+
+   这里展示公司的主要产品系列，点击图片可查看更多详情。
+
+   ---
+
+   ## 📦 Z 系列
+
+   &lt;div align=&quot;center&quot;&gt;
+
+   | 产品图 | 产品名称 | 简介 |
+   |:--:|:--:|:--:|
+   | ![Z1](../assets/product/Z1.jpg){: width=&quot;180&quot;} | **Z1 智能控制器** | 高精度工业控制设备，支持远程监控。 |
+   | ![Z2](../assets/product/Z1.jpg){: width=&quot;180&quot;} | **Z2 模块** | 模块化设计，适配多种应用场景。 |
+
+   &lt;/div&gt;
+
+   ---
+
+   ## 🏢 公司简介
+
+   &gt; 我们致力于智能制造与创新，提供高品质的电子与控制系统解决方案。
+
+   ---
+
+   ©️ 2025 采购管理部 | 技术支持：trtjkqh.github.io</code></pre></div>
+<p>✅ 这样 <code>https://trtjkqh.github.io/products/</code> 就会自动渲染成网页。</p>
+<p>---</p>
+<h3 class="sub-h">⚙️ 方式②：手动转成 HTML（适合完全静态仓库）</h3>
+<p>如果你的根目录有 <code>.nojekyll</code> 或 GitHub 没启用渲染，可以先写 Markdown，然后<strong>用在线工具或命令行转成 HTML</strong>。</p>
+<h4 class="sub-h">👉 在线方式：</h4>
+<p>使用网站 <a href="https://markdowntohtml.com/" target="_blank" rel="noopener">https://markdowntohtml.com/</a>   把 Markdown 内容粘贴进去 → 生成 HTML → 命名为 <code>index.html</code> → 上传即可。</p>
+<p>---</p>
+<h3 class="sub-h">💅 美观布局（卡片网格版）</h3>
+<p>你还可以直接用 <strong>纯 HTML + Tailwind</strong> 做成更漂亮的页面，比如：</p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;产品系列展示&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body class=&quot;bg-gray-50 text-gray-800&quot;&gt;
+
+  &lt;header class=&quot;text-center py-8&quot;&gt;
+    &lt;h1 class=&quot;text-4xl font-bold mb-2&quot;&gt;🌟 产品系列展示&lt;/h1&gt;
+    &lt;p class=&quot;text-gray-600&quot;&gt;高品质 · 创新 · 智能制造&lt;/p&gt;
+  &lt;/header&gt;
+
+  &lt;main class=&quot;max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4&quot;&gt;
+
+    &lt;div class=&quot;bg-white rounded-2xl shadow-md hover:shadow-xl transition overflow-hidden&quot;&gt;
+      &lt;img src=&quot;../assets/product/Z1.jpg&quot; alt=&quot;Z1&quot; class=&quot;w-full h-48 object-cover&quot;&gt;
+      &lt;div class=&quot;p-4&quot;&gt;
+        &lt;h3 class=&quot;text-xl font-semibold mb-1&quot;&gt;Z1 智能控制器&lt;/h3&gt;
+        &lt;p class=&quot;text-gray-500 text-sm&quot;&gt;高精度工业控制设备，支持远程监控。&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;bg-white rounded-2xl shadow-md hover:shadow-xl transition overflow-hidden&quot;&gt;
+      &lt;img src=&quot;../assets/product/Z1.jpg&quot; alt=&quot;Z2&quot; class=&quot;w-full h-48 object-cover&quot;&gt;
+      &lt;div class=&quot;p-4&quot;&gt;
+        &lt;h3 class=&quot;text-xl font-semibold mb-1&quot;&gt;Z2 模块&lt;/h3&gt;
+        &lt;p class=&quot;text-gray-500 text-sm&quot;&gt;模块化设计，适配多种应用场景。&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+  &lt;/main&gt;
+
+  &lt;footer class=&quot;text-center py-6 text-sm text-gray-500&quot;&gt;
+    ©️ 2025 采购管理部 | 技术支持：trtjkqh.github.io
+  &lt;/footer&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<p>如果你告诉我：</p>
+<ul class="md-ul"><li>你希望保留 Markdown 格式（更方便写内容）  </li></ul>
+<p>还是</p>
+<ul class="md-ul"><li>你更想做成漂亮的静态卡片页面（HTML 形式）</li></ul>
+<p>我可以直接帮你生成完整的、可直接放进仓库的 <code>index.md</code> 或 <code>index.html</code> 文件。  </p>
+<p>👉 你希望我帮你做哪个版本？</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>展示页面实现方法 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：展示页面实现方法（2025-10-29）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1", "s2"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

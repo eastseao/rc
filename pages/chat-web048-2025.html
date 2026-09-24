@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>优化查询页面代码 · 2025</title>
+<meta name="description" content="我根据你之前“物料查询”和“产品 BOM 查询”页面的风格，对你的成品信息查询页面做了整体优化：  优化点包括：  1. 表格风格统一：增加悬浮高亮行、标题栏颜色统一、整体更紧凑。  2. 输入区美化：查询条件输入框和按钮更整齐，适应不同屏">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a><a href="#s2" data-sec="s2">Q2</a><a href="#s3" data-sec="s3">Q3</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · 建站
+  <h1 class="s-h1">优化查询页面代码</h1>
+  <p class="s-lede">我根据你之前“物料查询”和“产品 BOM 查询”页面的风格，对你的成品信息查询页面做了整体优化：  优化点包括：  1. 表格风格统一：增加悬浮高亮行、标题栏颜色统一、整体更紧凑。  2. 输入区美化：查询条件输入框和按钮更整齐，适应不同屏</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>6</b></span>
+    <span>时间范围 <b>2025-10-31 ~ 2025-10-31</b></span>
+    <span>分类 <b>建站与技术</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">建站</span>
+    <span class="s-chip">2025</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>仿照物料查询和产品bom查询页面的风格，优化这段代码：&lt;!DOCTYPE htm…</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>仿照物料查询和产品bom查询页面的风格，优化这段代码：&lt;!DOCTYPE html&gt;</p>
+<p>&lt;html lang="zh-CN"&gt;</p>
+<p>&lt;head&gt;</p>
+<p>  &lt;meta charset="UTF-8" /&gt;</p>
+<p>  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;</p>
+<p>  &lt;title&gt;成品信息查询&lt;/title&gt;</p>
+<p>  &lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p>  &lt;style&gt;</p>
+<p>    body { background-color: #f9fafb; }</p>
+<p>    @keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }</p>
+<p>    .fade-in { animation: fadeIn 0.3s ease-in-out; }</p>
+<p>    table th, table td { border:1px solid #ddd; text-align:center; padding:0.5rem; }</p>
+<p>    table { border-collapse: collapse; width:100%; background:white; }</p>
+<p>  &lt;/style&gt;</p>
+<p>&lt;/head&gt;</p>
+<p>&lt;body class="p-6"&gt;</p>
+<p>  &lt;div class="max-w-5xl mx-auto bg-white shadow-lg rounded-xl p-6 fade-in"&gt;</p>
+<p>    &lt;h1 class="text-2xl font-bold mb-4 text-gray-700"&gt;成品信息查询&lt;/h1&gt;</p>
+<p>    &lt;!-- 查询条件 --&gt;</p>
+<p>    &lt;div class="flex flex-wrap items-center gap-4 mb-6"&gt;</p>
+<p>      &lt;input id="projectInput" type="text" placeholder="输入项目号（需精准）" class="border rounded-lg p-2 flex-1 min-w-[180px] focus:ring focus:ring-blue-200" /&gt;</p>
+<p>      &lt;input id="nameInput" type="text" placeholder="输入品名（可模糊搜索）" class="border rounded-lg p-2 flex-1 min-w-[180px] focus:ring focus:ring-blue-200" /&gt;</p>
+<p>      &lt;select id="channelSelect" class="border rounded-lg p-2 min-w-[180px] focus:ring focus:ring-blue-200"&gt;</p>
+<p>        &lt;option value=""&gt;选择渠道（可选）&lt;/option&gt;</p>
+<p>      &lt;/select&gt;</p>
+<p>      &lt;button id="searchBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"&gt;查询&lt;/button&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>    &lt;!-- 查询结果表格 --&gt;</p>
+<p>    &lt;div class="overflow-x-auto"&gt;</p>
+<p>      &lt;table id="resultTable" class="hidden"&gt;</p>
+<p>        &lt;thead class="bg-blue-100 text-gray-800"&gt;</p>
+<p>          &lt;tr&gt;</p>
+<p>            &lt;th&gt;项目号&lt;/th&gt;</p>
+<p>            &lt;th&gt;品名&lt;/th&gt;</p>
+<p>            &lt;th&gt;规格&lt;/th&gt;</p>
+<p>            &lt;th&gt;单位&lt;/th&gt;</p>
+<p>            &lt;th&gt;零售价（元）&lt;/th&gt;</p>
+<p>            &lt;th&gt;品牌&lt;/th&gt;</p>
+<p>            &lt;th&gt;渠道&lt;/th&gt;</p>
+<p>          &lt;/tr&gt;</p>
+<p>        &lt;/thead&gt;</p>
+<p>        &lt;tbody id="tableBody"&gt;&lt;/tbody&gt;</p>
+<p>      &lt;/table&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>    &lt;p id="noResult" class="text-center text-gray-500 mt-4 hidden"&gt;未找到符合条件的记录。&lt;/p&gt;</p>
+<p>  &lt;/div&gt;</p>
+<p>&lt;div class="mt-4 p-4 bg-red-50 border border-red-200 rounded text-red-700 font-semibold text-center"&gt;</p>
+<p>  ⚠️ 保密提醒：所有成品信息仅供内部使用，禁止外传。</p>
+<p>&lt;/div&gt;</p>
+<p>  &lt;script&gt;</p>
+<p>    let allData = [];</p>
+<p>    fetch('data.json')</p>
+<p>      .then(res =&gt; res.json())</p>
+<p>      .then(data =&gt; {</p>
+<p>        allData = data;</p>
+<p>        populateChannels(data);</p>
+<p>      });</p>
+<p>    function populateChannels(data) {</p>
+<p>      const select = document.getElementById('channelSelect');</p>
+<p>      const channels = [...new Set(data.map(item =&gt; item.可供应渠道).filter(Boolean))];</p>
+<p>      channels.forEach(ch =&gt; {</p>
+<p>        const option = document.createElement('option');</p>
+<p>        option.value = ch;</p>
+<p>        option.textContent = ch;</p>
+<p>        select.appendChild(option);</p>
+<p>      });</p>
+<p>    }</p>
+<p>    document.getElementById('searchBtn').addEventListener('click', () =&gt; {</p>
+<p>      const project = document.getElementById('projectInput').value.trim();</p>
+<p>      const name = document.getElementById('nameInput').value.trim();</p>
+<p>      const channel = document.getElementById('channelSelect').value;</p>
+<p>      let filtered = allData.filter(item =&gt; {</p>
+<p>        const matchProject = project ? item.项目号 === project : true;</p>
+<p>        const matchName = name ? item.品名.includes(name) : true;</p>
+<p>        const matchChannel = channel ? item.可供应渠道 === channel : true;</p>
+<p>        return matchProject &amp;&amp; matchName &amp;&amp; matchChannel;</p>
+<p>      });</p>
+<p>      // 如果只选择渠道，显示该渠道全部产品</p>
+<p>      if (!project &amp;&amp; !name &amp;&amp; channel) {</p>
+<p>        filtered = allData.filter(item =&gt; item.可供应渠道 === channel);</p>
+<p>      }</p>
+<p>      renderTable(filtered);</p>
+<p>    });</p>
+<p>    function renderTable(data) {</p>
+<p>      const table = document.getElementById('resultTable');</p>
+<p>      const tbody = document.getElementById('tableBody');</p>
+<p>      const noResult = document.getElementById('noResult');</p>
+<p>      tbody.innerHTML = '';</p>
+<p>      if (data.length === 0) {</p>
+<p>        table.classList.add('hidden');</p>
+<p>        noResult.classList.remove('hidden');</p>
+<p>        return;</p>
+<p>      }</p>
+<p>      noResult.classList.add('hidden');</p>
+<p>      table.classList.remove('hidden');</p>
+<p>      data.forEach(item =&gt; {</p>
+<p>        const tr = document.createElement('tr');</p>
+<p>        tr.innerHTML = `</p>
+<p>          &lt;td&gt;${item.项目号 || ''}&lt;/td&gt;</p>
+<p>          &lt;td&gt;${item.品名 || ''}&lt;/td&gt;</p>
+<p>          &lt;td&gt;${item.规格 || ''}&lt;/td&gt;</p>
+<p>          &lt;td&gt;${item.单位 || ''}&lt;/td&gt;</p>
+<p>          &lt;td&gt;${item.零售价 ?? item['零售价（元）'] ?? ''}&lt;/td&gt;</p>
+<p>          &lt;td&gt;${item.品牌 || ''}&lt;/td&gt;</p>
+<p>          &lt;td&gt;${item.可供应渠道 || ''}&lt;/td&gt;</p>
+<p>        `;</p>
+<p>        tbody.appendChild(tr);</p>
+<p>      });</p>
+<p>    }</p>
+<p>  &lt;/script&gt;</p>
+<p>&lt;/body&gt;</p>
+<p>&lt;/html&gt;</p></div>
+      <div class="qa-a"><p>我根据你之前“物料查询”和“产品 BOM 查询”页面的风格，对你的成品信息查询页面做了整体优化：  </p>
+<p>优化点包括：  </p>
+<ol class="md-ol"><li><strong>表格风格统一</strong>：增加悬浮高亮行、标题栏颜色统一、整体更紧凑。  </li><li><strong>输入区美化</strong>：查询条件输入框和按钮更整齐，适应不同屏幕。  </li><li><strong>淡入动画</strong>：页面和表格显示有动画效果。  </li><li><strong>提示信息</strong>：未找到记录的提示和保密提醒样式统一。  </li><li><strong>可读性和响应式</strong>：表格在移动端也能横向滚动，整体宽度自适应。  </li></ol>
+<p>下面是完整代码：  </p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot; /&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+  &lt;title&gt;成品信息查询&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;style&gt;
+    body { background-color: #f3f4f6; }
+    @keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
+    .fade-in { animation: fadeIn 0.3s ease-in-out; }
+
+    table { border-collapse: collapse; width: 100%; background:white; font-size:0.9rem; }
+    table th, table td { border:1px solid #e5e7eb; text-align:center; padding:0.5rem; }
+    table th { background-color: #e0f2fe; color:#1e3a8a; font-weight:600; }
+    table tr:hover { background-color: #f0f9ff; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body class=&quot;p-6&quot;&gt;
+
+  &lt;div class=&quot;max-w-6xl mx-auto bg-white shadow-lg rounded-xl p-6 fade-in&quot;&gt;
+    &lt;h1 class=&quot;text-2xl font-bold mb-4 text-gray-700&quot;&gt;成品信息查询&lt;/h1&gt;
+
+    &lt;!-- 查询条件 --&gt;
+    &lt;div class=&quot;flex flex-wrap items-center gap-4 mb-6&quot;&gt;
+      &lt;input id=&quot;projectInput&quot; type=&quot;text&quot; placeholder=&quot;输入项目号（需精准）&quot; class=&quot;border rounded-lg p-2 flex-1 min-w-[180px] focus:ring focus:ring-blue-200&quot; /&gt;
+      &lt;input id=&quot;nameInput&quot; type=&quot;text&quot; placeholder=&quot;输入品名（可模糊搜索）&quot; class=&quot;border rounded-lg p-2 flex-1 min-w-[180px] focus:ring focus:ring-blue-200&quot; /&gt;
+      &lt;select id=&quot;channelSelect&quot; class=&quot;border rounded-lg p-2 min-w-[180px] focus:ring focus:ring-blue-200&quot;&gt;
+        &lt;option value=&quot;&quot;&gt;选择渠道（可选）&lt;/option&gt;
+      &lt;/select&gt;
+      &lt;button id=&quot;searchBtn&quot; class=&quot;bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition&quot;&gt;查询&lt;/button&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 查询结果表格 --&gt;
+    &lt;div class=&quot;overflow-x-auto&quot;&gt;
+      &lt;table id=&quot;resultTable&quot; class=&quot;hidden fade-in&quot;&gt;
+        &lt;thead&gt;
+          &lt;tr&gt;
+            &lt;th&gt;项目号&lt;/th&gt;
+            &lt;th&gt;品名&lt;/th&gt;
+            &lt;th&gt;规格&lt;/th&gt;
+            &lt;th&gt;单位&lt;/th&gt;
+            &lt;th&gt;零售价（元）&lt;/th&gt;
+            &lt;th&gt;品牌&lt;/th&gt;
+            &lt;th&gt;渠道&lt;/th&gt;
+          &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody id=&quot;tableBody&quot;&gt;&lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
+
+    &lt;p id=&quot;noResult&quot; class=&quot;text-center text-gray-500 mt-4 hidden&quot;&gt;未找到符合条件的记录。&lt;/p&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;mt-4 p-4 bg-red-50 border border-red-200 rounded text-red-700 font-semibold text-center&quot;&gt;
+    ⚠️ 保密提醒：所有成品信息仅供内部使用，禁止外传。
+  &lt;/div&gt;
+
+  &lt;script&gt;
+    let allData = [];
+
+    fetch(&#x27;data.json&#x27;)
+      .then(res =&gt; res.json())
+      .then(data =&gt; {
+        allData = data;
+        populateChannels(data);
+      });
+
+    function populateChannels(data) {
+      const select = document.getElementById(&#x27;channelSelect&#x27;);
+      const channels = [...new Set(data.map(item =&gt; item.可供应渠道).filter(Boolean))];
+      channels.forEach(ch =&gt; {
+        const option = document.createElement(&#x27;option&#x27;);
+        option.value = ch;
+        option.textContent = ch;
+        select.appendChild(option);
+      });
+    }
+
+    document.getElementById(&#x27;searchBtn&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; {
+      const project = document.getElementById(&#x27;projectInput&#x27;).value.trim();
+      const name = document.getElementById(&#x27;nameInput&#x27;).value.trim();
+      const channel = document.getElementById(&#x27;channelSelect&#x27;).value;
+
+      let filtered = allData.filter(item =&gt; {
+        const matchProject = project ? item.项目号 === project : true;
+        const matchName = name ? item.品名.includes(name) : true;
+        const matchChannel = channel ? item.可供应渠道 === channel : true;
+        return matchProject &amp;&amp; matchName &amp;&amp; matchChannel;
+      });
+
+      // 如果只选择渠道，显示该渠道全部产品
+      if (!project &amp;&amp; !name &amp;&amp; channel) {
+        filtered = allData.filter(item =&gt; item.可供应渠道 === channel);
+      }
+
+      renderTable(filtered);
+    });
+
+    function renderTable(data) {
+      const table = document.getElementById(&#x27;resultTable&#x27;);
+      const tbody = document.getElementById(&#x27;tableBody&#x27;);
+      const noResult = document.getElementById(&#x27;noResult&#x27;);
+      tbody.innerHTML = &#x27;&#x27;;
+
+      if (data.length === 0) {
+        table.classList.add(&#x27;hidden&#x27;);
+        noResult.classList.remove(&#x27;hidden&#x27;);
+        return;
+      }
+
+      noResult.classList.add(&#x27;hidden&#x27;);
+      table.classList.remove(&#x27;hidden&#x27;);
+
+      data.forEach(item =&gt; {
+        const tr = document.createElement(&#x27;tr&#x27;);
+        tr.innerHTML = `
+          &lt;td&gt;${item.项目号 || &#x27;&#x27;}&lt;/td&gt;
+          &lt;td&gt;${item.品名 || &#x27;&#x27;}&lt;/td&gt;
+          &lt;td&gt;${item.规格 || &#x27;&#x27;}&lt;/td&gt;
+          &lt;td&gt;${item.单位 || &#x27;&#x27;}&lt;/td&gt;
+          &lt;td&gt;${item.零售价 ?? item[&#x27;零售价（元）&#x27;] ?? &#x27;&#x27;}&lt;/td&gt;
+          &lt;td&gt;${item.品牌 || &#x27;&#x27;}&lt;/td&gt;
+          &lt;td&gt;${item.可供应渠道 || &#x27;&#x27;}&lt;/td&gt;
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<p>如果你愿意，我可以进一步帮你<strong>加上每行可点击展开详细信息、和表格拖动排序的功能</strong>，就像你之前物料查询系统和 BOM 查询页面那样，操作体验会更统一。  </p>
+<p>你希望我加上吗？</p></div>
+    </section>
+    <section id="s2" class="st2">
+      <div class="sec-h"><span class="idx st2">Q2</span><h2>保密声明放在顶部标题栏，内容为“如查询不到，请联系采购部更新⚠️ 保密声明：内部…</h2><span class="hint">第 2 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>保密声明放在顶部标题栏，内容为“如查询不到，请联系采购部更新 ⚠️ 保密声明：内部数据，严禁外传”，在成品信息查询的前面加上logo</p></div>
+      <div class="qa-a"><p>明白，我帮你把页面优化如下：  </p>
+<p>优化点：  </p>
+<ol class="md-ol"><li><strong>保密声明放在标题栏上方</strong>，使用红色背景突出，并保持居中。  </li><li><strong>在标题栏前加 logo</strong>，可以是图片或者占位图。  </li><li><strong>整体布局和风格延续物料查询/BOM页面</strong>。  </li></ol>
+<p>下面是修改后的完整代码示例：  </p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot; /&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+  &lt;title&gt;成品信息查询&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;style&gt;
+    body { background-color: #f3f4f6; }
+    @keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
+    .fade-in { animation: fadeIn 0.3s ease-in-out; }
+
+    table { border-collapse: collapse; width: 100%; background:white; font-size:0.9rem; }
+    table th, table td { border:1px solid #e5e7eb; text-align:center; padding:0.5rem; }
+    table th { background-color: #e0f2fe; color:#1e3a8a; font-weight:600; }
+    table tr:hover { background-color: #f0f9ff; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body class=&quot;p-6&quot;&gt;
+
+  &lt;!-- 保密声明 --&gt;
+  &lt;div class=&quot;max-w-6xl mx-auto mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 font-semibold text-center fade-in&quot;&gt;
+    如查询不到，请联系采购部更新&lt;br&gt;
+    ⚠️ 保密声明：内部数据，严禁外传
+  &lt;/div&gt;
+
+  &lt;div class=&quot;max-w-6xl mx-auto bg-white shadow-lg rounded-xl p-6 fade-in&quot;&gt;
+
+    &lt;!-- logo + 标题 --&gt;
+    &lt;div class=&quot;flex items-center gap-4 mb-4&quot;&gt;
+      &lt;img src=&quot;logo.png&quot; alt=&quot;公司Logo&quot; class=&quot;h-12 w-12 object-contain&quot; /&gt;
+      &lt;h1 class=&quot;text-2xl font-bold text-gray-700&quot;&gt;成品信息查询&lt;/h1&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 查询条件 --&gt;
+    &lt;div class=&quot;flex flex-wrap items-center gap-4 mb-6&quot;&gt;
+      &lt;input id=&quot;projectInput&quot; type=&quot;text&quot; placeholder=&quot;输入项目号（需精准）&quot; class=&quot;border rounded-lg p-2 flex-1 min-w-[180px] focus:ring focus:ring-blue-200&quot; /&gt;
+      &lt;input id=&quot;nameInput&quot; type=&quot;text&quot; placeholder=&quot;输入品名（可模糊搜索）&quot; class=&quot;border rounded-lg p-2 flex-1 min-w-[180px] focus:ring focus:ring-blue-200&quot; /&gt;
+      &lt;select id=&quot;channelSelect&quot; class=&quot;border rounded-lg p-2 min-w-[180px] focus:ring focus:ring-blue-200&quot;&gt;
+        &lt;option value=&quot;&quot;&gt;选择渠道（可选）&lt;/option&gt;
+      &lt;/select&gt;
+      &lt;button id=&quot;searchBtn&quot; class=&quot;bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition&quot;&gt;查询&lt;/button&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 查询结果表格 --&gt;
+    &lt;div class=&quot;overflow-x-auto&quot;&gt;
+      &lt;table id=&quot;resultTable&quot; class=&quot;hidden fade-in&quot;&gt;
+        &lt;thead&gt;
+          &lt;tr&gt;
+            &lt;th&gt;项目号&lt;/th&gt;
+            &lt;th&gt;品名&lt;/th&gt;
+            &lt;th&gt;规格&lt;/th&gt;
+            &lt;th&gt;单位&lt;/th&gt;
+            &lt;th&gt;零售价（元）&lt;/th&gt;
+            &lt;th&gt;品牌&lt;/th&gt;
+            &lt;th&gt;渠道&lt;/th&gt;
+          &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody id=&quot;tableBody&quot;&gt;&lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
+
+    &lt;p id=&quot;noResult&quot; class=&quot;text-center text-gray-500 mt-4 hidden&quot;&gt;未找到符合条件的记录。&lt;/p&gt;
+  &lt;/div&gt;
+
+  &lt;script&gt;
+    let allData = [];
+
+    fetch(&#x27;data.json&#x27;)
+      .then(res =&gt; res.json())
+      .then(data =&gt; {
+        allData = data;
+        populateChannels(data);
+      });
+
+    function populateChannels(data) {
+      const select = document.getElementById(&#x27;channelSelect&#x27;);
+      const channels = [...new Set(data.map(item =&gt; item.可供应渠道).filter(Boolean))];
+      channels.forEach(ch =&gt; {
+        const option = document.createElement(&#x27;option&#x27;);
+        option.value = ch;
+        option.textContent = ch;
+        select.appendChild(option);
+      });
+    }
+
+    document.getElementById(&#x27;searchBtn&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; {
+      const project = document.getElementById(&#x27;projectInput&#x27;).value.trim();
+      const name = document.getElementById(&#x27;nameInput&#x27;).value.trim();
+      const channel = document.getElementById(&#x27;channelSelect&#x27;).value;
+
+      let filtered = allData.filter(item =&gt; {
+        const matchProject = project ? item.项目号 === project : true;
+        const matchName = name ? item.品名.includes(name) : true;
+        const matchChannel = channel ? item.可供应渠道 === channel : true;
+        return matchProject &amp;&amp; matchName &amp;&amp; matchChannel;
+      });
+
+      if (!project &amp;&amp; !name &amp;&amp; channel) {
+        filtered = allData.filter(item =&gt; item.可供应渠道 === channel);
+      }
+
+      renderTable(filtered);
+    });
+
+    function renderTable(data) {
+      const table = document.getElementById(&#x27;resultTable&#x27;);
+      const tbody = document.getElementById(&#x27;tableBody&#x27;);
+      const noResult = document.getElementById(&#x27;noResult&#x27;);
+      tbody.innerHTML = &#x27;&#x27;;
+
+      if (data.length === 0) {
+        table.classList.add(&#x27;hidden&#x27;);
+        noResult.classList.remove(&#x27;hidden&#x27;);
+        return;
+      }
+
+      noResult.classList.add(&#x27;hidden&#x27;);
+      table.classList.remove(&#x27;hidden&#x27;);
+
+      data.forEach(item =&gt; {
+        const tr = document.createElement(&#x27;tr&#x27;);
+        tr.innerHTML = `
+          &lt;td&gt;${item.项目号 || &#x27;&#x27;}&lt;/td&gt;
+          &lt;td&gt;${item.品名 || &#x27;&#x27;}&lt;/td&gt;
+          &lt;td&gt;${item.规格 || &#x27;&#x27;}&lt;/td&gt;
+          &lt;td&gt;${item.单位 || &#x27;&#x27;}&lt;/td&gt;
+          &lt;td&gt;${item.零售价 ?? item[&#x27;零售价（元）&#x27;] ?? &#x27;&#x27;}&lt;/td&gt;
+          &lt;td&gt;${item.品牌 || &#x27;&#x27;}&lt;/td&gt;
+          &lt;td&gt;${item.可供应渠道 || &#x27;&#x27;}&lt;/td&gt;
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<p>✅ 说明：  </p>
+<ul class="md-ul"><li><code>logo.png</code> 可以替换成你公司实际 Logo 路径。  </li><li>保密声明现在在顶部红色区域，标题和 Logo 在下方，与查询表格保持风格统一。  </li></ul>
+<p>我可以帮你进一步<strong>让查询表格在标题下方固定显示，同时顶部 Logo 和保密声明悬浮不动</strong>，方便长表格浏览。  </p>
+<p>你希望我加这个悬浮效果吗？</p></div>
+    </section>
+    <section id="s3" class="st3">
+      <div class="sec-h"><span class="idx st3">Q3</span><h2>&lt;!DOCTYPE html&gt;&lt;html lang=&quot;zh-CN&quot;&gt;&lt;head&gt;…</h2><span class="hint">第 3 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>&lt;!DOCTYPE html&gt; &lt;html lang="zh-CN"&gt; &lt;head&gt;   &lt;meta charset="UTF-8" /&gt;   &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;   &lt;title&gt;成品信息查询&lt;/title&gt;   &lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;   &lt;style&gt;     body { background-color: #f3f4f6; }     @keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }     .fade-in { animation: fadeIn 0.3s ease-in-out; }</p>
+<p>    table { border-collapse: collapse; width: 100%; background:white; font-size:0.9rem; }     table th, table td { border:1px solid #e5e7eb; text-align:center; padding:0.5rem; }     table th { background-color: #e0f2fe; color:#1e3a8a; font-weight:600; }     table tr:hover { background-color: #f0f9ff; }   &lt;/style&gt; &lt;/head&gt; &lt;body class="p-6"&gt;</p>
+<p>  &lt;!-- 标题栏（Logo + 标题 + 保密声明同一行） --&gt;   &lt;div class="max-w-6xl mx-auto bg-white shadow-lg rounded-xl p-4 flex items-center justify-between fade-in mb-6"&gt;     &lt;!-- 左侧 Logo --&gt;     &lt;div class="flex items-center gap-3"&gt;           &lt;img src="/assets/img/trtlogo.png" alt="LOGO" class="h-12 w-auto object-contain"&gt;       &lt;h1 class="text-2xl font-bold text-gray-700"&gt;成品信息查询&lt;/h1&gt;     &lt;/div&gt;</p>
+<p>    &lt;!-- 右侧保密声明 --&gt;        &lt;span class="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700"&gt;🔍 数据：2025年7月1日&lt;/span&gt;     &lt;span class="px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600"&gt;⚠️ 保密声明：内部数据，严禁外传&lt;/span&gt;   &lt;/div&gt;</p>
+<p>  &lt;!-- 查询条件 --&gt;   &lt;div class="max-w-6xl mx-auto bg-white shadow-lg rounded-xl p-6 fade-in mb-6"&gt;     &lt;div class="flex flex-wrap items-center gap-4 mb-6"&gt;       &lt;select id="channelSelect" class="border rounded-lg p-2 min-w-[180px] focus:ring focus:ring-blue-200"&gt;         &lt;option value=""&gt;选择渠道（可选）&lt;/option&gt;       &lt;/select&gt;       &lt;input id="projectInput" type="text" placeholder="输入项目号（需精准）" class="border rounded-lg p-2 flex-1 min-w-[180px] focus:ring focus:ring-blue-200" /&gt;       &lt;input id="nameInput" type="text" placeholder="输入品名（可模糊搜索）" class="border rounded-lg p-2 flex-1 min-w-[180px] focus:ring focus:ring-blue-200" /&gt;       &lt;button id="searchBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"&gt;查询&lt;/button&gt;     &lt;/div&gt;</p>
+<p>    &lt;!-- 查询结果表格 --&gt;     &lt;div class="overflow-x-auto"&gt;       &lt;table id="resultTable" class="hidden fade-in"&gt;         &lt;thead&gt;           &lt;tr&gt;             &lt;th&gt;项目号&lt;/th&gt;             &lt;th&gt;品名&lt;/th&gt;             &lt;th&gt;规格&lt;/th&gt;             &lt;th&gt;单位&lt;/th&gt;             &lt;th&gt;零售价（元）&lt;/th&gt;             &lt;th&gt;品牌&lt;/th&gt;             &lt;th&gt;渠道&lt;/th&gt;           &lt;/tr&gt;         &lt;/thead&gt;         &lt;tbody id="tableBody"&gt;&lt;/tbody&gt;       &lt;/table&gt;     &lt;/div&gt;</p>
+<p>    &lt;p id="noResult" class="text-center text-gray-500 mt-4 hidden"&gt;未找到符合条件的记录。&lt;/p&gt;   &lt;/div&gt;</p>
+<p>  &lt;script&gt;     let allData = [];</p>
+<p>    fetch('data.json')       .then(res =&gt; res.json())       .then(data =&gt; {         allData = data;         populateChannels(data);       });</p>
+<p>    function populateChannels(data) {       const select = document.getElementById('channelSelect');       const channels = [...new Set(data.map(item =&gt; item.可供应渠道).filter(Boolean))];       channels.forEach(ch =&gt; {         const option = document.createElement('option');         option.value = ch;         option.textContent = ch;         select.appendChild(option);       });     }</p>
+<p>    document.getElementById('searchBtn').addEventListener('click', () =&gt; {       const project = document.getElementById('projectInput').value.trim();       const name = document.getElementById('nameInput').value.trim();       const channel = document.getElementById('channelSelect').value;</p>
+<p>      let filtered = allData.filter(item =&gt; {         const matchProject = project ? item.项目号 === project : true;         const matchName = name ? item.品名.includes(name) : true;         const matchChannel = channel ? item.可供应渠道 === channel : true;         return matchProject &amp;&amp; matchName &amp;&amp; matchChannel;       });</p>
+<p>      if (!project &amp;&amp; !name &amp;&amp; channel) {         filtered = allData.filter(item =&gt; item.可供应渠道 === channel);       }</p>
+<p>      renderTable(filtered);     });</p>
+<p>    function renderTable(data) {       const table = document.getElementById('resultTable');       const tbody = document.getElementById('tableBody');       const noResult = document.getElementById('noResult');       tbody.innerHTML = '';</p>
+<p>      if (data.length === 0) {         table.classList.add('hidden');         noResult.classList.remove('hidden');         return;       }</p>
+<p>      noResult.classList.add('hidden');       table.classList.remove('hidden');</p>
+<p>      data.forEach(item =&gt; {         const tr = document.createElement('tr');         tr.innerHTML = <code>           &lt;td&gt;${item.项目号 || ''}&lt;/td&gt;           &lt;td&gt;${item.品名 || ''}&lt;/td&gt;           &lt;td&gt;${item.规格 || ''}&lt;/td&gt;           &lt;td&gt;${item.单位 || ''}&lt;/td&gt;           &lt;td&gt;${item.零售价 ?? item['零售价（元）'] ?? ''}&lt;/td&gt;           &lt;td&gt;${item.品牌 || ''}&lt;/td&gt;           &lt;td&gt;${item.可供应渠道 || ''}&lt;/td&gt;         </code>;         tbody.appendChild(tr);       });     }   &lt;/script&gt; &lt;/body&gt; &lt;/html&gt; 1、标题后面加一行提示“选择渠道后即可点击查询” 2、右侧的数据和保密声明靠右放置， 3、页面底部放置版权信息“© 2025 德令哈采购管理部提供技术和数据支持” 4、渠道这一栏里，添加一个所有渠道，放在下拉的最上面</p></div>
+      <div class="qa-a"><p>明白，我根据你的要求优化了页面：  </p>
+<p>优化点：  </p>
+<ol class="md-ol"><li><strong>标题下增加提示</strong>：“选择渠道后即可点击查询”。  </li><li><strong>右侧的数据和保密声明靠右对齐</strong>。  </li><li><strong>页面底部增加版权信息</strong>。  </li><li><strong>渠道下拉菜单最上方增加“所有渠道”选项</strong>。  </li></ol>
+<p>下面是完整代码：  </p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot; /&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+  &lt;title&gt;成品信息查询&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;style&gt;
+    body { background-color: #f3f4f6; }
+    @keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
+    .fade-in { animation: fadeIn 0.3s ease-in-out; }
+
+    table { border-collapse: collapse; width: 100%; background:white; font-size:0.9rem; }
+    table th, table td { border:1px solid #e5e7eb; text-align:center; padding:0.5rem; }
+    table th { background-color: #e0f2fe; color:#1e3a8a; font-weight:600; }
+    table tr:hover { background-color: #f0f9ff; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body class=&quot;p-6&quot;&gt;
+
+  &lt;!-- 标题栏（Logo + 标题 + 保密声明） --&gt;
+  &lt;div class=&quot;max-w-6xl mx-auto bg-white shadow-lg rounded-xl p-4 flex flex-col md:flex-row items-center justify-between fade-in mb-6&quot;&gt;
+    &lt;div class=&quot;flex items-center gap-3 mb-2 md:mb-0&quot;&gt;
+      &lt;img src=&quot;/assets/img/trtlogo.png&quot; alt=&quot;LOGO&quot; class=&quot;h-12 w-auto object-contain&quot;&gt;
+      &lt;div&gt;
+        &lt;h1 class=&quot;text-2xl font-bold text-gray-700&quot;&gt;成品信息查询&lt;/h1&gt;
+        &lt;p class=&quot;text-sm text-gray-500&quot;&gt;选择渠道后即可点击查询&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;flex flex-col md:flex-row items-center gap-2 ml-auto&quot;&gt;
+      &lt;span class=&quot;px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700&quot;&gt;🔍 数据：2025年7月1日&lt;/span&gt;
+      &lt;span class=&quot;px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600&quot;&gt;⚠️ 保密声明：内部数据，严禁外传&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- 查询条件 --&gt;
+  &lt;div class=&quot;max-w-6xl mx-auto bg-white shadow-lg rounded-xl p-6 fade-in mb-6&quot;&gt;
+    &lt;div class=&quot;flex flex-wrap items-center gap-4 mb-6&quot;&gt;
+      &lt;select id=&quot;channelSelect&quot; class=&quot;border rounded-lg p-2 min-w-[180px] focus:ring focus:ring-blue-200&quot;&gt;
+        &lt;option value=&quot;&quot;&gt;所有渠道&lt;/option&gt;
+      &lt;/select&gt;
+      &lt;input id=&quot;projectInput&quot; type=&quot;text&quot; placeholder=&quot;输入项目号（需精准）&quot; class=&quot;border rounded-lg p-2 flex-1 min-w-[180px] focus:ring focus:ring-blue-200&quot; /&gt;
+      &lt;input id=&quot;nameInput&quot; type=&quot;text&quot; placeholder=&quot;输入品名（可模糊搜索）&quot; class=&quot;border rounded-lg p-2 flex-1 min-w-[180px] focus:ring focus:ring-blue-200&quot; /&gt;
+      &lt;button id=&quot;searchBtn&quot; class=&quot;bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition&quot;&gt;查询&lt;/button&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 查询结果表格 --&gt;
+    &lt;div class=&quot;overflow-x-auto&quot;&gt;
+      &lt;table id=&quot;resultTable&quot; class=&quot;hidden fade-in&quot;&gt;
+        &lt;thead&gt;
+          &lt;tr&gt;
+            &lt;th&gt;项目号&lt;/th&gt;
+            &lt;th&gt;品名&lt;/th&gt;
+            &lt;th&gt;规格&lt;/th&gt;
+            &lt;th&gt;单位&lt;/th&gt;
+            &lt;th&gt;零售价（元）&lt;/th&gt;
+            &lt;th&gt;品牌&lt;/th&gt;
+            &lt;th&gt;渠道&lt;/th&gt;
+          &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody id=&quot;tableBody&quot;&gt;&lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
+
+    &lt;p id=&quot;noResult&quot; class=&quot;text-center text-gray-500 mt-4 hidden&quot;&gt;未找到符合条件的记录。&lt;/p&gt;
+  &lt;/div&gt;
+
+  &lt;!-- 页面底部版权信息 --&gt;
+  &lt;div class=&quot;max-w-6xl mx-auto text-center text-gray-400 text-sm mb-6&quot;&gt;
+    © 2025 德令哈采购管理部提供技术和数据支持
+  &lt;/div&gt;
+
+  &lt;script&gt;
+    let allData = [];
+
+    fetch(&#x27;data.json&#x27;)
+      .then(res =&gt; res.json())
+      .then(data =&gt; {
+        allData = data;
+        populateChannels(data);
+      });
+
+    function populateChannels(data) {
+      const select = document.getElementById(&#x27;channelSelect&#x27;);
+      const channels = [...new Set(data.map(item =&gt; item.可供应渠道).filter(Boolean))];
+      // 清空原有选项，保留“所有渠道”
+      select.innerHTML = &#x27;&lt;option value=&quot;&quot;&gt;所有渠道&lt;/option&gt;&#x27;;
+      channels.forEach(ch =&gt; {
+        const option = document.createElement(&#x27;option&#x27;);
+        option.value = ch;
+        option.textContent = ch;
+        select.appendChild(option);
+      });
+    }
+
+    document.getElementById(&#x27;searchBtn&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; {
+      const project = document.getElementById(&#x27;projectInput&#x27;).value.trim();
+      const name = document.getElementById(&#x27;nameInput&#x27;).value.trim();
+      const channel = document.getElementById(&#x27;channelSelect&#x27;).value;
+
+      let filtered = allData.filter(item =&gt; {
+        const matchProject = project ? item.项目号 === project : true;
+        const matchName = name ? item.品名.includes(name) : true;
+        const matchChannel = channel ? item.可供应渠道 === channel : true;
+        return matchProject &amp;&amp; matchName &amp;&amp; matchChannel;
+      });
+
+      if (!project &amp;&amp; !name &amp;&amp; channel) {
+        filtered = allData.filter(item =&gt; item.可供应渠道 === channel);
+      }
+
+      renderTable(filtered);
+    });
+
+    function renderTable(data) {
+      const table = document.getElementById(&#x27;resultTable&#x27;);
+      const tbody = document.getElementById(&#x27;tableBody&#x27;);
+      const noResult = document.getElementById(&#x27;noResult&#x27;);
+      tbody.innerHTML = &#x27;&#x27;;
+
+      if (data.length === 0) {
+        table.classList.add(&#x27;hidden&#x27;);
+        noResult.classList.remove(&#x27;hidden&#x27;);
+        return;
+      }
+
+      noResult.classList.add(&#x27;hidden&#x27;);
+      table.classList.remove(&#x27;hidden&#x27;);
+
+      data.forEach(item =&gt; {
+        const tr = document.createElement(&#x27;tr&#x27;);
+        tr.innerHTML = `
+          &lt;td&gt;${item.项目号 || &#x27;&#x27;}&lt;/td&gt;
+          &lt;td&gt;${item.品名 || &#x27;&#x27;}&lt;/td&gt;
+          &lt;td&gt;${item.规格 || &#x27;&#x27;}&lt;/td&gt;
+          &lt;td&gt;${item.单位 || &#x27;&#x27;}&lt;/td&gt;
+          &lt;td&gt;${item.零售价 ?? item[&#x27;零售价（元）&#x27;] ?? &#x27;&#x27;}&lt;/td&gt;
+          &lt;td&gt;${item.品牌 || &#x27;&#x27;}&lt;/td&gt;
+          &lt;td&gt;${item.可供应渠道 || &#x27;&#x27;}&lt;/td&gt;
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<p>✅ 功能说明：  </p>
+<ul class="md-ul"><li>“所有渠道”选项固定在下拉最上方，默认显示全部。  </li><li>提示信息“选择渠道后即可点击查询”在标题下方。  </li><li>右侧的数据和保密声明在大屏上靠右对齐。  </li><li>页面底部增加版权信息。  </li></ul>
+<p>如果你愿意，我可以帮你把<strong>右侧数据和保密声明在小屏幕上也自动换行对齐</strong>，让移动端看起来更美观。  </p>
+<p>你希望我加这个响应式优化吗？</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>优化查询页面代码 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：优化查询页面代码（2025-10-31）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1", "s2", "s3"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

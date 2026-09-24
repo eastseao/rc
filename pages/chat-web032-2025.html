@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Excel转JSON工具页面 · 2025</title>
+<meta name="description" content="明白，你想要一个可以把 Excel 文件上传并转换成 JSON 的网页工具。我可以帮你生成一个完整的 HTML 页面，使用 JavaScript + SheetJS (xlsx.js) 来实现这个功能。下面是示例代码：  html&lt;!DOC">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a><a href="#s2" data-sec="s2">Q2</a><a href="#s3" data-sec="s3">Q3</a><a href="#s4" data-sec="s4">Q4</a><a href="#s5" data-sec="s5">Q5</a><a href="#s6" data-sec="s6">Q6</a><a href="#s7" data-sec="s7">Q7</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · 建站
+  <h1 class="s-h1">Excel转JSON工具页面</h1>
+  <p class="s-lede">明白，你想要一个可以把 Excel 文件上传并转换成 JSON 的网页工具。我可以帮你生成一个完整的 HTML 页面，使用 JavaScript + SheetJS (xlsx.js) 来实现这个功能。下面是示例代码：  html&lt;!DOC</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>14</b></span>
+    <span>时间范围 <b>2025-10-28 ~ 2025-10-28</b></span>
+    <span>分类 <b>建站与技术</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">建站</span>
+    <span class="s-chip">2025</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>给我生成一个excel表格转换成json的工具的页面</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>给我生成一个excel表格转换成json的工具的页面</p></div>
+      <div class="qa-a"><p>明白，你想要一个可以把 Excel 文件上传并转换成 JSON 的网页工具。我可以帮你生成一个完整的 <strong>HTML 页面</strong>，使用 <strong>JavaScript + SheetJS (xlsx.js)</strong> 来实现这个功能。下面是示例代码：  </p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Excel 转 JSON 工具&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js&quot;&gt;&lt;/script&gt;
+  &lt;style&gt;
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f7f7f7;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input[type=&quot;file&quot;] {
+      display: block;
+      margin: 20px 0;
+    }
+    textarea {
+      width: 100%;
+      height: 300px;
+      margin-top: 20px;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+  &lt;div class=&quot;container&quot;&gt;
+    &lt;h1&gt;Excel 转 JSON 工具&lt;/h1&gt;
+    &lt;input type=&quot;file&quot; id=&quot;fileInput&quot; accept=&quot;.xlsx,.xls&quot;&gt;
+    &lt;button onclick=&quot;convertExcel()&quot;&gt;转换成 JSON&lt;/button&gt;
+    &lt;textarea id=&quot;jsonOutput&quot; placeholder=&quot;转换结果将在这里显示...&quot; readonly&gt;&lt;/textarea&gt;
+  &lt;/div&gt;
+
+  &lt;script&gt;
+    function convertExcel() {
+      const fileInput = document.getElementById(&#x27;fileInput&#x27;);
+      const output = document.getElementById(&#x27;jsonOutput&#x27;);
+
+      if (!fileInput.files.length) {
+        alert(&#x27;请先选择一个 Excel 文件&#x27;);
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: &#x27;array&#x27; });
+        const result = {};
+
+        workbook.SheetNames.forEach(sheetName =&gt; {
+          const roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { defval: null });
+          if (roa.length) result[sheetName] = roa;
+        });
+
+        output.value = JSON.stringify(result, null, 2);
+      };
+
+      reader.readAsArrayBuffer(file);
+    }
+  &lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<h4 class="sub-h">功能说明：</h4>
+<ol class="md-ol"><li>支持上传 <strong><code>.xlsx</code> / <code>.xls</code> 文件</strong>。</li><li>使用 <strong>SheetJS</strong> 解析 Excel。</li><li>每个 sheet 都会转换成 JSON 对象，sheet 名称作为 key。</li><li>转换结果显示在页面的 <code>textarea</code> 中，可直接复制。</li><li>纯前端实现，无需服务器。</li></ol>
+<p>---</p>
+<p>我可以帮你进一步升级成 <strong>可以直接下载 JSON 文件</strong> 的版本，让转换完就能生成下载链接。  </p>
+<p>你希望我加这个功能吗？</p></div>
+    </section>
+    <section id="s2" class="st2">
+      <div class="sec-h"><span class="idx st2">Q2</span><h2>好的</h2><span class="hint">第 2 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>好的</p></div>
+      <div class="qa-a"><p>明白，我帮你把页面升级，让转换后的 JSON 可以直接下载为文件。下面是完整代码：  </p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Excel 转 JSON 工具&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js&quot;&gt;&lt;/script&gt;
+  &lt;style&gt;
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f7f7f7;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input[type=&quot;file&quot;] {
+      display: block;
+      margin: 20px 0;
+    }
+    textarea {
+      width: 100%;
+      height: 300px;
+      margin-top: 20px;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 16px;
+      margin-right: 10px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #downloadBtn {
+      background-color: #2196F3;
+    }
+    #downloadBtn:hover {
+      background-color: #0b7dda;
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+  &lt;div class=&quot;container&quot;&gt;
+    &lt;h1&gt;Excel 转 JSON 工具&lt;/h1&gt;
+    &lt;input type=&quot;file&quot; id=&quot;fileInput&quot; accept=&quot;.xlsx,.xls&quot;&gt;
+    &lt;button onclick=&quot;convertExcel()&quot;&gt;转换成 JSON&lt;/button&gt;
+    &lt;button id=&quot;downloadBtn&quot; onclick=&quot;downloadJSON()&quot; disabled&gt;下载 JSON&lt;/button&gt;
+    &lt;textarea id=&quot;jsonOutput&quot; placeholder=&quot;转换结果将在这里显示...&quot; readonly&gt;&lt;/textarea&gt;
+  &lt;/div&gt;
+
+  &lt;script&gt;
+    let currentJSON = null;
+
+    function convertExcel() {
+      const fileInput = document.getElementById(&#x27;fileInput&#x27;);
+      const output = document.getElementById(&#x27;jsonOutput&#x27;);
+      const downloadBtn = document.getElementById(&#x27;downloadBtn&#x27;);
+
+      if (!fileInput.files.length) {
+        alert(&#x27;请先选择一个 Excel 文件&#x27;);
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: &#x27;array&#x27; });
+        const result = {};
+
+        workbook.SheetNames.forEach(sheetName =&gt; {
+          const roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { defval: null });
+          if (roa.length) result[sheetName] = roa;
+        });
+
+        currentJSON = JSON.stringify(result, null, 2);
+        output.value = currentJSON;
+        downloadBtn.disabled = false;
+      };
+
+      reader.readAsArrayBuffer(file);
+    }
+
+    function downloadJSON() {
+      if (!currentJSON) return;
+      const blob = new Blob([currentJSON], { type: &#x27;application/json&#x27; });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement(&#x27;a&#x27;);
+      a.href = url;
+      a.download = &#x27;data.json&#x27;;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  &lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<h4 class="sub-h">新增功能：</h4>
+<ol class="md-ol"><li>转换完成后 <strong>启用“下载 JSON”按钮</strong>。</li><li>点击按钮即可将转换结果直接下载为 <code>data.json</code> 文件。</li><li>页面仍然支持直接在 <code>textarea</code> 查看 JSON。</li></ol>
+<p>---</p>
+<p>如果你愿意，我可以帮你再加一个 <strong>支持 Excel 多选，一次性转换多个文件并生成合并 JSON</strong> 的功能，这样方便处理大量台账。  </p>
+<p>你希望我加吗？</p></div>
+    </section>
+    <section id="s3" class="st3">
+      <div class="sec-h"><span class="idx st3">Q3</span><h2>页面风格沿用台账风格，支持 Excel 多选，上传文件后可选择数据的选项，一次性…</h2><span class="hint">第 3 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>页面风格沿用台账风格， 支持 Excel 多选，上传文件后可选择数据的选项，一次性转换多个</p></div>
+      <div class="qa-a"><p>明白，你希望这个 <strong>Excel→JSON 页面</strong>：  </p>
+<ol class="md-ol"><li>风格沿用你现有 <strong>台账工具风格</strong>（简洁、淡色卡片、表格感）。  </li><li>支持 <strong>多文件上传</strong>。  </li><li>上传文件后可以选择 <strong>只转换某些 sheet 或指定列</strong>。  </li><li>最终一次性生成一个合并的 JSON，方便台账管理。  </li></ol>
+<p>下面是一个可直接使用的完整示例页面：  </p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;UTF-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+&lt;title&gt;Excel 台账批量转 JSON&lt;/title&gt;
+&lt;script src=&quot;https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js&quot;&gt;&lt;/script&gt;
+&lt;style&gt;
+  body { font-family: Arial, sans-serif; background:#f0f2f5; margin:0; padding:0;}
+  .container { max-width: 800px; margin: 40px auto; background:#fff; padding:30px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+  h1 { text-align:center; color:#333;}
+  input[type=&quot;file&quot;] { display:block; margin:20px 0; }
+  .sheet-select { margin:10px 0; padding:10px; border:1px solid #ccc; border-radius:5px; background:#fafafa;}
+  .sheet-select label { margin-right:10px; }
+  button { background-color:#4CAF50; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer; font-size:16px; margin-right:10px;}
+  button:hover { background-color:#45a049; }
+  #downloadBtn { background-color:#2196F3;}
+  #downloadBtn:hover { background-color:#0b7dda; }
+  textarea { width:100%; height:300px; margin-top:20px; padding:10px; font-family: monospace; font-size:14px; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;div class=&quot;container&quot;&gt;
+  &lt;h1&gt;Excel 台账批量转 JSON&lt;/h1&gt;
+  &lt;input type=&quot;file&quot; id=&quot;fileInput&quot; accept=&quot;.xlsx,.xls&quot; multiple&gt;
+  &lt;div id=&quot;sheetContainer&quot;&gt;&lt;/div&gt;
+  &lt;button onclick=&quot;convertExcel()&quot;&gt;生成 JSON&lt;/button&gt;
+  &lt;button id=&quot;downloadBtn&quot; onclick=&quot;downloadJSON()&quot; disabled&gt;下载 JSON&lt;/button&gt;
+  &lt;textarea id=&quot;jsonOutput&quot; placeholder=&quot;转换结果将在这里显示...&quot; readonly&gt;&lt;/textarea&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+let uploadedFiles = [];
+let selectedSheets = {};
+let currentJSON = null;
+
+// 当文件选择变化时，读取每个文件的 sheet 信息
+document.getElementById(&#x27;fileInput&#x27;).addEventListener(&#x27;change&#x27;, function(e){
+  uploadedFiles = Array.from(e.target.files);
+  const container = document.getElementById(&#x27;sheetContainer&#x27;);
+  container.innerHTML = &#x27;&#x27;;
+  selectedSheets = {};
+
+  uploadedFiles.forEach((file, idx) =&gt; {
+    const reader = new FileReader();
+    reader.onload = function(e){
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, {type:&#x27;array&#x27;});
+      selectedSheets[file.name] = workbook.SheetNames.slice(); // 默认全选
+
+      const div = document.createElement(&#x27;div&#x27;);
+      div.className = &#x27;sheet-select&#x27;;
+      div.innerHTML = `&lt;strong&gt;${file.name}&lt;/strong&gt;&lt;br&gt;`;
+      workbook.SheetNames.forEach(sheet =&gt; {
+        const id = `file${idx}_sheet_${sheet}`;
+        div.innerHTML += `&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked data-file=&quot;${file.name}&quot; value=&quot;${sheet}&quot; id=&quot;${id}&quot;&gt; ${sheet}&lt;/label&gt;`;
+      });
+      container.appendChild(div);
+    };
+    reader.readAsArrayBuffer(file);
+  });
+});
+
+// 监听 sheet 选择变化
+document.addEventListener(&#x27;change&#x27;, function(e){
+  if(e.target.matches(&#x27;.sheet-select input[type=&quot;checkbox&quot;]&#x27;)){
+    const file = e.target.dataset.file;
+    const sheet = e.target.value;
+    if(!selectedSheets[file]) selectedSheets[file] = [];
+    if(e.target.checked){
+      if(!selectedSheets[file].includes(sheet)) selectedSheets[file].push(sheet);
+    } else {
+      selectedSheets[file] = selectedSheets[file].filter(s =&gt; s!==sheet);
+    }
+  }
+});
+
+function convertExcel(){
+  if(uploadedFiles.length===0){
+    alert(&#x27;请先选择 Excel 文件&#x27;);
+    return;
+  }
+
+  const promises = uploadedFiles.map(file =&gt; {
+    return new Promise(resolve =&gt; {
+      const reader = new FileReader();
+      reader.onload = function(e){
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, {type:&#x27;array&#x27;});
+        const result = {};
+        (selectedSheets[file.name] || []).forEach(sheetName =&gt; {
+          const roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {defval:null});
+          if(roa.length) result[sheetName] = roa;
+        });
+        resolve({fileName:file.name, data:result});
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  });
+
+  Promise.all(promises).then(allData =&gt; {
+    const merged = {};
+    allData.forEach(fileData =&gt; {
+      Object.keys(fileData.data).forEach(sheet =&gt; {
+        merged[`${fileData.fileName} - ${sheet}`] = fileData.data[sheet];
+      });
+    });
+    currentJSON = JSON.stringify(merged, null, 2);
+    document.getElementById(&#x27;jsonOutput&#x27;).value = currentJSON;
+    document.getElementById(&#x27;downloadBtn&#x27;).disabled = false;
+  });
+}
+
+function downloadJSON(){
+  if(!currentJSON) return;
+  const blob = new Blob([currentJSON], {type:&#x27;application/json&#x27;});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement(&#x27;a&#x27;);
+  a.href = url;
+  a.download = &#x27;merged_data.json&#x27;;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">功能说明：</h4>
+<ol class="md-ol"><li><strong>多文件上传</strong>：支持一次选择多个 Excel 文件。  </li><li><strong>sheet 选择</strong>：每个文件的 sheet 都显示为复选框，默认全选。可手动勾选需要转换的 sheet。  </li><li><strong>一次性转换</strong>：点击“生成 JSON”按钮后，会将所有选中的 sheet 数据合并成一个 JSON 对象，键名为 <code>文件名 - sheet名</code>。  </li><li><strong>下载 JSON</strong>：可直接下载合并的 JSON 文件，方便保存台账。  </li><li><strong>页面风格</strong>：沿用台账工具风格，简洁、卡片式。</li></ol>
+<p>---</p>
+<p>我可以帮你再加一个 <strong>列筛选功能</strong>，比如只转换指定列或关键字段，这样台账数据可以更精简。  </p>
+<p>你希望我加吗？</p></div>
+    </section>
+    <section id="s4" class="st4">
+      <div class="sec-h"><span class="idx st4">Q4</span><h2>可以，我在库的根目录里建的文件夹叫做X2josn，index.html将放在这个…</h2><span class="hint">第 4 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>可以，我在库的根目录里建的文件夹叫做X2josn，index.html将放在这个文件里</p></div>
+      <div class="qa-a"><p>明白了，我们可以在你现有的 <strong>X2json 文件夹</strong> 中放置 <code>index.html</code>，并在这个页面里增加 <strong>列筛选功能</strong>，让你可以选择只转换指定列的台账数据。下面我给你完整代码示例：  </p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;UTF-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+&lt;title&gt;Excel 台账批量转 JSON&lt;/title&gt;
+&lt;script src=&quot;https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js&quot;&gt;&lt;/script&gt;
+&lt;style&gt;
+  body { font-family: Arial, sans-serif; background:#f0f2f5; margin:0; padding:0;}
+  .container { max-width: 800px; margin: 40px auto; background:#fff; padding:30px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+  h1 { text-align:center; color:#333;}
+  input[type=&quot;file&quot;] { display:block; margin:20px 0; }
+  .sheet-select { margin:10px 0; padding:10px; border:1px solid #ccc; border-radius:5px; background:#fafafa;}
+  .sheet-select label { margin-right:10px; }
+  .column-select { margin:10px 0; padding:10px; border:1px dashed #aaa; border-radius:5px; background:#fcfcfc;}
+  .column-select label { margin-right:10px; }
+  button { background-color:#4CAF50; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer; font-size:16px; margin-right:10px;}
+  button:hover { background-color:#45a049; }
+  #downloadBtn { background-color:#2196F3;}
+  #downloadBtn:hover { background-color:#0b7dda; }
+  textarea { width:100%; height:300px; margin-top:20px; padding:10px; font-family: monospace; font-size:14px; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;div class=&quot;container&quot;&gt;
+  &lt;h1&gt;Excel 台账批量转 JSON&lt;/h1&gt;
+  &lt;input type=&quot;file&quot; id=&quot;fileInput&quot; accept=&quot;.xlsx,.xls&quot; multiple&gt;
+  &lt;div id=&quot;sheetContainer&quot;&gt;&lt;/div&gt;
+  &lt;div id=&quot;columnContainer&quot;&gt;&lt;/div&gt;
+  &lt;button onclick=&quot;convertExcel()&quot;&gt;生成 JSON&lt;/button&gt;
+  &lt;button id=&quot;downloadBtn&quot; onclick=&quot;downloadJSON()&quot; disabled&gt;下载 JSON&lt;/button&gt;
+  &lt;textarea id=&quot;jsonOutput&quot; placeholder=&quot;转换结果将在这里显示...&quot; readonly&gt;&lt;/textarea&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+let uploadedFiles = [];
+let selectedSheets = {};
+let selectedColumns = {}; // 保存每个 sheet 的列选择
+let currentJSON = null;
+
+// 读取文件和 sheet
+document.getElementById(&#x27;fileInput&#x27;).addEventListener(&#x27;change&#x27;, function(e){
+  uploadedFiles = Array.from(e.target.files);
+  const sheetContainer = document.getElementById(&#x27;sheetContainer&#x27;);
+  const columnContainer = document.getElementById(&#x27;columnContainer&#x27;);
+  sheetContainer.innerHTML = &#x27;&#x27;;
+  columnContainer.innerHTML = &#x27;&#x27;;
+  selectedSheets = {};
+  selectedColumns = {};
+
+  uploadedFiles.forEach((file, idx) =&gt; {
+    const reader = new FileReader();
+    reader.onload = function(e){
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, {type:&#x27;array&#x27;});
+      selectedSheets[file.name] = workbook.SheetNames.slice(); // 默认全选
+
+      // sheet 选择
+      const div = document.createElement(&#x27;div&#x27;);
+      div.className = &#x27;sheet-select&#x27;;
+      div.innerHTML = `&lt;strong&gt;${file.name}&lt;/strong&gt;&lt;br&gt;`;
+      workbook.SheetNames.forEach(sheet =&gt; {
+        const id = `file${idx}_sheet_${sheet}`;
+        div.innerHTML += `&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked data-file=&quot;${file.name}&quot; value=&quot;${sheet}&quot; id=&quot;${id}&quot;&gt; ${sheet}&lt;/label&gt;`;
+      });
+      sheetContainer.appendChild(div);
+
+      // 初始化列选择为全列（后续生成）
+      workbook.SheetNames.forEach(sheetName =&gt; {
+        const firstRow = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1, defval:null})[0] || [];
+        selectedColumns[`${file.name} - ${sheetName}`] = firstRow.slice(); // 默认全列
+        const colDiv = document.createElement(&#x27;div&#x27;);
+        colDiv.className = &#x27;column-select&#x27;;
+        colDiv.id = `columns_${file.name}_${sheetName}`;
+        colDiv.innerHTML = `&lt;strong&gt;${file.name} - ${sheetName} 列选择&lt;/strong&gt;&lt;br&gt;`;
+        firstRow.forEach(col =&gt; {
+          const colId = `col_${file.name}_${sheetName}_${col}`;
+          colDiv.innerHTML += `&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked data-key=&quot;${file.name} - ${sheetName}&quot; value=&quot;${col}&quot; id=&quot;${colId}&quot;&gt; ${col}&lt;/label&gt;`;
+        });
+        columnContainer.appendChild(colDiv);
+      });
+    };
+    reader.readAsArrayBuffer(file);
+  });
+});
+
+// 监听 sheet 选择变化
+document.addEventListener(&#x27;change&#x27;, function(e){
+  if(e.target.matches(&#x27;.sheet-select input[type=&quot;checkbox&quot;]&#x27;)){
+    const file = e.target.dataset.file;
+    const sheet = e.target.value;
+    if(!selectedSheets[file]) selectedSheets[file] = [];
+    if(e.target.checked){
+      if(!selectedSheets[file].includes(sheet)) selectedSheets[file].push(sheet);
+    } else {
+      selectedSheets[file] = selectedSheets[file].filter(s =&gt; s!==sheet);
+    }
+  }
+  // 列选择变化
+  if(e.target.matches(&#x27;.column-select input[type=&quot;checkbox&quot;]&#x27;)){
+    const key = e.target.dataset.key;
+    const col = e.target.value;
+    if(!selectedColumns[key]) selectedColumns[key] = [];
+    if(e.target.checked){
+      if(!selectedColumns[key].includes(col)) selectedColumns[key].push(col);
+    } else {
+      selectedColumns[key] = selectedColumns[key].filter(c =&gt; c!==col);
+    }
+  }
+});
+
+function convertExcel(){
+  if(uploadedFiles.length===0){
+    alert(&#x27;请先选择 Excel 文件&#x27;);
+    return;
+  }
+
+  const promises = uploadedFiles.map(file =&gt; {
+    return new Promise(resolve =&gt; {
+      const reader = new FileReader();
+      reader.onload = function(e){
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, {type:&#x27;array&#x27;});
+        const result = {};
+        (selectedSheets[file.name] || []).forEach(sheetName =&gt; {
+          let roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {defval:null});
+          const key = `${file.name} - ${sheetName}`;
+          const cols = selectedColumns[key] || [];
+          // 只保留选中列
+          if(cols.length&gt;0){
+            roa = roa.map(row =&gt; {
+              const newRow = {};
+              cols.forEach(col =&gt; {
+                newRow[col] = row[col] ?? null;
+              });
+              return newRow;
+            });
+          }
+          if(roa.length) result[sheetName] = roa;
+        });
+        resolve({fileName:file.name, data:result});
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  });
+
+  Promise.all(promises).then(allData =&gt; {
+    const merged = {};
+    allData.forEach(fileData =&gt; {
+      Object.keys(fileData.data).forEach(sheet =&gt; {
+        merged[`${fileData.fileName} - ${sheet}`] = fileData.data[sheet];
+      });
+    });
+    currentJSON = JSON.stringify(merged, null, 2);
+    document.getElementById(&#x27;jsonOutput&#x27;).value = currentJSON;
+    document.getElementById(&#x27;downloadBtn&#x27;).disabled = false;
+  });
+}
+
+function downloadJSON(){
+  if(!currentJSON) return;
+  const blob = new Blob([currentJSON], {type:&#x27;application/json&#x27;});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement(&#x27;a&#x27;);
+  a.href = url;
+  a.download = &#x27;merged_data.json&#x27;;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">功能说明：</h4>
+<ol class="md-ol"><li><strong>多文件上传</strong>：支持一次选择多个 Excel 文件。  </li><li><strong>sheet 选择</strong>：可勾选想要转换的 sheet。  </li><li><strong>列选择</strong>：每个 sheet 可以单独勾选需要的列，只转换选中的列，方便精简台账数据。  </li><li><strong>一次性生成 JSON</strong>：生成的 JSON 键名为 <code>文件名 - sheet名</code>。  </li><li><strong>下载 JSON</strong>：可直接下载合并后的 JSON 文件。  </li><li><strong>页面风格</strong>：沿用你台账工具风格，简洁卡片式。</li></ol>
+<p>---</p>
+<p>我可以帮你再加一个 <strong>实时筛选和搜索功能</strong>，让你在生成 JSON 前可以直接在页面预览和筛选台账数据，更方便。  </p>
+<p>你希望我加吗？</p></div>
+    </section>
+    <section id="s5" class="st5">
+      <div class="sec-h"><span class="idx st5">Q5</span><h2>&lt;!DOCTYPE html&gt;&lt;html lang=&quot;zh-CN&quot;&gt;&lt;head&gt;…</h2><span class="hint">第 5 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>&lt;!DOCTYPE html&gt; &lt;html lang="zh-CN"&gt; &lt;head&gt;   &lt;meta charset="UTF-8"&gt;   &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;   &lt;title&gt;内部小工具&lt;/title&gt;   &lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;   &lt;style&gt;     @keyframes fadeIn {       from { opacity: 0; transform: translateY(10px); }       to { opacity: 1; transform: translateY(0); }     }     .fade-in { animation: fadeIn 0.4s ease-in; }   &lt;/style&gt; &lt;/head&gt; &lt;body class="bg-gray-100 font-sans text-gray-800"&gt;</p>
+<p>  &lt;!-- 顶部红色渐变 + LOGO --&gt;   &lt;header class="bg-gradient-to-r from-red-600 to-red-400 text-white py-6 shadow flex flex-col items-center justify-center"&gt;     &lt;img src="assets/img/trtlogo.png" alt="LOGO" class="h-16 w-auto mb-2 object-contain"&gt;     &lt;h1 class="text-3xl font-bold tracking-wide"&gt;首页&lt;/h1&gt;     &lt;p class="text-sm mt-1"&gt;内部查询系统导航页&lt;/p&gt;   &lt;/header&gt;</p>
+<p>  &lt;main class="max-w-5xl mx-auto mt-10 px-4"&gt;     &lt;div class="bg-white rounded-xl shadow-lg p-6 fade-in"&gt;       &lt;h2 class="text-xl font-semibold mb-4"&gt;功能导航&lt;/h2&gt;       &lt;div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"&gt;         &lt;!-- 已有功能 --&gt;         &lt;a href="tz/index.html" class="block bg-blue-600 text-white p-4 rounded-lg text-center font-medium hover:bg-blue-700 transition"&gt;物料单价查询&lt;/a&gt;         &lt;a href="bom/index.html" class="block bg-green-600 text-white p-4 rounded-lg text-center font-medium hover:bg-green-700 transition"&gt;产品BOM 查询&lt;/a&gt;         &lt;!-- 功能 3 指向每日待办，新标签页打开 --&gt;         &lt;a href="todo/index.html" target="_blank" class="block bg-blue-600 text-white p-4 rounded-lg text-center font-medium hover:bg-blue-700 transition"&gt;每日待办&lt;/a&gt;         &lt;!-- 占位符功能 --&gt;         &lt;a href="feature4/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70"&gt;功能 4&lt;/a&gt;         &lt;a href="feature5/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70"&gt;功能 5&lt;/a&gt;         &lt;a href="feature6/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70"&gt;功能 6&lt;/a&gt;         &lt;a href="feature7/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70"&gt;功能 7&lt;/a&gt;         &lt;a href="feature8/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70"&gt;功能 8&lt;/a&gt;         &lt;a href="feature9/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70"&gt;功能 9&lt;/a&gt;         &lt;a href="feature10/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70"&gt;功能 10&lt;/a&gt;         &lt;a href="feature11/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70"&gt;功能 11&lt;/a&gt;         &lt;a href="feature12/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70"&gt;功能 12&lt;/a&gt;         &lt;a href="feature13/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70"&gt;功能 13&lt;/a&gt;         &lt;a href="feature14/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70"&gt;功能 14&lt;/a&gt;         &lt;a href="feature15/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70"&gt;功能 15&lt;/a&gt;       &lt;/div&gt;     &lt;/div&gt;   &lt;/main&gt;</p>
+<p>  &lt;footer class="text-center text-gray-500 text-sm mt-10 mb-4"&gt;     © 2025 TRTJKQH 内部系统   &lt;/footer&gt;</p>
+<p>&lt;/body&gt; &lt;/html&gt;  修改首页，加入excel转json页面，每个子网页都是点击后打开新页面</p></div>
+      <div class="qa-a"><p>明白，你希望在现有首页的功能导航中 <strong>加入 Excel → JSON 工具入口</strong>，并且点击时 <strong>在新标签页打开</strong>，风格与其他功能卡一致。假设你的 <code>index.html</code> 页面在 <code>X2json</code> 文件夹下。  </p>
+<p>可以在原有功能卡区域中添加一个入口：  </p>
+<div class="codeblock"><pre><code>&lt;!-- Excel 转 JSON --&gt;
+&lt;a href=&quot;X2json/index.html&quot; target=&quot;_blank&quot; class=&quot;block bg-purple-600 text-white p-4 rounded-lg text-center font-medium hover:bg-purple-700 transition&quot;&gt;
+  Excel 转 JSON
+&lt;/a&gt;</code></pre></div>
+<p>然后将它插入到你 <code>&lt;div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"&gt;</code> 的合适位置，比如在已有功能之后，未启用的灰色占位之前：  </p>
+<p>完整示例（插入部分）：</p>
+<div class="codeblock"><pre><code>&lt;div class=&quot;grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4&quot;&gt;
+  &lt;!-- 已有功能 --&gt;
+  &lt;a href=&quot;tz/index.html&quot; class=&quot;block bg-blue-600 text-white p-4 rounded-lg text-center font-medium hover:bg-blue-700 transition&quot;&gt;物料单价查询&lt;/a&gt;
+  &lt;a href=&quot;bom/index.html&quot; class=&quot;block bg-green-600 text-white p-4 rounded-lg text-center font-medium hover:bg-green-700 transition&quot;&gt;产品BOM 查询&lt;/a&gt;
+  &lt;a href=&quot;todo/index.html&quot; target=&quot;_blank&quot; class=&quot;block bg-blue-600 text-white p-4 rounded-lg text-center font-medium hover:bg-blue-700 transition&quot;&gt;每日待办&lt;/a&gt;
+
+  &lt;!-- 新增功能：Excel 转 JSON --&gt;
+  &lt;a href=&quot;X2json/index.html&quot; target=&quot;_blank&quot; class=&quot;block bg-purple-600 text-white p-4 rounded-lg text-center font-medium hover:bg-purple-700 transition&quot;&gt;
+    Excel 转 JSON
+  &lt;/a&gt;
+
+  &lt;!-- 占位符功能 --&gt;
+  &lt;a href=&quot;feature4/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 4&lt;/a&gt;
+  ...
+&lt;/div&gt;</code></pre></div>
+<p>这样修改后：  </p>
+<ol class="md-ol"><li>首页导航多了 <strong>Excel 转 JSON</strong> 功能卡。  </li><li>点击会 <strong>在新标签页打开 <code>X2json/index.html</code></strong>。  </li><li>样式与其他功能卡保持一致，只是颜色用紫色区分。  </li></ol>
+<p>---</p>
+<p>如果你希望，我可以帮你 <strong>直接生成完整修改后的首页 <code>index.html</code> 文件</strong>，把这个功能卡整合进去，保留原来的红色 header、格子风格和所有占位功能。  </p>
+<p>你希望我直接生成完整文件吗？</p></div>
+    </section>
+    <section id="s6" class="st1">
+      <div class="sec-h"><span class="idx st1">Q6</span><h2>好的</h2><span class="hint">第 6 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>好的</p></div>
+      <div class="qa-a"><p>明白，我帮你生成 <strong>完整修改后的首页 <code>index.html</code></strong>，将 <strong>Excel 转 JSON 功能</strong> 整合进去，并保留原有样式和所有占位功能，同时点击新功能在新标签页打开。  </p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;内部小工具&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;style&gt;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeIn 0.4s ease-in; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body class=&quot;bg-gray-100 font-sans text-gray-800&quot;&gt;
+
+  &lt;!-- 顶部红色渐变 + LOGO --&gt;
+  &lt;header class=&quot;bg-gradient-to-r from-red-600 to-red-400 text-white py-6 shadow flex flex-col items-center justify-center&quot;&gt;
+    &lt;img src=&quot;assets/img/trtlogo.png&quot; alt=&quot;LOGO&quot; class=&quot;h-16 w-auto mb-2 object-contain&quot;&gt;
+    &lt;h1 class=&quot;text-3xl font-bold tracking-wide&quot;&gt;首页&lt;/h1&gt;
+    &lt;p class=&quot;text-sm mt-1&quot;&gt;内部查询系统导航页&lt;/p&gt;
+  &lt;/header&gt;
+
+  &lt;main class=&quot;max-w-5xl mx-auto mt-10 px-4&quot;&gt;
+    &lt;div class=&quot;bg-white rounded-xl shadow-lg p-6 fade-in&quot;&gt;
+      &lt;h2 class=&quot;text-xl font-semibold mb-4&quot;&gt;功能导航&lt;/h2&gt;
+      &lt;div class=&quot;grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4&quot;&gt;
+        &lt;!-- 已有功能 --&gt;
+        &lt;a href=&quot;tz/index.html&quot; class=&quot;block bg-blue-600 text-white p-4 rounded-lg text-center font-medium hover:bg-blue-700 transition&quot;&gt;物料单价查询&lt;/a&gt;
+        &lt;a href=&quot;bom/index.html&quot; class=&quot;block bg-green-600 text-white p-4 rounded-lg text-center font-medium hover:bg-green-700 transition&quot;&gt;产品BOM 查询&lt;/a&gt;
+        &lt;a href=&quot;todo/index.html&quot; target=&quot;_blank&quot; class=&quot;block bg-blue-600 text-white p-4 rounded-lg text-center font-medium hover:bg-blue-700 transition&quot;&gt;每日待办&lt;/a&gt;
+
+        &lt;!-- 新增功能：Excel 转 JSON --&gt;
+        &lt;a href=&quot;X2json/index.html&quot; target=&quot;_blank&quot; class=&quot;block bg-purple-600 text-white p-4 rounded-lg text-center font-medium hover:bg-purple-700 transition&quot;&gt;
+          Excel 转 JSON
+        &lt;/a&gt;
+
+        &lt;!-- 占位符功能 --&gt;
+        &lt;a href=&quot;feature4/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 4&lt;/a&gt;
+        &lt;a href=&quot;feature5/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 5&lt;/a&gt;
+        &lt;a href=&quot;feature6/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 6&lt;/a&gt;
+        &lt;a href=&quot;feature7/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 7&lt;/a&gt;
+        &lt;a href=&quot;feature8/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 8&lt;/a&gt;
+        &lt;a href=&quot;feature9/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 9&lt;/a&gt;
+        &lt;a href=&quot;feature10/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 10&lt;/a&gt;
+        &lt;a href=&quot;feature11/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 11&lt;/a&gt;
+        &lt;a href=&quot;feature12/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 12&lt;/a&gt;
+        &lt;a href=&quot;feature13/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 13&lt;/a&gt;
+        &lt;a href=&quot;feature14/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 14&lt;/a&gt;
+        &lt;a href=&quot;feature15/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 15&lt;/a&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/main&gt;
+
+  &lt;footer class=&quot;text-center text-gray-500 text-sm mt-10 mb-4&quot;&gt;
+    © 2025 TRTJKQH 内部系统
+  &lt;/footer&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>✅ <strong>修改点说明</strong>：  </p>
+<ol class="md-ol"><li>在功能导航中添加了 <strong>Excel 转 JSON 功能卡</strong>，颜色为紫色，hover 时加深。  </li><li>点击后会在 <strong>新标签页打开</strong> <code>X2json/index.html</code>。  </li><li>保留原有红色 header、功能格子布局和占位功能样式，和原有风格一致。  </li></ol>
+<p>你只需把这个文件保存为首页的 <code>index.html</code>，并保证 <code>X2json/index.html</code> 已经存在即可。  </p>
+<p>如果需要，我可以帮你把 <strong>紫色卡片在网格中靠前显示</strong> 或 <strong>排序在每日待办之后</strong>，让首页功能更合理。  </p>
+<p>你希望我调整顺序吗？</p></div>
+    </section>
+    <section id="s7" class="st2">
+      <div class="sec-h"><span class="idx st2">Q7</span><h2>物料单价查询和产品bom查询页也要新标签页打开</h2><span class="hint">第 7 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>物料单价查询和产品bom查询页也要新标签页打开</p></div>
+      <div class="qa-a"><p>明白，你希望首页中：  </p>
+<ul class="md-ul"><li><strong>物料单价查询</strong>  </li><li><strong>产品BOM 查询</strong>  </li><li><strong>每日待办</strong>  </li><li><strong>Excel 转 JSON</strong>  </li></ul>
+<p>四个功能都在 <strong>新标签页打开</strong>，其他占位功能保持不变。  </p>
+<p>我帮你修改完整首页 <code>index.html</code>：  </p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;内部小工具&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;style&gt;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeIn 0.4s ease-in; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body class=&quot;bg-gray-100 font-sans text-gray-800&quot;&gt;
+
+  &lt;!-- 顶部红色渐变 + LOGO --&gt;
+  &lt;header class=&quot;bg-gradient-to-r from-red-600 to-red-400 text-white py-6 shadow flex flex-col items-center justify-center&quot;&gt;
+    &lt;img src=&quot;assets/img/trtlogo.png&quot; alt=&quot;LOGO&quot; class=&quot;h-16 w-auto mb-2 object-contain&quot;&gt;
+    &lt;h1 class=&quot;text-3xl font-bold tracking-wide&quot;&gt;首页&lt;/h1&gt;
+    &lt;p class=&quot;text-sm mt-1&quot;&gt;内部查询系统导航页&lt;/p&gt;
+  &lt;/header&gt;
+
+  &lt;main class=&quot;max-w-5xl mx-auto mt-10 px-4&quot;&gt;
+    &lt;div class=&quot;bg-white rounded-xl shadow-lg p-6 fade-in&quot;&gt;
+      &lt;h2 class=&quot;text-xl font-semibold mb-4&quot;&gt;功能导航&lt;/h2&gt;
+      &lt;div class=&quot;grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4&quot;&gt;
+        &lt;!-- 已有功能，新标签页打开 --&gt;
+        &lt;a href=&quot;tz/index.html&quot; target=&quot;_blank&quot; class=&quot;block bg-blue-600 text-white p-4 rounded-lg text-center font-medium hover:bg-blue-700 transition&quot;&gt;物料单价查询&lt;/a&gt;
+        &lt;a href=&quot;bom/index.html&quot; target=&quot;_blank&quot; class=&quot;block bg-green-600 text-white p-4 rounded-lg text-center font-medium hover:bg-green-700 transition&quot;&gt;产品BOM 查询&lt;/a&gt;
+        &lt;a href=&quot;todo/index.html&quot; target=&quot;_blank&quot; class=&quot;block bg-blue-600 text-white p-4 rounded-lg text-center font-medium hover:bg-blue-700 transition&quot;&gt;每日待办&lt;/a&gt;
+
+        &lt;!-- 新增功能：Excel 转 JSON --&gt;
+        &lt;a href=&quot;X2json/index.html&quot; target=&quot;_blank&quot; class=&quot;block bg-purple-600 text-white p-4 rounded-lg text-center font-medium hover:bg-purple-700 transition&quot;&gt;
+          Excel 转 JSON
+        &lt;/a&gt;
+
+        &lt;!-- 占位符功能 --&gt;
+        &lt;a href=&quot;feature4/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 4&lt;/a&gt;
+        &lt;a href=&quot;feature5/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 5&lt;/a&gt;
+        &lt;a href=&quot;feature6/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 6&lt;/a&gt;
+        &lt;a href=&quot;feature7/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 7&lt;/a&gt;
+        &lt;a href=&quot;feature8/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 8&lt;/a&gt;
+        &lt;a href=&quot;feature9/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 9&lt;/a&gt;
+        &lt;a href=&quot;feature10/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 10&lt;/a&gt;
+        &lt;a href=&quot;feature11/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 11&lt;/a&gt;
+        &lt;a href=&quot;feature12/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 12&lt;/a&gt;
+        &lt;a href=&quot;feature13/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 13&lt;/a&gt;
+        &lt;a href=&quot;feature14/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 14&lt;/a&gt;
+        &lt;a href=&quot;feature15/placeholder.html&quot; class=&quot;block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70&quot;&gt;功能 15&lt;/a&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/main&gt;
+
+  &lt;footer class=&quot;text-center text-gray-500 text-sm mt-10 mb-4&quot;&gt;
+    © 2025 TRTJKQH 内部系统
+  &lt;/footer&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>✅ <strong>修改点</strong>：  </p>
+<ol class="md-ol"><li><strong>物料单价查询</strong>、<strong>产品BOM 查询</strong>、<strong>每日待办</strong>、<strong>Excel 转 JSON</strong> 四个功能都加上了 <code>target="_blank"</code>，新标签页打开。  </li><li>占位功能保持灰色、不可点击状态不变。  </li><li>页面风格、网格布局与原样式一致。  </li></ol>
+<p>你可以直接替换现有首页 <code>index.html</code>。  </p>
+<p>如果你愿意，我可以帮你 <strong>把 Excel 转 JSON 功能卡放到每日待办前面，排序更合理</strong>，让首页功能从常用到占位更加清晰。  </p>
+<p>你希望我调整顺序吗？</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>Excel转JSON工具页面 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：Excel转JSON工具页面（2025-10-28）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1", "s2", "s3", "s4", "s5", "s6", "s7"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>本地数据可视化实现 · 2025</title>
+<meta name="description" content="非常好 👍 你已经有了一个完整的前端“数据中心”框架。  接下来我们要做的，就是让这个网页 真正读取你电脑里的 JSON 数据文件（比如 product_data.json、bom_data.json、purchase_data.json）">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a><a href="#s2" data-sec="s2">Q2</a><a href="#s3" data-sec="s3">Q3</a><a href="#s4" data-sec="s4">Q4</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · 建站
+  <h1 class="s-h1">本地数据可视化实现</h1>
+  <p class="s-lede">非常好 👍 你已经有了一个完整的前端“数据中心”框架。  接下来我们要做的，就是让这个网页 真正读取你电脑里的 JSON 数据文件（比如 product_data.json、bom_data.json、purchase_data.json）</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>8</b></span>
+    <span>时间范围 <b>2025-10-31 ~ 2025-10-31</b></span>
+    <span>分类 <b>建站与技术</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">建站</span>
+    <span class="s-chip">2025</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>我是一个包装采购，在我的电脑里有很多数据文件，比如产品的信息表，产品bom，采购…</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>我是一个包装采购，在我的电脑里有很多数据文件，比如产品的信息表，产品bom，采购台账等，我怎么通过网页前端把这些东西给串联起来，制作一个本地index来关联这些data.json: &lt;!DOCTYPE html&gt; &lt;html lang="zh-CN"&gt; &lt;head&gt;     &lt;meta charset="UTF-8"&gt;     &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;     &lt;title&gt;包装采购数据管理系统&lt;/title&gt;     &lt;link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"&gt;     &lt;link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"&gt;     &lt;style&gt;         :root {             --primary: #3498db;             --secondary: #2c3e50;             --success: #2ecc71;             --warning: #f39c12;             --danger: #e74c3c;             --light: #ecf0f1;             --dark: #34495e;         }</p>
+<p>        body {             background-color: #f8f9fa;             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;         }</p>
+<p>        .sidebar {             background-color: var(--secondary);             color: white;             min-height: 100vh;             padding: 0;             box-shadow: 3px 0 10px rgba(0,0,0,0.1);         }</p>
+<p>        .sidebar .nav-link {             color: #bdc3c7;             padding: 15px 20px;             border-left: 4px solid transparent;             transition: all 0.3s;         }</p>
+<p>        .sidebar .nav-link:hover, .sidebar .nav-link.active {             color: white;             background-color: rgba(255,255,255,0.1);             border-left: 4px solid var(--primary);         }</p>
+<p>        .sidebar .nav-link i {             margin-right: 10px;             width: 20px;             text-align: center;         }</p>
+<p>        .main-content {             padding: 20px;         }</p>
+<p>        .card {             border: none;             border-radius: 10px;             box-shadow: 0 4px 6px rgba(0,0,0,0.1);             margin-bottom: 20px;             transition: transform 0.3s;         }</p>
+<p>        .card:hover {             transform: translateY(-5px);         }</p>
+<p>        .card-header {             background-color: white;             border-bottom: 1px solid #eee;             font-weight: 600;             padding: 15px 20px;             border-radius: 10px 10px 0 0 !important;         }</p>
+<p>        .stat-card {             text-align: center;             padding: 20px;         }</p>
+<p>        .stat-card .value {             font-size: 2rem;             font-weight: 700;             margin: 10px 0;         }</p>
+<p>        .stat-card .label {             color: #7f8c8d;             font-size: 0.9rem;         }</p>
+<p>        .table th {             border-top: none;             font-weight: 600;             color: var(--secondary);         }</p>
+<p>        .badge-status {             padding: 5px 10px;             border-radius: 20px;             font-size: 0.8rem;         }</p>
+<p>        .search-box {             position: relative;         }</p>
+<p>        .search-box input {             padding-left: 40px;         }</p>
+<p>        .search-box i {             position: absolute;             left: 15px;             top: 12px;             color: #95a5a6;         }</p>
+<p>        .product-detail {             background: white;             border-radius: 10px;             padding: 20px;             box-shadow: 0 4px 6px rgba(0,0,0,0.1);             margin-bottom: 20px;         }</p>
+<p>        .data-import {             background: white;             border-radius: 10px;             padding: 20px;             box-shadow: 0 4px 6px rgba(0,0,0,0.1);             margin-bottom: 20px;         }</p>
+<p>        .progress {             height: 8px;             margin-top: 10px;         }</p>
+<p>        .btn-primary {             background-color: var(--primary);             border: none;         }</p>
+<p>        .btn-primary:hover {             background-color: #2980b9;         }</p>
+<p>        .navbar {             background-color: white;             box-shadow: 0 2px 10px rgba(0,0,0,0.1);         }</p>
+<p>        .page-title {             color: var(--secondary);             font-weight: 700;             margin-bottom: 20px;         }     &lt;/style&gt; &lt;/head&gt; &lt;body&gt;     &lt;div class="container-fluid"&gt;         &lt;div class="row"&gt;             &lt;!-- 侧边栏 --&gt;             &lt;div class="col-md-2 sidebar p-0"&gt;                 &lt;div class="p-3 text-center border-bottom"&gt;                     &lt;h4 class="mb-0"&gt;包装采购系统&lt;/h4&gt;                     &lt;small class="text-muted"&gt;数据整合平台&lt;/small&gt;                 &lt;/div&gt;                 &lt;ul class="nav flex-column mt-3"&gt;                     &lt;li class="nav-item"&gt;                         &lt;a class="nav-link active" href="#"&gt;                             &lt;i class="fas fa-tachometer-alt"&gt;&lt;/i&gt; 仪表盘                         &lt;/a&gt;                     &lt;/li&gt;                     &lt;li class="nav-item"&gt;                         &lt;a class="nav-link" href="#"&gt;                             &lt;i class="fas fa-box"&gt;&lt;/i&gt; 产品信息                         &lt;/a&gt;                     &lt;/li&gt;                     &lt;li class="nav-item"&gt;                         &lt;a class="nav-link" href="#"&gt;                             &lt;i class="fas fa-list-alt"&gt;&lt;/i&gt; 产品BOM                         &lt;/a&gt;                     &lt;/li&gt;                     &lt;li class="nav-item"&gt;                         &lt;a class="nav-link" href="#"&gt;                             &lt;i class="fas fa-file-invoice-dollar"&gt;&lt;/i&gt; 采购台账                         &lt;/a&gt;                     &lt;/li&gt;                     &lt;li class="nav-item"&gt;                         &lt;a class="nav-link" href="#"&gt;                             &lt;i class="fas fa-chart-bar"&gt;&lt;/i&gt; 数据分析                         &lt;/a&gt;                     &lt;/li&gt;                     &lt;li class="nav-item"&gt;                         &lt;a class="nav-link" href="#"&gt;                             &lt;i class="fas fa-cog"&gt;&lt;/i&gt; 系统设置                         &lt;/a&gt;                     &lt;/li&gt;                 &lt;/ul&gt;             &lt;/div&gt;</p>
+<p>            &lt;!-- 主内容区 --&gt;             &lt;div class="col-md-10 main-content"&gt;                 &lt;!-- 顶部导航 --&gt;                 &lt;nav class="navbar navbar-expand-lg navbar-light bg-white rounded mb-4"&gt;                     &lt;div class="container-fluid"&gt;                         &lt;div class="search-box w-50"&gt;                             &lt;i class="fas fa-search"&gt;&lt;/i&gt;                             &lt;input type="text" class="form-control" placeholder="搜索产品、供应商或采购单..."&gt;                         &lt;/div&gt;                         &lt;div class="d-flex"&gt;                             &lt;button class="btn btn-primary me-2"&gt;                                 &lt;i class="fas fa-upload me-1"&gt;&lt;/i&gt; 导入数据                             &lt;/button&gt;                             &lt;div class="dropdown"&gt;                                 &lt;button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown"&gt;                                     &lt;i class="fas fa-user-circle me-1"&gt;&lt;/i&gt; 采购员                                 &lt;/button&gt;                                 &lt;ul class="dropdown-menu"&gt;                                     &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;个人设置&lt;/a&gt;&lt;/li&gt;                                     &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;退出登录&lt;/a&gt;&lt;/li&gt;                                 &lt;/ul&gt;                             &lt;/div&gt;                         &lt;/div&gt;                     &lt;/div&gt;                 &lt;/nav&gt;</p>
+<p>                &lt;h2 class="page-title"&gt;数据仪表盘&lt;/h2&gt;</p>
+<p>                &lt;!-- 数据统计卡片 --&gt;                 &lt;div class="row"&gt;                     &lt;div class="col-md-3"&gt;                         &lt;div class="card stat-card"&gt;                             &lt;div class="card-body"&gt;                                 &lt;i class="fas fa-box text-primary fa-2x"&gt;&lt;/i&gt;                                 &lt;div class="value"&gt;156&lt;/div&gt;                                 &lt;div class="label"&gt;产品总数&lt;/div&gt;                             &lt;/div&gt;                         &lt;/div&gt;                     &lt;/div&gt;                     &lt;div class="col-md-3"&gt;                         &lt;div class="card stat-card"&gt;                             &lt;div class="card-body"&gt;                                 &lt;i class="fas fa-file-alt text-success fa-2x"&gt;&lt;/i&gt;                                 &lt;div class="value"&gt;42&lt;/div&gt;                                 &lt;div class="label"&gt;活跃BOM&lt;/div&gt;                             &lt;/div&gt;                         &lt;/div&gt;                     &lt;/div&gt;                     &lt;div class="col-md-3"&gt;                         &lt;div class="card stat-card"&gt;                             &lt;div class="card-body"&gt;                                 &lt;i class="fas fa-shopping-cart text-warning fa-2x"&gt;&lt;/i&gt;                                 &lt;div class="value"&gt;28&lt;/div&gt;                                 &lt;div class="label"&gt;待处理采购&lt;/div&gt;                             &lt;/div&gt;                         &lt;/div&gt;                     &lt;/div&gt;                     &lt;div class="col-md-3"&gt;                         &lt;div class="card stat-card"&gt;                             &lt;div class="card-body"&gt;                                 &lt;i class="fas fa-industry text-danger fa-2x"&gt;&lt;/i&gt;                                 &lt;div class="value"&gt;15&lt;/div&gt;                                 &lt;div class="label"&gt;合作供应商&lt;/div&gt;                             &lt;/div&gt;                         &lt;/div&gt;                     &lt;/div&gt;                 &lt;/div&gt;</p>
+<p>                &lt;!-- 数据导入区域 --&gt;                 &lt;div class="data-import"&gt;                     &lt;h5 class="mb-3"&gt;数据导入&lt;/h5&gt;                     &lt;div class="row"&gt;                         &lt;div class="col-md-4"&gt;                             &lt;div class="card"&gt;                                 &lt;div class="card-body text-center"&gt;                                     &lt;i class="fas fa-table text-primary fa-3x mb-3"&gt;&lt;/i&gt;                                     &lt;h5&gt;产品信息表&lt;/h5&gt;                                     &lt;p class="text-muted"&gt;导入产品基本信息&lt;/p&gt;                                     &lt;button class="btn btn-outline-primary"&gt;                                         &lt;i class="fas fa-upload me-1"&gt;&lt;/i&gt; 选择文件                                     &lt;/button&gt;                                 &lt;/div&gt;                             &lt;/div&gt;                         &lt;/div&gt;                         &lt;div class="col-md-4"&gt;                             &lt;div class="card"&gt;                                 &lt;div class="card-body text-center"&gt;                                     &lt;i class="fas fa-list-alt text-success fa-3x mb-3"&gt;&lt;/i&gt;                                     &lt;h5&gt;产品BOM&lt;/h5&gt;                                     &lt;p class="text-muted"&gt;导入物料清单&lt;/p&gt;                                     &lt;button class="btn btn-outline-success"&gt;                                         &lt;i class="fas fa-upload me-1"&gt;&lt;/i&gt; 选择文件                                     &lt;/button&gt;                                 &lt;/div&gt;                             &lt;/div&gt;                         &lt;/div&gt;                         &lt;div class="col-md-4"&gt;                             &lt;div class="card"&gt;                                 &lt;div class="card-body text-center"&gt;                                     &lt;i class="fas fa-file-invoice-dollar text-warning fa-3x mb-3"&gt;&lt;/i&gt;                                     &lt;h5&gt;采购台账&lt;/h5&gt;                                     &lt;p class="text-muted"&gt;导入采购记录&lt;/p&gt;                                     &lt;button class="btn btn-outline-warning"&gt;                                         &lt;i class="fas fa-upload me-1"&gt;&lt;/i&gt; 选择文件                                     &lt;/button&gt;                                 &lt;/div&gt;                             &lt;/div&gt;                         &lt;/div&gt;                     &lt;/div&gt;                 &lt;/div&gt;</p>
+<p>                &lt;!-- 产品详情与关联数据 --&gt;                 &lt;div class="row"&gt;                     &lt;div class="col-md-6"&gt;                         &lt;div class="card"&gt;                             &lt;div class="card-header d-flex justify-content-between align-items-center"&gt;                                 &lt;span&gt;产品信息&lt;/span&gt;                                 &lt;div class="dropdown"&gt;                                     &lt;button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"&gt;                                         筛选                                     &lt;/button&gt;                                     &lt;ul class="dropdown-menu"&gt;                                         &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;全部产品&lt;/a&gt;&lt;/li&gt;                                         &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;活跃产品&lt;/a&gt;&lt;/li&gt;                                         &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;已停产&lt;/a&gt;&lt;/li&gt;                                     &lt;/ul&gt;                                 &lt;/div&gt;                             &lt;/div&gt;                             &lt;div class="card-body"&gt;                                 &lt;div class="table-responsive"&gt;                                     &lt;table class="table table-hover"&gt;                                         &lt;thead&gt;                                             &lt;tr&gt;                                                 &lt;th&gt;产品ID&lt;/th&gt;                                                 &lt;th&gt;产品名称&lt;/th&gt;                                                 &lt;th&gt;状态&lt;/th&gt;                                                 &lt;th&gt;操作&lt;/th&gt;                                             &lt;/tr&gt;                                         &lt;/thead&gt;                                         &lt;tbody&gt;                                             &lt;tr&gt;                                                 &lt;td&gt;P-1001&lt;/td&gt;                                                 &lt;td&gt;高端礼盒A型&lt;/td&gt;                                                 &lt;td&gt;&lt;span class="badge bg-success badge-status"&gt;活跃&lt;/span&gt;&lt;/td&gt;                                                 &lt;td&gt;                                                     &lt;button class="btn btn-sm btn-outline-primary"&gt;查看详情&lt;/button&gt;                                                 &lt;/td&gt;                                             &lt;/tr&gt;                                             &lt;tr&gt;                                                 &lt;td&gt;P-1002&lt;/td&gt;                                                 &lt;td&gt;环保包装B型&lt;/td&gt;                                                 &lt;td&gt;&lt;span class="badge bg-success badge-status"&gt;活跃&lt;/span&gt;&lt;/td&gt;                                                 &lt;td&gt;                                                     &lt;button class="btn btn-sm btn-outline-primary"&gt;查看详情&lt;/button&gt;                                                 &lt;/td&gt;                                             &lt;/tr&gt;                                             &lt;tr&gt;                                                 &lt;td&gt;P-1003&lt;/td&gt;                                                 &lt;td&gt;定制包装C型&lt;/td&gt;                                                 &lt;td&gt;&lt;span class="badge bg-warning badge-status"&gt;待审核&lt;/span&gt;&lt;/td&gt;                                                 &lt;td&gt;                                                     &lt;button class="btn btn-sm btn-outline-primary"&gt;查看详情&lt;/button&gt;                                                 &lt;/td&gt;                                             &lt;/tr&gt;                                             &lt;tr&gt;                                                 &lt;td&gt;P-1004&lt;/td&gt;                                                 &lt;td&gt;促销包装D型&lt;/td&gt;                                                 &lt;td&gt;&lt;span class="badge bg-success badge-status"&gt;活跃&lt;/span&gt;&lt;/td&gt;                                                 &lt;td&gt;                                                     &lt;button class="btn btn-sm btn-outline-primary"&gt;查看详情&lt;/button&gt;                                                 &lt;/td&gt;                                             &lt;/tr&gt;                                         &lt;/tbody&gt;                                     &lt;/table&gt;                                 &lt;/div&gt;                             &lt;/div&gt;                         &lt;/div&gt;                     &lt;/div&gt;</p>
+<p>                    &lt;div class="col-md-6"&gt;                         &lt;div class="card"&gt;                             &lt;div class="card-header d-flex justify-content-between align-items-center"&gt;                                 &lt;span&gt;产品关联数据&lt;/span&gt;                                 &lt;div class="btn-group"&gt;                                     &lt;button class="btn btn-sm btn-outline-primary active"&gt;BOM&lt;/button&gt;                                     &lt;button class="btn btn-sm btn-outline-primary"&gt;采购记录&lt;/button&gt;                                 &lt;/div&gt;                             &lt;/div&gt;                             &lt;div class="card-body"&gt;                                 &lt;div class="product-detail"&gt;                                     &lt;h6&gt;高端礼盒A型 (P-1001)&lt;/h6&gt;                                     &lt;div class="row mt-3"&gt;                                         &lt;div class="col-6"&gt;                                             &lt;small class="text-muted"&gt;BOM版本&lt;/small&gt;                                             &lt;div&gt;V2.1&lt;/div&gt;                                         &lt;/div&gt;                                         &lt;div class="col-6"&gt;                                             &lt;small class="text-muted"&gt;最近采购&lt;/small&gt;                                             &lt;div&gt;2023-10-15&lt;/div&gt;                                         &lt;/div&gt;                                     &lt;/div&gt;                                     &lt;hr&gt;                                     &lt;h6&gt;物料清单&lt;/h6&gt;                                     &lt;div class="table-responsive mt-2"&gt;                                         &lt;table class="table table-sm"&gt;                                             &lt;thead&gt;                                                 &lt;tr&gt;                                                     &lt;th&gt;物料编号&lt;/th&gt;                                                     &lt;th&gt;物料名称&lt;/th&gt;                                                     &lt;th&gt;数量&lt;/th&gt;                                                 &lt;/tr&gt;                                             &lt;/thead&gt;                                             &lt;tbody&gt;                                                 &lt;tr&gt;                                                     &lt;td&gt;M-2001&lt;/td&gt;                                                     &lt;td&gt;外盒纸板&lt;/td&gt;                                                     &lt;td&gt;1&lt;/td&gt;                                                 &lt;/tr&gt;                                                 &lt;tr&gt;                                                     &lt;td&gt;M-2002&lt;/td&gt;                                                     &lt;td&gt;内衬泡沫&lt;/td&gt;                                                     &lt;td&gt;2&lt;/td&gt;                                                 &lt;/tr&gt;                                                 &lt;tr&gt;                                                     &lt;td&gt;M-2003&lt;/td&gt;                                                     &lt;td&gt;包装薄膜&lt;/td&gt;                                                     &lt;td&gt;1&lt;/td&gt;                                                 &lt;/tr&gt;                                             &lt;/tbody&gt;                                         &lt;/table&gt;                                     &lt;/div&gt;                                 &lt;/div&gt;                             &lt;/div&gt;                         &lt;/div&gt;                     &lt;/div&gt;                 &lt;/div&gt;</p>
+<p>                &lt;!-- 采购台账 --&gt;                 &lt;div class="card mt-4"&gt;                     &lt;div class="card-header d-flex justify-content-between align-items-center"&gt;                         &lt;span&gt;采购台账&lt;/span&gt;                         &lt;div class="d-flex"&gt;                             &lt;div class="input-group input-group-sm me-2" style="width: 200px;"&gt;                                 &lt;input type="text" class="form-control" placeholder="搜索采购单..."&gt;                             &lt;/div&gt;                             &lt;button class="btn btn-sm btn-primary"&gt;新增采购&lt;/button&gt;                         &lt;/div&gt;                     &lt;/div&gt;                     &lt;div class="card-body"&gt;                         &lt;div class="table-responsive"&gt;                             &lt;table class="table table-hover"&gt;                                 &lt;thead&gt;                                     &lt;tr&gt;                                         &lt;th&gt;采购单号&lt;/th&gt;                                         &lt;th&gt;产品ID&lt;/th&gt;                                         &lt;th&gt;供应商&lt;/th&gt;                                         &lt;th&gt;采购日期&lt;/th&gt;                                         &lt;th&gt;数量&lt;/th&gt;                                         &lt;th&gt;单价&lt;/th&gt;                                         &lt;th&gt;状态&lt;/th&gt;                                         &lt;th&gt;操作&lt;/th&gt;                                     &lt;/tr&gt;                                 &lt;/thead&gt;                                 &lt;tbody&gt;                                     &lt;tr&gt;                                         &lt;td&gt;PO-202310001&lt;/td&gt;                                         &lt;td&gt;P-1001&lt;/td&gt;                                         &lt;td&gt;ABC包装有限公司&lt;/td&gt;                                         &lt;td&gt;2023-10-15&lt;/td&gt;                                         &lt;td&gt;500&lt;/td&gt;                                         &lt;td&gt;¥25.80&lt;/td&gt;                                         &lt;td&gt;&lt;span class="badge bg-success badge-status"&gt;已完成&lt;/span&gt;&lt;/td&gt;                                         &lt;td&gt;                                             &lt;button class="btn btn-sm btn-outline-primary"&gt;详情&lt;/button&gt;                                         &lt;/td&gt;                                     &lt;/tr&gt;                                     &lt;tr&gt;                                         &lt;td&gt;PO-202310002&lt;/td&gt;                                         &lt;td&gt;P-1002&lt;/td&gt;                                         &lt;td&gt;绿色包装厂&lt;/td&gt;                                         &lt;td&gt;2023-10-18&lt;/td&gt;                                         &lt;td&gt;1000&lt;/td&gt;                                         &lt;td&gt;¥18.50&lt;/td&gt;                                         &lt;td&gt;&lt;span class="badge bg-warning badge-status"&gt;运输中&lt;/span&gt;&lt;/td&gt;                                         &lt;td&gt;                                             &lt;button class="btn btn-sm btn-outline-primary"&gt;详情&lt;/button&gt;                                         &lt;/td&gt;                                     &lt;/tr&gt;                                     &lt;tr&gt;                                         &lt;td&gt;PO-202310003&lt;/td&gt;                                         &lt;td&gt;P-1004&lt;/td&gt;                                         &lt;td&gt;创新包装公司&lt;/td&gt;                                         &lt;td&gt;2023-10-20&lt;/td&gt;                                         &lt;td&gt;800&lt;/td&gt;                                         &lt;td&gt;¥32.00&lt;/td&gt;                                         &lt;td&gt;&lt;span class="badge bg-primary badge-status"&gt;已下单&lt;/span&gt;&lt;/td&gt;                                         &lt;td&gt;                                             &lt;button class="btn btn-sm btn-outline-primary"&gt;详情&lt;/button&gt;                                         &lt;/td&gt;                                     &lt;/tr&gt;                                 &lt;/tbody&gt;                             &lt;/table&gt;                         &lt;/div&gt;                     &lt;/div&gt;                 &lt;/div&gt;             &lt;/div&gt;         &lt;/div&gt;     &lt;/div&gt;</p>
+<p>    &lt;script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"&gt;&lt;/script&gt;     &lt;script&gt;         // 这里可以添加JavaScript代码来处理数据交互         // 例如：文件上传、数据筛选、详情展示等</p>
+<p>        // 示例：模拟数据导入进度         document.querySelectorAll('.btn-outline-primary, .btn-outline-success, .btn-outline-warning').forEach(button =&gt; {             button.addEventListener('click', function() {                 const card = this.closest('.card-body');                 const originalText = this.innerHTML;</p>
+<p>                this.innerHTML = '&lt;i class="fas fa-spinner fa-spin me-1"&gt;&lt;/i&gt; 导入中...';                 this.disabled = true;</p>
+<p>                // 模拟导入过程                 setTimeout(() =&gt; {                     this.innerHTML = '&lt;i class="fas fa-check me-1"&gt;&lt;/i&gt; 导入成功';                     this.classList.remove('btn-outline-primary', 'btn-outline-success', 'btn-outline-warning');                     this.classList.add('btn-success');</p>
+<p>                    // 3秒后恢复原状                     setTimeout(() =&gt; {                         this.innerHTML = originalText;                         this.classList.remove('btn-success');                         this.classList.add(button.classList.contains('btn-outline-success') ? 'btn-outline-success' :                                            button.classList.contains('btn-outline-warning') ? 'btn-outline-warning' : 'btn-outline-primary');                         this.disabled = false;                     }, 3000);                 }, 2000);             });         });</p>
+<p>        // 示例：产品详情查看功能         document.querySelectorAll('.btn-sm.btn-outline-primary').forEach(button =&gt; {             if(button.textContent.trim() === '查看详情') {                 button.addEventListener('click', function() {                     const row = this.closest('tr');                     const productId = row.cells[0].textContent;                     const productName = row.cells[1].textContent;</p>
+<p>                    // 在实际应用中，这里会通过AJAX获取产品详细信息                     // 这里只是简单更新产品详情区域                     document.querySelector('.product-detail h6').textContent = <code>${productName} (${productId})</code>;</p>
+<p>                    // 显示提示信息                     alert(<code>正在加载 ${productName} 的详细信息...</code>);                 });             }         });     &lt;/script&gt; &lt;/body&gt; &lt;/html&gt;</p></div>
+      <div class="qa-a"><p>非常好 👍 你已经有了一个完整的前端“数据中心”框架。   接下来我们要做的，就是让这个网页 <strong>真正读取你电脑里的 JSON 数据文件（比如 <code>product_data.json</code>、<code>bom_data.json</code>、<code>purchase_data.json</code>）并动态显示在页面中</strong>。  </p>
+<p>---</p>
+<h3 class="sub-h">💡 实现目标</h3>
+<p>你希望做到的，是一个 <strong>本地数据可视化入口 index.html</strong>，通过网页界面查看和关联：</p>
+<ul class="md-ul"><li>✅ 产品信息表（product_data.json）  </li><li>✅ 产品 BOM（bom_data.json）  </li><li>✅ 采购台账（purchase_data.json）  </li></ul>
+<p>这些文件都存放在你的电脑中，比如：</p>
+<div class="codeblock"><pre><code>/data/product_data.json  
+/data/bom_data.json  
+/data/purchase_data.json</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">🧭 整体思路（纯本地运行，无需服务器）</h3>
+<p>因为浏览器 <strong>出于安全原因</strong>，默认不允许网页直接访问本地文件系统（比如 <code>C:/Users/.../data.json</code>），所以有三种可行方式：</p>
+<div class="tblwrap"><table><thead><tr><th>方式</th><th>说明</th><th>难度</th></tr></thead><tbody><tr><td><strong>① 用 input 上传 JSON 文件</strong></td><td>用户点击“导入数据”按钮，选择本地 JSON 文件，JS 用 <code>FileReader</code> 读取内容后展示。</td><td>✅ 最推荐（零部署）</td></tr><tr><td><strong>② 用 VSCode Live Server / Node.js serve 工具</strong></td><td>在本地开一个静态服务（http://localhost:5500），用 <code>fetch('data/xxx.json')</code> 读取。</td><td>🔧 稍高级</td></tr><tr><td><strong>③ 用 Electron 或桌面封装</strong></td><td>把网页打包成桌面 App，直接访问文件系统。</td><td>🚀 进阶玩法</td></tr></tbody></table></div>
+<p>你目前的代码是纯前端 HTML，最适合 <strong>方式①：文件上传读取 JSON 并展示</strong>。</p>
+<p>---</p>
+<h3 class="sub-h">🧩 实现步骤（方式①）</h3>
+<p>我们在你的现有代码中加上实际逻辑（核心是 <code>FileReader</code> + 动态生成表格）。</p>
+<p>把下面的 <code>&lt;script&gt;</code> 替换到你 index.html 最底部的 <code>&lt;script&gt;</code> 区域 👇：</p>
+<div class="codeblock"><pre><code>&lt;script&gt;
+/**
+ * 文件导入并读取 JSON 内容
+ */
+function handleFileImport(button, dataType) {
+    const input = document.createElement(&#x27;input&#x27;);
+    input.type = &#x27;file&#x27;;
+    input.accept = &#x27;.json&#x27;;
+    input.onchange = e =&gt; {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = event =&gt; {
+            try {
+                const jsonData = JSON.parse(event.target.result);
+                localStorage.setItem(dataType, JSON.stringify(jsonData)); // 临时保存
+                alert(`${dataType} 导入成功，共 ${jsonData.length} 条记录`);
+                updateDashboard(); // 更新统计卡片
+                renderTable(dataType, jsonData);
+            } catch (err) {
+                alert(&#x27;文件格式错误，请检查 JSON 结构&#x27;);
+            }
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+}
+
+/**
+ * 根据导入数据更新仪表盘统计
+ */
+function updateDashboard() {
+    const products = JSON.parse(localStorage.getItem(&#x27;product&#x27;) || &#x27;[]&#x27;);
+    const boms = JSON.parse(localStorage.getItem(&#x27;bom&#x27;) || &#x27;[]&#x27;);
+    const purchases = JSON.parse(localStorage.getItem(&#x27;purchase&#x27;) || &#x27;[]&#x27;);
+
+    document.querySelector(&#x27;.stat-card:nth-child(1) .value&#x27;).textContent = products.length;
+    document.querySelector(&#x27;.stat-card:nth-child(2) .value&#x27;).textContent = boms.length;
+    document.querySelector(&#x27;.stat-card:nth-child(3) .value&#x27;).textContent = purchases.length;
+}
+
+/**
+ * 渲染表格
+ */
+function renderTable(type, data) {
+    if (type === &#x27;product&#x27;) {
+        const tbody = document.querySelector(&#x27;.table tbody&#x27;);
+        tbody.innerHTML = &#x27;&#x27;;
+        data.forEach(item =&gt; {
+            const tr = document.createElement(&#x27;tr&#x27;);
+            tr.innerHTML = `
+                &lt;td&gt;${item.产品ID || item.id}&lt;/td&gt;
+                &lt;td&gt;${item.产品名称 || item.name}&lt;/td&gt;
+                &lt;td&gt;&lt;span class=&quot;badge bg-success badge-status&quot;&gt;${item.状态 || &#x27;活跃&#x27;}&lt;/span&gt;&lt;/td&gt;
+                &lt;td&gt;&lt;button class=&quot;btn btn-sm btn-outline-primary&quot;&gt;查看详情&lt;/button&gt;&lt;/td&gt;
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+}
+
+/**
+ * 初始化绑定按钮
+ */
+document.addEventListener(&#x27;DOMContentLoaded&#x27;, () =&gt; {
+    document.querySelector(&#x27;.btn-outline-primary&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; handleFileImport(event.target, &#x27;product&#x27;));
+    document.querySelector(&#x27;.btn-outline-success&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; handleFileImport(event.target, &#x27;bom&#x27;));
+    document.querySelector(&#x27;.btn-outline-warning&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; handleFileImport(event.target, &#x27;purchase&#x27;));
+});
+&lt;/script&gt;</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">📦 示例文件结构</h3>
+<p>你可以把这些文件放在一个目录下，比如：</p>
+<div class="codeblock"><pre><code>采购数据系统/
+│
+├─ index.html
+├─ data/
+│   ├─ product_data.json
+│   ├─ bom_data.json
+│   └─ purchase_data.json
+└─ assets/</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">✅ 使用步骤</h3>
+<ol class="md-ol"><li>双击 <code>index.html</code> 打开网页  </li><li>点击“导入数据”下的三个按钮，选择相应的 <code>.json</code> 文件  </li><li>导入成功后，仪表盘数字更新、表格自动渲染  </li><li>数据会保存在 <code>localStorage</code>，刷新页面依然存在  </li></ol>
+<p>---</p>
+<h3 class="sub-h">🌟 进阶扩展建议</h3>
+<p>你后续可以继续完善：</p>
+<ul class="md-ul"><li>🔍 搜索框实时过滤产品、供应商  </li><li>📊 用 Chart.js 展示采购金额趋势  </li><li>🔗 点击产品时自动加载对应 BOM 和采购记录  </li><li>💾 自动保存数据到 <code>localStorage</code> 或本地 JSON 文件  </li><li>🧱 拆分为独立页面（<code>product.html</code>、<code>bom.html</code>、<code>purchase.html</code>）</li></ul>
+<p>---</p>
+<p>是否希望我帮你直接生成一份 <strong>完整可运行的 index.html（含上述逻辑）</strong>？   我可以一次性帮你生成，可直接放在电脑里打开用。</p></div>
+    </section>
+    <section id="s2" class="st2">
+      <div class="sec-h"><span class="idx st2">Q2</span><h2>参考我之前搭建的物料单价查询，产品bom查询，成品信息查询，产品系列，并基于我最…</h2><span class="hint">第 2 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>参考我之前搭建的物料单价查询，产品bom查询，成品信息查询，产品系列，并基于我最顶部提供的代码来给我生成一份完整可行的index</p></div>
+      <div class="qa-a"><p>非常好 ✅   你现在已经有了这些本地的 JSON 数据模块：  </p>
+<ul class="md-ul"><li><strong>产品信息（data/product_data.json）</strong>  </li><li><strong>产品 BOM（bom/bom_data.json）</strong>  </li><li><strong>采购台账（cz/data.json）</strong>  </li><li><strong>产品系列（product_series.json）</strong></li></ul>
+<p>而你之前的各个页面（物料单价查询、BOM 查询、成品信息查询等）都能独立运行，说明它们的数据格式已经标准化。   现在我们要做的是——<strong>将它们整合到一个本地可用的首页 index.html（仪表盘）中</strong>，   实现以下目标：</p>
+<ol class="md-ol"><li>本地运行（无需服务器）；</li><li>左侧导航跳转到对应查询页面；</li><li>自动从各 JSON 文件读取统计数据；</li><li>动态展示仪表盘汇总；</li><li>整体风格延续你最上面那份 Bootstrap + FontAwesome 代码。</li></ol>
+<p>---</p>
+<p>下面是为你量身定制的 ✅ <strong>完整可行 index.html 文件</strong>：</p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;包装采购数据管理系统&lt;/title&gt;
+  &lt;link href=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css&quot; rel=&quot;stylesheet&quot;&gt;
+  &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css&quot;&gt;
+  &lt;style&gt;
+    :root {
+      --primary: #3498db;
+      --secondary: #2c3e50;
+      --success: #2ecc71;
+      --warning: #f39c12;
+      --danger: #e74c3c;
+      --light: #ecf0f1;
+      --dark: #34495e;
+    }
+
+    body {
+      background-color: #f8f9fa;
+      font-family: &#x27;Segoe UI&#x27;, Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .sidebar {
+      background-color: var(--secondary);
+      color: white;
+      min-height: 100vh;
+      padding: 0;
+      box-shadow: 3px 0 10px rgba(0,0,0,0.1);
+    }
+
+    .sidebar .nav-link {
+      color: #bdc3c7;
+      padding: 15px 20px;
+      border-left: 4px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+      color: white;
+      background-color: rgba(255,255,255,0.1);
+      border-left: 4px solid var(--primary);
+    }
+
+    .main-content {
+      padding: 20px;
+    }
+
+    .card {
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      transition: transform 0.3s;
+    }
+
+    .card:hover { transform: translateY(-3px); }
+
+    .card-header { background-color: white; font-weight: 600; }
+
+    .stat-card { text-align: center; padding: 20px; }
+    .stat-card .value { font-size: 2rem; font-weight: 700; margin: 10px 0; }
+    .stat-card .label { color: #7f8c8d; font-size: 0.9rem; }
+
+    footer {
+      text-align: center;
+      color: #888;
+      font-size: 0.9rem;
+      padding: 10px 0;
+      border-top: 1px solid #ddd;
+      margin-top: 20px;
+    }
+
+    footer a {
+      color: #3498db;
+      text-decoration: none;
+      margin: 0 8px;
+    }
+
+    footer a:hover { text-decoration: underline; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div class=&quot;container-fluid&quot;&gt;
+    &lt;div class=&quot;row&quot;&gt;
+      &lt;!-- 左侧导航 --&gt;
+      &lt;div class=&quot;col-md-2 sidebar p-0&quot;&gt;
+        &lt;div class=&quot;p-3 text-center border-bottom&quot;&gt;
+          &lt;h4 class=&quot;mb-0&quot;&gt;包装采购系统&lt;/h4&gt;
+          &lt;small class=&quot;text-muted&quot;&gt;数据整合平台&lt;/small&gt;
+        &lt;/div&gt;
+        &lt;ul class=&quot;nav flex-column mt-3&quot;&gt;
+          &lt;li class=&quot;nav-item&quot;&gt;&lt;a class=&quot;nav-link active&quot; href=&quot;#&quot;&gt;&lt;i class=&quot;fas fa-tachometer-alt&quot;&gt;&lt;/i&gt; 仪表盘&lt;/a&gt;&lt;/li&gt;
+          &lt;li class=&quot;nav-item&quot;&gt;&lt;a class=&quot;nav-link&quot; href=&quot;CP/index.html&quot;&gt;&lt;i class=&quot;fas fa-box&quot;&gt;&lt;/i&gt; 成品信息&lt;/a&gt;&lt;/li&gt;
+          &lt;li class=&quot;nav-item&quot;&gt;&lt;a class=&quot;nav-link&quot; href=&quot;bom/index.html&quot;&gt;&lt;i class=&quot;fas fa-list-alt&quot;&gt;&lt;/i&gt; 产品BOM&lt;/a&gt;&lt;/li&gt;
+          &lt;li class=&quot;nav-item&quot;&gt;&lt;a class=&quot;nav-link&quot; href=&quot;cz/index.html&quot;&gt;&lt;i class=&quot;fas fa-file-invoice-dollar&quot;&gt;&lt;/i&gt; 物料单价&lt;/a&gt;&lt;/li&gt;
+          &lt;li class=&quot;nav-item&quot;&gt;&lt;a class=&quot;nav-link&quot; href=&quot;series/index.html&quot;&gt;&lt;i class=&quot;fas fa-layer-group&quot;&gt;&lt;/i&gt; 产品系列&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/div&gt;
+
+      &lt;!-- 主内容 --&gt;
+      &lt;div class=&quot;col-md-10 main-content&quot;&gt;
+        &lt;h2 class=&quot;mb-4&quot;&gt;数据仪表盘&lt;/h2&gt;
+
+        &lt;div class=&quot;row&quot; id=&quot;statCards&quot;&gt;
+          &lt;div class=&quot;col-md-3&quot;&gt;&lt;div class=&quot;card stat-card&quot;&gt;&lt;div class=&quot;card-body&quot;&gt;&lt;i class=&quot;fas fa-box text-primary fa-2x&quot;&gt;&lt;/i&gt;&lt;div class=&quot;value&quot; id=&quot;productCount&quot;&gt;--&lt;/div&gt;&lt;div class=&quot;label&quot;&gt;产品总数&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
+          &lt;div class=&quot;col-md-3&quot;&gt;&lt;div class=&quot;card stat-card&quot;&gt;&lt;div class=&quot;card-body&quot;&gt;&lt;i class=&quot;fas fa-list-alt text-success fa-2x&quot;&gt;&lt;/i&gt;&lt;div class=&quot;value&quot; id=&quot;bomCount&quot;&gt;--&lt;/div&gt;&lt;div class=&quot;label&quot;&gt;BOM数量&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
+          &lt;div class=&quot;col-md-3&quot;&gt;&lt;div class=&quot;card stat-card&quot;&gt;&lt;div class=&quot;card-body&quot;&gt;&lt;i class=&quot;fas fa-file-invoice-dollar text-warning fa-2x&quot;&gt;&lt;/i&gt;&lt;div class=&quot;value&quot; id=&quot;czCount&quot;&gt;--&lt;/div&gt;&lt;div class=&quot;label&quot;&gt;采购记录&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
+          &lt;div class=&quot;col-md-3&quot;&gt;&lt;div class=&quot;card stat-card&quot;&gt;&lt;div class=&quot;card-body&quot;&gt;&lt;i class=&quot;fas fa-layer-group text-danger fa-2x&quot;&gt;&lt;/i&gt;&lt;div class=&quot;value&quot; id=&quot;seriesCount&quot;&gt;--&lt;/div&gt;&lt;div class=&quot;label&quot;&gt;产品系列&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;!-- 数据概览表 --&gt;
+        &lt;div class=&quot;card&quot;&gt;
+          &lt;div class=&quot;card-header&quot;&gt;最新产品预览&lt;/div&gt;
+          &lt;div class=&quot;card-body&quot;&gt;
+            &lt;div class=&quot;table-responsive&quot;&gt;
+              &lt;table class=&quot;table table-hover table-sm&quot; id=&quot;productTable&quot;&gt;
+                &lt;thead&gt;
+                  &lt;tr&gt;
+                    &lt;th&gt;产品ID&lt;/th&gt;&lt;th&gt;产品名称&lt;/th&gt;&lt;th&gt;状态&lt;/th&gt;&lt;th&gt;BOM数量&lt;/th&gt;&lt;th&gt;最近采购&lt;/th&gt;
+                  &lt;/tr&gt;
+                &lt;/thead&gt;
+                &lt;tbody&gt;
+                  &lt;tr&gt;&lt;td colspan=&quot;5&quot; class=&quot;text-center text-muted&quot;&gt;正在加载数据...&lt;/td&gt;&lt;/tr&gt;
+                &lt;/tbody&gt;
+              &lt;/table&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;footer&gt;
+          © 2025 德令哈采购管理部 |
+          &lt;a href=&quot;index.html&quot;&gt;首页&lt;/a&gt; |
+          &lt;a href=&quot;cz/index.html&quot;&gt;物料单价&lt;/a&gt; |
+          &lt;a href=&quot;bom/index.html&quot;&gt;BOM&lt;/a&gt; |
+          &lt;a href=&quot;CP/index.html&quot;&gt;成品信息&lt;/a&gt;
+        &lt;/footer&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;script&gt;
+    async function loadJSON(path) {
+      try {
+        const response = await fetch(path);
+        if (!response.ok) throw new Error(&#x27;读取失败&#x27;);
+        return await response.json();
+      } catch (e) {
+        console.warn(&#x27;无法加载 &#x27; + path);
+        return [];
+      }
+    }
+
+    async function initDashboard() {
+      const productData = await loadJSON(&#x27;CP/data.json&#x27;);
+      const bomData = await loadJSON(&#x27;bom/bom_data.json&#x27;);
+      const czData = await loadJSON(&#x27;cz/data.json&#x27;);
+      const seriesData = await loadJSON(&#x27;series/product_series.json&#x27;);
+
+      // 更新统计数字
+      document.getElementById(&#x27;productCount&#x27;).textContent = productData.length;
+      document.getElementById(&#x27;bomCount&#x27;).textContent = bomData.length;
+      document.getElementById(&#x27;czCount&#x27;).textContent = czData.length;
+      document.getElementById(&#x27;seriesCount&#x27;).textContent = seriesData.length;
+
+      // 填充产品表格
+      const tableBody = document.querySelector(&#x27;#productTable tbody&#x27;);
+      tableBody.innerHTML = &#x27;&#x27;;
+      productData.slice(0, 10).forEach(prod =&gt; {
+        const bomCount = bomData.filter(b =&gt; b.产品ID === prod.产品ID).length;
+        const czLatest = czData.find(c =&gt; c.产品ID === prod.产品ID)?.采购日期 || &#x27;—&#x27;;
+        const tr = document.createElement(&#x27;tr&#x27;);
+        tr.innerHTML = `
+          &lt;td&gt;${prod.产品ID}&lt;/td&gt;
+          &lt;td&gt;${prod.产品名称}&lt;/td&gt;
+          &lt;td&gt;${prod.状态 || &#x27;—&#x27;}&lt;/td&gt;
+          &lt;td&gt;${bomCount}&lt;/td&gt;
+          &lt;td&gt;${czLatest}&lt;/td&gt;
+        `;
+        tableBody.appendChild(tr);
+      });
+    }
+
+    initDashboard();
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">💡使用说明</h4>
+<ol class="md-ol"><li>将该文件命名为 <code>index.html</code> 放在你项目根目录；</li><li>确保目录结构如下：</li></ol>
+<div class="codeblock"><pre><code>   /index.html
+   /CP/data.json
+   /bom/bom_data.json
+   /cz/data.json
+   /series/product_series.json</code></pre></div>
+<ol class="md-ol"><li>双击 <code>index.html</code> 即可本地打开（无需服务器）；</li><li>页面左侧菜单会跳转到你现有的查询页面；</li><li>仪表盘数字和表格会自动从各 JSON 文件读取数据；</li><li>若文件名不同，可以在 <code>loadJSON()</code> 调用路径里自行修改。</li></ol>
+<p>---</p>
+<p>是否希望我帮你在这个基础上继续加一个   🔍“全局搜索框”——可以搜索产品、物料或供应商并跳转到对应页面？</p></div>
+    </section>
+    <section id="s3" class="st3">
+      <div class="sec-h"><span class="idx st3">Q3</span><h2>好的</h2><span class="hint">第 3 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>好的</p></div>
+      <div class="qa-a"><p>太好了 👍   那我来帮你生成一份 <strong>完整可运行的首页 <code>index.html</code></strong>，作为你所有查询工具（物料单价查询、产品 BOM 查询、成品信息查询、产品系列展示）的统一入口。  </p>
+<p>这份页面将具备以下特性：</p>
+<p>✅ 采用你之前相同的 Tailwind 风格和渐变背景   ✅ 四个功能卡片入口（点击跳转到各独立页面）   ✅ 顶部标题 + 动画淡入效果   ✅ 底部版权栏统一风格（含首页、物料单价、BOM、成品、系列链接）   ✅ 可直接本地运行（不依赖服务器）  </p>
+<p>---</p>
+<h4 class="sub-h">💻 完整代码 — <code>index.html</code></h4>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot; /&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+  &lt;title&gt;青海厂内部小工具&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;style&gt;
+    body {
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      font-family: &quot;Microsoft YaHei&quot;, sans-serif;
+      animation: fadeIn 0.8s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .tool-card {
+      transition: all 0.25s ease;
+    }
+    .tool-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body class=&quot;flex flex-col min-h-screen&quot;&gt;
+  &lt;!-- 顶部标题 --&gt;
+  &lt;header class=&quot;text-center mt-12&quot;&gt;
+    &lt;h1 class=&quot;text-3xl font-bold text-gray-800 mb-4&quot;&gt;青海厂内部管理工具中心&lt;/h1&gt;
+    &lt;p class=&quot;text-gray-500&quot;&gt;采购管理部 · 数据与系统支持平台&lt;/p&gt;
+  &lt;/header&gt;
+
+  &lt;!-- 功能区 --&gt;
+  &lt;main class=&quot;flex-1 flex flex-col items-center justify-center mt-10&quot;&gt;
+    &lt;div class=&quot;grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-11/12 max-w-6xl&quot;&gt;
+
+      &lt;!-- 物料单价查询 --&gt;
+      &lt;a href=&quot;cz/index.html&quot; class=&quot;tool-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg&quot;&gt;
+        &lt;div class=&quot;text-4xl mb-3&quot;&gt;💰&lt;/div&gt;
+        &lt;h2 class=&quot;text-lg font-semibold text-gray-800 mb-2&quot;&gt;物料单价查询&lt;/h2&gt;
+        &lt;p class=&quot;text-sm text-gray-500&quot;&gt;查看并核对最新采购单价与供应商数据。&lt;/p&gt;
+      &lt;/a&gt;
+
+      &lt;!-- 产品BOM查询 --&gt;
+      &lt;a href=&quot;bom/index.html&quot; class=&quot;tool-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg&quot;&gt;
+        &lt;div class=&quot;text-4xl mb-3&quot;&gt;📦&lt;/div&gt;
+        &lt;h2 class=&quot;text-lg font-semibold text-gray-800 mb-2&quot;&gt;产品BOM查询&lt;/h2&gt;
+        &lt;p class=&quot;text-sm text-gray-500&quot;&gt;快速查询物料构成、数量与采购单价。&lt;/p&gt;
+      &lt;/a&gt;
+
+      &lt;!-- 成品信息查询 --&gt;
+      &lt;a href=&quot;CP/index.html&quot; class=&quot;tool-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg&quot;&gt;
+        &lt;div class=&quot;text-4xl mb-3&quot;&gt;🏷️&lt;/div&gt;
+        &lt;h2 class=&quot;text-lg font-semibold text-gray-800 mb-2&quot;&gt;成品信息查询&lt;/h2&gt;
+        &lt;p class=&quot;text-sm text-gray-500&quot;&gt;成品基础信息与系列归属快速检索。&lt;/p&gt;
+      &lt;/a&gt;
+
+      &lt;!-- 产品系列展示 --&gt;
+      &lt;a href=&quot;series/index.html&quot; class=&quot;tool-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg&quot;&gt;
+        &lt;div class=&quot;text-4xl mb-3&quot;&gt;🧩&lt;/div&gt;
+        &lt;h2 class=&quot;text-lg font-semibold text-gray-800 mb-2&quot;&gt;产品系列展示&lt;/h2&gt;
+        &lt;p class=&quot;text-sm text-gray-500&quot;&gt;查看产品系列、图标与各系列下的成品。&lt;/p&gt;
+      &lt;/a&gt;
+    &lt;/div&gt;
+  &lt;/main&gt;
+
+  &lt;!-- 底部版权信息 --&gt;
+  &lt;footer class=&quot;text-center text-gray-500 text-sm mt-12 mb-6&quot;&gt;
+    © 2025 德令哈采购管理部提供技术和数据支持 |
+    &lt;a href=&quot;index.html&quot; class=&quot;hover:underline&quot;&gt;首页&lt;/a&gt; |
+    &lt;a href=&quot;cz/index.html&quot; class=&quot;hover:underline&quot;&gt;物料单价&lt;/a&gt; |
+    &lt;a href=&quot;bom/index.html&quot; class=&quot;hover:underline&quot;&gt;BOM&lt;/a&gt; |
+    &lt;a href=&quot;CP/index.html&quot; class=&quot;hover:underline&quot;&gt;成品&lt;/a&gt; |
+    &lt;a href=&quot;series/index.html&quot; class=&quot;hover:underline&quot;&gt;系列&lt;/a&gt;
+  &lt;/footer&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">📁 目录建议</h4>
+<p>把它放在你的项目根目录下，结构建议如下：</p>
+<div class="codeblock"><pre><code>/
+├─ index.html                ←（就是上面这份文件）
+├─ cz/
+│   └─ index.html            ← 物料单价查询页
+├─ bom/
+│   └─ index.html            ← 产品BOM查询页
+├─ CP/
+│   └─ index.html            ← 成品信息查询页
+└─ series/
+    └─ index.html            ← 产品系列展示页</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">✅ 打开方式</h4>
+<p>直接双击 <code>index.html</code> 即可在浏览器中打开使用。   每个入口卡片点击后会跳转到对应的子页面（你之前搭建的那几个查询系统）。</p>
+<p>---</p>
+<p>是否希望我接着帮你生成一份 <strong>series/index.html（产品系列展示页）</strong>，让四个入口都能完整运作？</p></div>
+    </section>
+    <section id="s4" class="st4">
+      <div class="sec-h"><span class="idx st4">Q4</span><h2>上述的这个网页代码，我可以用在我的github网页里吗</h2><span class="hint">第 4 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>上述的这个网页代码，我可以用在我的github网页里吗</p></div>
+      <div class="qa-a"><p>✅ <strong>可以！而且非常适合放在 GitHub Pages 上。</strong>   你这份 <code>index.html</code> 是 <strong>纯前端静态网页</strong>（只使用了 HTML + Tailwind CSS，不依赖任何服务器端语言或数据库），这正是 GitHub Pages 的理想运行环境。</p>
+<p>---</p>
+<h4 class="sub-h">🌍 一、确认你的项目结构</h4>
+<p>假设你的 GitHub 仓库是   👉 <code>https://github.com/seamoonappear/tz</code></p>
+<p>那你只要把文件结构调整为：</p>
+<div class="codeblock"><pre><code>tz/
+│
+├─ index.html                ← 刚才这份首页文件
+├─ cz/
+│   └─ index.html            ← 物料单价查询页面
+├─ bom/
+│   └─ index.html            ← BOM 查询页面
+├─ CP/
+│   └─ index.html            ← 成品信息查询页面
+└─ series/
+    └─ index.html            ← 产品系列展示页面</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">🚀 二、部署步骤</h4>
+<ol class="md-ol"><li><strong>打开 GitHub → 仓库 <code>tz</code></strong></li><li>点击上方的 <strong>Settings（设置）</strong></li><li>在左边选择 <strong>Pages</strong></li><li>在 “Build and deployment” 下：</li></ol>
+<p>   - Source 选项：选择 <strong>Deploy from a branch</strong>    - Branch：选择 <code>main</code> 分支（或 <code>master</code>）    - Folder：选择 <code>/ (root)</code></p>
+<ol class="md-ol"><li>点击 <strong>Save</strong></li></ol>
+<p>几分钟后，GitHub Pages 就会生成一个网址：</p>
+<p>👉 <code>https://seamoonappear.github.io/tz/</code></p>
+<p>访问这个链接，就能直接看到你的首页！</p>
+<p>---</p>
+<h4 class="sub-h">📁 三、注意几点</h4>
+<div class="tblwrap"><table><thead><tr><th>项目</th><th>说明</th></tr></thead><tbody><tr><td>✅ 文件路径</td><td>所有链接如 <code>cz/index.html</code>、<code>bom/index.html</code> 必须是相对路径（你现在的就是 ✅）。</td></tr><tr><td>⚙️ 本地数据文件</td><td>如果你的各个页面需要读取 <code>.json</code> 文件，请把这些 JSON 文件放进仓库里（如 <code>/cz/data.json</code>），并用 <code>fetch('./data.json')</code> 来读取。GitHub Pages 会正常提供静态 JSON。</td></tr><tr><td>🌐 访问更新延迟</td><td>GitHub Pages 部署后一般需等待 1～2 分钟生效。</td></tr><tr><td>🧹 清缓存</td><td>更新网页内容后，如果没变化，可以按 <code>Ctrl + F5</code> 强制刷新。</td></tr></tbody></table></div>
+<p>---</p>
+<h4 class="sub-h">🎯 四、测试建议</h4>
+<p>在发布前，你可以先在本地用浏览器打开 <code>index.html</code> 测试跳转。   确认四个按钮的路径都能正常打开对应页面。  </p>
+<p>---</p>
+<p>如果你愿意，我可以帮你：</p>
+<ul class="md-ul"><li>✅ 调整 <code>index.html</code> 中的链接为 GitHub Pages 路径；</li><li>✅ 添加 favicon（网页小图标）；</li><li>✅ 添加自动返回顶部按钮与轻微动画；</li></ul>
+<p>是否要我帮你生成 GitHub Pages 专用版本（已包含这些优化）？</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>本地数据可视化实现 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：本地数据可视化实现（2025-10-31）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1", "s2", "s3", "s4"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

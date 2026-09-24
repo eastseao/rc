@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>供应商信息查询页面 · 2025</title>
+<meta name="description" content="明白了，你想在 supplier 文件夹下做一个 供应商信息查询页面，功能是：  - 初始页面不显示任何信息；  - 有两个搜索框：供应商名称（可模糊搜索）、主要产品（可模糊搜索）；  - 点击“查询”按钮后显示匹配结果；  - 风格参考你">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a><a href="#s2" data-sec="s2">Q2</a><a href="#s3" data-sec="s3">Q3</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · 建站
+  <h1 class="s-h1">供应商信息查询页面</h1>
+  <p class="s-lede">明白了，你想在 supplier 文件夹下做一个 供应商信息查询页面，功能是：  - 初始页面不显示任何信息；  - 有两个搜索框：供应商名称（可模糊搜索）、主要产品（可模糊搜索）；  - 点击“查询”按钮后显示匹配结果；  - 风格参考你</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>6</b></span>
+    <span>时间范围 <b>2025-11-01 ~ 2025-11-01</b></span>
+    <span>分类 <b>建站与技术</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">建站</span>
+    <span class="s-chip">2025</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>[  {    &quot;供应商编号&quot;: 23001,    &quot;名称&quot;: &quot;华东包装材料…</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>[</p>
+<p>  {</p>
+<p>    "供应商编号": 23001,</p>
+<p>    "名称": "华东包装材料有限公司",</p>
+<p>    "简称": "华东包装",</p>
+<p>    "联系人": "张经理",</p>
+<p>    "联系电话": 13800138000,</p>
+<p>    "备用电话": "0571-12345678",</p>
+<p>    "公司地址": "浙江省杭州市西湖区文三路100号",</p>
+<p>    "供应品类": "包装",</p>
+<p>    "主要产品": "纸箱,纸盒,包装纸",</p>
+<p>    "合作起始日期": 44941,</p>
+<p>    "合作状态": "已终止",</p>
+<p>    "信用等级": "A",</p>
+<p>    "备注信息": "合作稳定，质量可靠"</p>
+<p>  }</p>
+<p>]</p>
+<p>这是trtjkqh.github.io下面supplier/data.json的数据结构，我想在这个文件夹内建议一个供应商信息查询页面，不查询不显示任何信息。有搜索功能，搜索框1：供应商名称（可模糊搜索），搜索框2：主要产品（模糊搜索）。查询按钮</p>
+<p>风格参考：&lt;!DOCTYPE html&gt;</p>
+<p>&lt;html lang="zh-CN"&gt;</p>
+<p>&lt;head&gt;</p>
+<p>&lt;meta charset="UTF-8"&gt;</p>
+<p>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p>&lt;title&gt;物料查询系统&lt;/title&gt;</p>
+<p>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p>&lt;style&gt;</p>
+<p>  @keyframes fadeIn { from { opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }</p>
+<p>  .fade-in { animation: fadeIn 0.4s ease-in; }</p>
+<p>  table th { position: sticky; top: 0; background-color: white; z-index: 10; }</p>
+<p>&lt;/style&gt;</p>
+<p>&lt;/head&gt;</p>
+<p>&lt;body class="bg-gray-50 font-sans text-gray-800"&gt;</p>
+<p>&lt;!-- 标题栏 --&gt;</p>
+<p>&lt;div class="max-w-7xl mx-auto bg-white rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 fade-in"&gt;</p>
+<p>  &lt;div class="flex items-center gap-3"&gt;</p>
+<p>    &lt;img src="/assets/img/trtlogo.png" alt="LOGO" class="h-12 w-auto object-contain"&gt;</p>
+<p>    &lt;h1 class="text-xl md:text-2xl font-bold text-gray-900"&gt;物料查询&lt;/h1&gt;</p>
+<p>  &lt;/div&gt;</p>
+<p>  &lt;div class="flex flex-col md:flex-row flex-wrap gap-2 text-gray-700 text-sm md:text-base"&gt;</p>
+<p>    &lt;span class="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700"&gt;🔍 查询范围：2022年1月1日 - 2025年10月14日&lt;/span&gt;</p>
+<p>    &lt;span class="px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600"&gt;⚠️ 保密声明：内部数据，严禁外传&lt;/span&gt;</p>
+<p>  &lt;/div&gt;</p>
+<p>&lt;/div&gt;</p>
+<p>&lt;!-- 查询区域 --&gt;</p>
+<p>&lt;div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in"&gt;</p>
+<p>  &lt;select id="year" class="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-red-400"&gt;</p>
+<p>    &lt;option value=""&gt;全部年份&lt;/option&gt;</p>
+<p>    &lt;option value="2025"&gt;2025&lt;/option&gt;</p>
+<p>    &lt;option value="2024"&gt;2024&lt;/option&gt;</p>
+<p>    &lt;option value="2023"&gt;2023&lt;/option&gt;</p>
+<p>    &lt;option value="2022"&gt;2022&lt;/option&gt;</p>
+<p>  &lt;/select&gt;</p>
+<p>  &lt;input id="projectName" type="text" placeholder="物料名称（可简称）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" /&gt;</p>
+<p>  &lt;input id="projectNo" type="text" placeholder="物料项目号（需精准）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" /&gt;</p>
+<p>  &lt;input id="supplier" type="text" placeholder="供应商名称（可简称）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" /&gt;</p>
+<p>  &lt;button onclick="searchData()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow"&gt;查询&lt;/button&gt;</p>
+<p>  &lt;button onclick="resetForm()" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow"&gt;重置&lt;/button&gt;</p>
+<p>  &lt;button onclick="exportTableToExcel('查询结果.xlsx')" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition shadow"&gt;导出Excel&lt;/button&gt;</p>
+<p>&lt;/div&gt;</p>
+<p>&lt;!-- 汇总区 --&gt;</p>
+<p>&lt;div id="summary" class="max-w-7xl mx-auto hidden mb-4 flex gap-4 fade-in"&gt;</p>
+<p>  &lt;div class="flex-1 bg-red-50 border border-red-200 rounded-lg p-4 font-semibold text-red-700 text-center shadow"&gt;</p>
+<p>    匹配结果：&lt;span id="count"&gt;&lt;/span&gt; 条</p>
+<p>  &lt;/div&gt;</p>
+<p>  &lt;div class="flex-1 bg-green-50 border border-green-200 rounded-lg p-4 font-semibold text-green-700 text-center shadow"&gt;</p>
+<p>    金额总计：&lt;span id="total"&gt;&lt;/span&gt; 元</p>
+<p>  &lt;/div&gt;</p>
+<p>&lt;/div&gt;</p>
+<p>&lt;!-- 查询结果 --&gt;</p>
+<p>&lt;div id="loading" class="text-center text-red-600 font-medium my-6 fade-in"&gt;⏳ 数据加载中...&lt;/div&gt;</p>
+<p>&lt;div id="result" class="max-w-7xl mx-auto overflow-x-auto fade-in"&gt;&lt;/div&gt;</p>
+<p>&lt;footer class="text-center text-gray-500 text-sm mt-8 mb-4"&gt;</p>
+<p>  © 2025 采购部 |</p>
+<p>  &lt;a href="/" class="hover:underline"&gt;首页&lt;/a&gt; |</p>
+<p>  &lt;a href="/bom/index.html" class="hover:underline"&gt;BOM&lt;/a&gt; |</p>
+<p>  &lt;a href="/CP/index.html" class="hover:underline"&gt;成品信息&lt;/a&gt; |</p>
+<p>  &lt;a href="/product/index.html" class="hover:underline"&gt;产品手册&lt;/a&gt;</p>
+<p>&lt;/footer&gt;</p>
+<p>&lt;script&gt;</p>
+<p>let dataCache = [];</p>
+<p>fetch('data.json')</p>
+<p>  .then(res =&gt; res.json())</p>
+<p>  .then(data =&gt; {</p>
+<p>    dataCache = data;</p>
+<p>    document.getElementById("loading").style.display = "none";</p>
+<p>    console.log("✅ 数据已加载:", dataCache.length, "条");</p>
+<p>  })</p>
+<p>  .catch(err =&gt; {</p>
+<p>    console.error("❌ 数据加载失败:", err);</p>
+<p>    document.getElementById("loading").textContent = "❌ 无法加载数据，请检查 data.json 文件路径。";</p>
+<p>  });</p>
+<p>function searchData() {</p>
+<p>  const year = document.getElementById("year").value.trim();</p>
+<p>  const supplier = document.getElementById("supplier").value.trim();</p>
+<p>  const projectNo = document.getElementById("projectNo").value.trim();</p>
+<p>  const projectName = document.getElementById("projectName").value.trim();</p>
+<p>  if (!year &amp;&amp; !supplier &amp;&amp; !projectNo &amp;&amp; !projectName) {</p>
+<p>    alert("请输入至少一项查询条件！");</p>
+<p>    return;</p>
+<p>  }</p>
+<p>  let filtered = dataCache.filter(item =&gt; {</p>
+<p>    const supplierStr = item["供应商名称"] || "";</p>
+<p>    const projectNoStr = item["物料项目号"] ? String(item["物料项目号"]) : "";</p>
+<p>    const projectNameStr = item["物料名称"] || "";</p>
+<p>    const contractNoStr = item["合同编号"] || "";</p>
+<p>    const matchYear = year ? contractNoStr.includes(year) : true;</p>
+<p>    const matchSupplier = supplier ? supplierStr.includes(supplier) : true;</p>
+<p>    const matchProjectNo = projectNo ? projectNoStr === projectNo : true;</p>
+<p>    const matchProjectName = projectName ? projectNameStr.includes(projectName) : true;</p>
+<p>    return matchYear &amp;&amp; matchSupplier &amp;&amp; matchProjectNo &amp;&amp; matchProjectName;</p>
+<p>  });</p>
+<p>  filtered.sort((a,b)=&gt;b["合同编号"].localeCompare(a["合同编号"]));</p>
+<p>  if (filtered.length === 0) {</p>
+<p>    document.getElementById("summary").classList.add("hidden");</p>
+<p>    document.getElementById("result").innerHTML = "&lt;p class='text-center text-gray-500'&gt;未找到匹配的数据。&lt;/p&gt;";</p>
+<p>    return;</p>
+<p>  }</p>
+<p>  let total = filtered.reduce((sum,item)=&gt;sum + Number(item["订单总额"]||0),0);</p>
+<p>  document.getElementById("summary").classList.remove("hidden");</p>
+<p>  document.getElementById("count").textContent = filtered.length;</p>
+<p>  document.getElementById("total").textContent = total.toLocaleString(undefined,{minimumFractionDigits:2});</p>
+<p>  let tableHTML = `</p>
+<p>    &lt;table class="w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm"&gt;</p>
+<p>      &lt;thead class="bg-gray-100 font-semibold sticky top-0"&gt;</p>
+<p>        &lt;tr&gt;</p>
+<p>          &lt;th class="p-2 border-b"&gt;物料项目号&lt;/th&gt;</p>
+<p>          &lt;th class="p-2 border-b"&gt;物料名称&lt;/th&gt;</p>
+<p>          &lt;th class="p-2 border-b"&gt;数量&lt;/th&gt;</p>
+<p>          &lt;th class="p-2 border-b"&gt;单位&lt;/th&gt;</p>
+<p>          &lt;th class="p-2 border-b"&gt;采购单价&lt;/th&gt;</p>
+<p>          &lt;th class="p-2 border-b"&gt;订单总额&lt;/th&gt;</p>
+<p>          &lt;th class="p-2 border-b"&gt;供应商名称&lt;/th&gt;</p>
+<p>          &lt;th class="p-2 border-b"&gt;合同编号&lt;/th&gt;</p>
+<p>        &lt;/tr&gt;</p>
+<p>      &lt;/thead&gt;</p>
+<p>      &lt;tbody&gt;</p>
+<p>        ${filtered.map((row,i)=&gt;`</p>
+<p>          &lt;tr class="${i%2===0?'bg-gray-50':'bg-white'} hover:bg-red-50 transition"&gt;</p>
+<p>            &lt;td class="p-2 border-b"&gt;${row["物料项目号"]||""}&lt;/td&gt;</p>
+<p>            &lt;td class="p-2 border-b"&gt;${row["物料名称"]||""}&lt;/td&gt;</p>
+<p>            &lt;td class="p-2 border-b"&gt;${row["数量"]||""}&lt;/td&gt;</p>
+<p>            &lt;td class="p-2 border-b"&gt;${row["单位"]||""}&lt;/td&gt;</p>
+<p>            &lt;td class="p-2 border-b"&gt;${Number(row["采购单价"]||0).toFixed(2)}&lt;/td&gt;</p>
+<p>            &lt;td class="p-2 border-b text-red-600 font-semibold"&gt;${Number(row["订单总额"]||0).toFixed(2)}&lt;/td&gt;</p>
+<p>            &lt;td class="p-2 border-b"&gt;${row["供应商名称"]||""}&lt;/td&gt;</p>
+<p>            &lt;td class="p-2 border-b"&gt;${row["合同编号"]||""}&lt;/td&gt;</p>
+<p>          &lt;/tr&gt;</p>
+<p>        `).join('')}</p>
+<p>      &lt;/tbody&gt;</p>
+<p>      &lt;tfoot class="bg-gray-100 font-semibold"&gt;</p>
+<p>        &lt;tr&gt;</p>
+<p>          &lt;td colspan="5" class="p-2 text-right"&gt;金额总计：&lt;/td&gt;</p>
+<p>          &lt;td colspan="3" class="p-2 text-red-700"&gt;${total.toFixed(2)}&lt;/td&gt;</p>
+<p>        &lt;/tr&gt;</p>
+<p>      &lt;/tfoot&gt;</p>
+<p>    &lt;/table&gt;</p>
+<p>  `;</p>
+<p>  document.getElementById("result").innerHTML = tableHTML;</p>
+<p>}</p>
+<p>function resetForm() {</p>
+<p>  ["year","supplier","projectNo","projectName"].forEach(id=&gt;document.getElementById(id).value="");</p>
+<p>  document.getElementById("result").innerHTML = "";</p>
+<p>  document.getElementById("summary").classList.add("hidden");</p>
+<p>}</p>
+<p>function exportTableToExcel(filename) {</p>
+<p>  const table = document.querySelector("#result table");</p>
+<p>  if (!table) { alert("请先执行查询！"); return; }</p>
+<p>  const html = table.outerHTML.replace(/ /g,'%20');</p>
+<p>  const link = document.createElement("a");</p>
+<p>  link.href = 'data:application/vnd.ms-excel,' + html;</p>
+<p>  link.download = filename;</p>
+<p>  link.click();</p>
+<p>}</p>
+<p>&lt;/script&gt;</p>
+<p>&lt;/body&gt;</p>
+<p>&lt;/html&gt;</p></div>
+      <div class="qa-a"><p>明白了，你想在 <code>supplier</code> 文件夹下做一个 <strong>供应商信息查询页面</strong>，功能是：  </p>
+<ul class="md-ul"><li>初始页面不显示任何信息；  </li><li>有两个搜索框：供应商名称（可模糊搜索）、主要产品（可模糊搜索）；  </li><li>点击“查询”按钮后显示匹配结果；  </li><li>风格参考你提供的物料查询系统页面。  </li></ul>
+<p>我给你整理了一份完整的 <code>index.html</code> 示例，放在 <code>supplier/index.html</code> 就能用：</p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;UTF-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+&lt;title&gt;供应商信息查询&lt;/title&gt;
+&lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+&lt;style&gt;
+  @keyframes fadeIn { from { opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
+  .fade-in { animation: fadeIn 0.4s ease-in; }
+  table th { position: sticky; top: 0; background-color: white; z-index: 10; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body class=&quot;bg-gray-50 font-sans text-gray-800&quot;&gt;
+
+&lt;!-- 标题栏 --&gt;
+&lt;div class=&quot;max-w-7xl mx-auto bg-white rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 fade-in&quot;&gt;
+  &lt;div class=&quot;flex items-center gap-3&quot;&gt;
+    &lt;img src=&quot;/assets/img/trtlogo.png&quot; alt=&quot;LOGO&quot; class=&quot;h-12 w-auto object-contain&quot;&gt;
+    &lt;h1 class=&quot;text-xl md:text-2xl font-bold text-gray-900&quot;&gt;供应商信息查询&lt;/h1&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;flex flex-col md:flex-row flex-wrap gap-2 text-gray-700 text-sm md:text-base&quot;&gt;
+    &lt;span class=&quot;px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700&quot;&gt;🔍 支持模糊搜索供应商名称和主要产品&lt;/span&gt;
+    &lt;span class=&quot;px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600&quot;&gt;⚠️ 内部数据，请勿外传&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 查询区域 --&gt;
+&lt;div class=&quot;max-w-7xl mx-auto bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in&quot;&gt;
+  &lt;input id=&quot;supplierName&quot; type=&quot;text&quot; placeholder=&quot;供应商名称（可模糊搜索）&quot; class=&quot;border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400&quot; /&gt;
+  &lt;input id=&quot;mainProduct&quot; type=&quot;text&quot; placeholder=&quot;主要产品（可模糊搜索）&quot; class=&quot;border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400&quot; /&gt;
+  &lt;button onclick=&quot;searchData()&quot; class=&quot;bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow&quot;&gt;查询&lt;/button&gt;
+  &lt;button onclick=&quot;resetForm()&quot; class=&quot;bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow&quot;&gt;重置&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;!-- 查询结果 --&gt;
+&lt;div id=&quot;loading&quot; class=&quot;text-center text-red-600 font-medium my-6 fade-in&quot;&gt;⏳ 数据加载中...&lt;/div&gt;
+&lt;div id=&quot;result&quot; class=&quot;max-w-7xl mx-auto overflow-x-auto fade-in&quot;&gt;&lt;/div&gt;
+
+&lt;footer class=&quot;text-center text-gray-500 text-sm mt-8 mb-4&quot;&gt;
+  © 2025 采购部 |
+  &lt;a href=&quot;/&quot; class=&quot;hover:underline&quot;&gt;首页&lt;/a&gt;
+&lt;/footer&gt;
+
+&lt;script&gt;
+let dataCache = [];
+
+fetch(&#x27;data.json&#x27;)
+  .then(res =&gt; res.json())
+  .then(data =&gt; {
+    dataCache = data;
+    document.getElementById(&quot;loading&quot;).style.display = &quot;none&quot;;
+    console.log(&quot;✅ 数据已加载:&quot;, dataCache.length, &quot;条&quot;);
+  })
+  .catch(err =&gt; {
+    console.error(&quot;❌ 数据加载失败:&quot;, err);
+    document.getElementById(&quot;loading&quot;).textContent = &quot;❌ 无法加载数据，请检查 data.json 文件路径。&quot;;
+  });
+
+function searchData() {
+  const nameInput = document.getElementById(&quot;supplierName&quot;).value.trim().toLowerCase();
+  const productInput = document.getElementById(&quot;mainProduct&quot;).value.trim().toLowerCase();
+
+  if (!nameInput &amp;&amp; !productInput) {
+    alert(&quot;请输入至少一项查询条件！&quot;);
+    return;
+  }
+
+  const filtered = dataCache.filter(item =&gt; {
+    const nameMatch = nameInput ? (item[&quot;名称&quot;]||&quot;&quot;).toLowerCase().includes(nameInput) : true;
+    const productMatch = productInput ? (item[&quot;主要产品&quot;]||&quot;&quot;).toLowerCase().includes(productInput) : true;
+    return nameMatch &amp;&amp; productMatch;
+  });
+
+  if (filtered.length === 0) {
+    document.getElementById(&quot;result&quot;).innerHTML = &quot;&lt;p class=&#x27;text-center text-gray-500&#x27;&gt;未找到匹配的供应商。&lt;/p&gt;&quot;;
+    return;
+  }
+
+  let tableHTML = `
+    &lt;table class=&quot;w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm&quot;&gt;
+      &lt;thead class=&quot;bg-gray-100 font-semibold sticky top-0&quot;&gt;
+        &lt;tr&gt;
+          &lt;th class=&quot;p-2 border-b&quot;&gt;供应商编号&lt;/th&gt;
+          &lt;th class=&quot;p-2 border-b&quot;&gt;名称&lt;/th&gt;
+          &lt;th class=&quot;p-2 border-b&quot;&gt;简称&lt;/th&gt;
+          &lt;th class=&quot;p-2 border-b&quot;&gt;联系人&lt;/th&gt;
+          &lt;th class=&quot;p-2 border-b&quot;&gt;联系电话&lt;/th&gt;
+          &lt;th class=&quot;p-2 border-b&quot;&gt;备用电话&lt;/th&gt;
+          &lt;th class=&quot;p-2 border-b&quot;&gt;公司地址&lt;/th&gt;
+          &lt;th class=&quot;p-2 border-b&quot;&gt;供应品类&lt;/th&gt;
+          &lt;th class=&quot;p-2 border-b&quot;&gt;主要产品&lt;/th&gt;
+          &lt;th class=&quot;p-2 border-b&quot;&gt;合作起始日期&lt;/th&gt;
+          &lt;th class=&quot;p-2 border-b&quot;&gt;合作状态&lt;/th&gt;
+          &lt;th class=&quot;p-2 border-b&quot;&gt;信用等级&lt;/th&gt;
+          &lt;th class=&quot;p-2 border-b&quot;&gt;备注信息&lt;/th&gt;
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        ${filtered.map((row,i)=&gt;`
+          &lt;tr class=&quot;${i%2===0?&#x27;bg-gray-50&#x27;:&#x27;bg-white&#x27;} hover:bg-red-50 transition&quot;&gt;
+            &lt;td class=&quot;p-2 border-b&quot;&gt;${row[&quot;供应商编号&quot;]||&quot;&quot;}&lt;/td&gt;
+            &lt;td class=&quot;p-2 border-b&quot;&gt;${row[&quot;名称&quot;]||&quot;&quot;}&lt;/td&gt;
+            &lt;td class=&quot;p-2 border-b&quot;&gt;${row[&quot;简称&quot;]||&quot;&quot;}&lt;/td&gt;
+            &lt;td class=&quot;p-2 border-b&quot;&gt;${row[&quot;联系人&quot;]||&quot;&quot;}&lt;/td&gt;
+            &lt;td class=&quot;p-2 border-b&quot;&gt;${row[&quot;联系电话&quot;]||&quot;&quot;}&lt;/td&gt;
+            &lt;td class=&quot;p-2 border-b&quot;&gt;${row[&quot;备用电话&quot;]||&quot;&quot;}&lt;/td&gt;
+            &lt;td class=&quot;p-2 border-b&quot;&gt;${row[&quot;公司地址&quot;]||&quot;&quot;}&lt;/td&gt;
+            &lt;td class=&quot;p-2 border-b&quot;&gt;${row[&quot;供应品类&quot;]||&quot;&quot;}&lt;/td&gt;
+            &lt;td class=&quot;p-2 border-b&quot;&gt;${row[&quot;主要产品&quot;]||&quot;&quot;}&lt;/td&gt;
+            &lt;td class=&quot;p-2 border-b&quot;&gt;${row[&quot;合作起始日期&quot;]||&quot;&quot;}&lt;/td&gt;
+            &lt;td class=&quot;p-2 border-b&quot;&gt;${row[&quot;合作状态&quot;]||&quot;&quot;}&lt;/td&gt;
+            &lt;td class=&quot;p-2 border-b&quot;&gt;${row[&quot;信用等级&quot;]||&quot;&quot;}&lt;/td&gt;
+            &lt;td class=&quot;p-2 border-b&quot;&gt;${row[&quot;备注信息&quot;]||&quot;&quot;}&lt;/td&gt;
+          &lt;/tr&gt;
+        `).join(&#x27;&#x27;)}
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+  `;
+  document.getElementById(&quot;result&quot;).innerHTML = tableHTML;
+}
+
+function resetForm() {
+  [&quot;supplierName&quot;,&quot;mainProduct&quot;].forEach(id=&gt;document.getElementById(id).value=&quot;&quot;);
+  document.getElementById(&quot;result&quot;).innerHTML = &quot;&quot;;
+}
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>✅ 特点：</p>
+<ol class="md-ol"><li>初始不显示任何数据；  </li><li>支持“供应商名称”和“主要产品”模糊搜索；  </li><li>样式与物料查询页面一致，使用 TailwindCSS；  </li><li>支持表格悬浮表头、交替行色、悬停高亮。  </li></ol>
+<p>---</p>
+<p>如果你希望，我可以帮你再 <strong>把“合作起始日期”从 Excel 序列号格式自动转换成标准日期格式</strong>，看起来更友好。  </p>
+<p>你希望我加上吗？</p></div>
+    </section>
+    <section id="s2" class="st2">
+      <div class="sec-h"><span class="idx st2">Q2</span><h2>查询后，只显示名称、联系人、主要产品和备注</h2><span class="hint">第 2 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>查询后，只显示名称、联系人、主要产品和备注</p></div>
+      <div class="qa-a"><p>明白了，你希望 <strong>查询结果表格只显示 供应商名称、联系人、主要产品 和 备注信息</strong>，其余字段不显示。我帮你修改好了 <code>index.html</code> 的核心部分：  </p>
+<div class="codeblock"><pre><code>&lt;!-- 查询结果 --&gt;
+&lt;div id=&quot;loading&quot; class=&quot;text-center text-red-600 font-medium my-6 fade-in&quot;&gt;⏳ 数据加载中...&lt;/div&gt;
+&lt;div id=&quot;result&quot; class=&quot;max-w-7xl mx-auto overflow-x-auto fade-in&quot;&gt;&lt;/div&gt;
+
+&lt;script&gt;
+let dataCache = [];
+
+fetch(&#x27;data.json&#x27;)
+  .then(res =&gt; res.json())
+  .then(data =&gt; {
+    dataCache = data;
+    document.getElementById(&quot;loading&quot;).style.display = &quot;none&quot;;
+    console.log(&quot;✅ 数据已加载:&quot;, dataCache.length, &quot;条&quot;);
+  })
+  .catch(err =&gt; {
+    console.error(&quot;❌ 数据加载失败:&quot;, err);
+    document.getElementById(&quot;loading&quot;).textContent = &quot;❌ 无法加载数据，请检查 data.json 文件路径。&quot;;
+  });
+
+function searchData() {
+  const nameInput = document.getElementById(&quot;supplierName&quot;).value.trim().toLowerCase();
+  const productInput = document.getElementById(&quot;mainProduct&quot;).value.trim().toLowerCase();
+
+  if (!nameInput &amp;&amp; !productInput) {
+    alert(&quot;请输入至少一项查询条件！&quot;);
+    return;
+  }
+
+  const filtered = dataCache.filter(item =&gt; {
+    const nameMatch = nameInput ? (item[&quot;名称&quot;]||&quot;&quot;).toLowerCase().includes(nameInput) : true;
+    const productMatch = productInput ? (item[&quot;主要产品&quot;]||&quot;&quot;).toLowerCase().includes(productInput) : true;
+    return nameMatch &amp;&amp; productMatch;
+  });
+
+  if (filtered.length === 0) {
+    document.getElementById(&quot;result&quot;).innerHTML = &quot;&lt;p class=&#x27;text-center text-gray-500&#x27;&gt;未找到匹配的供应商。&lt;/p&gt;&quot;;
+    return;
+  }
+
+  let tableHTML = `
+    &lt;table class=&quot;w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm&quot;&gt;
+      &lt;thead class=&quot;bg-gray-100 font-semibold sticky top-0&quot;&gt;
+        &lt;tr&gt;
+          &lt;th class=&quot;p-2 border-b&quot;&gt;名称&lt;/th&gt;
+          &lt;th class=&quot;p-2 border-b&quot;&gt;联系人&lt;/th&gt;
+          &lt;th class=&quot;p-2 border-b&quot;&gt;主要产品&lt;/th&gt;
+          &lt;th class=&quot;p-2 border-b&quot;&gt;备注&lt;/th&gt;
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        ${filtered.map((row,i)=&gt;`
+          &lt;tr class=&quot;${i%2===0?&#x27;bg-gray-50&#x27;:&#x27;bg-white&#x27;} hover:bg-red-50 transition&quot;&gt;
+            &lt;td class=&quot;p-2 border-b&quot;&gt;${row[&quot;名称&quot;]||&quot;&quot;}&lt;/td&gt;
+            &lt;td class=&quot;p-2 border-b&quot;&gt;${row[&quot;联系人&quot;]||&quot;&quot;}&lt;/td&gt;
+            &lt;td class=&quot;p-2 border-b&quot;&gt;${row[&quot;主要产品&quot;]||&quot;&quot;}&lt;/td&gt;
+            &lt;td class=&quot;p-2 border-b&quot;&gt;${row[&quot;备注信息&quot;]||&quot;&quot;}&lt;/td&gt;
+          &lt;/tr&gt;
+        `).join(&#x27;&#x27;)}
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+  `;
+  document.getElementById(&quot;result&quot;).innerHTML = tableHTML;
+}
+
+function resetForm() {
+  [&quot;supplierName&quot;,&quot;mainProduct&quot;].forEach(id=&gt;document.getElementById(id).value=&quot;&quot;);
+  document.getElementById(&quot;result&quot;).innerHTML = &quot;&quot;;
+}
+&lt;/script&gt;</code></pre></div>
+<p>✅ 改动点：  </p>
+<ol class="md-ol"><li>表头只保留：<code>名称 | 联系人 | 主要产品 | 备注</code>；  </li><li>表格行只显示对应四个字段；  </li><li>其他功能保持原样（模糊搜索、悬浮表头、交替行色、高亮）。  </li></ol>
+<p>---</p>
+<p>如果你愿意，我可以顺便帮你 <strong>增加点击供应商名称弹出详细信息的功能</strong>，查询结果表格保持简洁，但点开可以看所有信息，非常实用。  </p>
+<p>你希望加吗？</p></div>
+    </section>
+    <section id="s3" class="st3">
+      <div class="sec-h"><span class="idx st3">Q3</span><h2>提供完整的index吧</h2><span class="hint">第 3 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>提供完整的index吧</p></div>
+      <div class="qa-a"><p>明白，我帮你整理了一份 <strong>完整可用的 <code>supplier/index.html</code></strong>，只显示查询结果的四列（名称、联系人、主要产品、备注），页面风格和你提供的物料查询系统保持一致：  </p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;UTF-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+&lt;title&gt;供应商信息查询&lt;/title&gt;
+&lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+&lt;style&gt;
+  @keyframes fadeIn { from { opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
+  .fade-in { animation: fadeIn 0.4s ease-in; }
+  table th { position: sticky; top: 0; background-color: white; z-index: 10; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body class=&quot;bg-gray-50 font-sans text-gray-800&quot;&gt;
+
+&lt;!-- 标题栏 --&gt;
+&lt;div class=&quot;max-w-7xl mx-auto bg-white rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 fade-in&quot;&gt;
+  &lt;div class=&quot;flex items-center gap-3&quot;&gt;
+    &lt;img src=&quot;/assets/img/trtlogo.png&quot; alt=&quot;LOGO&quot; class=&quot;h-12 w-auto object-contain&quot;&gt;
+    &lt;h1 class=&quot;text-xl md:text-2xl font-bold text-gray-900&quot;&gt;供应商信息查询&lt;/h1&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;flex flex-col md:flex-row flex-wrap gap-2 text-gray-700 text-sm md:text-base&quot;&gt;
+    &lt;span class=&quot;px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700&quot;&gt;🔍 支持模糊搜索供应商名称和主要产品&lt;/span&gt;
+    &lt;span class=&quot;px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600&quot;&gt;⚠️ 内部数据，请勿外传&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 查询区域 --&gt;
+&lt;div class=&quot;max-w-7xl mx-auto bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in&quot;&gt;
+  &lt;input id=&quot;supplierName&quot; type=&quot;text&quot; placeholder=&quot;供应商名称（可模糊搜索）&quot; class=&quot;border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400&quot; /&gt;
+  &lt;input id=&quot;mainProduct&quot; type=&quot;text&quot; placeholder=&quot;主要产品（可模糊搜索）&quot; class=&quot;border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400&quot; /&gt;
+  &lt;button onclick=&quot;searchData()&quot; class=&quot;bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow&quot;&gt;查询&lt;/button&gt;
+  &lt;button onclick=&quot;resetForm()&quot; class=&quot;bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow&quot;&gt;重置&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;!-- 查询结果 --&gt;
+&lt;div id=&quot;loading&quot; class=&quot;text-center text-red-600 font-medium my-6 fade-in&quot;&gt;⏳ 数据加载中...&lt;/div&gt;
+&lt;div id=&quot;result&quot; class=&quot;max-w-7xl mx-auto overflow-x-auto fade-in&quot;&gt;&lt;/div&gt;
+
+&lt;footer class=&quot;text-center text-gray-500 text-sm mt-8 mb-4&quot;&gt;
+  © 2025 采购部 |
+  &lt;a href=&quot;/&quot; class=&quot;hover:underline&quot;&gt;首页&lt;/a&gt;
+&lt;/footer&gt;
+
+&lt;script&gt;
+let dataCache = [];
+
+fetch(&#x27;data.json&#x27;)
+  .then(res =&gt; res.json())
+  .then(data =&gt; {
+    dataCache = data;
+    document.getElementById(&quot;loading&quot;).style.display = &quot;none&quot;;
+    console.log(&quot;✅ 数据已加载:&quot;, dataCache.length, &quot;条&quot;);
+  })
+  .catch(err =&gt; {
+    console.error(&quot;❌ 数据加载失败:&quot;, err);
+    document.getElementById(&quot;loading&quot;).textContent = &quot;❌ 无法加载数据，请检查 data.json 文件路径。&quot;;
+  });
+
+function searchData() {
+  const nameInput = document.getElementById(&quot;supplierName&quot;).value.trim().toLowerCase();
+  const productInput = document.getElementById(&quot;mainProduct&quot;).value.trim().toLowerCase();
+
+  if (!nameInput &amp;&amp; !productInput) {
+    alert(&quot;请输入至少一项查询条件！&quot;);
+    return;
+  }
+
+  const filtered = dataCache.filter(item =&gt; {
+    const nameMatch = nameInput ? (item[&quot;名称&quot;]||&quot;&quot;).toLowerCase().includes(nameInput) : true;
+    const productMatch = productInput ? (item[&quot;主要产品&quot;]||&quot;&quot;).toLowerCase().includes(productInput) : true;
+    return nameMatch &amp;&amp; productMatch;
+  });
+
+  if (filtered.length === 0) {
+    document.getElementById(&quot;result&quot;).innerHTML = &quot;&lt;p class=&#x27;text-center text-gray-500&#x27;&gt;未找到匹配的供应商。&lt;/p&gt;&quot;;
+    return;
+  }
+
+  let tableHTML = `
+    &lt;table class=&quot;w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm&quot;&gt;
+      &lt;thead class=&quot;bg-gray-100 font-semibold sticky top-0&quot;&gt;
+        &lt;tr&gt;
+          &lt;th class=&quot;p-2 border-b&quot;&gt;名称&lt;/th&gt;
+          &lt;th class=&quot;p-2 border-b&quot;&gt;联系人&lt;/th&gt;
+          &lt;th class=&quot;p-2 border-b&quot;&gt;主要产品&lt;/th&gt;
+          &lt;th class=&quot;p-2 border-b&quot;&gt;备注&lt;/th&gt;
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        ${filtered.map((row,i)=&gt;`
+          &lt;tr class=&quot;${i%2===0?&#x27;bg-gray-50&#x27;:&#x27;bg-white&#x27;} hover:bg-red-50 transition&quot;&gt;
+            &lt;td class=&quot;p-2 border-b&quot;&gt;${row[&quot;名称&quot;]||&quot;&quot;}&lt;/td&gt;
+            &lt;td class=&quot;p-2 border-b&quot;&gt;${row[&quot;联系人&quot;]||&quot;&quot;}&lt;/td&gt;
+            &lt;td class=&quot;p-2 border-b&quot;&gt;${row[&quot;主要产品&quot;]||&quot;&quot;}&lt;/td&gt;
+            &lt;td class=&quot;p-2 border-b&quot;&gt;${row[&quot;备注信息&quot;]||&quot;&quot;}&lt;/td&gt;
+          &lt;/tr&gt;
+        `).join(&#x27;&#x27;)}
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+  `;
+  document.getElementById(&quot;result&quot;).innerHTML = tableHTML;
+}
+
+function resetForm() {
+  [&quot;supplierName&quot;,&quot;mainProduct&quot;].forEach(id=&gt;document.getElementById(id).value=&quot;&quot;);
+  document.getElementById(&quot;result&quot;).innerHTML = &quot;&quot;;
+}
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>✅ 特点总结：  </p>
+<ul class="md-ul"><li>初始页面不显示数据；  </li><li>两个搜索框：供应商名称、主要产品；  </li><li>查询结果只显示四列：名称、联系人、主要产品、备注信息；  </li><li>表格支持交替行色和悬浮高亮；  </li><li>样式与之前物料查询系统保持一致，干净美观。  </li></ul>
+<p>---</p>
+<p>如果你希望，我可以进一步帮你 <strong>点击供应商名称就弹出完整信息</strong>，保持表格简洁，但可查看所有字段。  </p>
+<p>你希望加这个功能吗？</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>供应商信息查询页面 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：供应商信息查询页面（2025-11-01）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1", "s2", "s3"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

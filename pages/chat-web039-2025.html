@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>修正产品展示页 · 2025</title>
+<meta name="description" content="非常好 👍 你已经把 data.json 改成了一个更清晰、扁平化的格式。  不过，这意味着你的前端脚本也要同步调整，否则它会尝试用旧结构（按系列分组的嵌套对象）去解析数据，导致报错或不显示。我帮你把整份 HTML（index.html）修">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a><a href="#s2" data-sec="s2">Q2</a><a href="#s3" data-sec="s3">Q3</a><a href="#s4" data-sec="s4">Q4</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · 建站
+  <h1 class="s-h1">修正产品展示页</h1>
+  <p class="s-lede">非常好 👍 你已经把 data.json 改成了一个更清晰、扁平化的格式。  不过，这意味着你的前端脚本也要同步调整，否则它会尝试用旧结构（按系列分组的嵌套对象）去解析数据，导致报错或不显示。我帮你把整份 HTML（index.html）修</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>8</b></span>
+    <span>时间范围 <b>2025-10-29 ~ 2025-10-29</b></span>
+    <span>分类 <b>建站与技术</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">建站</span>
+    <span class="s-chip">2025</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>产品的数据文件data，内容我改成了这种格式：[  {    &quot;系列&quot;: &quot;鲜虫…</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>产品的数据文件data，内容我改成了这种格式：[</p>
+<p>  {</p>
+<p>    "系列": "鲜虫草系列",</p>
+<p>    "产品名称": "鲜冬虫夏草-2A",</p>
+<p>    "规格": "2A（0.61g-0.8g/支）-27支",</p>
+<p>    "价格": 2199,</p>
+<p>    "说明": "null"</p>
+<p>  },</p>
+<p>  {</p>
+<p>    "系列": "鲜虫草系列",</p>
+<p>    "产品名称": "鲜冬虫夏草-2A",</p>
+<p>    "规格": "2A（0.61g-0.8g/支）-81支",</p>
+<p>    "价格": 4799,</p>
+<p>    "说明": "null"</p>
+<p>  },</p>
+<p>  {</p>
+<p>    "系列": "鲜虫草系列",</p>
+<p>    "产品名称": "鲜冬虫夏草-3A",</p>
+<p>    "规格": "3A（0.81-1.0g/支）-81支",</p>
+<p>    "价格": 9699,</p>
+<p>    "说明": "null"</p>
+<p>  }</p>
+<p>]    产品展示页的代码index，在细节上做修身，产品卡片不显示系列：&lt;!DOCTYPE html&gt;</p>
+<p>&lt;html lang="zh-CN"&gt;</p>
+<p>&lt;head&gt;</p>
+<p>  &lt;meta charset="UTF-8"&gt;</p>
+<p>  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p>  &lt;title&gt;产品系列展示&lt;/title&gt;</p>
+<p>  &lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p>  &lt;style&gt;</p>
+<p>    .fade-in { animation: fadeIn 0.4s ease-in; }</p>
+<p>    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px);} to {opacity:1; transform: translateY(0);} }</p>
+<p>    /* 左侧导航隐藏和滑出 */</p>
+<p>    #sidebar { transition: transform 0.3s; z-index: 50; }</p>
+<p>    #sidebar.hidden { transform: translateX(-100%); }</p>
+<p>    #sidebar.show { transform: translateX(0); }</p>
+<p>    /* 悬浮按钮 */</p>
+<p>    #toggleBtn { position: fixed; top: 1rem; left: 1rem; z-index: 60; background-color: #ef4444; }</p>
+<p>    /* 产品卡片悬浮效果 */</p>
+<p>    .product-card:hover { transform: translateY(-5px) scale(1.03); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }</p>
+<p>    /* 图片放大遮罩 */</p>
+<p>    #lightbox {</p>
+<p>      display: none; position: fixed; top:0; left:0; width:100%; height:100%;</p>
+<p>      background: rgba(0,0,0,0.8); justify-content:center; align-items:center;</p>
+<p>      z-index: 100;</p>
+<p>    }</p>
+<p>    #lightbox img { max-width: 90%; max-height: 90%; border-radius: 8px; }</p>
+<p>    /* 电脑端卡片高度适中 */</p>
+<p>    .max-h-card { max-height: 380px; } /* 可根据需求微调 */</p>
+<p>  &lt;/style&gt;</p>
+<p>&lt;/head&gt;</p>
+<p>&lt;body class="bg-gray-100 font-sans"&gt;</p>
+<p>  &lt;!-- 悬浮导航按钮 --&gt;</p>
+<p>  &lt;button id="toggleBtn" class="p-2 rounded-full shadow text-white hover:bg-red-600"&gt;☰&lt;/button&gt;</p>
+<p>  &lt;div class="flex flex-col min-h-screen"&gt;</p>
+<p>    &lt;div class="flex flex-1 overflow-hidden"&gt;</p>
+<p>      &lt;!-- 左侧导航 --&gt;</p>
+<p>      &lt;div id="sidebar" class="w-64 bg-white shadow-lg p-4 overflow-y-auto hidden fixed md:relative md:block"&gt;</p>
+<p>        &lt;div id="series-list" class="flex flex-col gap-2"&gt;&lt;/div&gt;</p>
+<p>      &lt;/div&gt;</p>
+<p>      &lt;!-- 右侧产品区 --&gt;</p>
+<p>      &lt;div class="flex-1 p-6 overflow-y-auto md:ml-64 flex justify-center"&gt;</p>
+<p>        &lt;div id="products" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center w-full max-w-7xl"&gt;</p>
+<p>          &lt;!-- 产品卡片生成 --&gt;</p>
+<p>        &lt;/div&gt;</p>
+<p>      &lt;/div&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>    &lt;!-- 底部版权信息 --&gt;</p>
+<p>    &lt;footer class="text-center text-gray-500 text-sm mt-8 mb-4"&gt;</p>
+<p>      © 2025 德令哈采购管理部提供技术和数据支持</p>
+<p>    &lt;/footer&gt;</p>
+<p>  &lt;/div&gt;</p>
+<p>  &lt;!-- 图片放大遮罩 --&gt;</p>
+<p>  &lt;div id="lightbox" class="flex" onclick="this.style.display='none'"&gt;</p>
+<p>    &lt;img id="lightbox-img" src="" alt="大图"&gt;</p>
+<p>  &lt;/div&gt;</p>
+<p>  &lt;script&gt;</p>
+<p>    const sidebar = document.getElementById('sidebar');</p>
+<p>    const toggleBtn = document.getElementById('toggleBtn');</p>
+<p>    const seriesList = document.getElementById('series-list');</p>
+<p>    const productsDiv = document.getElementById('products');</p>
+<p>    const lightbox = document.getElementById('lightbox');</p>
+<p>    const lightboxImg = document.getElementById('lightbox-img');</p>
+<p>    toggleBtn.addEventListener('click', () =&gt; {</p>
+<p>      sidebar.classList.toggle('hidden');</p>
+<p>      sidebar.classList.toggle('show');</p>
+<p>    });</p>
+<p>    sidebar.classList.add('hidden');</p>
+<p>    fetch('data.json')</p>
+<p>      .then(res =&gt; res.json())</p>
+<p>      .then(data =&gt; {</p>
+<p>        const seriesNames = Object.keys(data);</p>
+<p>        let currentSeries = seriesNames[0];</p>
+<p>        // 生成系列按钮</p>
+<p>        seriesNames.forEach(series =&gt; {</p>
+<p>          const btn = document.createElement('button');</p>
+<p>          btn.textContent = series;</p>
+<p>          btn.className = 'px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-left';</p>
+<p>          btn.addEventListener('click', () =&gt; {</p>
+<p>            currentSeries = series;</p>
+<p>            renderProducts(series);</p>
+<p>            if (window.innerWidth &lt; 768) {</p>
+<p>              sidebar.classList.remove('show');</p>
+<p>              sidebar.classList.add('hidden');</p>
+<p>            }</p>
+<p>          });</p>
+<p>          seriesList.appendChild(btn);</p>
+<p>        });</p>
+<p>        // 渲染产品函数</p>
+<p>        function renderProducts(series) {</p>
+<p>          productsDiv.innerHTML = '';</p>
+<p>          data[series].forEach(product =&gt; {</p>
+<p>            const card = document.createElement('div');</p>
+<p>            card.className = 'product-card bg-white rounded-xl shadow p-4 fade-in flex flex-col items-center transition cursor-pointer w-full sm:max-w-sm md:max-w-md lg:max-w-md max-h-card';</p>
+<p>            card.innerHTML = `</p>
+<p>              &lt;img src="../assets/product/${product.image}" alt="${product.name}" class="w-full h-40 object-cover mb-3 rounded-lg"&gt;</p>
+<p>              &lt;div class="flex-1 flex flex-col justify-between w-full"&gt;</p>
+<p>                &lt;h3 class="font-semibold text-lg text-center truncate"&gt;${product.name}&lt;/h3&gt;</p>
+<p>                &lt;p class="text-gray-600 text-sm truncate"&gt;项目号: ${product.project}&lt;/p&gt;</p>
+<p>                &lt;p class="text-gray-600 text-sm truncate"&gt;规格: ${product.spec}&lt;/p&gt;</p>
+<p>                &lt;p class="text-red-600 font-semibold mt-1"&gt;零售价: ${product.price}&lt;/p&gt;</p>
+<p>              &lt;/div&gt;</p>
+<p>            `;</p>
+<p>            // 点击图片放大</p>
+<p>            const img = card.querySelector('img');</p>
+<p>            img.addEventListener('click', e =&gt; {</p>
+<p>              lightboxImg.src = img.src;</p>
+<p>              lightbox.style.display = 'flex';</p>
+<p>              e.stopPropagation();</p>
+<p>            });</p>
+<p>            productsDiv.appendChild(card);</p>
+<p>          });</p>
+<p>        }</p>
+<p>        // 初始渲染</p>
+<p>        renderProducts(currentSeries);</p>
+<p>      })</p>
+<p>      .catch(err =&gt; console.error('读取 data.json 出错:', err));</p>
+<p>  &lt;/script&gt;</p>
+<p>&lt;/body&gt;</p>
+<p>&lt;/html&gt;</p></div>
+      <div class="qa-a"><p>非常好 👍 你已经把 <code>data.json</code> 改成了一个更清晰、扁平化的格式。   不过，这意味着你的前端脚本也要同步调整，否则它会尝试用旧结构（按系列分组的嵌套对象）去解析数据，导致报错或不显示。</p>
+<p>我帮你把整份 HTML（<code>index.html</code>）修正为<strong>支持你当前 data.json 结构</strong>的版本，并实现以下优化：</p>
+<p>✅ 自动根据 <code>系列</code> 生成左侧导航按钮   ✅ 产品卡片中 <strong>不再显示系列</strong>（只显示名称、规格、价格、说明）   ✅ 结构层次与动画保持一致   ✅ 优化卡片尺寸、字体比例，使电脑端更协调   ✅ 兼容手机端侧边栏收起  </p>
+<p>---</p>
+<h4 class="sub-h">✅ 修正版 index.html</h4>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;产品系列展示&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;style&gt;
+    .fade-in { animation: fadeIn 0.4s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px);} to {opacity:1; transform: translateY(0);} }
+
+    #sidebar { transition: transform 0.3s; z-index: 50; }
+    #sidebar.hidden { transform: translateX(-100%); }
+    #sidebar.show { transform: translateX(0); }
+
+    #toggleBtn { position: fixed; top: 1rem; left: 1rem; z-index: 60; background-color: #ef4444; }
+
+    .product-card:hover { transform: translateY(-5px) scale(1.03); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+
+    #lightbox {
+      display: none; position: fixed; top:0; left:0; width:100%; height:100%;
+      background: rgba(0,0,0,0.8); justify-content:center; align-items:center;
+      z-index: 100;
+    }
+    #lightbox img { max-width: 90%; max-height: 90%; border-radius: 8px; }
+
+    /* 卡片尺寸与美化 */
+    .max-h-card { max-height: 380px; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body class=&quot;bg-gray-100 font-sans&quot;&gt;
+
+  &lt;!-- 悬浮导航按钮 --&gt;
+  &lt;button id=&quot;toggleBtn&quot; class=&quot;p-2 rounded-full shadow text-white hover:bg-red-600&quot;&gt;☰&lt;/button&gt;
+
+  &lt;div class=&quot;flex flex-col min-h-screen&quot;&gt;
+    &lt;div class=&quot;flex flex-1 overflow-hidden&quot;&gt;
+      &lt;!-- 左侧导航 --&gt;
+      &lt;div id=&quot;sidebar&quot; class=&quot;w-64 bg-white shadow-lg p-4 overflow-y-auto hidden fixed md:relative md:block&quot;&gt;
+        &lt;div id=&quot;series-list&quot; class=&quot;flex flex-col gap-2&quot;&gt;&lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;!-- 产品区 --&gt;
+      &lt;div class=&quot;flex-1 p-6 overflow-y-auto md:ml-64 flex justify-center&quot;&gt;
+        &lt;div id=&quot;products&quot; class=&quot;grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center w-full max-w-7xl&quot;&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;footer class=&quot;text-center text-gray-500 text-sm mt-8 mb-4&quot;&gt;
+      © 2025 德令哈采购管理部提供技术和数据支持
+    &lt;/footer&gt;
+  &lt;/div&gt;
+
+  &lt;!-- 图片放大遮罩 --&gt;
+  &lt;div id=&quot;lightbox&quot; class=&quot;flex&quot; onclick=&quot;this.style.display=&#x27;none&#x27;&quot;&gt;
+    &lt;img id=&quot;lightbox-img&quot; src=&quot;&quot; alt=&quot;大图&quot;&gt;
+  &lt;/div&gt;
+
+  &lt;script&gt;
+    const sidebar = document.getElementById(&#x27;sidebar&#x27;);
+    const toggleBtn = document.getElementById(&#x27;toggleBtn&#x27;);
+    const seriesList = document.getElementById(&#x27;series-list&#x27;);
+    const productsDiv = document.getElementById(&#x27;products&#x27;);
+    const lightbox = document.getElementById(&#x27;lightbox&#x27;);
+    const lightboxImg = document.getElementById(&#x27;lightbox-img&#x27;);
+
+    toggleBtn.addEventListener(&#x27;click&#x27;, () =&gt; {
+      sidebar.classList.toggle(&#x27;hidden&#x27;);
+      sidebar.classList.toggle(&#x27;show&#x27;);
+    });
+    sidebar.classList.add(&#x27;hidden&#x27;);
+
+    fetch(&#x27;data.json&#x27;)
+      .then(res =&gt; res.json())
+      .then(data =&gt; {
+        // 自动提取系列名
+        const seriesSet = new Set(data.map(item =&gt; item.系列));
+        const seriesNames = Array.from(seriesSet);
+        let currentSeries = seriesNames[0];
+
+        // 生成系列按钮
+        seriesNames.forEach(series =&gt; {
+          const btn = document.createElement(&#x27;button&#x27;);
+          btn.textContent = series;
+          btn.className = &#x27;px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-left&#x27;;
+          btn.addEventListener(&#x27;click&#x27;, () =&gt; {
+            currentSeries = series;
+            renderProducts(series);
+            if (window.innerWidth &lt; 768) {
+              sidebar.classList.remove(&#x27;show&#x27;);
+              sidebar.classList.add(&#x27;hidden&#x27;);
+            }
+          });
+          seriesList.appendChild(btn);
+        });
+
+        // 渲染产品函数
+        function renderProducts(series) {
+          productsDiv.innerHTML = &#x27;&#x27;;
+          const filtered = data.filter(item =&gt; item.系列 === series);
+
+          filtered.forEach(product =&gt; {
+            const card = document.createElement(&#x27;div&#x27;);
+            card.className = &#x27;product-card bg-white rounded-xl shadow p-4 fade-in flex flex-col items-center transition cursor-pointer w-full sm:max-w-sm md:max-w-md lg:max-w-md max-h-card&#x27;;
+            card.innerHTML = `
+              &lt;img src=&quot;../assets/product/Z1.jpg&quot; alt=&quot;${product.产品名称}&quot; class=&quot;w-full h-40 object-cover mb-3 rounded-lg&quot;&gt;
+              &lt;div class=&quot;flex-1 flex flex-col justify-between w-full text-center&quot;&gt;
+                &lt;h3 class=&quot;font-semibold text-lg truncate&quot;&gt;${product.产品名称}&lt;/h3&gt;
+                &lt;p class=&quot;text-gray-600 text-sm truncate&quot;&gt;${product.规格}&lt;/p&gt;
+                &lt;p class=&quot;text-red-600 font-semibold mt-1&quot;&gt;￥${product.价格}&lt;/p&gt;
+                ${product.说明 &amp;&amp; product.说明 !== &quot;null&quot; ? `&lt;p class=&quot;text-gray-500 text-xs mt-1&quot;&gt;${product.说明}&lt;/p&gt;` : &#x27;&#x27;}
+              &lt;/div&gt;
+            `;
+            const img = card.querySelector(&#x27;img&#x27;);
+            img.addEventListener(&#x27;click&#x27;, e =&gt; {
+              lightboxImg.src = img.src;
+              lightbox.style.display = &#x27;flex&#x27;;
+              e.stopPropagation();
+            });
+            productsDiv.appendChild(card);
+          });
+        }
+
+        renderProducts(currentSeries);
+      })
+      .catch(err =&gt; console.error(&#x27;读取 data.json 出错:&#x27;, err));
+  &lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">✅ 功能变化说明</h4>
+<div class="tblwrap"><table><thead><tr><th>功能</th><th>状态</th></tr></thead><tbody><tr><td>自动识别系列</td><td>✅ 从每条数据的 <code>"系列"</code> 字段提取</td></tr><tr><td>左侧系列导航</td><td>✅ 动态生成按钮</td></tr><tr><td>产品卡片</td><td>✅ 不显示系列名</td></tr><tr><td>占位图</td><td>✅ 使用 <code>../assets/product/Z1.jpg</code></td></tr><tr><td>手机端导航</td><td>✅ 点击按钮可收起/展开</td></tr><tr><td>动画 &amp; 阴影</td><td>✅ 保留</td></tr><tr><td>电脑端卡片比例</td><td>✅ 适中美观（max-height 380px）</td></tr></tbody></table></div>
+<p>---</p>
+<p>是否希望我帮你加入<strong>顶部企业介绍（图片+一句话简介）</strong>？   我可以直接把那部分加在产品列表上方（支持居中+响应式布局）。</p></div>
+    </section>
+    <section id="s2" class="st2">
+      <div class="sec-h"><span class="idx st2">Q2</span><h2>图片路径我是不是要加到data文件里？</h2><span class="hint">第 2 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>图片路径我是不是要加到data文件里？</p></div>
+      <div class="qa-a"><p>非常好的问题 👍   你问得非常关键——<strong>如果每个产品有不同的图片</strong>，那确实需要在 <code>data.json</code> 里加上图片路径字段，否则网页无法知道每个产品该显示哪张图。  </p>
+<p>下面我来详细说明两种情况👇：</p>
+<p>---</p>
+<h3 class="sub-h">🧩 一、如果所有产品都用同一张占位图（比如 Z1.jpg）</h3>
+<p>那你 <strong>不需要修改 data.json</strong>。   在我上面的代码里，这一行：</p>
+<div class="codeblock"><pre><code>&lt;img src=&quot;../assets/product/Z1.jpg&quot; ...&gt;</code></pre></div>
+<p>就是直接写死的路径，只要确保这张图片在：</p>
+<div class="codeblock"><pre><code>assets/product/Z1.jpg</code></pre></div>
+<p>位置正确，所有产品都会显示这张图片。   👉 适合你暂时没有具体产品图片时使用。</p>
+<p>---</p>
+<h3 class="sub-h">🖼️ 二、如果每个产品都有不同图片（推荐）</h3>
+<p>那就要在 <code>data.json</code> 每个产品对象里增加一个字段，比如 <code>"图片"</code> 或 <code>"image"</code>：</p>
+<div class="codeblock"><pre><code>[
+  {
+    &quot;系列&quot;: &quot;鲜虫草系列&quot;,
+    &quot;产品名称&quot;: &quot;鲜冬虫夏草-2A&quot;,
+    &quot;规格&quot;: &quot;2A（0.61g-0.8g/支）-27支&quot;,
+    &quot;价格&quot;: 2199,
+    &quot;说明&quot;: &quot;null&quot;,
+    &quot;图片&quot;: &quot;Z1.jpg&quot;
+  },
+  {
+    &quot;系列&quot;: &quot;鲜虫草系列&quot;,
+    &quot;产品名称&quot;: &quot;鲜冬虫夏草-2A&quot;,
+    &quot;规格&quot;: &quot;2A（0.61g-0.8g/支）-81支&quot;,
+    &quot;价格&quot;: 4799,
+    &quot;说明&quot;: &quot;null&quot;,
+    &quot;图片&quot;: &quot;Z2.jpg&quot;
+  },
+  {
+    &quot;系列&quot;: &quot;鲜虫草系列&quot;,
+    &quot;产品名称&quot;: &quot;鲜冬虫夏草-3A&quot;,
+    &quot;规格&quot;: &quot;3A（0.81-1.0g/支）-81支&quot;,
+    &quot;价格&quot;: 9699,
+    &quot;说明&quot;: &quot;null&quot;,
+    &quot;图片&quot;: &quot;Z3.jpg&quot;
+  }
+]</code></pre></div>
+<p>然后在 HTML 代码中，找到我之前这行：</p>
+<div class="codeblock"><pre><code>&lt;img src=&quot;../assets/product/Z1.jpg&quot; alt=&quot;${product.产品名称}&quot; ...&gt;</code></pre></div>
+<p>替换成这一行 👇：</p>
+<div class="codeblock"><pre><code>&lt;img src=&quot;../assets/product/${product.图片}&quot; alt=&quot;${product.产品名称}&quot; class=&quot;w-full h-40 object-cover mb-3 rounded-lg&quot;&gt;</code></pre></div>
+<p>这样每个产品就会显示它对应的图片了。</p>
+<p>---</p>
+<h3 class="sub-h">✅ 最佳实践建议</h3>
+<ul class="md-ul"><li>图片统一放在 <code>/assets/product/</code> 目录中；  </li><li>JSON 中只保存文件名（如 <code>"Z1.jpg"</code>），不要写完整路径；  </li><li>图片名最好与产品名称有逻辑关系，比如 <code>Xian-2A.jpg</code>，方便维护。</li></ul>
+<p>---</p>
+<p>是否希望我帮你把上面这段修改好的版本（带 <code>"图片"</code> 字段自动读取）直接整合成完整可运行的 <code>index.html</code>？</p></div>
+    </section>
+    <section id="s3" class="st3">
+      <div class="sec-h"><span class="idx st3">Q3</span><h2>好的</h2><span class="hint">第 3 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>好的</p></div>
+      <div class="qa-a"><p>非常好 👍 那我们就来做一份完整、可直接运行的版本。   这个版本会自动从你的 <code>data.json</code> 中读取 <code>"图片"</code> 字段，并展示对应的产品图。   如果某个产品没有 <code>"图片"</code> 字段，则自动使用默认占位图 <code>Z1.jpg</code>。</p>
+<p>---</p>
+<h3 class="sub-h">✅ 完整版 index.html（支持图片字段）</h3>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;产品系列展示&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;style&gt;
+    .fade-in { animation: fadeIn 0.4s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px);} to {opacity:1; transform: translateY(0);} }
+
+    #sidebar { transition: transform 0.3s; z-index: 50; }
+    #sidebar.hidden { transform: translateX(-100%); }
+    #sidebar.show { transform: translateX(0); }
+
+    #toggleBtn { position: fixed; top: 1rem; left: 1rem; z-index: 60; background-color: #ef4444; }
+
+    .product-card:hover { transform: translateY(-5px) scale(1.03); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+
+    #lightbox {
+      display: none; position: fixed; top:0; left:0; width:100%; height:100%;
+      background: rgba(0,0,0,0.8); justify-content:center; align-items:center;
+      z-index: 100;
+    }
+    #lightbox img { max-width: 90%; max-height: 90%; border-radius: 8px; }
+
+    .max-h-card { max-height: 380px; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body class=&quot;bg-gray-100 font-sans&quot;&gt;
+
+  &lt;!-- 悬浮导航按钮 --&gt;
+  &lt;button id=&quot;toggleBtn&quot; class=&quot;p-2 rounded-full shadow text-white hover:bg-red-600&quot;&gt;☰&lt;/button&gt;
+
+  &lt;div class=&quot;flex flex-col min-h-screen&quot;&gt;
+    &lt;div class=&quot;flex flex-1 overflow-hidden&quot;&gt;
+      &lt;!-- 左侧导航 --&gt;
+      &lt;div id=&quot;sidebar&quot; class=&quot;w-64 bg-white shadow-lg p-4 overflow-y-auto hidden fixed md:relative md:block&quot;&gt;
+        &lt;div id=&quot;series-list&quot; class=&quot;flex flex-col gap-2&quot;&gt;&lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;!-- 右侧产品区 --&gt;
+      &lt;div class=&quot;flex-1 p-6 overflow-y-auto md:ml-64 flex justify-center&quot;&gt;
+        &lt;div id=&quot;products&quot; class=&quot;grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center w-full max-w-7xl&quot;&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;footer class=&quot;text-center text-gray-500 text-sm mt-8 mb-4&quot;&gt;
+      © 2025 德令哈采购管理部提供技术和数据支持
+    &lt;/footer&gt;
+  &lt;/div&gt;
+
+  &lt;!-- 图片放大遮罩 --&gt;
+  &lt;div id=&quot;lightbox&quot; class=&quot;flex&quot; onclick=&quot;this.style.display=&#x27;none&#x27;&quot;&gt;
+    &lt;img id=&quot;lightbox-img&quot; src=&quot;&quot; alt=&quot;大图&quot;&gt;
+  &lt;/div&gt;
+
+  &lt;script&gt;
+    const sidebar = document.getElementById(&#x27;sidebar&#x27;);
+    const toggleBtn = document.getElementById(&#x27;toggleBtn&#x27;);
+    const seriesList = document.getElementById(&#x27;series-list&#x27;);
+    const productsDiv = document.getElementById(&#x27;products&#x27;);
+    const lightbox = document.getElementById(&#x27;lightbox&#x27;);
+    const lightboxImg = document.getElementById(&#x27;lightbox-img&#x27;);
+
+    toggleBtn.addEventListener(&#x27;click&#x27;, () =&gt; {
+      sidebar.classList.toggle(&#x27;hidden&#x27;);
+      sidebar.classList.toggle(&#x27;show&#x27;);
+    });
+    sidebar.classList.add(&#x27;hidden&#x27;);
+
+    fetch(&#x27;data.json&#x27;)
+      .then(res =&gt; res.json())
+      .then(data =&gt; {
+        const seriesSet = new Set(data.map(item =&gt; item.系列));
+        const seriesNames = Array.from(seriesSet);
+        let currentSeries = seriesNames[0];
+
+        // 左侧系列按钮
+        seriesNames.forEach(series =&gt; {
+          const btn = document.createElement(&#x27;button&#x27;);
+          btn.textContent = series;
+          btn.className = &#x27;px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-left&#x27;;
+          btn.addEventListener(&#x27;click&#x27;, () =&gt; {
+            currentSeries = series;
+            renderProducts(series);
+            if (window.innerWidth &lt; 768) {
+              sidebar.classList.remove(&#x27;show&#x27;);
+              sidebar.classList.add(&#x27;hidden&#x27;);
+            }
+          });
+          seriesList.appendChild(btn);
+        });
+
+        // 渲染产品
+        function renderProducts(series) {
+          productsDiv.innerHTML = &#x27;&#x27;;
+          const filtered = data.filter(item =&gt; item.系列 === series);
+
+          filtered.forEach(product =&gt; {
+            const imgSrc = product.图片 ? `../assets/product/${product.图片}` : &#x27;../assets/product/Z1.jpg&#x27;;
+            const card = document.createElement(&#x27;div&#x27;);
+            card.className = &#x27;product-card bg-white rounded-xl shadow p-4 fade-in flex flex-col items-center transition cursor-pointer w-full sm:max-w-sm md:max-w-md lg:max-w-md max-h-card&#x27;;
+            card.innerHTML = `
+              &lt;img src=&quot;${imgSrc}&quot; alt=&quot;${product.产品名称}&quot; class=&quot;w-full h-40 object-cover mb-3 rounded-lg&quot;&gt;
+              &lt;div class=&quot;flex-1 flex flex-col justify-between w-full text-center&quot;&gt;
+                &lt;h3 class=&quot;font-semibold text-lg truncate&quot;&gt;${product.产品名称}&lt;/h3&gt;
+                &lt;p class=&quot;text-gray-600 text-sm truncate&quot;&gt;${product.规格}&lt;/p&gt;
+                &lt;p class=&quot;text-red-600 font-semibold mt-1&quot;&gt;￥${product.价格}&lt;/p&gt;
+                ${product.说明 &amp;&amp; product.说明 !== &quot;null&quot; ? `&lt;p class=&quot;text-gray-500 text-xs mt-1&quot;&gt;${product.说明}&lt;/p&gt;` : &#x27;&#x27;}
+              &lt;/div&gt;
+            `;
+            const img = card.querySelector(&#x27;img&#x27;);
+            img.addEventListener(&#x27;click&#x27;, e =&gt; {
+              lightboxImg.src = img.src;
+              lightbox.style.display = &#x27;flex&#x27;;
+              e.stopPropagation();
+            });
+            productsDiv.appendChild(card);
+          });
+        }
+
+        renderProducts(currentSeries);
+      })
+      .catch(err =&gt; console.error(&#x27;读取 data.json 出错:&#x27;, err));
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">✅ 对应的 data.json 示例</h3>
+<div class="codeblock"><pre><code>[
+  {
+    &quot;系列&quot;: &quot;鲜虫草系列&quot;,
+    &quot;产品名称&quot;: &quot;鲜冬虫夏草-2A&quot;,
+    &quot;规格&quot;: &quot;2A（0.61g-0.8g/支）-27支&quot;,
+    &quot;价格&quot;: 2199,
+    &quot;说明&quot;: &quot;高原采摘，鲜草精选。&quot;,
+    &quot;图片&quot;: &quot;Z1.jpg&quot;
+  },
+  {
+    &quot;系列&quot;: &quot;鲜虫草系列&quot;,
+    &quot;产品名称&quot;: &quot;鲜冬虫夏草-2A&quot;,
+    &quot;规格&quot;: &quot;2A（0.61g-0.8g/支）-81支&quot;,
+    &quot;价格&quot;: 4799,
+    &quot;说明&quot;: &quot;真空包装，保鲜更久。&quot;,
+    &quot;图片&quot;: &quot;Z2.jpg&quot;
+  },
+  {
+    &quot;系列&quot;: &quot;鲜虫草系列&quot;,
+    &quot;产品名称&quot;: &quot;鲜冬虫夏草-3A&quot;,
+    &quot;规格&quot;: &quot;3A（0.81-1.0g/支）-81支&quot;,
+    &quot;价格&quot;: 9699,
+    &quot;说明&quot;: &quot;高品质虫草，源自德令哈。&quot;,
+    &quot;图片&quot;: &quot;Z3.jpg&quot;
+  }
+]</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">✅ 文件结构建议</h3>
+<div class="codeblock"><pre><code>/tq/
+ ├── index.html
+ ├── data.json
+ └── ../assets/product/
+       ├── Z1.jpg
+       ├── Z2.jpg
+       └── Z3.jpg</code></pre></div>
+<p>---</p>
+<p>要不要我帮你在这个页面顶部加一块「企业介绍」区域（含企业图片 + 一段介绍文字），在加载产品之前显示？   可以让整体看起来更完整。</p></div>
+    </section>
+    <section id="s4" class="st4">
+      <div class="sec-h"><span class="idx st4">Q4</span><h2>图片统一放在 /assets/product/，index里，按照data的实际…</h2><span class="hint">第 4 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>图片统一放在 /assets/product/，index里，按照data的实际图片进行链接，不要占位了</p></div>
+      <div class="qa-a"><p>非常好 ✅，这就说明你现在的 <code>data.json</code> 已经包含每个产品的 <code>"图片"</code> 字段，且图片都保存在统一的目录：  </p>
+<div class="codeblock"><pre><code>/assets/product/</code></pre></div>
+<p>那我们可以完全去掉占位图逻辑，让页面严格按照 <code>data.json</code> 中的图片路径加载。   如果某个产品缺少 <code>"图片"</code> 字段，它就不会显示图片（保持空白区域）。</p>
+<p>---</p>
+<h3 class="sub-h">✅ 完整优化版 index.html（严格使用 data.json 图片路径）</h3>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;产品系列展示&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;style&gt;
+    .fade-in { animation: fadeIn 0.4s ease-in; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 左侧导航隐藏与滑出动画 */
+    #sidebar { transition: transform 0.3s; z-index: 50; }
+    #sidebar.hidden { transform: translateX(-100%); }
+    #sidebar.show { transform: translateX(0); }
+
+    /* 悬浮按钮 */
+    #toggleBtn {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 60;
+      background-color: #ef4444;
+    }
+
+    /* 产品卡片效果 */
+    .product-card:hover {
+      transform: translateY(-5px) scale(1.03);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+
+    /* 放大图片遮罩层 */
+    #lightbox {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+
+    #lightbox img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 8px;
+    }
+
+    .max-h-card { max-height: 380px; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body class=&quot;bg-gray-100 font-sans&quot;&gt;
+
+  &lt;!-- 悬浮导航按钮 --&gt;
+  &lt;button id=&quot;toggleBtn&quot; class=&quot;p-2 rounded-full shadow text-white hover:bg-red-600&quot;&gt;☰&lt;/button&gt;
+
+  &lt;div class=&quot;flex flex-col min-h-screen&quot;&gt;
+    &lt;div class=&quot;flex flex-1 overflow-hidden&quot;&gt;
+      &lt;!-- 左侧导航 --&gt;
+      &lt;div id=&quot;sidebar&quot; class=&quot;w-64 bg-white shadow-lg p-4 overflow-y-auto hidden fixed md:relative md:block&quot;&gt;
+        &lt;div id=&quot;series-list&quot; class=&quot;flex flex-col gap-2&quot;&gt;&lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;!-- 右侧内容 --&gt;
+      &lt;div class=&quot;flex-1 p-6 overflow-y-auto md:ml-64 flex justify-center&quot;&gt;
+        &lt;div id=&quot;products&quot; class=&quot;grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center w-full max-w-7xl&quot;&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 底部版权 --&gt;
+    &lt;footer class=&quot;text-center text-gray-500 text-sm mt-8 mb-4&quot;&gt;
+      © 2025 德令哈采购管理部提供技术和数据支持
+    &lt;/footer&gt;
+  &lt;/div&gt;
+
+  &lt;!-- 图片放大遮罩 --&gt;
+  &lt;div id=&quot;lightbox&quot; class=&quot;flex&quot; onclick=&quot;this.style.display=&#x27;none&#x27;&quot;&gt;
+    &lt;img id=&quot;lightbox-img&quot; src=&quot;&quot; alt=&quot;大图&quot;&gt;
+  &lt;/div&gt;
+
+  &lt;script&gt;
+    const sidebar = document.getElementById(&#x27;sidebar&#x27;);
+    const toggleBtn = document.getElementById(&#x27;toggleBtn&#x27;);
+    const seriesList = document.getElementById(&#x27;series-list&#x27;);
+    const productsDiv = document.getElementById(&#x27;products&#x27;);
+    const lightbox = document.getElementById(&#x27;lightbox&#x27;);
+    const lightboxImg = document.getElementById(&#x27;lightbox-img&#x27;);
+
+    toggleBtn.addEventListener(&#x27;click&#x27;, () =&gt; {
+      sidebar.classList.toggle(&#x27;hidden&#x27;);
+      sidebar.classList.toggle(&#x27;show&#x27;);
+    });
+    sidebar.classList.add(&#x27;hidden&#x27;);
+
+    fetch(&#x27;data.json&#x27;)
+      .then(res =&gt; res.json())
+      .then(data =&gt; {
+        // 获取所有系列名
+        const seriesSet = new Set(data.map(item =&gt; item.系列));
+        const seriesNames = Array.from(seriesSet);
+        let currentSeries = seriesNames[0];
+
+        // 左侧系列按钮
+        seriesNames.forEach(series =&gt; {
+          const btn = document.createElement(&#x27;button&#x27;);
+          btn.textContent = series;
+          btn.className = &#x27;px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-left&#x27;;
+          btn.addEventListener(&#x27;click&#x27;, () =&gt; {
+            currentSeries = series;
+            renderProducts(series);
+            if (window.innerWidth &lt; 768) {
+              sidebar.classList.remove(&#x27;show&#x27;);
+              sidebar.classList.add(&#x27;hidden&#x27;);
+            }
+          });
+          seriesList.appendChild(btn);
+        });
+
+        // 渲染产品列表
+        function renderProducts(series) {
+          productsDiv.innerHTML = &#x27;&#x27;;
+          const filtered = data.filter(item =&gt; item.系列 === series);
+
+          filtered.forEach(product =&gt; {
+            const imgSrc = `/assets/product/${product.图片}`;
+            const card = document.createElement(&#x27;div&#x27;);
+            card.className = &#x27;product-card bg-white rounded-xl shadow p-4 fade-in flex flex-col items-center transition cursor-pointer w-full sm:max-w-sm md:max-w-md lg:max-w-md max-h-card&#x27;;
+            card.innerHTML = `
+              &lt;img src=&quot;${imgSrc}&quot; alt=&quot;${product.产品名称}&quot; class=&quot;w-full h-40 object-cover mb-3 rounded-lg&quot;&gt;
+              &lt;div class=&quot;flex-1 flex flex-col justify-between w-full text-center&quot;&gt;
+                &lt;h3 class=&quot;font-semibold text-lg truncate&quot;&gt;${product.产品名称}&lt;/h3&gt;
+                &lt;p class=&quot;text-gray-600 text-sm truncate&quot;&gt;${product.规格}&lt;/p&gt;
+                &lt;p class=&quot;text-red-600 font-semibold mt-1&quot;&gt;￥${product.价格}&lt;/p&gt;
+                ${product.说明 &amp;&amp; product.说明 !== &quot;null&quot; ? `&lt;p class=&quot;text-gray-500 text-xs mt-1&quot;&gt;${product.说明}&lt;/p&gt;` : &#x27;&#x27;}
+              &lt;/div&gt;
+            `;
+            const img = card.querySelector(&#x27;img&#x27;);
+            img.addEventListener(&#x27;click&#x27;, e =&gt; {
+              lightboxImg.src = img.src;
+              lightbox.style.display = &#x27;flex&#x27;;
+              e.stopPropagation();
+            });
+            productsDiv.appendChild(card);
+          });
+        }
+
+        // 默认渲染第一个系列
+        renderProducts(currentSeries);
+      })
+      .catch(err =&gt; console.error(&#x27;读取 data.json 出错:&#x27;, err));
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">✅ 注意事项</h3>
+<ol class="md-ol"><li>确保目录结构是这样的：</li></ol>
+<div class="codeblock"><pre><code>   /tq/
+    ├── index.html
+    ├── data.json
+   /assets/product/
+    ├── Z1.jpg
+    ├── Z2.jpg
+    ├── Z3.jpg</code></pre></div>
+<ol class="md-ol"><li>在 <code>data.json</code> 里，<code>图片</code> 字段只需要写文件名，比如：</li></ol>
+<div class="codeblock"><pre><code>   {
+     &quot;系列&quot;: &quot;鲜虫草系列&quot;,
+     &quot;产品名称&quot;: &quot;鲜冬虫夏草-2A&quot;,
+     &quot;规格&quot;: &quot;2A（0.61g-0.8g/支）-27支&quot;,
+     &quot;价格&quot;: 2199,
+     &quot;说明&quot;: &quot;高原采摘，鲜草精选。&quot;,
+     &quot;图片&quot;: &quot;Z1.jpg&quot;
+   }</code></pre></div>
+<ol class="md-ol"><li>若路径正确、文件存在，则浏览器直接会显示 <code>/assets/product/Z1.jpg</code> 的图。</li></ol>
+<p>---</p>
+<p>是否希望我在这个版本中再加一块「企业介绍」模块（例如公司图片 + 简介文字）放在产品上方？   那样整个页面会更完整、具有品牌感。</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>修正产品展示页 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：修正产品展示页（2025-10-29）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1", "s2", "s3", "s4"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

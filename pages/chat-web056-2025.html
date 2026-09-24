@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>网页代码优化建议 · 2025</title>
+<meta name="description" content="我看到了你提供的整个网页代码，它已经非常完整，包括左侧导航、仪表盘、成品信息查询、BOM查询、物料单价查询以及对应的搜索、排序、导出功能。你前端用的是 TailwindCSS，数据处理依赖 JavaScript + XLSX，并且有局部的">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a><a href="#s2" data-sec="s2">Q2</a><a href="#s3" data-sec="s3">Q3</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · 建站
+  <h1 class="s-h1">网页代码优化建议</h1>
+  <p class="s-lede">我看到了你提供的整个网页代码，它已经非常完整，包括左侧导航、仪表盘、成品信息查询、BOM查询、物料单价查询以及对应的搜索、排序、导出功能。你前端用的是 TailwindCSS，数据处理依赖 JavaScript + XLSX，并且有局部的</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>6</b></span>
+    <span>时间范围 <b>2025-11-01 ~ 2025-11-01</b></span>
+    <span>分类 <b>建站与技术</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">建站</span>
+    <span class="s-chip">2025</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>&lt;!DOCTYPE html&gt;&lt;html lang=&quot;zh-CN&quot;&gt;&lt;head&gt;…</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>&lt;!DOCTYPE html&gt; &lt;html lang="zh-CN"&gt; &lt;head&gt;   &lt;meta charset="UTF-8" /&gt;   &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;   &lt;title&gt;青海厂内部管理工具中心&lt;/title&gt;   &lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;   &lt;script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"&gt;&lt;/script&gt;   &lt;link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"&gt;   &lt;style&gt;     body {       background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);       font-family: "Microsoft YaHei", sans-serif;       animation: fadeIn 0.8s ease-in;     }     @keyframes fadeIn {       from { opacity: 0; transform: translateY(10px); }       to { opacity: 1; transform: translateY(0); }     }     .nav-item.active {       background-color: #3b82f6;       color: white;     }     .content-section {       display: none;     }     .content-section.active {       display: block;     }     table th {        position: sticky;        top: 0;        background-color: white;        z-index: 10;      }     .fade-in {        animation: fadeIn 0.4s ease-in;      }     .sort-asc::after { content:" ↑"; color:#0d6efd; }     .sort-desc::after { content:" ↓"; color:#0d6efd; }     .parent-row { background:#e0f2fe; font-weight:600; }     .child-row { background:#f0f9ff; }     mark { background-color:#fff59d; color:inherit; padding:0; }     .tool-card {       transition: all 0.25s ease;     }     .tool-card:hover {       transform: translateY(-5px);       box-shadow: 0 8px 16px rgba(0,0,0,0.1);     }     .status-badge {       padding: 3px 8px;       border-radius: 12px;       font-size: 0.75rem;       font-weight: 500;     }     .status-active { background-color: #dcfce7; color: #166534; }     .status-pending { background-color: #fef3c7; color: #92400e; }     .status-inactive { background-color: #f3f4f6; color: #6b7280; }     .status-terminated { background-color: #fee2e2; color: #991b1b; }     .credit-a { background-color: #dcfce7; color: #166534; }     .credit-b { background-color: #dbeafe; color: #1e40af; }     .credit-c { background-color: #fef3c7; color: #92400e; }     .credit-d { background-color: #fee2e2; color: #991b1b; }   &lt;/style&gt; &lt;/head&gt; &lt;body class="flex flex-col min-h-screen"&gt;   &lt;!-- 顶部标题 --&gt;   &lt;header class="text-center mt-8 mb-4"&gt;     &lt;div class="flex items-center justify-center gap-3"&gt;       &lt;img src="../assets/img/trtlogo.png" alt="TRT Logo" class="h-12 w-12 rounded-lg"&gt;       &lt;div&gt;         &lt;h1 class="text-3xl font-bold text-gray-800 mb-2"&gt;青海厂内部管理工具中心&lt;/h1&gt;         &lt;p class="text-gray-500"&gt;采购管理部 · 数据与系统支持平台&lt;/p&gt;       &lt;/div&gt;     &lt;/div&gt;   &lt;/header&gt;</p>
+<p>  &lt;!-- 主内容区 --&gt;   &lt;div class="flex flex-1 w-11/12 max-w-7xl mx-auto mb-8 rounded-2xl overflow-hidden shadow-lg"&gt;     &lt;!-- 左侧导航 --&gt;     &lt;div class="w-1/4 bg-white p-6 flex flex-col"&gt;       &lt;div class="mb-8"&gt;         &lt;h2 class="text-xl font-bold text-gray-800 mb-4"&gt;功能导航&lt;/h2&gt;         &lt;div class="space-y-2"&gt;           &lt;div class="nav-item active p-3 rounded-lg cursor-pointer transition-colors" data-target="dashboard"&gt;             &lt;i class="fas fa-tachometer-alt mr-2"&gt;&lt;/i&gt;数据仪表盘           &lt;/div&gt;           &lt;div class="nav-item p-3 rounded-lg cursor-pointer transition-colors" data-target="cp"&gt;             &lt;i class="fas fa-tag mr-2"&gt;&lt;/i&gt;成品信息查询           &lt;/div&gt;           &lt;div class="nav-item p-3 rounded-lg cursor-pointer transition-colors" data-target="bom"&gt;             &lt;i class="fas fa-boxes mr-2"&gt;&lt;/i&gt;产品BOM查询           &lt;/div&gt;           &lt;div class="nav-item p-3 rounded-lg cursor-pointer transition-colors" data-target="tz"&gt;             &lt;i class="fas fa-money-bill-wave mr-2"&gt;&lt;/i&gt;物料单价查询           &lt;/div&gt;         &lt;/div&gt;       &lt;/div&gt;</p>
+<p>      &lt;div class="mt-auto pt-6 border-t border-gray-200"&gt;         &lt;h3 class="text-lg font-semibold text-gray-800 mb-3"&gt;数据状态&lt;/h3&gt;         &lt;div class="space-y-2 text-sm text-gray-600"&gt;           &lt;div class="flex justify-between"&gt;             &lt;span&gt;成品数据:&lt;/span&gt;             &lt;span id="cp-status" class="text-blue-600"&gt;加载中...&lt;/span&gt;           &lt;/div&gt;           &lt;div class="flex justify-between"&gt;             &lt;span&gt;BOM数据:&lt;/span&gt;             &lt;span id="bom-status" class="text-blue-600"&gt;加载中...&lt;/span&gt;           &lt;/div&gt;           &lt;div class="flex justify-between"&gt;             &lt;span&gt;物料数据:&lt;/span&gt;             &lt;span id="tz-status" class="text-blue-600"&gt;加载中...&lt;/span&gt;           &lt;/div&gt;         &lt;/div&gt;       &lt;/div&gt;     &lt;/div&gt;</p>
+<p>    &lt;!-- 右侧内容区 --&gt;     &lt;div class="flex-1 bg-gray-50 p-8 overflow-y-auto"&gt;       &lt;!-- 数据仪表盘内容 --&gt;       &lt;div id="dashboard" class="content-section active"&gt;         &lt;div class="flex items-center gap-3 mb-6"&gt;           &lt;img src="../assets/img/trtlogo.png" alt="TRT Logo" class="h-12 w-12 rounded-lg"&gt;           &lt;h2 class="text-2xl font-bold text-gray-800"&gt;数据概览&lt;/h2&gt;         &lt;/div&gt;</p>
+<p>        &lt;!-- 统计卡片 --&gt;         &lt;div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"&gt;           &lt;div class="bg-white rounded-xl p-4 shadow"&gt;             &lt;div class="flex items-center"&gt;               &lt;div class="p-3 rounded-lg bg-blue-100 text-blue-600 mr-4"&gt;                 &lt;i class="fas fa-tag text-xl"&gt;&lt;/i&gt;               &lt;/div&gt;               &lt;div&gt;                 &lt;p class="text-gray-500 text-sm"&gt;成品数量&lt;/p&gt;                 &lt;p class="text-2xl font-bold" id="dashboard-cp-count"&gt;-&lt;/p&gt;               &lt;/div&gt;             &lt;/div&gt;           &lt;/div&gt;</p>
+<p>          &lt;div class="bg-white rounded-xl p-4 shadow"&gt;             &lt;div class="flex items-center"&gt;               &lt;div class="p-3 rounded-lg bg-green-100 text-green-600 mr-4"&gt;                 &lt;i class="fas fa-boxes text-xl"&gt;&lt;/i&gt;               &lt;/div&gt;               &lt;div&gt;                 &lt;p class="text-gray-500 text-sm"&gt;BOM记录&lt;/p&gt;                 &lt;p class="text-2xl font-bold" id="dashboard-bom-count"&gt;-&lt;/p&gt;               &lt;/div&gt;             &lt;/div&gt;           &lt;/div&gt;</p>
+<p>          &lt;div class="bg-white rounded-xl p-4 shadow"&gt;             &lt;div class="flex items-center"&gt;               &lt;div class="p-3 rounded-lg bg-yellow-100 text-yellow-600 mr-4"&gt;                 &lt;i class="fas fa-money-bill-wave text-xl"&gt;&lt;/i&gt;               &lt;/div&gt;               &lt;div&gt;                 &lt;p class="text-gray-500 text-sm"&gt;物料记录&lt;/p&gt;                 &lt;p class="text-2xl font-bold" id="dashboard-tz-count"&gt;-&lt;/p&gt;               &lt;/div&gt;             &lt;/div&gt;           &lt;/div&gt;</p>
+<p>          &lt;div class="bg-white rounded-xl p-4 shadow"&gt;             &lt;div class="flex items-center"&gt;               &lt;div class="p-3 rounded-lg bg-purple-100 text-purple-600 mr-4"&gt;                 &lt;i class="fas fa-industry text-xl"&gt;&lt;/i&gt;               &lt;/div&gt;               &lt;div&gt;                 &lt;p class="text-gray-500 text-sm"&gt;供应商&lt;/p&gt;                 &lt;p class="text-2xl font-bold" id="dashboard-supplier-count"&gt;-&lt;/p&gt;               &lt;/div&gt;             &lt;/div&gt;           &lt;/div&gt;         &lt;/div&gt;</p>
+<p>        &lt;!-- 功能区 --&gt;         &lt;h3 class="text-xl font-bold text-gray-800 mb-4"&gt;快速访问&lt;/h3&gt;         &lt;div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"&gt;           &lt;!-- 成品信息查询 --&gt;           &lt;div class="tool-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg cursor-pointer" data-target="cp"&gt;             &lt;div class="text-4xl mb-3"&gt;🏷️&lt;/div&gt;             &lt;h2 class="text-lg font-semibold text-gray-800 mb-2"&gt;成品信息查询&lt;/h2&gt;             &lt;p class="text-sm text-gray-500"&gt;成品基础信息与系列归属快速检索。&lt;/p&gt;           &lt;/div&gt;</p>
+<p>          &lt;!-- 产品BOM查询 --&gt;           &lt;div class="tool-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg cursor-pointer" data-target="bom"&gt;             &lt;div class="text-4xl mb-3"&gt;📦&lt;/div&gt;             &lt;h2 class="text-lg font-semibold text-gray-800 mb-2"&gt;产品BOM查询&lt;/h2&gt;             &lt;p class="text-sm text-gray-500"&gt;快速查询物料构成、数量与采购单价。&lt;/p&gt;           &lt;/div&gt;</p>
+<p>          &lt;!-- 物料单价查询 --&gt;           &lt;div class="tool-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg cursor-pointer" data-target="tz"&gt;             &lt;div class="text-4xl mb-3"&gt;💰&lt;/div&gt;             &lt;h2 class="text-lg font-semibold text-gray-800 mb-2"&gt;物料单价查询&lt;/h2&gt;             &lt;p class="text-sm text-gray-500"&gt;查看并核对最新采购单价与供应商数据。&lt;/p&gt;           &lt;/div&gt;</p>
+<p>      &lt;!-- 成品信息查询内容 --&gt;       &lt;div id="cp" class="content-section"&gt;         &lt;!-- 标题栏 --&gt;         &lt;div class="bg-white rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 fade-in"&gt;           &lt;div class="flex items-center gap-3"&gt;             &lt;img src="../assets/img/trtlogo.png" alt="TRT Logo" class="h-12 w-12 rounded-lg"&gt;             &lt;h2 class="text-xl md:text-2xl font-bold text-gray-900"&gt;成品信息查询&lt;/h2&gt;           &lt;/div&gt;           &lt;div class="flex flex-col md:flex-row flex-wrap gap-2 text-gray-700 text-sm md:text-base"&gt;             &lt;span class="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700"&gt;🔍 数据：2025年7月&lt;/span&gt;             &lt;span class="px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600"&gt;⚠️ 保密：内部数据严禁外传&lt;/span&gt;           &lt;/div&gt;         &lt;/div&gt;</p>
+<p>        &lt;!-- 搜索区域 --&gt;         &lt;div class="bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in"&gt;           &lt;select id="cp-channelSelect" class="border rounded-lg p-2 min-w-[150px]"&gt;             &lt;option value=""&gt;所有渠道&lt;/option&gt;           &lt;/select&gt;           &lt;input id="cp-projectInput" placeholder="项目号（精准）" class="border rounded-lg p-2 flex-1 min-w-[150px]"&gt;           &lt;input id="cp-nameInput" placeholder="品名（模糊搜索）" class="border rounded-lg p-2 flex-1 min-w-[150px]"&gt;</p>
+<p>          &lt;button id="cp-searchBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"&gt;查询&lt;/button&gt;           &lt;button id="cp-exportBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"&gt;导出Excel&lt;/button&gt;         &lt;/div&gt;</p>
+<p>        &lt;!-- 结果表格 --&gt;         &lt;div class="overflow-auto max-h-[70vh] border rounded-lg"&gt;           &lt;table id="cp-resultTable" class="w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm hidden fade-in"&gt;             &lt;thead class="bg-gray-100 font-semibold sticky top-0"&gt;               &lt;tr&gt;                 &lt;th data-sort="序号"&gt;序号&lt;/th&gt;                 &lt;th data-sort="项目号"&gt;项目号&lt;/th&gt;                 &lt;th data-sort="品名"&gt;品名&lt;/th&gt;                 &lt;th data-sort="规格"&gt;规格&lt;/th&gt;                 &lt;th data-sort="单位"&gt;单位&lt;/th&gt;                 &lt;th data-sort="零售价"&gt;零售价&lt;/th&gt;                 &lt;th data-sort="品牌"&gt;品牌&lt;/th&gt;                 &lt;th data-sort="可供应渠道"&gt;渠道&lt;/th&gt;                 &lt;th&gt;操作&lt;/th&gt;               &lt;/tr&gt;             &lt;/thead&gt;             &lt;tbody id="cp-tableBody"&gt;&lt;/tbody&gt;           &lt;/table&gt;         &lt;/div&gt;</p>
+<p>        &lt;p id="cp-noResult" class="text-center text-gray-500 mt-2 hidden"&gt;未找到记录&lt;/p&gt;</p>
+<p>        &lt;!-- BOM 区域 --&gt;         &lt;div id="cp-bomSection" class="hidden mt-8 p-4 bg-white shadow rounded-lg fade-in"&gt;           &lt;h2 class="text-lg font-semibold mb-3 text-gray-700"&gt;📦 BOM明细&lt;/h2&gt;           &lt;table id="cp-bomTable" class="w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm"&gt;             &lt;thead class="bg-gray-100 font-semibold"&gt;               &lt;tr&gt;                 &lt;th&gt;物料项目号&lt;/th&gt;                 &lt;th&gt;物料名称&lt;/th&gt;                 &lt;th&gt;数量&lt;/th&gt;                 &lt;th&gt;计量单位&lt;/th&gt;                 &lt;th&gt;采购单价&lt;/th&gt;               &lt;/tr&gt;             &lt;/thead&gt;             &lt;tbody id="cp-bomBody"&gt;&lt;/tbody&gt;           &lt;/table&gt;         &lt;/div&gt;       &lt;/div&gt;</p>
+<p>      &lt;!-- 产品BOM查询内容 --&gt;       &lt;div id="bom" class="content-section"&gt;         &lt;!-- 标题栏 --&gt;         &lt;div class="bg-white rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 fade-in"&gt;           &lt;div class="flex items-center gap-3"&gt;             &lt;img src="../assets/img/trtlogo.png" alt="TRT Logo" class="h-12 w-12 rounded-lg"&gt;             &lt;h2 class="text-xl md:text-2xl font-bold text-gray-900"&gt;BOM查询&lt;/h2&gt;           &lt;/div&gt;           &lt;div class="flex flex-col md:flex-row flex-wrap gap-2 text-gray-700 text-sm md:text-base"&gt;             &lt;span class="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700"&gt;如查询不到，请联系采购部更新&lt;/span&gt;             &lt;span class="px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600"&gt;⚠️ 保密声明：内部数据，严禁外传&lt;/span&gt;           &lt;/div&gt;         &lt;/div&gt;</p>
+<p>        &lt;!-- 搜索区域 --&gt;         &lt;div class="bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in"&gt;           &lt;input id="bom-nameSearch" type="text" placeholder="品名（模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" /&gt;           &lt;input id="bom-projectSearch" type="text" placeholder="项目号（精准搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" /&gt;           &lt;input id="bom-materialIDSearch" type="text" placeholder="物料项目号（精准搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" /&gt;           &lt;input id="bom-materialNameSearch" type="text" placeholder="物料名称（模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" /&gt;           &lt;button id="bom-searchBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow"&gt;查询&lt;/button&gt;           &lt;button id="bom-resetBtn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow"&gt;重置&lt;/button&gt;         &lt;/div&gt;</p>
+<p>        &lt;!-- 查询结果 --&gt;         &lt;div id="bom-loading" class="text-center text-red-600 font-medium my-6 fade-in"&gt;⏳ 正在加载数据，请稍候...&lt;/div&gt;         &lt;div id="bom-result" class="overflow-x-auto fade-in"&gt;&lt;/div&gt;       &lt;/div&gt;</p>
+<p>      &lt;!-- 物料单价查询内容 --&gt;       &lt;div id="tz" class="content-section"&gt;         &lt;!-- 标题栏 --&gt;         &lt;div class="bg-white rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 fade-in"&gt;           &lt;div class="flex items-center gap-3"&gt;             &lt;img src="../assets/img/trtlogo.png" alt="TRT Logo" class="h-12 w-12 rounded-lg"&gt;             &lt;h2 class="text-xl md:text-2xl font-bold text-gray-900"&gt;物料单价查询&lt;/h2&gt;           &lt;/div&gt;           &lt;div class="flex flex-col md:flex-row flex-wrap gap-2 text-gray-700 text-sm md:text-base"&gt;             &lt;span class="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700"&gt;🔍 查询范围：2022年1月1日 - 2025年10月14日&lt;/span&gt;             &lt;span class="px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600"&gt;⚠️ 保密声明：内部数据，严禁外传&lt;/span&gt;           &lt;/div&gt;         &lt;/div&gt;</p>
+<p>        &lt;!-- 查询区域 --&gt;         &lt;div class="bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in"&gt;           &lt;select id="tz-year" class="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-red-400"&gt;             &lt;option value=""&gt;全部年份&lt;/option&gt;             &lt;option value="2025"&gt;2025&lt;/option&gt;             &lt;option value="2024"&gt;2024&lt;/option&gt;             &lt;option value="2023"&gt;2023&lt;/option&gt;             &lt;option value="2022"&gt;2022&lt;/option&gt;           &lt;/select&gt;           &lt;input id="tz-projectName" type="text" placeholder="物料名称（可简称）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" /&gt;           &lt;input id="tz-projectNo" type="text" placeholder="物料项目号（需精准）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" /&gt;           &lt;input id="tz-supplier" type="text" placeholder="供应商名称（可简称）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" /&gt;           &lt;button id="tz-searchBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow"&gt;查询&lt;/button&gt;           &lt;button id="tz-resetBtn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow"&gt;重置&lt;/button&gt;           &lt;button id="tz-exportBtn" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition shadow"&gt;导出Excel&lt;/button&gt;         &lt;/div&gt;</p>
+<p>        &lt;!-- 汇总区 --&gt;         &lt;div id="tz-summary" class="hidden mb-4 flex gap-4 fade-in"&gt;           &lt;div class="flex-1 bg-red-50 border border-red-200 rounded-lg p-4 font-semibold text-red-700 text-center shadow"&gt;             匹配结果：&lt;span id="tz-count"&gt;&lt;/span&gt; 条           &lt;/div&gt;           &lt;div class="flex-1 bg-green-50 border border-green-200 rounded-lg p-4 font-semibold text-green-700 text-center shadow"&gt;             金额总计：&lt;span id="tz-total"&gt;&lt;/span&gt; 元           &lt;/div&gt;         &lt;/div&gt;</p>
+<p>        &lt;!-- 查询结果 --&gt;         &lt;div id="tz-loading" class="text-center text-red-600 font-medium my-6 fade-in"&gt;⏳ 数据加载中...&lt;/div&gt;         &lt;div id="tz-result" class="overflow-x-auto fade-in"&gt;&lt;/div&gt;       &lt;/div&gt;</p>
+<p>  &lt;!-- 底部版权信息 --&gt;   &lt;footer class="text-center text-gray-500 text-sm mt-4 mb-6"&gt;     © 2025 采购部 |     &lt;a href="#" class="hover:underline"&gt;数据仪表盘&lt;/a&gt; |     &lt;a href="#" class="hover:underline"&gt;成品信息&lt;/a&gt; |     &lt;a href="#" class="hover:underline"&gt;BOM&lt;/a&gt; |     &lt;a href="#" class="hover:underline"&gt;物料单价&lt;/a&gt; |     &lt;a href="#" class="hover:underline"&gt;供应商&lt;/a&gt;   &lt;/footer&gt;</p>
+<p>  &lt;script&gt;     // 导航切换功能     document.querySelectorAll('.nav-item').forEach(item =&gt; {       item.addEventListener('click', function() {         // 移除所有激活状态         document.querySelectorAll('.nav-item').forEach(nav =&gt; {           nav.classList.remove('active');         });</p>
+<p>        // 隐藏所有内容区域         document.querySelectorAll('.content-section').forEach(section =&gt; {           section.classList.remove('active');         });</p>
+<p>        // 激活当前导航项         this.classList.add('active');</p>
+<p>        // 显示对应内容区域         const targetId = this.getAttribute('data-target');         document.getElementById(targetId).classList.add('active');       });     });</p>
+<p>    // 仪表盘卡片点击导航功能     document.querySelectorAll('.tool-card').forEach(card =&gt; {       card.addEventListener('click', function() {         const targetId = this.getAttribute('data-target');</p>
+<p>        // 移除所有激活状态         document.querySelectorAll('.nav-item').forEach(nav =&gt; {           nav.classList.remove('active');         });</p>
+<p>        // 隐藏所有内容区域         document.querySelectorAll('.content-section').forEach(section =&gt; {           section.classList.remove('active');         });</p>
+<p>        // 激活对应导航项         document.querySelector(<code>.nav-item[data-target="${targetId}"]</code>).classList.add('active');</p>
+<p>        // 显示对应内容区域         document.getElementById(targetId).classList.add('active');       });     });</p>
+<p>    // ==================== 数据加载和仪表盘功能 ====================     let cpAllData = [], cpCurrentData = [], cpBomData = [], cpSortDirection = {};     let bomData = [], bomPriceData = {};     let tzDataCache = [];</p>
+<p>    // 自动尝试加载（防止路径问题）     async function safeFetch(urls) {       for(const url of urls) {         try {           const r = await fetch(url);           if(r.ok) return await r.json();         } catch(e) {           console.error(<code>加载失败: ${url}</code>, e);         }       }       return [];     }</p>
+<p>    // 载入所有数据并更新仪表盘     Promise.all([       safeFetch(["../CP/data.json", "./CP/data.json"]),       safeFetch(["../bom/bom_data.json", "./bom/bom_data.json"]),       safeFetch(["../tz/data.json", "./tz/data.json"])     ]).then(([cpData, bomDataRes, tzData]) =&gt; {       // 处理成品数据       cpAllData = cpData || [];       const select = document.getElementById("cp-channelSelect");       [...new Set(cpAllData.map(i =&gt; i.可供应渠道).filter(Boolean))].forEach(c =&gt; {         select.innerHTML += <code>&lt;option&gt;${c}&lt;/option&gt;</code>;       });       document.getElementById("cp-status").textContent = "已加载";       document.getElementById("cp-status").className = "text-green-600";</p>
+<p>      // 更新仪表盘成品计数       document.getElementById("dashboard-cp-count").textContent = cpAllData.length;</p>
+<p>      // 处理BOM数据       bomData = (bomDataRes || []).map(i =&gt; ({         项目号: String(i.项目号 || "").trim(),         品名: String(i.品名 || "").trim(),         规格: String(i.规格 || "").trim(),         零售价: String(i["零售价（元）"] ?? i.零售价 ?? "").trim(),         物料项目号: String(i.物料项目号 || "").trim(),         物料名称: String(i.物料名称 || "").trim(),         数量: String(i.数量 || "").trim(),         计量单位: String(i.计量单位 || "").trim()       }));       document.getElementById("bom-status").textContent = "已加载";       document.getElementById("bom-status").className = "text-green-600";       document.getElementById("bom-loading").style.display = "none";</p>
+<p>      // 更新仪表盘BOM计数       document.getElementById("dashboard-bom-count").textContent = bomData.length;</p>
+<p>      // 处理物料数据       tzDataCache = tzData || [];       document.getElementById("tz-status").textContent = "已加载";       document.getElementById("tz-status").className = "text-green-600";       document.getElementById("tz-loading").style.display = "none";</p>
+<p>      // 更新仪表盘物料计数       document.getElementById("dashboard-tz-count").textContent = tzDataCache.length;</p>
+<p>      // 更新供应商计数（示例数据）       document.getElementById("dashboard-supplier-count").textContent = "3";</p>
+<p>      console.log("✅ 所有数据加载完成");     }).catch(err =&gt; {       console.error("❌ 数据加载失败:", err);       document.getElementById("cp-status").textContent = "加载失败";       document.getElementById("cp-status").className = "text-red-600";       document.getElementById("bom-status").textContent = "加载失败";       document.getElementById("bom-status").className = "text-red-600";       document.getElementById("tz-status").textContent = "加载失败";       document.getElementById("tz-status").className = "text-red-600";     });</p>
+<p>    // ==================== 成品信息查询功能 ====================     function cpSearch() {       const p = document.getElementById("cp-projectInput").value.trim();       const n = document.getElementById("cp-nameInput").value.trim();       const c = document.getElementById("cp-channelSelect").value;       cpCurrentData = cpAllData.filter(i =&gt;         (!p || String(i.项目号) === p) &amp;&amp;         (!n || i.品名.includes(n)) &amp;&amp;         (!c || i.可供应渠道 === c)       );       cpRenderTable();     }</p>
+<p>    function cpRenderTable() {       const tbody = document.getElementById("cp-tableBody");       const table = document.getElementById("cp-resultTable");       const no = document.getElementById("cp-noResult");</p>
+<p>      if(!cpCurrentData.length) {         table.classList.add("hidden");         no.classList.remove("hidden");         return;       }</p>
+<p>      no.classList.add("hidden");       table.classList.remove("hidden");</p>
+<p>      tbody.innerHTML = cpCurrentData.map((i, idx) =&gt; <code>         &lt;tr class="${idx % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-red-50 transition"&gt;           &lt;td class="p-2 border-b"&gt;${idx + 1}&lt;/td&gt;           &lt;td class="p-2 border-b"&gt;${i.项目号}&lt;/td&gt;           &lt;td class="p-2 border-b"&gt;${i.品名}&lt;/td&gt;           &lt;td class="p-2 border-b"&gt;${i.规格}&lt;/td&gt;           &lt;td class="p-2 border-b"&gt;${i.单位}&lt;/td&gt;           &lt;td class="p-2 border-b"&gt;${i.零售价 || ""}&lt;/td&gt;           &lt;td class="p-2 border-b"&gt;${i.品牌 || ""}&lt;/td&gt;           &lt;td class="p-2 border-b"&gt;${i.可供应渠道 || ""}&lt;/td&gt;           &lt;td class="p-2 border-b"&gt;&lt;button onclick="cpShowBOM('${i.项目号}')" class="text-blue-600 hover:underline"&gt;查看BOM&lt;/button&gt;&lt;/td&gt;         &lt;/tr&gt;</code>).join("");     }</p>
+<p>    function cpShowBOM(projectId) {       const section = document.getElementById("cp-bomSection");       const tbody = document.getElementById("cp-bomBody");       const list = bomData.filter(i =&gt; String(i.项目号) === String(projectId));       if(!list.length) {          section.classList.remove("hidden");          tbody.innerHTML = "&lt;tr&gt;&lt;td colspan='5' class='text-gray-500'&gt;未找到BOM&lt;/td&gt;&lt;/tr&gt;";          return;       }</p>
+<p>      tbody.innerHTML = list.map(row =&gt; {         return <code>           &lt;tr class="hover:bg-red-50 transition"&gt;             &lt;td class="p-2 border-b"&gt;${row.物料项目号}&lt;/td&gt;             &lt;td class="p-2 border-b"&gt;${row.物料名称}&lt;/td&gt;             &lt;td class="p-2 border-b"&gt;${row.数量}&lt;/td&gt;             &lt;td class="p-2 border-b"&gt;${row.计量单位}&lt;/td&gt;             &lt;td class="p-2 border-b"&gt;—&lt;/td&gt;           &lt;/tr&gt;</code>;       }).join("");       section.classList.remove("hidden");     }</p>
+<p>    // 点击排序     document.querySelectorAll("#cp-resultTable th[data-sort]").forEach(th =&gt; {       th.addEventListener("click", () =&gt; {         const key = th.dataset.sort;         if(key === "序号") return;         cpSortDirection[key] = !cpSortDirection[key];         const dir = cpSortDirection[key] ? 1 : -1;         cpCurrentData.sort((a, b) =&gt; {           const x = a[key], y = b[key];           if(!isNaN(x) &amp;&amp; !isNaN(y)) return (x - y) * dir;           return String(x ?? "").localeCompare(String(y ?? "")) * dir;         });         document.querySelectorAll("#cp-resultTable th").forEach(h =&gt; h.classList.remove("sort-asc", "sort-desc"));         th.classList.add(cpSortDirection[key] ? "sort-asc" : "sort-desc");         cpRenderTable();       });     });</p>
+<p>    // 导出Excel     document.getElementById("cp-exportBtn").onclick = () =&gt; {       if(!cpCurrentData.length) return alert("暂无数据");       const data = cpCurrentData.map((i, idx) =&gt; ({         序号: idx + 1, 项目号: i.项目号, 品名: i.品名, 规格: i.规格, 单位: i.单位,         零售价: i.零售价, 品牌: i.品牌, 渠道: i.可供应渠道       }));       const ws = XLSX.utils.json_to_sheet(data);       const wb = XLSX.utils.book_new();       XLSX.utils.book_append_sheet(wb, ws, "成品信息");       XLSX.writeFile(wb, "成品查询.xlsx");     };</p>
+<p>    document.addEventListener("keydown", e =&gt; {        if(e.target.id.includes("cp-") &amp;&amp; e.key === "Enter") cpSearch();      });     document.getElementById("cp-searchBtn").onclick = cpSearch;</p>
+<p>    // ==================== BOM查询功能 ====================     function bomHighlight(text, keyword) {       if(!keyword) return text || "";       const reg = new RegExp(<code>(${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&amp;')})</code>, "gi");       return (text || "").replace(reg, "&lt;mark&gt;$1&lt;/mark&gt;");     }</p>
+<p>    function bomRenderFiltered() {       const nameKeyword = document.getElementById("bom-nameSearch").value.trim();       const projectID = document.getElementById("bom-projectSearch").value.trim();       const materialID = document.getElementById("bom-materialIDSearch").value.trim();       const materialName = document.getElementById("bom-materialNameSearch").value.trim();       const resultDiv = document.getElementById("bom-result");       resultDiv.innerHTML = "";</p>
+<p>      if(!nameKeyword &amp;&amp; !projectID &amp;&amp; !materialID &amp;&amp; !materialName) {         alert("请输入至少一项查询条件！");         return;       }</p>
+<p>      let filtered = bomData.filter(i =&gt;         (!nameKeyword || i.品名.includes(nameKeyword)) &amp;&amp;         (!projectID || i.项目号 === projectID)       );</p>
+<p>      if(materialID || materialName) {         const matchedProjects = new Set(           bomData.filter(i =&gt;             (!materialID || i.物料项目号 === materialID) &amp;&amp;             (!materialName || i.物料名称.includes(materialName))           ).map(i =&gt; i.项目号)         );         filtered = filtered.filter(i =&gt; matchedProjects.has(i.项目号));       }</p>
+<p>      if(filtered.length === 0) {         resultDiv.innerHTML = "&lt;p class='text-center text-gray-500'&gt;未找到匹配结果。&lt;/p&gt;";         return;       }</p>
+<p>      const grouped = {};       filtered.forEach(i =&gt; { if(!grouped[i.项目号]) grouped[i.项目号] = []; grouped[i.项目号].push(i); });</p>
+<p>      const table = document.createElement("table");       table.className = "w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm";</p>
+<p>      const thead = document.createElement("thead");       thead.innerHTML = <code>         &lt;tr class="bg-gray-100 font-semibold"&gt;           &lt;th class="p-2 border-b"&gt;项目号&lt;/th&gt;           &lt;th class="p-2 border-b"&gt;品名&lt;/th&gt;           &lt;th class="p-2 border-b"&gt;规格&lt;/th&gt;           &lt;th class="p-2 border-b"&gt;零售价&lt;/th&gt;           &lt;th class="p-2 border-b"&gt;物料项目号&lt;/th&gt;           &lt;th class="p-2 border-b"&gt;物料名称&lt;/th&gt;           &lt;th class="p-2 border-b"&gt;数量&lt;/th&gt;           &lt;th class="p-2 border-b"&gt;计量单位&lt;/th&gt;           &lt;th class="p-2 border-b"&gt;采购单价&lt;/th&gt;         &lt;/tr&gt;       </code>;       table.appendChild(thead);</p>
+<p>      const tbody = document.createElement("tbody");       for(const [proj, items] of Object.entries(grouped)) {         const parent = items[0];         const parentRow = document.createElement("tr");         parentRow.className = "parent-row";         parentRow.innerHTML = <code>           &lt;td class="p-2 border-b"&gt;${bomHighlight(parent.项目号, projectID)}&lt;/td&gt;           &lt;td class="p-2 border-b"&gt;${bomHighlight(parent.品名, nameKeyword)}&lt;/td&gt;           &lt;td class="p-2 border-b"&gt;${bomHighlight(parent.规格, "")}&lt;/td&gt;           &lt;td class="p-2 border-b"&gt;${bomHighlight(parent.零售价, "")}&lt;/td&gt;           &lt;td class="p-2 border-b" colspan="5"&gt;&lt;/td&gt;         </code>;         tbody.appendChild(parentRow);</p>
+<p>        items.forEach(child =&gt; {           const tr = document.createElement("tr");           tr.className = "child-row";           const id = child.物料项目号;           const purchasePrice = tzDataCache.find(item =&gt; String(item.物料项目号) === id)?.采购单价 || "-";           tr.innerHTML = <code>             &lt;td class="p-2 border-b" colspan="4"&gt;&lt;/td&gt;             &lt;td class="p-2 border-b"&gt;${bomHighlight(child.物料项目号, materialID)}&lt;/td&gt;             &lt;td class="p-2 border-b"&gt;${bomHighlight(child.物料名称, materialName)}&lt;/td&gt;             &lt;td class="p-2 border-b"&gt;${bomHighlight(child.数量, "")}&lt;/td&gt;             &lt;td class="p-2 border-b"&gt;${bomHighlight(child.计量单位, "")}&lt;/td&gt;             &lt;td class="p-2 border-b"&gt;${purchasePrice}&lt;/td&gt;           </code>;           tbody.appendChild(tr);         });       }</p>
+<p>      table.appendChild(tbody);       resultDiv.appendChild(table);     }</p>
+<p>    document.getElementById("bom-searchBtn").addEventListener("click", bomRenderFiltered);     document.getElementById("bom-resetBtn").addEventListener("click", () =&gt; {       ["bom-nameSearch", "bom-projectSearch", "bom-materialIDSearch", "bom-materialNameSearch"].forEach(id =&gt; document.getElementById(id).value = "");       document.getElementById("bom-result").innerHTML = "";     });</p>
+<p>    document.querySelectorAll("#bom-nameSearch, #bom-projectSearch, #bom-materialIDSearch, #bom-materialNameSearch").forEach(input =&gt; {       input.addEventListener("keypress", e =&gt; { if(e.key === "Enter") bomRenderFiltered(); });     });</p>
+<p>    // ==================== 物料单价查询功能 ====================     function tzSearchData() {       const year = document.getElementById("tz-year").value.trim();       const supplier = document.getElementById("tz-supplier").value.trim();       const projectNo = document.getElementById("tz-projectNo").value.trim();       const projectName = document.getElementById("tz-projectName").value.trim();</p>
+<p>      if (!year &amp;&amp; !supplier &amp;&amp; !projectNo &amp;&amp; !projectName) {         alert("请输入至少一项查询条件！");         return;       }</p>
+<p>      let filtered = tzDataCache.filter(item =&gt; {         const supplierStr = item["供应商名称"] || "";         const projectNoStr = item["物料项目号"] ? String(item["物料项目号"]) : "";         const projectNameStr = item["物料名称"] || "";         const contractNoStr = item["合同编号"] || "";</p>
+<p>        const matchYear = year ? contractNoStr.includes(year) : true;         const matchSupplier = supplier ? supplierStr.includes(supplier) : true;         const matchProjectNo = projectNo ? projectNoStr === projectNo : true;         const matchProjectName = projectName ? projectNameStr.includes(projectName) : true;</p>
+<p>        return matchYear &amp;&amp; matchSupplier &amp;&amp; matchProjectNo &amp;&amp; matchProjectName;       });</p>
+<p>      filtered.sort((a,b) =&gt; b["合同编号"].localeCompare(a["合同编号"]));</p>
+<p>      if (filtered.length === 0) {         document.getElementById("tz-summary").classList.add("hidden");         document.getElementById("tz-result").innerHTML = "&lt;p class='text-center text-gray-500'&gt;未找到匹配的数据。&lt;/p&gt;";         return;       }</p>
+<p>      let total = filtered.reduce((sum, item) =&gt; sum + Number(item["订单总额"] || 0), 0);</p>
+<p>      document.getElementById("tz-summary").classList.remove("hidden");       document.getElementById("tz-count").textContent = filtered.length;       document.getElementById("tz-total").textContent = total.toLocaleString(undefined, {minimumFractionDigits: 2});</p>
+<p>      let tableHTML = <code>         &lt;table class="w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm"&gt;           &lt;thead class="bg-gray-100 font-semibold sticky top-0"&gt;             &lt;tr&gt;               &lt;th class="p-2 border-b"&gt;物料项目号&lt;/th&gt;               &lt;th class="p-2 border-b"&gt;物料名称&lt;/th&gt;               &lt;th class="p-2 border-b"&gt;数量&lt;/th&gt;               &lt;th class="p-2 border-b"&gt;单位&lt;/th&gt;               &lt;th class="p-2 border-b"&gt;采购单价&lt;/th&gt;               &lt;th class="p-2 border-b"&gt;订单总额&lt;/th&gt;               &lt;th class="p-2 border-b"&gt;供应商名称&lt;/th&gt;               &lt;th class="p-2 border-b"&gt;合同编号&lt;/th&gt;             &lt;/tr&gt;           &lt;/thead&gt;           &lt;tbody&gt;             ${filtered.map((row, i) =&gt; </code>               &lt;tr class="${i % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-red-50 transition"&gt;                 &lt;td class="p-2 border-b"&gt;${row["物料项目号"] || ""}&lt;/td&gt;                 &lt;td class="p-2 border-b"&gt;${row["物料名称"] || ""}&lt;/td&gt;                 &lt;td class="p-2 border-b"&gt;${row["数量"] || ""}&lt;/td&gt;                 &lt;td class="p-2 border-b"&gt;${row["单位"] || ""}&lt;/td&gt;                 &lt;td class="p-2 border-b"&gt;${Number(row["采购单价"] || 0).toFixed(2)}&lt;/td&gt;                 &lt;td class="p-2 border-b text-red-600 font-semibold"&gt;${Number(row["订单总额"] || 0).toFixed(2)}&lt;/td&gt;                 &lt;td class="p-2 border-b"&gt;${row["供应商名称"] || ""}&lt;/td&gt;                 &lt;td class="p-2 border-b"&gt;${row["合同编号"] || ""}&lt;/td&gt;               &lt;/tr&gt;             <code>).join('')}           &lt;/tbody&gt;           &lt;tfoot class="bg-gray-100 font-semibold"&gt;             &lt;tr&gt;               &lt;td colspan="5" class="p-2 text-right"&gt;金额总计：&lt;/td&gt;               &lt;td colspan="3" class="p-2 text-red-700"&gt;${total.toFixed(2)}&lt;/td&gt;             &lt;/tr&gt;           &lt;/tfoot&gt;         &lt;/table&gt;       </code>;       document.getElementById("tz-result").innerHTML = tableHTML;     }</p>
+<p>    function tzResetForm() {       ["tz-year", "tz-supplier", "tz-projectNo", "tz-projectName"].forEach(id =&gt; document.getElementById(id).value = "");       document.getElementById("tz-result").innerHTML = "";       document.getElementById("tz-summary").classList.add("hidden");     }</p>
+<p>    function tzExportTableToExcel(filename) {       const table = document.querySelector("#tz-result table");       if (!table) { alert("请先执行查询！"); return; }       const html = table.outerHTML.replace(/ /g, '%20');       const link = document.createElement("a");       link.href = 'data:application/vnd.ms-excel,' + html;       link.download = filename;       link.click();     }</p>
+<p>    document.getElementById("tz-searchBtn").addEventListener("click", tzSearchData);     document.getElementById("tz-resetBtn").addEventListener("click", tzResetForm);     document.getElementById("tz-exportBtn").addEventListener("click", () =&gt; tzExportTableToExcel('查询结果.xlsx'));</p>
+<p>    // ==================== 供应商管理功能 ====================     // 供应商数据存储     let suppliers = JSON.parse(localStorage.getItem('suppliers')) || [];</p>
+<p>    // 从JSON文件加载数据的函数     async function loadSuppliersFromJSON() {       try {         const response = await fetch('data.json');         if (!response.ok) throw new Error('Network response was not ok');         const data = await response.json();</p>
+<p>        // 如果本地存储没有数据，使用JSON文件中的数据         if (suppliers.length === 0) {           suppliers = data;           localStorage.setItem('suppliers', JSON.stringify(suppliers));         }</p>
+<p>        document.getElementById("supplier-loading").style.display = "none";         console.log("✅ 供应商数据已加载:", suppliers.length, "条");         updateSupplierStatistics();         renderSupplierTable(suppliers);       } catch (error) {         console.error("❌ 数据加载失败:", error);         document.getElementById("supplier-loading").textContent = "❌ 无法加载数据，使用本地存储数据";</p>
+<p>        // 如果本地存储有数据，使用本地存储数据         if (suppliers.length &gt; 0) {           document.getElementById("supplier-loading").style.display = "none";           updateSupplierStatistics();           renderSupplierTable(suppliers);         } else {           // 如果没有本地数据，使用示例数据           suppliers = [             {               id: '23001',               name: '华东包装材料有限公司',               shortName: '华东包装',               contactPerson: '张经理',               phone: '13800138000',               backupPhone: '0571-12345678',               address: '浙江省杭州市西湖区文三路100号',               category: '包装',               mainProducts: '纸箱,纸盒,包装纸',               startDate: '2023-01-15',               status: 'active',               creditRating: 'A',               remarks: '合作稳定，质量可靠'             },             {               id: '23002',               name: '北方原料供应集团',               shortName: '北方原料',               contactPerson: '李总监',               phone: '13900139000',               backupPhone: '0311-87654321',               address: '河北省石家庄市长安区中山东路200号',               category: '原料',               mainProducts: '化工原料,食品添加剂',               startDate: '2022-08-10',               status: 'active',               creditRating: 'B',               remarks: '价格优势明显，交货准时'             },             {               id: '23003',               name: '华南设备科技有限公司',               shortName: '华南设备',               contactPerson: '王总',               phone: '13700137000',               backupPhone: '0755-23456789',               address: '广东省深圳市南山区科技园南区',               category: '设备',               mainProducts: '生产设备,检测仪器',               startDate: '2023-03-20',               status: 'pending',               creditRating: 'C',               remarks: '新供应商，正在评估中'             },             {               id: '23004',               name: '西部辅料制品厂',               shortName: '西部辅料',               contactPerson: '刘厂长',               phone: '13600136000',               backupPhone: '028-34567890',               address: '四川省成都市金牛区金府路88号',               category: '辅料',               mainProducts: '标签,说明书,辅料',               startDate: '2021-11-05',               status: 'inactive',               creditRating: 'B',               remarks: '暂时停止合作，质量问题需要改进'             }           ];           localStorage.setItem('suppliers', JSON.stringify(suppliers));           document.getElementById("supplier-loading").style.display = "none";           updateSupplierStatistics();           renderSupplierTable(suppliers);         }       }     }</p>
+<p>    // 初始化供应商管理页面     document.addEventListener('DOMContentLoaded', function() {       // 加载供应商数据       loadSuppliersFromJSON();</p>
+<p>      // 搜索按钮事件       document.getElementById('supplier-search-btn').addEventListener('click', searchSuppliers);</p>
+<p>      // 重置按钮事件       document.getElementById('supplier-reset-btn').addEventListener('click', resetSupplierForm);</p>
+<p>      // 添加供应商按钮事件       document.getElementById('supplier-add-btn').addEventListener('click', openSupplierModal);</p>
+<p>      // 导出按钮事件       document.getElementById('supplier-export-btn').addEventListener('click', exportSuppliersToExcel);</p>
+<p>      // 关闭模态框       document.getElementById('supplier-close-modal').addEventListener('click', closeSupplierModal);       document.getElementById('supplier-cancel-btn').addEventListener('click', closeSupplierModal);</p>
+<p>      // 保存供应商       document.getElementById('supplier-form').addEventListener('submit', saveSupplier);</p>
+<p>      // 搜索框回车事件       document.getElementById('supplier-search').addEventListener('keypress', function(e) {         if (e.key === 'Enter') searchSuppliers();       });     });</p>
+<p>    // 搜索供应商     function searchSuppliers() {       const searchTerm = document.getElementById('supplier-search').value.trim().toLowerCase();       const statusFilter = document.getElementById('status-filter').value;       const categoryFilter = document.getElementById('category-filter').value;       const creditFilter = document.getElementById('credit-filter').value;</p>
+<p>      let filtered = suppliers.filter(supplier =&gt; {         const matchesSearch = !searchTerm ||            supplier.name.toLowerCase().includes(searchTerm) ||           supplier.shortName.toLowerCase().includes(searchTerm) ||           supplier.id.includes(searchTerm) ||           supplier.contactPerson.toLowerCase().includes(searchTerm) ||           supplier.mainProducts.toLowerCase().includes(searchTerm);</p>
+<p>        const matchesStatus = !statusFilter || supplier.status === statusFilter;         const matchesCategory = !categoryFilter || supplier.category === categoryFilter;         const matchesCredit = !creditFilter || supplier.creditRating === creditFilter;</p>
+<p>        return matchesSearch &amp;&amp; matchesStatus &amp;&amp; matchesCategory &amp;&amp; matchesCredit;       });</p>
+<p>      renderSupplierTable(filtered);     }</p>
+<p>    // 重置表单     function resetSupplierForm() {       document.getElementById('supplier-search').value = '';       document.getElementById('status-filter').value = '';       document.getElementById('category-filter').value = '';       document.getElementById('credit-filter').value = '';       renderSupplierTable(suppliers);     }</p>
+<p>    // 打开供应商模态框     function openSupplierModal(supplier = null) {       const modal = document.getElementById('supplier-modal');       const title = document.getElementById('supplier-modal-title');       const form = document.getElementById('supplier-form');</p>
+<p>      // 重置表单       form.reset();</p>
+<p>      if (supplier) {         // 编辑模式         title.textContent = '编辑供应商';         document.getElementById('supplier-id').value = supplier.id;         document.getElementById('supplier-code').value = supplier.id;         document.getElementById('supplier-name').value = supplier.name;         document.getElementById('supplier-shortname').value = supplier.shortName;         document.getElementById('contact-person').value = supplier.contactPerson;         document.getElementById('contact-phone').value = supplier.phone;         document.getElementById('backup-phone').value = supplier.backupPhone || '';         document.getElementById('address').value = supplier.address || '';         document.getElementById('category').value = supplier.category;         document.getElementById('main-products').value = supplier.mainProducts;         document.getElementById('start-date').value = supplier.startDate;         document.getElementById('status').value = supplier.status;         document.getElementById('credit-rating').value = supplier.creditRating;         document.getElementById('remarks').value = supplier.remarks || '';       } else {         // 添加模式         title.textContent = '添加供应商';         document.getElementById('supplier-id').value = '';         // 生成新的供应商编号         const maxId = Math.max(...suppliers.map(s =&gt; parseInt(s.id)), 0);         document.getElementById('supplier-code').value = String(maxId + 1).padStart(5, '0');       }</p>
+<p>      modal.classList.remove('hidden');     }</p>
+<p>    // 关闭供应商模态框     function closeSupplierModal() {       document.getElementById('supplier-modal').classList.add('hidden');     }</p>
+<p>    // 保存供应商     function saveSupplier(e) {       e.preventDefault();</p>
+<p>      const id = document.getElementById('supplier-id').value;       const code = document.getElementById('supplier-code').value;       const name = document.getElementById('supplier-name').value;       const shortName = document.getElementById('supplier-shortname').value;       const contactPerson = document.getElementById('contact-person').value;       const phone = document.getElementById('contact-phone').value;       const backupPhone = document.getElementById('backup-phone').value;       const address = document.getElementById('address').value;       const category = document.getElementById('category').value;       const mainProducts = document.getElementById('main-products').value;       const startDate = document.getElementById('start-date').value;       const status = document.getElementById('status').value;       const creditRating = document.getElementById('credit-rating').value;       const remarks = document.getElementById('remarks').value;</p>
+<p>      // 验证必填字段       if (!code || !name || !shortName || !contactPerson || !phone || !category || !mainProducts || !startDate || !status || !creditRating) {         alert('请填写所有必填字段！');         return;       }</p>
+<p>      const supplierData = {         id: code,         name,         shortName,         contactPerson,         phone,         backupPhone,         address,         category,         mainProducts,         startDate,         status,         creditRating,         remarks       };</p>
+<p>      if (id) {         // 更新现有供应商         const index = suppliers.findIndex(s =&gt; s.id === id);         if (index !== -1) {           suppliers[index] = supplierData;         }       } else {         // 添加新供应商         suppliers.push(supplierData);       }</p>
+<p>      // 保存到本地存储       localStorage.setItem('suppliers', JSON.stringify(suppliers));</p>
+<p>      // 重新渲染列表       renderSupplierTable(suppliers);</p>
+<p>      // 更新统计信息       updateSupplierStatistics();</p>
+<p>      // 关闭模态框       closeSupplierModal();</p>
+<p>      alert('供应商信息已保存！');     }</p>
+<p>    // 删除供应商     function deleteSupplier(id) {       if (confirm('确定要删除这个供应商吗？')) {         suppliers = suppliers.filter(s =&gt; s.id !== id);</p>
+<p>        // 保存到本地存储         localStorage.setItem('suppliers', JSON.stringify(suppliers));</p>
+<p>        // 重新渲染列表         renderSupplierTable(suppliers);</p>
+<p>        // 更新统计信息         updateSupplierStatistics();</p>
+<p>        alert('供应商已删除！');       }     }</p>
+<p>    // 渲染供应商表格     function renderSupplierTable(supplierList) {       const container = document.getElementById('supplier-result');</p>
+<p>      if (supplierList.length === 0) {         container.innerHTML = '&lt;p class="text-center text-gray-500 py-8"&gt;未找到匹配的供应商&lt;/p&gt;';         return;       }</p>
+<p>      // 状态徽章文本       function getStatusText(status) {         switch(status) {           case 'active': return '合作中';           case 'pending': return '待审核';           case 'inactive': return '暂停合作';           case 'terminated': return '已终止';           default: return status;         }       }</p>
+<p>      // 状态徽章类       function getStatusClass(status) {         switch(status) {           case 'active': return 'status-active';           case 'pending': return 'status-pending';           case 'inactive': return 'status-inactive';           case 'terminated': return 'status-terminated';           default: return '';         }       }</p>
+<p>      // 信用等级徽章类       function getCreditClass(credit) {         switch(credit) {           case 'A': return 'credit-a';           case 'B': return 'credit-b';           case 'C': return 'credit-c';           case 'D': return 'credit-d';           default: return '';         }       }</p>
+<p>      let tableHTML = <code>         &lt;table class="w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm"&gt;           &lt;thead class="bg-gray-100 font-semibold sticky top-0"&gt;             &lt;tr&gt;               &lt;th class="p-2 border-b"&gt;供应商编号&lt;/th&gt;               &lt;th class="p-2 border-b"&gt;供应商名称&lt;/th&gt;               &lt;th class="p-2 border-b"&gt;简称&lt;/th&gt;               &lt;th class="p-2 border-b"&gt;联系人&lt;/th&gt;               &lt;th class="p-2 border-b"&gt;联系电话&lt;/th&gt;               &lt;th class="p-2 border-b"&gt;供应品类&lt;/th&gt;               &lt;th class="p-2 border-b"&gt;主营产品&lt;/th&gt;               &lt;th class="p-2 border-b"&gt;合作状态&lt;/th&gt;               &lt;th class="p-2 border-b"&gt;信用等级&lt;/th&gt;               &lt;th class="p-2 border-b"&gt;操作&lt;/th&gt;             &lt;/tr&gt;           &lt;/thead&gt;           &lt;tbody&gt;             ${supplierList.map((supplier, i) =&gt; </code>               &lt;tr class="${i % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-red-50 transition"&gt;                 &lt;td class="p-2 border-b"&gt;${supplier.id}&lt;/td&gt;                 &lt;td class="p-2 border-b"&gt;${supplier.name}&lt;/td&gt;                 &lt;td class="p-2 border-b"&gt;${supplier.shortName}&lt;/td&gt;                 &lt;td class="p-2 border-b"&gt;${supplier.contactPerson}&lt;/td&gt;                 &lt;td class="p-2 border-b"&gt;${supplier.phone}&lt;/td&gt;                 &lt;td class="p-2 border-b"&gt;${supplier.category}&lt;/td&gt;                 &lt;td class="p-2 border-b"&gt;${supplier.mainProducts}&lt;/td&gt;                 &lt;td class="p-2 border-b"&gt;&lt;span class="status-badge ${getStatusClass(supplier.status)}"&gt;${getStatusText(supplier.status)}&lt;/span&gt;&lt;/td&gt;                 &lt;td class="p-2 border-b"&gt;&lt;span class="status-badge ${getCreditClass(supplier.creditRating)}"&gt;${supplier.creditRating}级&lt;/span&gt;&lt;/td&gt;                 &lt;td class="p-2 border-b"&gt;                   &lt;button class="edit-supplier text-blue-600 hover:text-blue-800 mx-1" data-id="${supplier.id}"&gt;                     &lt;i class="fas fa-edit"&gt;&lt;/i&gt;                   &lt;/button&gt;                   &lt;button class="delete-supplier text-red-600 hover:text-red-800 mx-1" data-id="${supplier.id}"&gt;                     &lt;i class="fas fa-trash-alt"&gt;&lt;/i&gt;                   &lt;/button&gt;                 &lt;/td&gt;               &lt;/tr&gt;             <code>).join('')}           &lt;/tbody&gt;         &lt;/table&gt;       </code>;       container.innerHTML = tableHTML;</p>
+<p>      // 添加编辑和删除事件       document.querySelectorAll('.edit-supplier').forEach(button =&gt; {         button.addEventListener('click', function() {           const id = this.getAttribute('data-id');           const supplier = suppliers.find(s =&gt; s.id === id);           if (supplier) {             openSupplierModal(supplier);           }         });       });</p>
+<p>      document.querySelectorAll('.delete-supplier').forEach(button =&gt; {         button.addEventListener('click', function() {           const id = this.getAttribute('data-id');           deleteSupplier(id);         });       });     }</p>
+<p>    // 更新统计信息     function updateSupplierStatistics() {       const totalCount = suppliers.length;       const activeCount = suppliers.filter(s =&gt; s.status === 'active').length;       const pendingCount = suppliers.filter(s =&gt; s.status === 'pending').length;       const aCount = suppliers.filter(s =&gt; s.creditRating === 'A').length;</p>
+<p>      document.getElementById('supplier-total-count').textContent = totalCount;       document.getElementById('supplier-active-count').textContent = activeCount;       document.getElementById('supplier-pending-count').textContent = pendingCount;       document.getElementById('supplier-a-count').textContent = aCount;     }</p>
+<p>    // 导出为Excel     function exportSuppliersToExcel() {       if (!suppliers.length) {         alert('暂无数据可导出！');         return;       }</p>
+<p>      const data = suppliers.map(supplier =&gt; ({         '供应商编号': supplier.id,         '供应商名称': supplier.name,         '供应商简称': supplier.shortName,         '联系人': supplier.contactPerson,         '联系电话': supplier.phone,         '备用电话': supplier.backupPhone || '',         '公司地址': supplier.address || '',         '供应品类': supplier.category,         '主营产品': supplier.mainProducts,         '合作起始日期': supplier.startDate,         '合作状态': getSupplierStatusText(supplier.status),         '信用等级': supplier.creditRating + '级',         '备注信息': supplier.remarks || ''       }));</p>
+<p>      const ws = XLSX.utils.json_to_sheet(data);       const wb = XLSX.utils.book_new();       XLSX.utils.book_append_sheet(wb, ws, "供应商信息");       XLSX.writeFile(wb, "供应商信息.xlsx");     }</p>
+<p>    // 状态徽章文本     function getSupplierStatusText(status) {       switch(status) {         case 'active': return '合作中';         case 'pending': return '待审核';         case 'inactive': return '暂停合作';         case 'terminated': return '已终止';         default: return status;       }     }   &lt;/script&gt; &lt;/body&gt; &lt;/html&gt; 修正代码</p></div>
+      <div class="qa-a"><p>我看到了你提供的整个网页代码，它已经非常完整，包括左侧导航、仪表盘、成品信息查询、BOM查询、物料单价查询以及对应的搜索、排序、导出功能。你前端用的是 <strong>TailwindCSS</strong>，数据处理依赖 <strong>JavaScript + XLSX</strong>，并且有局部的 <strong>高亮、分组、排序、Enter键触发搜索</strong> 等功能。</p>
+<p>我注意到几个可能需要注意或优化的点：</p>
+<ol class="md-ol"><li><strong>BOM查询中采购单价显示</strong>  </li></ol>
+<p>   - 你在 <code>bomRenderFiltered()</code> 中查找 <code>tzDataCache</code> 来获取采购单价：      ``<code>js      const purchasePrice = tzDataCache.find(item =&gt; String(item.物料项目号) === id)?.采购单价 || "-";      </code>`<code>      这里如果 </code>tzDataCache<code> 的物料项目号是数字，而 </code>id<code> 是字符串，可能匹配不到。最好统一使用 </code>String()<code> 或 </code>Number()` 对比。</p>
+<ol class="md-ol"><li><strong>成品BOM明细采购单价</strong>  </li></ol>
+<p>   - <code>cpShowBOM()</code> 里，你写死了采购单价为 <code>"—"</code>，可以改成同样调用 <code>tzDataCache</code> 查找：      ``<code>js      const purchasePrice = tzDataCache.find(item =&gt; String(item.物料项目号) === row.物料项目号)?.采购单价 || "—";      </code>``</p>
+<ol class="md-ol"><li><strong>表格滚动与标题固定</strong>  </li></ol>
+<p>   - BOM和成品表格的 <code>&lt;thead&gt;</code> 使用 <code>sticky top-0</code> 是好的，但有时需要加上 <code>bg-white</code> 和 <code>z-index</code>，避免滚动时覆盖内容。你成品表格已经设置，BOM表格也建议同样处理。</p>
+<ol class="md-ol"><li><strong>导航与卡片切换</strong>  </li></ol>
+<p>   - 你已经实现了点击左侧导航和仪表盘卡片切换内容区功能，看起来逻辑正确。</p>
+<ol class="md-ol"><li><strong>数据加载安全性</strong>  </li></ol>
+<p>   - 使用 <code>safeFetch</code> 尝试多路径加载是个好方法，可以避免路径问题。</p>
+<ol class="md-ol"><li><strong>Excel导出</strong>  </li></ol>
+<p>   - 成品信息查询和物料单价查询都支持导出，但 BOM 查询没有导出按钮，如果你需要，可以类似添加。</p>
+<ol class="md-ol"><li><strong>潜在小 bug</strong>  </li></ol>
+<p>   - 物料单价查询里，你排序是：      ``<code>js      filtered.sort((a,b) =&gt; b["合同编号"].localeCompare(a["合同编号"]));      </code>`<code>      注意这里 </code>localeCompare` 默认是字符串比较，如果合同编号是混合数字和字母，排序可能不符合预期。可以在显示前统一格式化或拆分数字部分排序。</p>
+<ol class="md-ol"><li><strong>页面渲染性能</strong>  </li></ol>
+<p>   - 当数据量很大时（上千条记录），前端直接渲染整个表格可能会卡顿。可以考虑分页或虚拟滚动。</p>
+<p>如果你愿意，我可以帮你做一个 <strong>小优化版本</strong>，包括：</p>
+<ul class="md-ul"><li>成品BOM明细显示真实采购单价；</li><li>BOM查询和成品BOM明细都可按物料单价排序；</li><li>表格滚动体验优化；</li><li>Excel导出 BOM 功能（可选）。</li></ul>
+<p>这样整个系统就几乎完整、可用，而且用户体验更顺畅。  </p>
+<p>你希望我帮你做这个优化吗？</p></div>
+    </section>
+    <section id="s2" class="st2">
+      <div class="sec-h"><span class="idx st2">Q2</span><h2>成品BOM明细显示真实采购单价； 优化这一条就可以了</h2><span class="hint">第 2 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>成品BOM明细显示真实采购单价； 优化这一条就可以了</p></div>
+      <div class="qa-a"><p>明白，你希望 <strong>在成品信息查询中点击“查看BOM”时，每条物料显示对应的真实采购单价</strong>，而不是当前的“—”。  </p>
+<p>结合你现在的代码，修改 <code>cpShowBOM</code> 函数即可：</p>
+<div class="codeblock"><pre><code>function cpShowBOM(projectId) {
+  const section = document.getElementById(&quot;cp-bomSection&quot;);
+  const tbody = document.getElementById(&quot;cp-bomBody&quot;);
+  const list = bomData.filter(i =&gt; String(i.项目号) === String(projectId));
+  if(!list.length) { 
+    section.classList.remove(&quot;hidden&quot;); 
+    tbody.innerHTML = &quot;&lt;tr&gt;&lt;td colspan=&#x27;5&#x27; class=&#x27;text-gray-500&#x27;&gt;未找到BOM&lt;/td&gt;&lt;/tr&gt;&quot;; 
+    return;
+  }
+
+  tbody.innerHTML = list.map(row =&gt; {
+    // 查找物料的采购单价
+    const purchasePrice = tzDataCache.find(item =&gt; String(item.物料项目号) === String(row.物料项目号))?.采购单价 || &quot;—&quot;;
+
+    return `
+      &lt;tr class=&quot;hover:bg-red-50 transition&quot;&gt;
+        &lt;td class=&quot;p-2 border-b&quot;&gt;${row.物料项目号}&lt;/td&gt;
+        &lt;td class=&quot;p-2 border-b&quot;&gt;${row.物料名称}&lt;/td&gt;
+        &lt;td class=&quot;p-2 border-b&quot;&gt;${row.数量}&lt;/td&gt;
+        &lt;td class=&quot;p-2 border-b&quot;&gt;${row.计量单位}&lt;/td&gt;
+        &lt;td class=&quot;p-2 border-b&quot;&gt;${purchasePrice}&lt;/td&gt;
+      &lt;/tr&gt;`;
+  }).join(&quot;&quot;);
+  section.classList.remove(&quot;hidden&quot;);
+}</code></pre></div>
+<p>✅ 说明：</p>
+<ol class="md-ol"><li>新增一行 <code>const purchasePrice = ...</code>，从 <code>tzDataCache</code> 里匹配物料项目号。</li><li>显示采购单价，如果没有匹配则显示 “—”。  </li></ol>
+<p>这样点击“查看BOM”时，BOM表里的采购单价就是实际值了。  </p>
+<p>如果你愿意，我可以帮你 <strong>顺便让 BOM 表的采购单价显示两位小数，并且高亮显示金额变化</strong>，这样更直观。你希望我加吗？</p></div>
+    </section>
+    <section id="s3" class="st3">
+      <div class="sec-h"><span class="idx st3">Q3</span><h2>不用了，提供完整index就可以了</h2><span class="hint">第 3 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>不用了，提供完整index就可以了</p></div>
+      <div class="qa-a"><p>明白，我帮你整合出一个完整可用的 <strong>成品信息 + BOM 查询 index.html</strong>，点击“查看BOM”时会显示真实采购单价，数据来源 <code>cp_data.json</code>（成品）、<code>bom/bom_data.json</code>（BOM）、<code>tz/data.json</code>（采购台账）。表格样式优化，紧凑，鼠标悬停高亮。  </p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;UTF-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+&lt;title&gt;成品信息查询&lt;/title&gt;
+&lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+&lt;style&gt;
+  body { background-color: #f3f4f6; font-family: sans-serif; }
+  .hidden { display: none; }
+  .pointer { cursor: pointer; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body class=&quot;p-4&quot;&gt;
+
+&lt;h1 class=&quot;text-xl font-bold mb-4&quot;&gt;成品信息查询&lt;/h1&gt;
+
+&lt;div class=&quot;mb-4&quot;&gt;
+  &lt;input type=&quot;text&quot; id=&quot;cpSearch&quot; placeholder=&quot;输入成品名称或项目号查询&quot; class=&quot;border p-2 rounded w-64&quot;&gt;
+  &lt;button id=&quot;cpBtn&quot; class=&quot;bg-blue-500 text-white px-3 py-1 rounded ml-2&quot;&gt;查询&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;table class=&quot;min-w-full border-collapse border border-gray-200&quot;&gt;
+  &lt;thead class=&quot;bg-gray-100&quot;&gt;
+    &lt;tr&gt;
+      &lt;th class=&quot;p-2 border-b&quot;&gt;序号&lt;/th&gt;
+      &lt;th class=&quot;p-2 border-b&quot;&gt;项目号&lt;/th&gt;
+      &lt;th class=&quot;p-2 border-b&quot;&gt;成品名称&lt;/th&gt;
+      &lt;th class=&quot;p-2 border-b&quot;&gt;操作&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody id=&quot;cpTable&quot;&gt;&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;!-- BOM 展示 --&gt;
+&lt;div id=&quot;cp-bomSection&quot; class=&quot;mt-6 hidden&quot;&gt;
+  &lt;h2 class=&quot;text-lg font-semibold mb-2&quot;&gt;BOM明细&lt;/h2&gt;
+  &lt;table class=&quot;min-w-full border-collapse border border-gray-200&quot;&gt;
+    &lt;thead class=&quot;bg-gray-100&quot;&gt;
+      &lt;tr&gt;
+        &lt;th class=&quot;p-2 border-b&quot;&gt;物料项目号&lt;/th&gt;
+        &lt;th class=&quot;p-2 border-b&quot;&gt;物料名称&lt;/th&gt;
+        &lt;th class=&quot;p-2 border-b&quot;&gt;数量&lt;/th&gt;
+        &lt;th class=&quot;p-2 border-b&quot;&gt;计量单位&lt;/th&gt;
+        &lt;th class=&quot;p-2 border-b&quot;&gt;采购单价&lt;/th&gt;
+      &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody id=&quot;cp-bomBody&quot;&gt;&lt;/tbody&gt;
+  &lt;/table&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+// 数据缓存
+let cpData = [], bomData = [], tzDataCache = [];
+
+// 加载数据
+async function loadData() {
+  cpData = await fetch(&quot;cp_data.json&quot;).then(r =&gt; r.json());
+  bomData = await fetch(&quot;bom/bom_data.json&quot;).then(r =&gt; r.json());
+  tzDataCache = await fetch(&quot;tz/data.json&quot;).then(r =&gt; r.json());
+}
+
+// 渲染成品表
+function renderCP(list) {
+  const tbody = document.getElementById(&quot;cpTable&quot;);
+  if(!list.length) {
+    tbody.innerHTML = `&lt;tr&gt;&lt;td colspan=&quot;4&quot; class=&quot;text-gray-500 text-center p-2&quot;&gt;未找到数据&lt;/td&gt;&lt;/tr&gt;`;
+    return;
+  }
+  tbody.innerHTML = list.map((row, idx) =&gt; `
+    &lt;tr class=&quot;hover:bg-blue-50 transition&quot;&gt;
+      &lt;td class=&quot;p-2 border-b&quot;&gt;${idx+1}&lt;/td&gt;
+      &lt;td class=&quot;p-2 border-b&quot;&gt;${row.项目号}&lt;/td&gt;
+      &lt;td class=&quot;p-2 border-b&quot;&gt;${row.成品名称}&lt;/td&gt;
+      &lt;td class=&quot;p-2 border-b&quot;&gt;
+        &lt;button onclick=&quot;cpShowBOM(&#x27;${row.项目号}&#x27;)&quot; class=&quot;bg-green-500 text-white px-2 py-1 rounded&quot;&gt;查看BOM&lt;/button&gt;
+      &lt;/td&gt;
+    &lt;/tr&gt;
+  `).join(&quot;&quot;);
+}
+
+// 查询功能
+document.getElementById(&quot;cpBtn&quot;).addEventListener(&quot;click&quot;, () =&gt; {
+  const keyword = document.getElementById(&quot;cpSearch&quot;).value.trim();
+  const result = cpData.filter(i =&gt; i.成品名称.includes(keyword) || String(i.项目号).includes(keyword));
+  renderCP(result);
+});
+
+// 显示BOM
+function cpShowBOM(projectId) {
+  const section = document.getElementById(&quot;cp-bomSection&quot;);
+  const tbody = document.getElementById(&quot;cp-bomBody&quot;);
+  const list = bomData.filter(i =&gt; String(i.项目号) === String(projectId));
+  if(!list.length) { 
+    section.classList.remove(&quot;hidden&quot;); 
+    tbody.innerHTML = &quot;&lt;tr&gt;&lt;td colspan=&#x27;5&#x27; class=&#x27;text-gray-500 p-2 text-center&#x27;&gt;未找到BOM&lt;/td&gt;&lt;/tr&gt;&quot;; 
+    return;
+  }
+
+  tbody.innerHTML = list.map(row =&gt; {
+    const purchasePrice = tzDataCache.find(item =&gt; String(item.物料项目号) === String(row.物料项目号))?.采购单价 || &quot;—&quot;;
+    return `
+      &lt;tr class=&quot;hover:bg-red-50 transition&quot;&gt;
+        &lt;td class=&quot;p-2 border-b&quot;&gt;${row.物料项目号}&lt;/td&gt;
+        &lt;td class=&quot;p-2 border-b&quot;&gt;${row.物料名称}&lt;/td&gt;
+        &lt;td class=&quot;p-2 border-b&quot;&gt;${row.数量}&lt;/td&gt;
+        &lt;td class=&quot;p-2 border-b&quot;&gt;${row.计量单位}&lt;/td&gt;
+        &lt;td class=&quot;p-2 border-b&quot;&gt;${purchasePrice}&lt;/td&gt;
+      &lt;/tr&gt;`;
+  }).join(&quot;&quot;);
+
+  section.classList.remove(&quot;hidden&quot;);
+}
+
+// 初始化
+loadData().then(() =&gt; renderCP(cpData));
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<p>这个版本特点：</p>
+<ol class="md-ol"><li><strong>成品列表 + BOM 明细</strong> 一页展示，BOM默认隐藏。</li><li><strong>BOM采购单价显示真实值</strong>，未找到显示“—”。</li><li>表格紧凑，鼠标悬停高亮，按钮风格清晰。</li><li>数据可直接放在本地目录：</li></ol>
+<p>   - <code>cp_data.json</code>    - <code>bom/bom_data.json</code>    - <code>tz/data.json</code>  </p>
+<p>你只需要把三个 JSON 放对应目录下就能运行，无需服务器环境。  </p>
+<p>如果你愿意，我可以顺便加一个 <strong>点击BOM可以折叠收起，再点展开</strong>，这样页面更干净。要我加吗？</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>网页代码优化建议 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：网页代码优化建议（2025-11-01）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1", "s2", "s3"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

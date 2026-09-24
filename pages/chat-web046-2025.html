@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>BOM查询页面优化 · 2025</title>
+<meta name="description" content="非常好 👍 你已经把 BOM 查询页面 和 物料查询系统的数据结构 整体说明得很清楚。  现在我们要做的，是让 BOM 查询页 index.html 正确关联 tz/data.json 文件，并在表格中展示匹配的 “采购单价”。我会帮你修正">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a><a href="#s2" data-sec="s2">Q2</a><a href="#s3" data-sec="s3">Q3</a><a href="#s4" data-sec="s4">Q4</a><a href="#s5" data-sec="s5">Q5</a><a href="#s6" data-sec="s6">Q6</a><a href="#s7" data-sec="s7">Q7</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · 建站
+  <h1 class="s-h1">BOM查询页面优化</h1>
+  <p class="s-lede">非常好 👍 你已经把 BOM 查询页面 和 物料查询系统的数据结构 整体说明得很清楚。  现在我们要做的，是让 BOM 查询页 index.html 正确关联 tz/data.json 文件，并在表格中展示匹配的 “采购单价”。我会帮你修正</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>14</b></span>
+    <span>时间范围 <b>2025-10-31 ~ 2025-10-31</b></span>
+    <span>分类 <b>建站与技术</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">建站</span>
+    <span class="s-chip">2025</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>下面是物料查询系统的数据结构。[  {    &quot;合同编号&quot;: &quot;SC2022-1…</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>下面是物料查询系统的数据结构。</p>
+<p>[</p>
+<p>  {</p>
+<p>    "合同编号": "SC2022-1-4-04",</p>
+<p>    "供应商名称": "四川鼎晟塑料制品有限公司",</p>
+<p>    "物料项目号": 81003852,</p>
+<p>    "物料名称": "雪菊瓶身",</p>
+<p>    "数量": 7000,</p>
+<p>    "单位": "个",</p>
+<p>    "采购单价": 1.21,</p>
+<p>    "订单总额": 8470</p>
+<p>  }</p>
+<p>]</p>
+<p>下面是bom查询的index代码</p>
+<p>&lt;!DOCTYPE html&gt;</p>
+<p>&lt;html lang="zh-CN"&gt;</p>
+<p>&lt;head&gt;</p>
+<p>  &lt;meta charset="UTF-8" /&gt;</p>
+<p>  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;</p>
+<p>  &lt;title&gt;BOM查询&lt;/title&gt;</p>
+<p>  &lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p>  &lt;style&gt;</p>
+<p>    @keyframes fadeIn {</p>
+<p>      from { opacity: 0; transform: translateY(10px); }</p>
+<p>      to { opacity: 1; transform: translateY(0); }</p>
+<p>    }</p>
+<p>    .fade-in { animation: fadeIn 0.4s ease-in; }</p>
+<p>    table th { position: sticky; top: 0; background-color: white; z-index: 10; }</p>
+<p>    mark { background-color: #fff59d; color: inherit; padding: 0; }</p>
+<p>    .parent-header {</p>
+<p>      background: linear-gradient(90deg, #fbbfbc, #f87171);</p>
+<p>      color: #ffffff;</p>
+<p>    }</p>
+<p>    .parent-row {</p>
+<p>      background: linear-gradient(90deg, #ffe4e1, #ffe0e0);</p>
+<p>      font-weight: 600;</p>
+<p>    }</p>
+<p>    .child-header {</p>
+<p>      background-color: #f3f4f6;</p>
+<p>      font-weight: 600;</p>
+<p>    }</p>
+<p>    .child-row {</p>
+<p>      background: linear-gradient(90deg, #fff8dc, #fffad1);</p>
+<p>    }</p>
+<p>    tbody tr:hover {</p>
+<p>      background-color: #fce4e4;</p>
+<p>    }</p>
+<p>  &lt;/style&gt;</p>
+<p>&lt;/head&gt;</p>
+<p>&lt;body class="bg-gray-50 font-sans text-gray-800"&gt;</p>
+<p>  &lt;!-- 标题 + 保密声明 --&gt;</p>
+<p>  &lt;div class="max-w-7xl mx-auto bg-white rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 fade-in"&gt;</p>
+<p>    &lt;div class="flex items-center gap-3"&gt;</p>
+<p>      &lt;img src="/assets/img/trtlogo.png" alt="LOGO" class="h-12 w-auto object-contain"&gt;</p>
+<p>      &lt;h1 class="text-xl md:text-2xl font-bold text-gray-900"&gt;BOM查询&lt;/h1&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>    &lt;div class="flex flex-col md:flex-row flex-wrap gap-2 text-gray-700 text-sm md:text-base"&gt;</p>
+<p>      &lt;span class="px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600"&gt;⚠️ 保密声明：所有数据均属内部信息，严禁泄露&lt;/span&gt;</p>
+<p>      &lt;span class="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700"&gt;如查询不到，请联系采购部更新数据&lt;/span&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>  &lt;/div&gt;</p>
+<p>  &lt;!-- 查询区域 --&gt;</p>
+<p>  &lt;div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in"&gt;</p>
+<p>    &lt;input id="nameSearch" type="text" placeholder="品名（模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" /&gt;</p>
+<p>    &lt;input id="projectSearch" type="text" placeholder="项目号（精准搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" /&gt;</p>
+<p>    &lt;input id="materialIDSearch" type="text" placeholder="物料项目号（精准搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" /&gt;</p>
+<p>    &lt;input id="materialNameSearch" type="text" placeholder="物料名称（模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" /&gt;</p>
+<p>    &lt;button id="searchBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow"&gt;查询&lt;/button&gt;</p>
+<p>    &lt;button id="resetBtn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow"&gt;重置&lt;/button&gt;</p>
+<p>  &lt;/div&gt;</p>
+<p>  &lt;!-- 查询结果 --&gt;</p>
+<p>  &lt;div id="loading" class="text-center text-red-600 font-medium my-6"&gt;⏳ 数据加载中...&lt;/div&gt;</p>
+<p>  &lt;div id="result" class="max-w-7xl mx-auto overflow-x-auto fade-in"&gt;&lt;/div&gt;</p>
+<p>  &lt;footer class="text-center text-gray-500 text-sm mt-8 mb-4"&gt;© 2025 德令哈采购管理部提供技术和数据支持&lt;/footer&gt;</p>
+<p>  &lt;script&gt;</p>
+<p>    let bomData = [];</p>
+<p>    let priceData = {}; // key = 物料项目号 =&gt; 采购单价</p>
+<p>    // 加载 BOM 数据</p>
+<p>    fetch('bom_data.json?_v=' + Date.now())</p>
+<p>      .then(res =&gt; res.json())</p>
+<p>      .then(data =&gt; {</p>
+<p>        if (!Array.isArray(data)) throw new Error("BOM数据格式错误，必须为数组");</p>
+<p>        bomData = data.map(item =&gt; ({</p>
+<p>          项目号: String(item.项目号 || "").trim(),</p>
+<p>          品名: String(item.品名 || "").trim(),</p>
+<p>          规格: String(item.规格 || "").trim(),</p>
+<p>          零售价: String(item["零售价（元）"] ?? item.零售价 ?? "").trim(),</p>
+<p>          物料项目号: String(item.物料项目号 || "").trim(),</p>
+<p>          物料名称: String(item.物料名称 || "").trim(),</p>
+<p>          数量: String(item.数量 || "").trim(),</p>
+<p>          计量单位: String(item.计量单位 || "").trim()</p>
+<p>        }));</p>
+<p>        checkAllLoaded();</p>
+<p>      })</p>
+<p>      .catch(err =&gt; {</p>
+<p>        console.error("❌ BOM 数据加载失败:", err);</p>
+<p>        document.getElementById("loading").textContent = "❌ BOM数据加载失败，请检查路径或格式";</p>
+<p>      });</p>
+<p>    // 加载采购单价数据</p>
+<p>    fetch('tz/data.json?_v=' + Date.now())</p>
+<p>      .then(res =&gt; res.json())</p>
+<p>      .then(data =&gt; {</p>
+<p>        if (!Array.isArray(data)) throw new Error("采购单价数据格式错误，必须为数组");</p>
+<p>        data.forEach(item =&gt; {</p>
+<p>          priceData[String(item.物料项目号)] = item.采购单价; // 用物料项目号作为 key</p>
+<p>        });</p>
+<p>        checkAllLoaded();</p>
+<p>      })</p>
+<p>      .catch(err =&gt; {</p>
+<p>        console.error("❌ 采购单价数据加载失败:", err);</p>
+<p>        document.getElementById("loading").textContent = "❌ 采购单价加载失败，请检查路径或格式";</p>
+<p>      });</p>
+<p>    function checkAllLoaded() {</p>
+<p>      if (bomData.length &gt; 0) {</p>
+<p>        document.getElementById("loading").style.display = "none";</p>
+<p>      }</p>
+<p>    }</p>
+<p>    function highlight(text, keyword) {</p>
+<p>      if (!keyword) return text || "";</p>
+<p>      const reg = new RegExp(<code>(${keyword.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\$&amp;')})</code>, "gi");</p>
+<p>      return (text || "").replace(reg, "&lt;mark&gt;$1&lt;/mark&gt;");</p>
+<p>    }</p>
+<p>    function renderFiltered() {</p>
+<p>      const nameKeyword = document.getElementById("nameSearch").value.trim();</p>
+<p>      const projectID = document.getElementById("projectSearch").value.trim();</p>
+<p>      const materialID = document.getElementById("materialIDSearch").value.trim();</p>
+<p>      const materialName = document.getElementById("materialNameSearch").value.trim();</p>
+<p>      const resultDiv = document.getElementById("result");</p>
+<p>      resultDiv.innerHTML = "";</p>
+<p>      if (!nameKeyword &amp;&amp; !projectID &amp;&amp; !materialID &amp;&amp; !materialName) {</p>
+<p>        alert("请输入至少一项查询条件！");</p>
+<p>        return;</p>
+<p>      }</p>
+<p>      let filtered = bomData.filter(item =&gt;</p>
+<p>        (!nameKeyword || item.品名.includes(nameKeyword)) &amp;&amp;</p>
+<p>        (!projectID || item.项目号 === projectID)</p>
+<p>      );</p>
+<p>      if (materialID || materialName) {</p>
+<p>        const matchedProjects = new Set(</p>
+<p>          bomData</p>
+<p>            .filter(item =&gt;</p>
+<p>              (!materialID || item.物料项目号 === materialID) &amp;&amp;</p>
+<p>              (!materialName || item.物料名称.includes(materialName))</p>
+<p>            )</p>
+<p>            .map(item =&gt; item.项目号)</p>
+<p>        );</p>
+<p>        filtered = filtered.filter(item =&gt; matchedProjects.has(item.项目号));</p>
+<p>      }</p>
+<p>      if (filtered.length === 0) {</p>
+<p>        resultDiv.innerHTML = "&lt;p class='text-center text-gray-500'&gt;未找到匹配结果。&lt;/p&gt;";</p>
+<p>        return;</p>
+<p>      }</p>
+<p>      const grouped = {};</p>
+<p>      filtered.forEach(item =&gt; {</p>
+<p>        if (!grouped[item.项目号]) grouped[item.项目号] = [];</p>
+<p>        grouped[item.项目号].push(item);</p>
+<p>      });</p>
+<p>      let tableHTML = `</p>
+<p>        &lt;table class="w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm"&gt;</p>
+<p>          &lt;thead class="parent-header"&gt;</p>
+<p>            &lt;tr&gt;</p>
+<p>              &lt;th class="p-2"&gt;项目号&lt;/th&gt;</p>
+<p>              &lt;th class="p-2"&gt;品名&lt;/th&gt;</p>
+<p>              &lt;th class="p-2"&gt;规格&lt;/th&gt;</p>
+<p>              &lt;th class="p-2"&gt;零售价&lt;/th&gt;</p>
+<p>              &lt;th class="p-2"&gt;物料项目号&lt;/th&gt;</p>
+<p>              &lt;th class="p-2"&gt;物料名称&lt;/th&gt;</p>
+<p>              &lt;th class="p-2"&gt;数量&lt;/th&gt;</p>
+<p>              &lt;th class="p-2"&gt;计量单位&lt;/th&gt;</p>
+<p>              &lt;th class="p-2"&gt;采购单价&lt;/th&gt;</p>
+<p>            &lt;/tr&gt;</p>
+<p>          &lt;/thead&gt;</p>
+<p>          &lt;tbody&gt;</p>
+<p>      `;</p>
+<p>      for (const [proj, items] of Object.entries(grouped)) {</p>
+<p>        const parent = items[0];</p>
+<p>        // 父行</p>
+<p>        tableHTML += `</p>
+<p>          &lt;tr class="parent-row"&gt;</p>
+<p>            &lt;td class="border p-2"&gt;${highlight(parent.项目号, projectID)}&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2"&gt;${highlight(parent.品名, nameKeyword)}&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2"&gt;${highlight(parent.规格, "")}&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2"&gt;${highlight(parent.零售价, "")}&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2" colspan="5"&gt;&lt;/td&gt;</p>
+<p>          &lt;/tr&gt;</p>
+<p>        `;</p>
+<p>        // 子表表头</p>
+<p>        tableHTML += `</p>
+<p>          &lt;tr class="child-row child-header"&gt;</p>
+<p>            &lt;td class="border p-2"&gt;&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2"&gt;&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2"&gt;&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2"&gt;&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2"&gt;物料项目号&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2"&gt;物料名称&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2"&gt;数量&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2"&gt;计量单位&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2"&gt;采购单价&lt;/td&gt;</p>
+<p>          &lt;/tr&gt;</p>
+<p>        `;</p>
+<p>        // 子行数据</p>
+<p>        items.forEach(child =&gt; {</p>
+<p>          const purchasePrice = priceData[child.物料项目号] !== undefined ? priceData[child.物料项目号] : "-";</p>
+<p>          tableHTML += `</p>
+<p>            &lt;tr class="child-row"&gt;</p>
+<p>              &lt;td class="border p-2"&gt;&lt;/td&gt;</p>
+<p>              &lt;td class="border p-2"&gt;&lt;/td&gt;</p>
+<p>              &lt;td class="border p-2"&gt;&lt;/td&gt;</p>
+<p>              &lt;td class="border p-2"&gt;&lt;/td&gt;</p>
+<p>              &lt;td class="border p-2"&gt;${highlight(child.物料项目号, materialID)}&lt;/td&gt;</p>
+<p>              &lt;td class="border p-2"&gt;${highlight(child.物料名称, materialName)}&lt;/td&gt;</p>
+<p>              &lt;td class="border p-2"&gt;${highlight(child.数量, "")}&lt;/td&gt;</p>
+<p>              &lt;td class="border p-2"&gt;${highlight(child.计量单位, "")}&lt;/td&gt;</p>
+<p>              &lt;td class="border p-2"&gt;${purchasePrice}&lt;/td&gt;</p>
+<p>            &lt;/tr&gt;</p>
+<p>          `;</p>
+<p>        });</p>
+<p>      }</p>
+<p>      tableHTML += <code>&lt;/tbody&gt;&lt;/table&gt;</code>;</p>
+<p>      resultDiv.innerHTML = tableHTML;</p>
+<p>    }</p>
+<p>    document.getElementById("searchBtn").addEventListener("click", renderFiltered);</p>
+<p>    document.getElementById("resetBtn").addEventListener("click", () =&gt; {</p>
+<p>      ["nameSearch","projectSearch","materialIDSearch","materialNameSearch"].forEach(id =&gt; document.getElementById(id).value = "");</p>
+<p>      document.getElementById("result").innerHTML = "";</p>
+<p>    });</p>
+<p>  &lt;/script&gt;</p>
+<p>&lt;/body&gt;</p>
+<p>&lt;/html&gt;请修正bom查询的index，物料名称对应的物料查询的数据文件tz/data.json，采购单价通过匹配相同物料项目号进行展现</p></div>
+      <div class="qa-a"><p>非常好 👍 你已经把 <strong>BOM 查询页面</strong> 和 <strong>物料查询系统的数据结构</strong> 整体说明得很清楚。   现在我们要做的，是让 <strong>BOM 查询页 index.html</strong> 正确关联 <code>tz/data.json</code> 文件，并在表格中展示匹配的 “采购单价”。</p>
+<p>我会帮你修正和优化当前的 index.html，确保以下几点都正确运行：</p>
+<p>✅ 正确加载两个文件：<code>bom_data.json</code> 与 <code>tz/data.json</code>   ✅ 通过「物料项目号」匹配采购单价并显示   ✅ 保留当前界面样式与交互逻辑  </p>
+<p>---</p>
+<p>以下是完整修正后的 <strong>index.html（可直接替换使用）</strong>👇   （我在关键处加了简洁注释说明，确保逻辑清晰）</p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot; /&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+  &lt;title&gt;BOM查询&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;style&gt;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeIn 0.4s ease-in; }
+    table th { position: sticky; top: 0; background-color: white; z-index: 10; }
+    mark { background-color: #fff59d; color: inherit; padding: 0; }
+
+    .parent-header {
+      background: linear-gradient(90deg, #fbbfbc, #f87171);
+      color: #ffffff;
+    }
+    .parent-row {
+      background: linear-gradient(90deg, #ffe4e1, #ffe0e0);
+      font-weight: 600;
+    }
+    .child-header {
+      background-color: #f3f4f6;
+      font-weight: 600;
+    }
+    .child-row {
+      background: linear-gradient(90deg, #fff8dc, #fffad1);
+    }
+    tbody tr:hover {
+      background-color: #fce4e4;
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+
+&lt;body class=&quot;bg-gray-50 font-sans text-gray-800&quot;&gt;
+
+  &lt;!-- 标题区 --&gt;
+  &lt;div class=&quot;max-w-7xl mx-auto bg-white rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 fade-in&quot;&gt;
+    &lt;div class=&quot;flex items-center gap-3&quot;&gt;
+      &lt;img src=&quot;/assets/img/trtlogo.png&quot; alt=&quot;LOGO&quot; class=&quot;h-12 w-auto object-contain&quot;&gt;
+      &lt;h1 class=&quot;text-xl md:text-2xl font-bold text-gray-900&quot;&gt;BOM查询&lt;/h1&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;flex flex-col md:flex-row flex-wrap gap-2 text-gray-700 text-sm md:text-base&quot;&gt;
+      &lt;span class=&quot;px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600&quot;&gt;⚠️ 保密声明：内部数据，严禁外传&lt;/span&gt;
+      &lt;span class=&quot;px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700&quot;&gt;如查询不到，请联系采购部更新&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- 查询输入 --&gt;
+  &lt;div class=&quot;max-w-7xl mx-auto bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in&quot;&gt;
+    &lt;input id=&quot;nameSearch&quot; type=&quot;text&quot; placeholder=&quot;品名（模糊搜索）&quot; class=&quot;border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400&quot; /&gt;
+    &lt;input id=&quot;projectSearch&quot; type=&quot;text&quot; placeholder=&quot;项目号（精准搜索）&quot; class=&quot;border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400&quot; /&gt;
+    &lt;input id=&quot;materialIDSearch&quot; type=&quot;text&quot; placeholder=&quot;物料项目号（精准搜索）&quot; class=&quot;border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400&quot; /&gt;
+    &lt;input id=&quot;materialNameSearch&quot; type=&quot;text&quot; placeholder=&quot;物料名称（模糊搜索）&quot; class=&quot;border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400&quot; /&gt;
+    &lt;button id=&quot;searchBtn&quot; class=&quot;bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow&quot;&gt;查询&lt;/button&gt;
+    &lt;button id=&quot;resetBtn&quot; class=&quot;bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow&quot;&gt;重置&lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;!-- 查询结果 --&gt;
+  &lt;div id=&quot;loading&quot; class=&quot;text-center text-red-600 font-medium my-6&quot;&gt;⏳ 数据加载中...&lt;/div&gt;
+  &lt;div id=&quot;result&quot; class=&quot;max-w-7xl mx-auto overflow-x-auto fade-in&quot;&gt;&lt;/div&gt;
+
+  &lt;footer class=&quot;text-center text-gray-500 text-sm mt-8 mb-4&quot;&gt;© 2025 德令哈采购管理部提供技术和数据支持&lt;/footer&gt;
+
+  &lt;script&gt;
+    let bomData = [];
+    let priceData = {}; // { 物料项目号: 采购单价 }
+
+    // 加载 BOM 数据
+    fetch(&#x27;bom_data.json?_v=&#x27; + Date.now())
+      .then(res =&gt; res.json())
+      .then(data =&gt; {
+        if (!Array.isArray(data)) throw new Error(&quot;BOM数据格式错误&quot;);
+        bomData = data.map(item =&gt; ({
+          项目号: String(item.项目号 || &quot;&quot;).trim(),
+          品名: String(item.品名 || &quot;&quot;).trim(),
+          规格: String(item.规格 || &quot;&quot;).trim(),
+          零售价: String(item[&quot;零售价（元）&quot;] ?? item.零售价 ?? &quot;&quot;).trim(),
+          物料项目号: String(item.物料项目号 || &quot;&quot;).trim(),
+          物料名称: String(item.物料名称 || &quot;&quot;).trim(),
+          数量: String(item.数量 || &quot;&quot;).trim(),
+          计量单位: String(item.计量单位 || &quot;&quot;).trim()
+        }));
+        checkAllLoaded();
+      })
+      .catch(err =&gt; {
+        console.error(&quot;❌ BOM 数据加载失败:&quot;, err);
+        document.getElementById(&quot;loading&quot;).textContent = &quot;❌ BOM数据加载失败&quot;;
+      });
+
+    // 加载物料单价数据
+    fetch(&#x27;tz/data.json?_v=&#x27; + Date.now())
+      .then(res =&gt; res.json())
+      .then(data =&gt; {
+        if (!Array.isArray(data)) throw new Error(&quot;采购单价数据格式错误&quot;);
+        data.forEach(item =&gt; {
+          const id = String(item.物料项目号 || &quot;&quot;).trim();
+          const price = item.采购单价 !== undefined ? item.采购单价 : &quot;-&quot;;
+          priceData[id] = price;
+        });
+        checkAllLoaded();
+      })
+      .catch(err =&gt; {
+        console.error(&quot;❌ 采购单价加载失败:&quot;, err);
+        document.getElementById(&quot;loading&quot;).textContent = &quot;❌ 采购单价加载失败&quot;;
+      });
+
+    function checkAllLoaded() {
+      if (bomData.length &gt; 0 &amp;&amp; Object.keys(priceData).length &gt; 0) {
+        document.getElementById(&quot;loading&quot;).style.display = &quot;none&quot;;
+      }
+    }
+
+    function highlight(text, keyword) {
+      if (!keyword) return text || &quot;&quot;;
+      const reg = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g,&#x27;\\$&amp;&#x27;)})`, &quot;gi&quot;);
+      return (text || &quot;&quot;).replace(reg, &quot;&lt;mark&gt;$1&lt;/mark&gt;&quot;);
+    }
+
+    function renderFiltered() {
+      const nameKeyword = document.getElementById(&quot;nameSearch&quot;).value.trim();
+      const projectID = document.getElementById(&quot;projectSearch&quot;).value.trim();
+      const materialID = document.getElementById(&quot;materialIDSearch&quot;).value.trim();
+      const materialName = document.getElementById(&quot;materialNameSearch&quot;).value.trim();
+      const resultDiv = document.getElementById(&quot;result&quot;);
+      resultDiv.innerHTML = &quot;&quot;;
+
+      if (!nameKeyword &amp;&amp; !projectID &amp;&amp; !materialID &amp;&amp; !materialName) {
+        alert(&quot;请输入至少一项查询条件！&quot;);
+        return;
+      }
+
+      // 筛选逻辑
+      let filtered = bomData.filter(item =&gt;
+        (!nameKeyword || item.品名.includes(nameKeyword)) &amp;&amp;
+        (!projectID || item.项目号 === projectID)
+      );
+
+      if (materialID || materialName) {
+        const matchedProjects = new Set(
+          bomData
+            .filter(item =&gt;
+              (!materialID || item.物料项目号 === materialID) &amp;&amp;
+              (!materialName || item.物料名称.includes(materialName))
+            )
+            .map(item =&gt; item.项目号)
+        );
+        filtered = filtered.filter(item =&gt; matchedProjects.has(item.项目号));
+      }
+
+      if (filtered.length === 0) {
+        resultDiv.innerHTML = &quot;&lt;p class=&#x27;text-center text-gray-500&#x27;&gt;未找到匹配结果。&lt;/p&gt;&quot;;
+        return;
+      }
+
+      // 按项目号分组
+      const grouped = {};
+      filtered.forEach(item =&gt; {
+        if (!grouped[item.项目号]) grouped[item.项目号] = [];
+        grouped[item.项目号].push(item);
+      });
+
+      let html = `
+        &lt;table class=&quot;w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm&quot;&gt;
+          &lt;thead class=&quot;parent-header&quot;&gt;
+            &lt;tr&gt;
+              &lt;th class=&quot;p-2&quot;&gt;项目号&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;品名&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;规格&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;零售价&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;物料项目号&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;物料名称&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;数量&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;计量单位&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;采购单价&lt;/th&gt;
+            &lt;/tr&gt;
+          &lt;/thead&gt;
+          &lt;tbody&gt;
+      `;
+
+      for (const [proj, items] of Object.entries(grouped)) {
+        const parent = items[0];
+        html += `
+          &lt;tr class=&quot;parent-row&quot;&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${highlight(parent.项目号, projectID)}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${highlight(parent.品名, nameKeyword)}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${highlight(parent.规格, &quot;&quot;)}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${highlight(parent.零售价, &quot;&quot;)}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot; colspan=&quot;5&quot;&gt;&lt;/td&gt;
+          &lt;/tr&gt;
+        `;
+
+        // 子表头
+        html += `
+          &lt;tr class=&quot;child-row child-header&quot;&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;物料项目号&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;物料名称&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;数量&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;计量单位&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;采购单价&lt;/td&gt;
+          &lt;/tr&gt;
+        `;
+
+        items.forEach(child =&gt; {
+          const id = child.物料项目号;
+          const purchasePrice = priceData[id] !== undefined ? priceData[id] : &quot;-&quot;;
+          html += `
+            &lt;tr class=&quot;child-row&quot;&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${highlight(child.物料项目号, materialID)}&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${highlight(child.物料名称, materialName)}&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${highlight(child.数量, &quot;&quot;)}&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${highlight(child.计量单位, &quot;&quot;)}&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${purchasePrice}&lt;/td&gt;
+            &lt;/tr&gt;
+          `;
+        });
+      }
+
+      html += `&lt;/tbody&gt;&lt;/table&gt;`;
+      resultDiv.innerHTML = html;
+    }
+
+    document.getElementById(&quot;searchBtn&quot;).addEventListener(&quot;click&quot;, renderFiltered);
+    document.getElementById(&quot;resetBtn&quot;).addEventListener(&quot;click&quot;, () =&gt; {
+      [&quot;nameSearch&quot;,&quot;projectSearch&quot;,&quot;materialIDSearch&quot;,&quot;materialNameSearch&quot;].forEach(id =&gt; document.getElementById(id).value = &quot;&quot;);
+      document.getElementById(&quot;result&quot;).innerHTML = &quot;&quot;;
+    });
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<p>✅ <strong>主要修正内容：</strong></p>
+<ol class="md-ol"><li>修复了原本 <code>priceData</code> 未正确使用 trim 和 undefined 检查的问题。  </li><li>改进了加载逻辑 <code>checkAllLoaded()</code> —— 只有两个数据都加载完才隐藏“数据加载中”。  </li><li>增强了物料项目号匹配的精度（字符串比对）。  </li><li>保留了 Tailwind 美化样式与 hover 动效。  </li></ol>
+<p>---</p>
+<p>是否希望我帮你加上一个「导出 Excel」功能，把查询结果导出为 <code>BOM查询结果.xlsx</code>？   （可以一键下载）</p></div>
+    </section>
+    <section id="s2" class="st2">
+      <div class="sec-h"><span class="idx st2">Q2</span><h2>采购单价加载失败</h2><span class="hint">第 2 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>采购单价加载失败</p></div>
+      <div class="qa-a"><p>好的 👍 我们来一步步排查 <strong>“采购单价加载失败”</strong> 的原因。   问题来自这句脚本报错信息：</p>
+<div class="codeblock"><pre><code>❌ 采购单价数据加载失败，请检查路径或格式</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">✅ 一、确认文件路径</h4>
+<p>你的 BOM 查询代码中写的是：</p>
+<div class="codeblock"><pre><code>fetch(&#x27;tz/data.json?_v=&#x27; + Date.now())</code></pre></div>
+<p>这表示浏览器会去请求：</p>
+<div class="codeblock"><pre><code>/tz/data.json</code></pre></div>
+<p>🔍 请检查项目目录结构是否是下面这样：</p>
+<div class="codeblock"><pre><code>/
+├── index.html   ← 你的 BOM 查询页面
+├── bom_data.json
+└── tz/
+    └── data.json   ← 采购单价数据文件</code></pre></div>
+<p>👉 如果 <code>tz/data.json</code> 不在和 <code>index.html</code> 同一层级，而是在其他目录（比如上级或子级），请调整路径：</p>
+<div class="tblwrap"><table><thead><tr><th>实际位置</th><th>正确写法</th></tr></thead><tbody><tr><td><code>/tz/data.json</code></td><td>✅ <code>fetch('tz/data.json?...')</code></td></tr><tr><td><code>index.html</code> 在 <code>/bom/</code> 里，<code>data.json</code> 在 <code>/tz/</code></td><td>✅ <code>fetch('../tz/data.json?...')</code></td></tr><tr><td>两者都在同级目录</td><td>✅ <code>fetch('data.json?...')</code></td></tr></tbody></table></div>
+<p>---</p>
+<h4 class="sub-h">✅ 二、确认 <code>tz/data.json</code> 文件格式是否正确</h4>
+<p><code>data.json</code> 必须是一个数组，且字段名完全匹配 <code>物料项目号</code> 和 <code>采购单价</code>，例如：</p>
+<div class="codeblock"><pre><code>[
+  {
+    &quot;合同编号&quot;: &quot;SC2022-1-4-04&quot;,
+    &quot;供应商名称&quot;: &quot;四川鼎晟塑料制品有限公司&quot;,
+    &quot;物料项目号&quot;: 81003852,
+    &quot;物料名称&quot;: &quot;雪菊瓶身&quot;,
+    &quot;数量&quot;: 7000,
+    &quot;单位&quot;: &quot;个&quot;,
+    &quot;采购单价&quot;: 1.21,
+    &quot;订单总额&quot;: 8470
+  }
+]</code></pre></div>
+<p>⚠️ 常见错误：</p>
+<ul class="md-ul"><li>❌ 文件最外层不是数组（例如少了 <code>[</code> <code>]</code>）</li><li>❌ 字段名大小写或中英文不一致，比如写成 <code>"单价"</code> 而不是 <code>"采购单价"</code></li><li>❌ 文件中存在多余逗号或 BOM 字节头</li></ul>
+<p>---</p>
+<h4 class="sub-h">✅ 三、确认访问权限（尤其在 GitHub Pages 或本地）</h4>
+<div class="tblwrap"><table><thead><tr><th>环境</th><th>注意事项</th></tr></thead><tbody><tr><td><strong>本地直接双击打开 HTML（file://）</strong></td><td>fetch 无法加载本地文件，会报错。✅ 解决方法：用 VSCode Live Server 或本地 http-server 启动一个本地服务。</td></tr><tr><td><strong>GitHub Pages</strong></td><td>确认 <code>/tz/data.json</code> 已成功上传并可访问（访问 <code>https://用户名.github.io/tz/data.json</code> 测试）。</td></tr><tr><td><strong>其他服务器</strong></td><td>检查 MIME 类型和跨域策略（CORS）。</td></tr></tbody></table></div>
+<p>---</p>
+<h4 class="sub-h">✅ 四、调试方法（快速找出问题）</h4>
+<p>打开浏览器控制台（F12 → Console），执行以下命令：</p>
+<div class="codeblock"><pre><code>fetch(&#x27;tz/data.json&#x27;).then(r =&gt; r.text()).then(console.log)</code></pre></div>
+<p>如果你能看到 JSON 内容，说明路径没问题；如果提示 404 或拒绝访问，就需要修正路径。</p>
+<p>---</p>
+<h4 class="sub-h">✅ 五、如果路径正确但依旧报错，可替换安全写法：</h4>
+<p>将这段代码：</p>
+<div class="codeblock"><pre><code>fetch(&#x27;tz/data.json?_v=&#x27; + Date.now())</code></pre></div>
+<p>改为：</p>
+<div class="codeblock"><pre><code>fetch(&#x27;./tz/data.json?&#x27; + new Date().getTime())</code></pre></div>
+<p>确保即使缓存或相对路径差异，也能正确请求。</p>
+<p>---</p>
+<p>你可以告诉我以下两点，我可以帮你定位到具体问题：</p>
+<ol class="md-ol"><li>你的网站或项目的目录结构（贴出 index.html 和 tz/data.json 的相对路径）</li><li>浏览器控制台的具体错误内容（如 <code>404</code>, <code>Unexpected token &lt;</code>, <code>CORS</code>, <code>TypeError: Failed to fetch</code> 等）</li></ol>
+<p>我就能准确告诉你是路径、格式还是环境问题，并给出一行能修复的代码。</p></div>
+    </section>
+    <section id="s3" class="st3">
+      <div class="sec-h"><span class="idx st3">Q3</span><h2>/├──bom/    └── index.html   ← 你的 BOM 查询…</h2><span class="hint">第 3 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>/ ├──bom/     └── index.html   ← 你的 BOM 查询页面     ├── bom_data.json └── tz/     └── data.json   ← 采购单价数据文件</p></div>
+      <div class="qa-a"><p>非常好 👍 你这层级结构非常清晰。   既然你说“采购单价加载失败”，那我们来一步步排查：</p>
+<p>---</p>
+<h4 class="sub-h">✅ 一、确认路径引用是否正确</h4>
+<p>假设：</p>
+<ul class="md-ul"><li>采购单价查询页是 <code>/tz/index.html</code></li><li>数据文件是 <code>/tz/data.json</code></li></ul>
+<p>那么在 <strong>tz/index.html</strong> 中，你加载数据的代码应当是：</p>
+<div class="codeblock"><pre><code>fetch(&#x27;data.json&#x27;)
+  .then(response =&gt; response.json())
+  .then(data =&gt; {
+    console.log(&#x27;成功加载采购单价数据:&#x27;, data);
+  })
+  .catch(error =&gt; {
+    console.error(&#x27;加载采购单价失败:&#x27;, error);
+  });</code></pre></div>
+<p>⚠️ 注意：</p>
+<ul class="md-ul"><li>路径写成 <code>'data.json'</code>，不要写成 <code>'./tz/data.json'</code> 或 <code>'../tz/data.json'</code>。</li><li>因为在 <code>/tz/index.html</code> 下，<code>data.json</code> 在同级目录。</li></ul>
+<p>---</p>
+<h4 class="sub-h">✅ 二、如果你在 <code>/bom/index.html</code> 中引用了 <code>/tz/data.json</code></h4>
+<p>那就需要使用相对路径：</p>
+<div class="codeblock"><pre><code>fetch(&#x27;../tz/data.json&#x27;)</code></pre></div>
+<p>因为 BOM 页面在 <code>/bom/</code> 文件夹内，要回到上一级再进入 <code>tz/</code>。</p>
+<p>---</p>
+<h4 class="sub-h">✅ 三、检查浏览器控制台报错</h4>
+<p>请打开浏览器 → 右键 → “检查 (Inspect)” → “控制台 (Console)”   看看有没有类似的错误信息：</p>
+<div class="tblwrap"><table><thead><tr><th>报错信息</th><th>原因</th></tr></thead><tbody><tr><td><strong>404 Not Found</strong></td><td>路径错误（例如文件名或目录层级写错）</td></tr><tr><td><strong>CORS error</strong></td><td>如果是从本地文件直接打开（<code>file://</code>），浏览器会阻止读取本地 JSON，需用服务器访问</td></tr><tr><td><strong>SyntaxError: Unexpected token ...</strong></td><td><code>data.json</code> 文件格式不对（缺少引号或逗号）</td></tr></tbody></table></div>
+<p>---</p>
+<h4 class="sub-h">✅ 四、确认运行环境</h4>
+<p>如果你是直接双击 HTML 文件（显示路径像 <code>file:///C:/xxx/tz/index.html</code>），   那么 <code>fetch('data.json')</code> 会被浏览器安全策略阻止。</p>
+<p>解决方法：</p>
+<ol class="md-ol"><li>用一个简单的本地服务器打开，比如：</li></ol>
+<div class="codeblock"><pre><code>   npx serve</code></pre></div>
+<p>   或者在 VSCode 里装 “Live Server” 插件。</p>
+<ol class="md-ol"><li>打开网址形式为 <code>http://localhost:3000/tz/index.html</code>。</li></ol>
+<p>---</p>
+<h4 class="sub-h">✅ 五、确认 JSON 文件格式</h4>
+<p>确保 <code>/tz/data.json</code> 的格式正确，例如：</p>
+<div class="codeblock"><pre><code>[
+  {
+    &quot;物料编号&quot;: &quot;M-001&quot;,
+    &quot;物料名称&quot;: &quot;塑料瓶&quot;,
+    &quot;单价&quot;: 2.35,
+    &quot;供应商&quot;: &quot;四川鼎晟&quot;
+  },
+  {
+    &quot;物料编号&quot;: &quot;M-002&quot;,
+    &quot;物料名称&quot;: &quot;瓶盖&quot;,
+    &quot;单价&quot;: 0.45,
+    &quot;供应商&quot;: &quot;青海工厂&quot;
+  }
+]</code></pre></div>
+<p>---</p>
+<p>请你告诉我： 1️⃣ 你是在哪个页面加载这个 <code>data.json</code>？   2️⃣ 控制台里显示的错误信息是啥？</p>
+<p>我可以帮你马上改成能正常加载的版本。</p></div>
+    </section>
+    <section id="s4" class="st4">
+      <div class="sec-h"><span class="idx st4">Q4</span><h2>/tz/data.json</h2><span class="hint">第 4 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>/tz/data.json</p></div>
+      <div class="qa-a"><p>好，明白了 ✅   你的数据文件路径是 <strong><code>/tz/data.json</code></strong>，那接下来我们要根据“你从哪个页面加载它”来判断 fetch 写法。  </p>
+<p>---</p>
+<h3 class="sub-h">🔍 情况一：如果你在 <code>/tz/index.html</code> 里加载  </h3>
+<p>👉 也就是说，HTML 和 JSON 同级目录。</p>
+<p><strong>正确写法：</strong></p>
+<div class="codeblock"><pre><code>fetch(&#x27;data.json&#x27;)
+  .then(res =&gt; res.json())
+  .then(data =&gt; {
+    console.log(&#x27;✅ 成功加载采购单价数据:&#x27;, data);
+  })
+  .catch(err =&gt; {
+    console.error(&#x27;❌ 加载采购单价失败:&#x27;, err);
+  });</code></pre></div>
+<p>⚠️ 不要写 <code>/tz/data.json</code> —— 因为那是<strong>绝对路径</strong>，   如果你在 GitHub Pages 上访问的是 <code>https://xxx.github.io/project/tz/index.html</code>，   浏览器会去请求 <code>https://xxx.github.io/tz/data.json</code>，路径就会错。</p>
+<p>---</p>
+<h3 class="sub-h">🔍 情况二：如果你在 <code>/bom/index.html</code> 里加载采购单价  </h3>
+<p>👉 即：<code>/bom/</code> 文件夹里的页面要访问 <code>/tz/data.json</code></p>
+<p><strong>正确写法：</strong></p>
+<div class="codeblock"><pre><code>fetch(&#x27;../tz/data.json&#x27;)
+  .then(res =&gt; res.json())
+  .then(data =&gt; {
+    console.log(&#x27;✅ 成功加载采购单价数据:&#x27;, data);
+  })
+  .catch(err =&gt; {
+    console.error(&#x27;❌ 加载采购单价失败:&#x27;, err);
+  });</code></pre></div>
+<p>因为 <code>/bom/</code> 要先回到上一级 <code>/</code> 再进入 <code>tz/</code>。</p>
+<p>---</p>
+<h3 class="sub-h">🧠 小技巧：快速测试路径</h3>
+<p>你可以直接在浏览器地址栏输入：</p>
+<div class="codeblock"><pre><code>http://你的域名/tz/data.json</code></pre></div>
+<p>看看能不能直接打开这个 JSON 文件。</p>
+<ul class="md-ul"><li>✅ 如果能打开：说明文件没问题，只是 fetch 路径写错；</li><li>❌ 如果打不开：说明上传位置或文件名不对。</li></ul>
+<p>---</p>
+<p>你告诉我一下： 👉 你是从 <code>/tz/index.html</code> 还是 <code>/bom/index.html</code> 加载这个 <code>data.json</code>？   我可以帮你写出完整、可运行的代码版本。</p></div>
+    </section>
+    <section id="s5" class="st5">
+      <div class="sec-h"><span class="idx st5">Q5</span><h2>/bom/index.html</h2><span class="hint">第 5 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>/bom/index.html</p></div>
+      <div class="qa-a"><p>完美 ✅   既然你是在 <code>/bom/index.html</code> 页面中加载采购单价数据（文件在 <code>/tz/data.json</code>），   那路径应该是：  </p>
+<div class="codeblock"><pre><code>fetch(&#x27;../tz/data.json&#x27;)
+  .then(response =&gt; {
+    if (!response.ok) {
+      throw new Error(&#x27;网络响应异常：&#x27; + response.status);
+    }
+    return response.json();
+  })
+  .then(data =&gt; {
+    console.log(&#x27;✅ 成功加载采购单价数据:&#x27;, data);
+    // 在这里写处理数据的逻辑，比如显示到页面
+  })
+  .catch(error =&gt; {
+    console.error(&#x27;❌ 加载采购单价失败:&#x27;, error);
+  });</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">🧩 关键说明：</h3>
+<div class="tblwrap"><table><thead><tr><th>项目</th><th>内容</th></tr></thead><tbody><tr><td><strong>数据路径</strong></td><td><code>../tz/data.json</code></td></tr><tr><td><strong>HTML 所在目录</strong></td><td><code>/bom/index.html</code></td></tr><tr><td><strong>JSON 文件位置</strong></td><td><code>/tz/data.json</code></td></tr><tr><td><strong>相对路径关系</strong></td><td>先返回上一级 <code>/</code>，再进入 <code>tz/</code></td></tr></tbody></table></div>
+<p>---</p>
+<h3 class="sub-h">🧠 额外建议：</h3>
+<ol class="md-ol"><li>如果你部署在 <strong>GitHub Pages</strong>（比如 <code>seamoonappear.github.io/project/</code>）  </li></ol>
+<p>   那么路径会变成：      ``<code>    https://seamoonappear.github.io/project/tz/data.json    </code>`<code>    所以 </code>../tz/data.json` 才能正常访问。</p>
+<ol class="md-ol"><li>如果你在本地打开 HTML 文件（显示路径是 <code>file:///C:/...</code>），  </li></ol>
+<p>   浏览器会阻止本地读取 JSON。      ✅ 解决方案：用 VSCode + “Live Server” 或 <code>npx serve</code> 启动本地服务器。</p>
+<p>---</p>
+<p>如果你愿意，可以把 <code>/bom/index.html</code> 的前几行 <code>&lt;script&gt;</code> 或 <code>fetch</code> 代码发给我，   我帮你<strong>改成可以直接运行、不会报错的完整版本</strong>。</p></div>
+    </section>
+    <section id="s6" class="st1">
+      <div class="sec-h"><span class="idx st1">Q6</span><h2>&lt;!DOCTYPE html&gt;&lt;html lang=&quot;zh-CN&quot;&gt;&lt;head&gt;…</h2><span class="hint">第 6 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>&lt;!DOCTYPE html&gt;</p>
+<p>&lt;html lang="zh-CN"&gt;</p>
+<p>&lt;head&gt;</p>
+<p>  &lt;meta charset="UTF-8" /&gt;</p>
+<p>  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;</p>
+<p>  &lt;title&gt;BOM查询&lt;/title&gt;</p>
+<p>  &lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p>  &lt;style&gt;</p>
+<p>    @keyframes fadeIn {</p>
+<p>      from { opacity: 0; transform: translateY(10px); }</p>
+<p>      to { opacity: 1; transform: translateY(0); }</p>
+<p>    }</p>
+<p>    .fade-in { animation: fadeIn 0.4s ease-in; }</p>
+<p>    table th { position: sticky; top: 0; background-color: white; z-index: 10; }</p>
+<p>    mark { background-color: #fff59d; color: inherit; padding: 0; }</p>
+<p>    .parent-header {</p>
+<p>      background: linear-gradient(90deg, #fbbfbc, #f87171);</p>
+<p>      color: #ffffff;</p>
+<p>    }</p>
+<p>    .parent-row {</p>
+<p>      background: linear-gradient(90deg, #ffe4e1, #ffe0e0);</p>
+<p>      font-weight: 600;</p>
+<p>    }</p>
+<p>    .child-header {</p>
+<p>      background-color: #f3f4f6;</p>
+<p>      font-weight: 600;</p>
+<p>    }</p>
+<p>    .child-row {</p>
+<p>      background: linear-gradient(90deg, #fff8dc, #fffad1);</p>
+<p>    }</p>
+<p>    tbody tr:hover {</p>
+<p>      background-color: #fce4e4;</p>
+<p>    }</p>
+<p>  &lt;/style&gt;</p>
+<p>&lt;/head&gt;</p>
+<p>&lt;body class="bg-gray-50 font-sans text-gray-800"&gt;</p>
+<p>  &lt;!-- 标题区 --&gt;</p>
+<p>  &lt;div class="max-w-7xl mx-auto bg-white rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 fade-in"&gt;</p>
+<p>    &lt;div class="flex items-center gap-3"&gt;</p>
+<p>      &lt;img src="/assets/img/trtlogo.png" alt="LOGO" class="h-12 w-auto object-contain"&gt;</p>
+<p>      &lt;h1 class="text-xl md:text-2xl font-bold text-gray-900"&gt;BOM查询&lt;/h1&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>    &lt;div class="flex flex-col md:flex-row flex-wrap gap-2 text-gray-700 text-sm md:text-base"&gt;</p>
+<p>      &lt;span class="px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600"&gt;⚠️ 保密声明：内部数据，严禁外传&lt;/span&gt;</p>
+<p>      &lt;span class="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700"&gt;如查询不到，请联系采购部更新&lt;/span&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>  &lt;/div&gt;</p>
+<p>  &lt;!-- 查询输入 --&gt;</p>
+<p>  &lt;div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in"&gt;</p>
+<p>    &lt;input id="nameSearch" type="text" placeholder="品名（模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" /&gt;</p>
+<p>    &lt;input id="projectSearch" type="text" placeholder="项目号（精准搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" /&gt;</p>
+<p>    &lt;input id="materialIDSearch" type="text" placeholder="物料项目号（精准搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" /&gt;</p>
+<p>    &lt;input id="materialNameSearch" type="text" placeholder="物料名称（模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" /&gt;</p>
+<p>    &lt;button id="searchBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow"&gt;查询&lt;/button&gt;</p>
+<p>    &lt;button id="resetBtn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow"&gt;重置&lt;/button&gt;</p>
+<p>  &lt;/div&gt;</p>
+<p>  &lt;!-- 查询结果 --&gt;</p>
+<p>  &lt;div id="loading" class="text-center text-red-600 font-medium my-6"&gt;⏳ 数据加载中...&lt;/div&gt;</p>
+<p>  &lt;div id="result" class="max-w-7xl mx-auto overflow-x-auto fade-in"&gt;&lt;/div&gt;</p>
+<p>  &lt;footer class="text-center text-gray-500 text-sm mt-8 mb-4"&gt;© 2025 德令哈采购管理部提供技术和数据支持&lt;/footer&gt;</p>
+<p>  &lt;script&gt;</p>
+<p>    let bomData = [];</p>
+<p>    let priceData = {}; // { 物料项目号: 采购单价 }</p>
+<p>    // 加载 BOM 数据</p>
+<p>    fetch('bom_data.json?_v=' + Date.now())</p>
+<p>      .then(res =&gt; res.json())</p>
+<p>      .then(data =&gt; {</p>
+<p>        if (!Array.isArray(data)) throw new Error("BOM数据格式错误");</p>
+<p>        bomData = data.map(item =&gt; ({</p>
+<p>          项目号: String(item.项目号 || "").trim(),</p>
+<p>          品名: String(item.品名 || "").trim(),</p>
+<p>          规格: String(item.规格 || "").trim(),</p>
+<p>          零售价: String(item["零售价（元）"] ?? item.零售价 ?? "").trim(),</p>
+<p>          物料项目号: String(item.物料项目号 || "").trim(),</p>
+<p>          物料名称: String(item.物料名称 || "").trim(),</p>
+<p>          数量: String(item.数量 || "").trim(),</p>
+<p>          计量单位: String(item.计量单位 || "").trim()</p>
+<p>        }));</p>
+<p>        checkAllLoaded();</p>
+<p>      })</p>
+<p>      .catch(err =&gt; {</p>
+<p>        console.error("❌ BOM 数据加载失败:", err);</p>
+<p>        document.getElementById("loading").textContent = "❌ BOM数据加载失败";</p>
+<p>      });</p>
+<p>    // 加载物料单价数据</p>
+<p>    fetch('tz/data.json?_v=' + Date.now())</p>
+<p>      .then(res =&gt; res.json())</p>
+<p>      .then(data =&gt; {</p>
+<p>        if (!Array.isArray(data)) throw new Error("采购单价数据格式错误");</p>
+<p>        data.forEach(item =&gt; {</p>
+<p>          const id = String(item.物料项目号 || "").trim();</p>
+<p>          const price = item.采购单价 !== undefined ? item.采购单价 : "-";</p>
+<p>          priceData[id] = price;</p>
+<p>        });</p>
+<p>        checkAllLoaded();</p>
+<p>      })</p>
+<p>      .catch(err =&gt; {</p>
+<p>        console.error("❌ 采购单价加载失败:", err);</p>
+<p>        document.getElementById("loading").textContent = "❌ 采购单价加载失败";</p>
+<p>      });</p>
+<p>    function checkAllLoaded() {</p>
+<p>      if (bomData.length &gt; 0 &amp;&amp; Object.keys(priceData).length &gt; 0) {</p>
+<p>        document.getElementById("loading").style.display = "none";</p>
+<p>      }</p>
+<p>    }</p>
+<p>    function highlight(text, keyword) {</p>
+<p>      if (!keyword) return text || "";</p>
+<p>      const reg = new RegExp(<code>(${keyword.replace(/[.*+?^${}()|[\]\\]/g,'\\$&amp;')})</code>, "gi");</p>
+<p>      return (text || "").replace(reg, "&lt;mark&gt;$1&lt;/mark&gt;");</p>
+<p>    }</p>
+<p>    function renderFiltered() {</p>
+<p>      const nameKeyword = document.getElementById("nameSearch").value.trim();</p>
+<p>      const projectID = document.getElementById("projectSearch").value.trim();</p>
+<p>      const materialID = document.getElementById("materialIDSearch").value.trim();</p>
+<p>      const materialName = document.getElementById("materialNameSearch").value.trim();</p>
+<p>      const resultDiv = document.getElementById("result");</p>
+<p>      resultDiv.innerHTML = "";</p>
+<p>      if (!nameKeyword &amp;&amp; !projectID &amp;&amp; !materialID &amp;&amp; !materialName) {</p>
+<p>        alert("请输入至少一项查询条件！");</p>
+<p>        return;</p>
+<p>      }</p>
+<p>      // 筛选逻辑</p>
+<p>      let filtered = bomData.filter(item =&gt;</p>
+<p>        (!nameKeyword || item.品名.includes(nameKeyword)) &amp;&amp;</p>
+<p>        (!projectID || item.项目号 === projectID)</p>
+<p>      );</p>
+<p>      if (materialID || materialName) {</p>
+<p>        const matchedProjects = new Set(</p>
+<p>          bomData</p>
+<p>            .filter(item =&gt;</p>
+<p>              (!materialID || item.物料项目号 === materialID) &amp;&amp;</p>
+<p>              (!materialName || item.物料名称.includes(materialName))</p>
+<p>            )</p>
+<p>            .map(item =&gt; item.项目号)</p>
+<p>        );</p>
+<p>        filtered = filtered.filter(item =&gt; matchedProjects.has(item.项目号));</p>
+<p>      }</p>
+<p>      if (filtered.length === 0) {</p>
+<p>        resultDiv.innerHTML = "&lt;p class='text-center text-gray-500'&gt;未找到匹配结果。&lt;/p&gt;";</p>
+<p>        return;</p>
+<p>      }</p>
+<p>      // 按项目号分组</p>
+<p>      const grouped = {};</p>
+<p>      filtered.forEach(item =&gt; {</p>
+<p>        if (!grouped[item.项目号]) grouped[item.项目号] = [];</p>
+<p>        grouped[item.项目号].push(item);</p>
+<p>      });</p>
+<p>      let html = `</p>
+<p>        &lt;table class="w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm"&gt;</p>
+<p>          &lt;thead class="parent-header"&gt;</p>
+<p>            &lt;tr&gt;</p>
+<p>              &lt;th class="p-2"&gt;项目号&lt;/th&gt;</p>
+<p>              &lt;th class="p-2"&gt;品名&lt;/th&gt;</p>
+<p>              &lt;th class="p-2"&gt;规格&lt;/th&gt;</p>
+<p>              &lt;th class="p-2"&gt;零售价&lt;/th&gt;</p>
+<p>              &lt;th class="p-2"&gt;物料项目号&lt;/th&gt;</p>
+<p>              &lt;th class="p-2"&gt;物料名称&lt;/th&gt;</p>
+<p>              &lt;th class="p-2"&gt;数量&lt;/th&gt;</p>
+<p>              &lt;th class="p-2"&gt;计量单位&lt;/th&gt;</p>
+<p>              &lt;th class="p-2"&gt;采购单价&lt;/th&gt;</p>
+<p>            &lt;/tr&gt;</p>
+<p>          &lt;/thead&gt;</p>
+<p>          &lt;tbody&gt;</p>
+<p>      `;</p>
+<p>      for (const [proj, items] of Object.entries(grouped)) {</p>
+<p>        const parent = items[0];</p>
+<p>        html += `</p>
+<p>          &lt;tr class="parent-row"&gt;</p>
+<p>            &lt;td class="border p-2"&gt;${highlight(parent.项目号, projectID)}&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2"&gt;${highlight(parent.品名, nameKeyword)}&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2"&gt;${highlight(parent.规格, "")}&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2"&gt;${highlight(parent.零售价, "")}&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2" colspan="5"&gt;&lt;/td&gt;</p>
+<p>          &lt;/tr&gt;</p>
+<p>        `;</p>
+<p>        // 子表头</p>
+<p>        html += `</p>
+<p>          &lt;tr class="child-row child-header"&gt;</p>
+<p>            &lt;td class="border p-2"&gt;&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2"&gt;&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2"&gt;&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2"&gt;&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2"&gt;物料项目号&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2"&gt;物料名称&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2"&gt;数量&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2"&gt;计量单位&lt;/td&gt;</p>
+<p>            &lt;td class="border p-2"&gt;采购单价&lt;/td&gt;</p>
+<p>          &lt;/tr&gt;</p>
+<p>        `;</p>
+<p>        items.forEach(child =&gt; {</p>
+<p>          const id = child.物料项目号;</p>
+<p>          const purchasePrice = priceData[id] !== undefined ? priceData[id] : "-";</p>
+<p>          html += `</p>
+<p>            &lt;tr class="child-row"&gt;</p>
+<p>              &lt;td class="border p-2"&gt;&lt;/td&gt;</p>
+<p>              &lt;td class="border p-2"&gt;&lt;/td&gt;</p>
+<p>              &lt;td class="border p-2"&gt;&lt;/td&gt;</p>
+<p>              &lt;td class="border p-2"&gt;&lt;/td&gt;</p>
+<p>              &lt;td class="border p-2"&gt;${highlight(child.物料项目号, materialID)}&lt;/td&gt;</p>
+<p>              &lt;td class="border p-2"&gt;${highlight(child.物料名称, materialName)}&lt;/td&gt;</p>
+<p>              &lt;td class="border p-2"&gt;${highlight(child.数量, "")}&lt;/td&gt;</p>
+<p>              &lt;td class="border p-2"&gt;${highlight(child.计量单位, "")}&lt;/td&gt;</p>
+<p>              &lt;td class="border p-2"&gt;${purchasePrice}&lt;/td&gt;</p>
+<p>            &lt;/tr&gt;</p>
+<p>          `;</p>
+<p>        });</p>
+<p>      }</p>
+<p>      html += <code>&lt;/tbody&gt;&lt;/table&gt;</code>;</p>
+<p>      resultDiv.innerHTML = html;</p>
+<p>    }</p>
+<p>    document.getElementById("searchBtn").addEventListener("click", renderFiltered);</p>
+<p>    document.getElementById("resetBtn").addEventListener("click", () =&gt; {</p>
+<p>      ["nameSearch","projectSearch","materialIDSearch","materialNameSearch"].forEach(id =&gt; document.getElementById(id).value = "");</p>
+<p>      document.getElementById("result").innerHTML = "";</p>
+<p>    });</p>
+<p>  &lt;/script&gt;</p>
+<p>&lt;/body&gt;</p>
+<p>&lt;/html&gt;</p></div>
+      <div class="qa-a"><p>非常好，你提供的代码完整清晰 👏   问题已经一目了然了——采购单价加载失败的<strong>根本原因</strong>是：  </p>
+<blockquote class="md-quote">你在 <code>/bom/index.html</code> 中写的路径是：   ``<code>js fetch('tz/data.json?_v=' + Date.now()) </code>`<code> 这实际上会去请求 </code>/bom/tz/data.json<code>   但真实文件在 </code>/tz/data.json`。  </blockquote>
+<p>---</p>
+<h3 class="sub-h">✅ 正确修改方案</h3>
+<p>把这段：</p>
+<div class="codeblock"><pre><code>fetch(&#x27;tz/data.json?_v=&#x27; + Date.now())</code></pre></div>
+<p>改成：</p>
+<div class="codeblock"><pre><code>fetch(&#x27;../tz/data.json?_v=&#x27; + Date.now())</code></pre></div>
+<p>完整修改如下👇：</p>
+<div class="codeblock"><pre><code>// 加载物料单价数据
+fetch(&#x27;../tz/data.json?_v=&#x27; + Date.now())
+  .then(res =&gt; res.json())
+  .then(data =&gt; {
+    if (!Array.isArray(data)) throw new Error(&quot;采购单价数据格式错误&quot;);
+    data.forEach(item =&gt; {
+      const id = String(item.物料项目号 || &quot;&quot;).trim();
+      const price = item.采购单价 !== undefined ? item.采购单价 : &quot;-&quot;;
+      priceData[id] = price;
+    });
+    checkAllLoaded();
+  })
+  .catch(err =&gt; {
+    console.error(&quot;❌ 采购单价加载失败:&quot;, err);
+    document.getElementById(&quot;loading&quot;).textContent = &quot;❌ 采购单价加载失败&quot;;
+  });</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">🔍 路径关系说明（非常关键）</h3>
+<div class="codeblock"><pre><code>项目根目录 /
+├── bom/
+│   ├── index.html   ← 你现在的页面
+│   └── bom_data.json
+└── tz/
+    └── data.json    ← 采购单价数据文件</code></pre></div>
+<p><code>index.html</code> 在 <code>bom/</code> 里，   要访问上一级目录 <code>/</code>，再进入 <code>tz/</code>，   所以路径要写成 <code>../tz/data.json</code>。  </p>
+<p>---</p>
+<h3 class="sub-h">⚡ 检查方式</h3>
+<p>修改后打开浏览器控制台（F12 → Console）：</p>
+<ul class="md-ul"><li>如果看到 ✅ <code>成功加载采购单价数据</code> → 说明 OK；</li><li>如果仍显示 ❌，请再打开 Network 面板，看是否能加载 <code>../tz/data.json</code>。</li></ul>
+<p>---</p>
+<p>是否要我帮你把这整份 HTML 的最终可运行版本（改好路径 + 自动检测文件加载成功）一起贴出来？   那样你直接替换即可正常运行。</p></div>
+    </section>
+    <section id="s7" class="st2">
+      <div class="sec-h"><span class="idx st2">Q7</span><h2>好的</h2><span class="hint">第 7 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>好的</p></div>
+      <div class="qa-a"><p>太好了 👍 那我帮你整理成一份<strong>可直接运行</strong>的完整版本：   ✅ 修正了采购单价路径   ✅ 增强了加载状态提示   ✅ 控制台输出更清晰（方便排错）  </p>
+<p>---</p>
+<h4 class="sub-h">✅ 最终版 <code>/bom/index.html</code></h4>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot; /&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+  &lt;title&gt;BOM查询&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;style&gt;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeIn 0.4s ease-in; }
+    table th { position: sticky; top: 0; background-color: white; z-index: 10; }
+    mark { background-color: #fff59d; color: inherit; padding: 0; }
+
+    .parent-header {
+      background: linear-gradient(90deg, #fbbfbc, #f87171);
+      color: #ffffff;
+    }
+    .parent-row {
+      background: linear-gradient(90deg, #ffe4e1, #ffe0e0);
+      font-weight: 600;
+    }
+    .child-header {
+      background-color: #f3f4f6;
+      font-weight: 600;
+    }
+    .child-row {
+      background: linear-gradient(90deg, #fff8dc, #fffad1);
+    }
+    tbody tr:hover {
+      background-color: #fce4e4;
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+
+&lt;body class=&quot;bg-gray-50 font-sans text-gray-800&quot;&gt;
+
+  &lt;!-- 标题区 --&gt;
+  &lt;div class=&quot;max-w-7xl mx-auto bg-white rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 fade-in&quot;&gt;
+    &lt;div class=&quot;flex items-center gap-3&quot;&gt;
+      &lt;img src=&quot;/assets/img/trtlogo.png&quot; alt=&quot;LOGO&quot; class=&quot;h-12 w-auto object-contain&quot;&gt;
+      &lt;h1 class=&quot;text-xl md:text-2xl font-bold text-gray-900&quot;&gt;BOM查询&lt;/h1&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;flex flex-col md:flex-row flex-wrap gap-2 text-gray-700 text-sm md:text-base&quot;&gt;
+      &lt;span class=&quot;px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600&quot;&gt;⚠️ 保密声明：内部数据，严禁外传&lt;/span&gt;
+      &lt;span class=&quot;px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700&quot;&gt;如查询不到，请联系采购部更新&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- 查询输入 --&gt;
+  &lt;div class=&quot;max-w-7xl mx-auto bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in&quot;&gt;
+    &lt;input id=&quot;nameSearch&quot; type=&quot;text&quot; placeholder=&quot;品名（模糊搜索）&quot; class=&quot;border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400&quot; /&gt;
+    &lt;input id=&quot;projectSearch&quot; type=&quot;text&quot; placeholder=&quot;项目号（精准搜索）&quot; class=&quot;border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400&quot; /&gt;
+    &lt;input id=&quot;materialIDSearch&quot; type=&quot;text&quot; placeholder=&quot;物料项目号（精准搜索）&quot; class=&quot;border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400&quot; /&gt;
+    &lt;input id=&quot;materialNameSearch&quot; type=&quot;text&quot; placeholder=&quot;物料名称（模糊搜索）&quot; class=&quot;border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400&quot; /&gt;
+    &lt;button id=&quot;searchBtn&quot; class=&quot;bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow&quot;&gt;查询&lt;/button&gt;
+    &lt;button id=&quot;resetBtn&quot; class=&quot;bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow&quot;&gt;重置&lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;!-- 查询结果 --&gt;
+  &lt;div id=&quot;loading&quot; class=&quot;text-center text-red-600 font-medium my-6&quot;&gt;⏳ 正在加载数据，请稍候...&lt;/div&gt;
+  &lt;div id=&quot;result&quot; class=&quot;max-w-7xl mx-auto overflow-x-auto fade-in&quot;&gt;&lt;/div&gt;
+
+  &lt;footer class=&quot;text-center text-gray-500 text-sm mt-8 mb-4&quot;&gt;© 2025 德令哈采购管理部提供技术和数据支持&lt;/footer&gt;
+
+  &lt;script&gt;
+    let bomData = [];
+    let priceData = {};
+    let bomLoaded = false;
+    let priceLoaded = false;
+
+    // 加载 BOM 数据
+    fetch(&#x27;bom_data.json?_v=&#x27; + Date.now())
+      .then(res =&gt; res.json())
+      .then(data =&gt; {
+        if (!Array.isArray(data)) throw new Error(&quot;BOM数据格式错误&quot;);
+        bomData = data.map(item =&gt; ({
+          项目号: String(item.项目号 || &quot;&quot;).trim(),
+          品名: String(item.品名 || &quot;&quot;).trim(),
+          规格: String(item.规格 || &quot;&quot;).trim(),
+          零售价: String(item[&quot;零售价（元）&quot;] ?? item.零售价 ?? &quot;&quot;).trim(),
+          物料项目号: String(item.物料项目号 || &quot;&quot;).trim(),
+          物料名称: String(item.物料名称 || &quot;&quot;).trim(),
+          数量: String(item.数量 || &quot;&quot;).trim(),
+          计量单位: String(item.计量单位 || &quot;&quot;).trim()
+        }));
+        bomLoaded = true;
+        console.log(&quot;✅ BOM 数据加载成功，共&quot;, bomData.length, &quot;条&quot;);
+        checkAllLoaded();
+      })
+      .catch(err =&gt; {
+        console.error(&quot;❌ BOM 数据加载失败:&quot;, err);
+        document.getElementById(&quot;loading&quot;).textContent = &quot;❌ BOM数据加载失败&quot;;
+      });
+
+    // 加载采购单价数据
+    fetch(&#x27;../tz/data.json?_v=&#x27; + Date.now())
+      .then(res =&gt; res.json())
+      .then(data =&gt; {
+        if (!Array.isArray(data)) throw new Error(&quot;采购单价数据格式错误&quot;);
+        data.forEach(item =&gt; {
+          const id = String(item.物料项目号 || &quot;&quot;).trim();
+          const price = item.采购单价 !== undefined ? item.采购单价 : &quot;-&quot;;
+          priceData[id] = price;
+        });
+        priceLoaded = true;
+        console.log(&quot;✅ 采购单价加载成功，共&quot;, Object.keys(priceData).length, &quot;条&quot;);
+        checkAllLoaded();
+      })
+      .catch(err =&gt; {
+        console.error(&quot;❌ 采购单价加载失败:&quot;, err);
+        document.getElementById(&quot;loading&quot;).textContent = &quot;❌ 采购单价加载失败&quot;;
+      });
+
+    // 检查是否加载完毕
+    function checkAllLoaded() {
+      if (bomLoaded &amp;&amp; priceLoaded) {
+        document.getElementById(&quot;loading&quot;).style.display = &quot;none&quot;;
+      }
+    }
+
+    // 高亮函数
+    function highlight(text, keyword) {
+      if (!keyword) return text || &quot;&quot;;
+      const reg = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g,&#x27;\\$&amp;&#x27;)})`, &quot;gi&quot;);
+      return (text || &quot;&quot;).replace(reg, &quot;&lt;mark&gt;$1&lt;/mark&gt;&quot;);
+    }
+
+    // 查询逻辑
+    function renderFiltered() {
+      const nameKeyword = document.getElementById(&quot;nameSearch&quot;).value.trim();
+      const projectID = document.getElementById(&quot;projectSearch&quot;).value.trim();
+      const materialID = document.getElementById(&quot;materialIDSearch&quot;).value.trim();
+      const materialName = document.getElementById(&quot;materialNameSearch&quot;).value.trim();
+      const resultDiv = document.getElementById(&quot;result&quot;);
+      resultDiv.innerHTML = &quot;&quot;;
+
+      if (!nameKeyword &amp;&amp; !projectID &amp;&amp; !materialID &amp;&amp; !materialName) {
+        alert(&quot;请输入至少一项查询条件！&quot;);
+        return;
+      }
+
+      let filtered = bomData.filter(item =&gt;
+        (!nameKeyword || item.品名.includes(nameKeyword)) &amp;&amp;
+        (!projectID || item.项目号 === projectID)
+      );
+
+      if (materialID || materialName) {
+        const matchedProjects = new Set(
+          bomData
+            .filter(item =&gt;
+              (!materialID || item.物料项目号 === materialID) &amp;&amp;
+              (!materialName || item.物料名称.includes(materialName))
+            )
+            .map(item =&gt; item.项目号)
+        );
+        filtered = filtered.filter(item =&gt; matchedProjects.has(item.项目号));
+      }
+
+      if (filtered.length === 0) {
+        resultDiv.innerHTML = &quot;&lt;p class=&#x27;text-center text-gray-500&#x27;&gt;未找到匹配结果。&lt;/p&gt;&quot;;
+        return;
+      }
+
+      const grouped = {};
+      filtered.forEach(item =&gt; {
+        if (!grouped[item.项目号]) grouped[item.项目号] = [];
+        grouped[item.项目号].push(item);
+      });
+
+      let html = `
+        &lt;table class=&quot;w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm&quot;&gt;
+          &lt;thead class=&quot;parent-header&quot;&gt;
+            &lt;tr&gt;
+              &lt;th class=&quot;p-2&quot;&gt;项目号&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;品名&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;规格&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;零售价&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;物料项目号&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;物料名称&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;数量&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;计量单位&lt;/th&gt;
+              &lt;th class=&quot;p-2&quot;&gt;采购单价&lt;/th&gt;
+            &lt;/tr&gt;
+          &lt;/thead&gt;
+          &lt;tbody&gt;
+      `;
+
+      for (const [proj, items] of Object.entries(grouped)) {
+        const parent = items[0];
+        html += `
+          &lt;tr class=&quot;parent-row&quot;&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${highlight(parent.项目号, projectID)}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${highlight(parent.品名, nameKeyword)}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${highlight(parent.规格, &quot;&quot;)}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;${highlight(parent.零售价, &quot;&quot;)}&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot; colspan=&quot;5&quot;&gt;&lt;/td&gt;
+          &lt;/tr&gt;
+          &lt;tr class=&quot;child-row child-header&quot;&gt;
+            &lt;td colspan=&quot;4&quot;&gt;&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;物料项目号&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;物料名称&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;数量&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;计量单位&lt;/td&gt;
+            &lt;td class=&quot;border p-2&quot;&gt;采购单价&lt;/td&gt;
+          &lt;/tr&gt;
+        `;
+
+        items.forEach(child =&gt; {
+          const id = child.物料项目号;
+          const purchasePrice = priceData[id] !== undefined ? priceData[id] : &quot;-&quot;;
+          html += `
+            &lt;tr class=&quot;child-row&quot;&gt;
+              &lt;td colspan=&quot;4&quot;&gt;&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${highlight(child.物料项目号, materialID)}&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${highlight(child.物料名称, materialName)}&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${highlight(child.数量, &quot;&quot;)}&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${highlight(child.计量单位, &quot;&quot;)}&lt;/td&gt;
+              &lt;td class=&quot;border p-2&quot;&gt;${purchasePrice}&lt;/td&gt;
+            &lt;/tr&gt;
+          `;
+        });
+      }
+
+      html += `&lt;/tbody&gt;&lt;/table&gt;`;
+      resultDiv.innerHTML = html;
+    }
+
+    // 事件绑定
+    document.getElementById(&quot;searchBtn&quot;).addEventListener(&quot;click&quot;, renderFiltered);
+    document.getElementById(&quot;resetBtn&quot;).addEventListener(&quot;click&quot;, () =&gt; {
+      [&quot;nameSearch&quot;,&quot;projectSearch&quot;,&quot;materialIDSearch&quot;,&quot;materialNameSearch&quot;].forEach(id =&gt; document.getElementById(id).value = &quot;&quot;);
+      document.getElementById(&quot;result&quot;).innerHTML = &quot;&quot;;
+    });
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<p>✅ <strong>部署检查清单</strong>  </p>
+<div class="tblwrap"><table><thead><tr><th>检查项</th><th>正确状态</th></tr></thead><tbody><tr><td><code>/bom/bom_data.json</code> 存在</td><td>✅</td></tr><tr><td><code>/tz/data.json</code> 存在</td><td>✅</td></tr><tr><td><code>/bom/index.html</code> 使用 <code>fetch('../tz/data.json')</code></td><td>✅</td></tr><tr><td>GitHub Pages 路径正确（比如 <code>/project/</code> 根目录下）</td><td>✅</td></tr></tbody></table></div>
+<p>---</p>
+<p>如果你确认你的 GitHub Pages 仓库结构我也可以帮你验证完整路径（比如 <code>https://seamoonappear.github.io/项目名/bom/</code>），   要不要我帮你检查一下你的 GitHub Pages 访问路径配置？</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>BOM查询页面优化 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：BOM查询页面优化（2025-10-31）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1", "s2", "s3", "s4", "s5", "s6", "s7"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

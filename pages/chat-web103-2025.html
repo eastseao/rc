@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>页脚居中问题解决 · 2025</title>
+<meta name="description" content="可能是页脚的样式没有完全适配到所有页面，或者特定页面的CSS样式有覆盖的情况。你可以检查以下几个方面来确保页脚在所有页面中都居中：1. 检查CSS样式：   在你的base.html或footer.html中，确保页脚的容器有正确的CSS类">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a><a href="#s2" data-sec="s2">Q2</a><a href="#s3" data-sec="s3">Q3</a><a href="#s4" data-sec="s4">Q4</a><a href="#s5" data-sec="s5">Q5</a><a href="#s6" data-sec="s6">Q6</a><a href="#s7" data-sec="s7">Q7</a><a href="#s8" data-sec="s8">Q8</a><a href="#s9" data-sec="s9">Q9</a><a href="#s10" data-sec="s10">Q10</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · 建站
+  <h1 class="s-h1">页脚居中问题解决</h1>
+  <p class="s-lede">可能是页脚的样式没有完全适配到所有页面，或者特定页面的CSS样式有覆盖的情况。你可以检查以下几个方面来确保页脚在所有页面中都居中：1. 检查CSS样式：   在你的base.html或footer.html中，确保页脚的容器有正确的CSS类</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>20</b></span>
+    <span>时间范围 <b>2025-11-10 ~ 2025-11-10</b></span>
+    <span>分类 <b>建站与技术</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">建站</span>
+    <span class="s-chip">2025</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>通过以上base.html、footer.html的修改，一些页面的页脚还是居左…</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>通过以上base.html、footer.html的修改，一些页面的页脚还是居左</p></div>
+      <div class="qa-a"><p>可能是页脚的样式没有完全适配到所有页面，或者特定页面的CSS样式有覆盖的情况。你可以检查以下几个方面来确保页脚在所有页面中都居中：</p>
+<ol class="md-ol"><li><strong>检查CSS样式</strong>：</li></ol>
+<p>   在你的<code>base.html</code>或<code>footer.html</code>中，确保页脚的容器有正确的CSS类来居中对齐。你可以尝试以下CSS代码来确保页脚居中：</p>
+<div class="codeblock"><pre><code>   footer {
+     width: 100%;
+     text-align: center; /* 确保文字居中 */
+     margin: 0 auto;
+   }</code></pre></div>
+<ol class="md-ol"><li><strong>确保页脚容器有足够的宽度</strong>：</li></ol>
+<p>   你的<code>footer</code>容器可能没有设置足够的宽度，导致它无法居中。可以尝试给它设置<code>max-width</code>，并且确保外部容器的布局没有影响到它：</p>
+<div class="codeblock"><pre><code>   footer {
+     width: 100%;
+     max-width: 1200px;  /* 你可以根据实际情况调整宽度 */
+     margin: 0 auto;     /* 居中对齐 */
+   }</code></pre></div>
+<ol class="md-ol"><li><strong>检查其他页面特定样式</strong>：</li></ol>
+<p>   如果某些页面的页脚依旧不居中，可能是这些页面有独立的样式或布局代码覆盖了全局设置。你可以在浏览器的开发者工具中检查这些页面的CSS，查看是否有其他特定的样式影响了页脚的对齐。</p>
+<ol class="md-ol"><li><strong>更新HTML结构</strong>：</li></ol>
+<p>   确保<code>base.html</code>和<code>footer.html</code>中的HTML结构没有问题。例如，页脚的容器应该有一个正确的类或ID来进行样式设置：</p>
+<div class="codeblock"><pre><code>   &lt;footer class=&quot;site-footer&quot;&gt;
+     &lt;div class=&quot;container&quot;&gt;
+       &lt;p&gt;© 2025 Your Site Name. All rights reserved.&lt;/p&gt;
+     &lt;/div&gt;
+   &lt;/footer&gt;</code></pre></div>
+<p>如果这些方法都不行，可以分享一下相关的<code>base.html</code>和<code>footer.html</code>部分代码，我可以帮助你更精确地定位问题。</p></div>
+    </section>
+    <section id="s2" class="st2">
+      <div class="sec-h"><span class="idx st2">Q2</span><h2>这是footer代码：&lt;footer&gt;  &lt;div class=&quot;contain…</h2><span class="hint">第 2 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>这是footer代码：&lt;footer&gt;</p>
+<p>  &lt;div class="container-md beautiful-jekyll-footer py-4"&gt;</p>
+<p>    &lt;div class="row justify-content-center"&gt;</p>
+<p>      &lt;div class="col-xl-8 col-lg-10 text-center"&gt;</p>
+<p>        {%- comment -%}</p>
+<p>        调用社交媒体链接（在 _config.yml 中配置，如 GitHub、微博、Bilibili 等）</p>
+<p>        {%- endcomment -%}</p>
+<p>        {% include social-networks-links.html %}</p>
+<p>        {%- comment -%}</p>
+<p>        如果页面有自定义的 footer-extra（额外页脚内容），则加载</p>
+<p>        可用于插入统计代码、友链等</p>
+<p>        {%- endcomment -%}</p>
+<p>        {% if page.footer-extra %}</p>
+<p>          &lt;div class="footer-custom-content my-3"&gt;</p>
+<p>            {% for file in page.footer-extra %}</p>
+<p>              {% include {{ file }} %}</p>
+<p>            {% endfor %}</p>
+<p>          &lt;/div&gt;</p>
+<p>        {% endif %}</p>
+<p>        &lt;!-- 页脚版权信息 --&gt;</p>
+<p>        &lt;p class="copyright text-muted mb-0"&gt;</p>
+<p>          {% if site.author %}</p>
+<p>            {{ site.author }} &amp;nbsp;&amp;bull;&amp;nbsp;</p>
+<p>          {% endif %}</p>
+<p>          {{ site.time | date: '%Y' }}</p>
+<p>          {% if site.url-pretty %}</p>
+<p>            &amp;nbsp;&amp;bull;&amp;nbsp;</p>
+<p>            &lt;span class="author-site"&gt;</p>
+<p>              &lt;a href="{% if site.url-canonical %}{{ site.url-canonical }}{% else %}{{ '/' | absolute_url }}{% endif %}"&gt;</p>
+<p>                {{ site.url-pretty }}</p>
+<p>              &lt;/a&gt;</p>
+<p>            &lt;/span&gt;</p>
+<p>          {% endif %}</p>
+<p>          {% if site.matomo and site.matomo.opt-out %}</p>
+<p>            &amp;nbsp;&amp;bull;&amp;nbsp;</p>
+<p>            &lt;a href="http://{{- site.matomo.uri -}}/index.php?module=CoreAdminHome&amp;action=optOut"</p>
+<p>               target="_blank" class="text-muted"&gt;</p>
+<p>              请勿追踪</p>
+<p>            &lt;/a&gt;</p>
+<p>          {% endif %}</p>
+<p>          {% if site.edit_page_button and site.github.repository_url %}</p>
+<p>            &amp;nbsp;&amp;bull;&amp;nbsp;</p>
+<p>            &lt;a title="在 GitHub 上编辑此页面"</p>
+<p>               href="{{ site.github.repository_url }}/edit/{{ site.github.source.branch }}/{{ page.path }}"</p>
+<p>               class="text-muted"&gt;</p>
+<p>              编辑此页面</p>
+<p>            &lt;/a&gt;</p>
+<p>          {% endif %}</p>
+<p>        &lt;/p&gt;</p>
+<p>      &lt;/div&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>  &lt;/div&gt;</p>
+<p>&lt;/footer&gt;   这是base代码：---</p>
+<p>common-css:</p>
+<p>  - "/assets/css/bootstrap-social.css"</p>
+<p>  - "/assets/css/beautifuljekyll.css"</p>
+<p>common-ext-css:</p>
+<p>  - href: "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"</p>
+<p>    sri: "sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"</p>
+<p>  - "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"</p>
+<p>  - "https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic"</p>
+<p>  - "https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"</p>
+<p>common-ext-js:</p>
+<p>  - href: "https://code.jquery.com/jquery-3.5.1.slim.min.js"</p>
+<p>    sri: "sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs="</p>
+<p>  - href: "https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"</p>
+<p>    sri: "sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"</p>
+<p>  - href: "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"</p>
+<p>    sri: "sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"</p>
+<p>common-js:</p>
+<p>  - "/assets/js/beautifuljekyll.js"</p>
+<p>---</p>
+<p>&lt;!DOCTYPE html&gt;</p>
+<p>&lt;html lang="{{ page.language | default: site.language | default: 'zh-CN' }}"&gt;</p>
+<p>&lt;!-- Beautiful Jekyll 6.0.1 | Copyright Dean Attali 2023 --&gt;</p>
+<p>{% include head.html %}</p>
+<p>&lt;body&gt;</p>
+<p>  &lt;!-- Google Tag Manager (GTM) --&gt;</p>
+<p>  {% include gtm_body.html %}</p>
+<p>  &lt;!-- 网站导航栏 --&gt;</p>
+<p>  {% include nav.html %}</p>
+<p>  &lt;!-- 主体内容区域 --&gt;</p>
+<p>  &lt;main role="main" class="main-content"&gt;</p>
+<p>    &lt;div class="container-md"&gt;</p>
+<p>      {{ content }} &lt;!-- 直接渲染页面内容 --&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>  &lt;/main&gt;</p>
+<p>  &lt;!-- 页脚 --&gt;</p>
+<p>  &lt;footer&gt;</p>
+<p>    &lt;div class="container-md beautiful-jekyll-footer py-4"&gt;</p>
+<p>      &lt;div class="row justify-content-center"&gt;</p>
+<p>        &lt;div class="col-xl-8 col-lg-10 text-center"&gt;</p>
+<p>          {% include social-networks-links.html %}</p>
+<p>          {% if page.footer-extra %}</p>
+<p>            &lt;div class="footer-custom-content my-3"&gt;</p>
+<p>              {% for file in page.footer-extra %}</p>
+<p>                {% include {{ file }} %}</p>
+<p>              {% endfor %}</p>
+<p>            &lt;/div&gt;</p>
+<p>          {% endif %}</p>
+<p>          &lt;!-- 页脚版权信息 --&gt;</p>
+<p>          &lt;p class="copyright text-muted mb-0"&gt;</p>
+<p>            {% if site.author %}</p>
+<p>              {{ site.author }} &amp;nbsp;&amp;bull;&amp;nbsp;</p>
+<p>            {% endif %}</p>
+<p>            {{ site.time | date: '%Y' }}</p>
+<p>            {% if site.url-pretty %}</p>
+<p>              &amp;nbsp;&amp;bull;&amp;nbsp;</p>
+<p>              &lt;span class="author-site"&gt;</p>
+<p>                &lt;a href="{% if site.url-canonical %}{{ site.url-canonical }}{% else %}{{ '/' | absolute_url }}{% endif %}"&gt;</p>
+<p>                  {{ site.url-pretty }}</p>
+<p>                &lt;/a&gt;</p>
+<p>              &lt;/span&gt;</p>
+<p>            {% endif %}</p>
+<p>            {% if site.matomo and site.matomo.opt-out %}</p>
+<p>              &amp;nbsp;&amp;bull;&amp;nbsp;</p>
+<p>              &lt;a href="http://{{- site.matomo.uri -}}/index.php?module=CoreAdminHome&amp;action=optOut"</p>
+<p>                 target="_blank" class="text-muted"&gt;</p>
+<p>                请勿追踪</p>
+<p>              &lt;/a&gt;</p>
+<p>            {% endif %}</p>
+<p>            {% if site.edit_page_button and site.github.repository_url %}</p>
+<p>              &amp;nbsp;&amp;bull;&amp;nbsp;</p>
+<p>              &lt;a title="在 GitHub 上编辑此页面"</p>
+<p>                 href="{{ site.github.repository_url }}/edit/{{ site.github.source.branch }}/{{ page.path }}"</p>
+<p>                 class="text-muted"&gt;</p>
+<p>                编辑此页面</p>
+<p>              &lt;/a&gt;</p>
+<p>            {% endif %}</p>
+<p>          &lt;/p&gt;</p>
+<p>        &lt;/div&gt;</p>
+<p>      &lt;/div&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>  &lt;/footer&gt;</p>
+<p>  &lt;!-- 网站脚本 --&gt;</p>
+<p>  {% include footer-scripts.html %}</p>
+<p>&lt;/body&gt;</p>
+<p>&lt;/html&gt;</p></div>
+      <div class="qa-a"><p>我看了你提供的 <code>footer.html</code> 和 <code>base.html</code> 代码，结构本身是居中的，使用了 Bootstrap 的 <code>row justify-content-center</code> + <code>col-xl-8 col-lg-10 text-center</code>。所以在大多数页面应该是居中的。页脚偏左的问题通常有几个原因：</p>
+<p>---</p>
+<h4 class="sub-h">1. 外层容器宽度被限制</h4>
+<p>你的 <code>&lt;main&gt;</code> 和 <code>&lt;footer&gt;</code> 都在 <code>&lt;div class="container-md"&gt;</code> 内。<code>container-md</code> 在 Bootstrap 中是响应式固定宽度的（最大宽度约 720px~960px），当屏幕较宽时，容器就不会全宽，会显示“居左”的感觉。</p>
+<p><strong>解决方法</strong>：如果希望页脚在大屏幕上真正居中，可以换成 <code>container</code> 或 <code>container-fluid</code>，或者单独给 footer 使用 <code>container-fluid</code>：</p>
+<div class="codeblock"><pre><code>&lt;footer&gt;
+  &lt;div class=&quot;container-fluid beautiful-jekyll-footer py-4&quot;&gt;
+    &lt;div class=&quot;row justify-content-center&quot;&gt;
+      &lt;div class=&quot;col-xl-8 col-lg-10 text-center&quot;&gt;
+        ...
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/footer&gt;</code></pre></div>
+<p>这样，footer 会占满整个屏幕宽度，内容仍然居中。</p>
+<p>---</p>
+<h4 class="sub-h">2. 页面单独覆盖样式</h4>
+<p>有些页面可能有自定义样式或在 <code>_config.yml</code> 设置了 <code>page-col</code> 或 <code>text-align</code> 的全局覆盖，导致 <code>text-center</code> 失效。   <strong>排查方法</strong>：打开浏览器开发者工具，检查页脚 <code>&lt;p&gt;</code> 或 <code>&lt;div&gt;</code> 的 <code>text-align</code> 样式，看是否被覆盖。</p>
+<p>---</p>
+<h4 class="sub-h">3. 社交链接的宽度</h4>
+<p><code>{% include social-networks-links.html %}</code> 输出的内容，如果用 <code>&lt;ul&gt;</code> 或 <code>&lt;div&gt;</code> 并设置了 <code>float:left</code> 或 <code>display:inline-block</code>，也可能让整体视觉看起来偏左。   <strong>解决方法</strong>：确保社交链接也使用 <code>text-center</code> 或 <code>justify-content-center</code>：</p>
+<div class="codeblock"><pre><code>.beautiful-jekyll-footer .social-networks {
+  display: flex;
+  justify-content: center;
+}</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">✅ 综合建议</h4>
+<p>修改 <code>footer</code> 结构如下可以保证大部分情况居中：</p>
+<div class="codeblock"><pre><code>&lt;footer&gt;
+  &lt;div class=&quot;container-fluid beautiful-jekyll-footer py-4&quot;&gt;
+    &lt;div class=&quot;row justify-content-center&quot;&gt;
+      &lt;div class=&quot;col-xl-8 col-lg-10 text-center&quot;&gt;
+        {% include social-networks-links.html %}
+        {% if page.footer-extra %}
+          &lt;div class=&quot;footer-custom-content my-3&quot;&gt;
+            {% for file in page.footer-extra %}
+              {% include {{ file }} %}
+            {% endfor %}
+          &lt;/div&gt;
+        {% endif %}
+        &lt;p class=&quot;copyright text-muted mb-0&quot;&gt;
+          ...
+        &lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/footer&gt;</code></pre></div>
+<p>这个改法保证：</p>
+<ol class="md-ol"><li>页脚宽度全屏 (<code>container-fluid</code>)；</li><li>内部内容在大屏和小屏都居中；</li><li>保留原有的 Bootstrap 栅格和自定义内容。</li></ol>
+<p>---</p>
+<p>如果你愿意，我可以帮你直接写一个<strong>完整修正版 <code>footer.html</code> + 对应 CSS</strong>，保证在所有页面和屏幕大小下都居中。  </p>
+<p>你希望我直接做吗？</p></div>
+    </section>
+    <section id="s3" class="st3">
+      <div class="sec-h"><span class="idx st3">Q3</span><h2>我再提供一个pages.html</h2><span class="hint">第 3 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>我再提供一个pages.html</p></div>
+      <div class="qa-a"><p>好的，把 <code>pages.html</code> 内容贴上来，我可以帮你分析为什么某些页面的页脚仍然偏左，并给出对应的修改方案。</p></div>
+    </section>
+    <section id="s4" class="st4">
+      <div class="sec-h"><span class="idx st4">Q4</span><h2>---layout: base---{% include header.html…</h2><span class="hint">第 4 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>---</p>
+<p>layout: base</p>
+<p>---</p>
+<p>{% include header.html type="page" %}</p>
+<p>&lt;!-- 包含页头 header.html，type="page" 表示这是页面类型，可用于 header 内的条件渲染 --&gt;</p>
+<p>&lt;main class="{% if page.full-width %} container-fluid {% else %} container-md {% endif %}"&gt;</p>
+<p>  &lt;!-- 主体内容区域</p>
+<p>       如果页面设置 full-width 为 true，则使用 container-fluid（全宽）</p>
+<p>       否则使用 container-md（中等宽度，居中显示） --&gt;</p>
+<p>  &lt;div class="row"&gt;</p>
+<p>    &lt;!-- 使用 Bootstrap 的行布局 --&gt;</p>
+<p>    &lt;div class="{% if page.full-width %} col {% else %} col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 {% endif %}"&gt;</p>
+<p>      &lt;!-- 内容列布局：</p>
+<p>           如果 full-width 为 true，则直接占满整行 col</p>
+<p>           否则 xl 屏幕宽度占 8/12 并左右偏移 2/12，lg 屏幕占 10/12 并左右偏移 1/12，实现居中 --&gt;</p>
+<p>      {% if page.before-content %}</p>
+<p>        &lt;div class="before-content"&gt;</p>
+<p>          &lt;!-- 在页面主内容前插入自定义内容 --&gt;</p>
+<p>          {% for file in page.before-content %}</p>
+<p>            {% include {{ file }} %}</p>
+<p>            &lt;!-- 循环包含 before-content 列表中的文件 --&gt;</p>
+<p>          {% endfor %}</p>
+<p>        &lt;/div&gt;</p>
+<p>      {% endif %}</p>
+<p>      {{ content }}</p>
+<p>      &lt;!-- 页面正文内容，Jekyll 会自动渲染 Markdown 转换后的 HTML --&gt;</p>
+<p>      {% if page.after-content %}</p>
+<p>        &lt;div class="after-content"&gt;</p>
+<p>          &lt;!-- 在页面主内容后插入自定义内容 --&gt;</p>
+<p>          {% for file in page.after-content %}</p>
+<p>            {% include {{ file }} %}</p>
+<p>            &lt;!-- 循环包含 after-content 列表中的文件 --&gt;</p>
+<p>          {% endfor %}</p>
+<p>        &lt;/div&gt;</p>
+<p>      {% endif %}</p>
+<p>      {% include comments.html %}</p>
+<p>      &lt;!-- 包含评论区（如 Disqus 或其他评论系统） --&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>  &lt;/div&gt;</p>
+<p>&lt;/main&gt;</p></div>
+      <div class="qa-a"><p>我看了你提供的 <code>pages.html</code>，我发现了页脚偏左的原因：</p>
+<p>---</p>
+<h4 class="sub-h">1. 页脚被限制在和主体相同的宽度</h4>
+<p><code>pages.html</code> 的 <code>&lt;main&gt;</code> 使用了：</p>
+<div class="codeblock"><pre><code>&lt;main class=&quot;{% if page.full-width %} container-fluid {% else %} container-md {% endif %}&quot;&gt;</code></pre></div>
+<p>默认情况下（<code>full-width</code> 未设置或为 <code>false</code>），<code>main</code> 使用的是 <code>container-md</code>。   <code>container-md</code> 是固定宽度（Bootstrap 4 中大约 720~960px），在大屏幕上会显示居左或居中偏小的效果。  </p>
+<p>而你的 <code>footer</code> 放在 <code>base.html</code> 中，也使用了：</p>
+<div class="codeblock"><pre><code>&lt;div class=&quot;container-md beautiful-jekyll-footer py-4&quot;&gt;</code></pre></div>
+<p>所以页脚的宽度与正文宽度保持一致，如果页面不是 <code>full-width</code>，就会感觉偏左。</p>
+<p>---</p>
+<h4 class="sub-h">2. 内容列有偏移</h4>
+<p>在 <code>pages.html</code> 中正文内容使用了：</p>
+<div class="codeblock"><pre><code>&lt;div class=&quot;{% if page.full-width %} col {% else %} col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 {% endif %}&quot;&gt;</code></pre></div>
+<p>这保证了正文居中，但页脚没有同样的偏移，导致视觉上正文居中但页脚没有居中于屏幕。</p>
+<p>---</p>
+<h4 class="sub-h">✅ 解决方案</h4>
+<h5 class="sub-h">方法一：让页脚始终全宽</h5>
+<p>在 <code>footer</code> 里使用 <code>container-fluid</code>，内部内容再用一个居中的列：</p>
+<div class="codeblock"><pre><code>&lt;footer&gt;
+  &lt;div class=&quot;container-fluid beautiful-jekyll-footer py-4&quot;&gt;
+    &lt;div class=&quot;row justify-content-center&quot;&gt;
+      &lt;div class=&quot;col-xl-8 col-lg-10 text-center&quot;&gt;
+        {% include social-networks-links.html %}
+        {% if page.footer-extra %}
+          &lt;div class=&quot;footer-custom-content my-3&quot;&gt;
+            {% for file in page.footer-extra %}
+              {% include {{ file }} %}
+            {% endfor %}
+          &lt;/div&gt;
+        {% endif %}
+        &lt;p class=&quot;copyright text-muted mb-0&quot;&gt;
+          ...
+        &lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/footer&gt;</code></pre></div>
+<p>这样页脚会和屏幕宽度保持一致，内部内容居中。</p>
+<p>---</p>
+<h5 class="sub-h">方法二：页脚宽度跟正文一致</h5>
+<p>如果希望页脚和正文列宽一致，可以在 <code>footer</code> 使用同样的逻辑：</p>
+<div class="codeblock"><pre><code>&lt;footer&gt;
+  &lt;div class=&quot;{% if page.full-width %} container-fluid {% else %} container-md {% endif %} beautiful-jekyll-footer py-4&quot;&gt;
+    &lt;div class=&quot;row justify-content-center&quot;&gt;
+      &lt;div class=&quot;{% if page.full-width %} col {% else %} col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 text-center {% endif %}&quot;&gt;
+        ...
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/footer&gt;</code></pre></div>
+<p>这样页脚在 <code>full-width: false</code> 时和正文宽度保持一致，同时居中对齐。</p>
+<p>---</p>
+<p>如果你希望，我可以直接帮你改一个<strong>完整适配所有页面（含 full-width 和非 full-width）</strong>的 <code>footer.html</code>，保证页脚在手机和电脑端都居中。  </p>
+<p>你希望我直接做吗？</p></div>
+    </section>
+    <section id="s5" class="st5">
+      <div class="sec-h"><span class="idx st5">Q5</span><h2>上述是pages.html</h2><span class="hint">第 5 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>上述是pages.html</p></div>
+      <div class="qa-a"><p>明白了，你提供的 <code>pages.html</code> 是单独页面模板，它的结构显示正文部分是居中（<code>col-xl-8 offset-xl-2</code> 等），而页脚在 <code>base.html</code> 里固定用了 <code>container-md</code>。这就解释了为什么某些页面的页脚看起来偏左——页脚的容器宽度比大屏幕的 <code>container-md</code> 窄，而正文本身通过 <code>offset</code> 居中显示。</p>
+<p>---</p>
+<h4 class="sub-h">问题总结</h4>
+<ol class="md-ol"><li>页脚和正文使用的容器不同：</li></ol>
+<p>   - 正文用 <code>col-xl-8 offset-xl-2 col-lg-10 offset-lg-1</code> 居中    - 页脚用 <code>container-md</code>，最大宽度有限，未加 offset，因此在大屏幕上偏左。</p>
+<ol class="md-ol"><li><code>full-width</code> 页面可以正常全宽，但默认非 <code>full-width</code> 页面就会显得偏左。</li></ol>
+<p>---</p>
+<h4 class="sub-h">解决方案</h4>
+<p><strong>方案 1：让页脚全屏（推荐）</strong></p>
+<div class="codeblock"><pre><code>&lt;footer&gt;
+  &lt;div class=&quot;container-fluid beautiful-jekyll-footer py-4&quot;&gt;
+    &lt;div class=&quot;row justify-content-center&quot;&gt;
+      &lt;div class=&quot;col-xl-8 col-lg-10 text-center&quot;&gt;
+        {% include social-networks-links.html %}
+        {% if page.footer-extra %}
+          &lt;div class=&quot;footer-custom-content my-3&quot;&gt;
+            {% for file in page.footer-extra %}
+              {% include {{ file }} %}
+            {% endfor %}
+          &lt;/div&gt;
+        {% endif %}
+        &lt;p class=&quot;copyright text-muted mb-0&quot;&gt;
+          ...
+        &lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/footer&gt;</code></pre></div>
+<ul class="md-ul"><li>页脚外层全屏 (<code>container-fluid</code>)。</li><li>内部内容用 <code>col-xl-8 col-lg-10 text-center</code> 居中。</li><li>适配所有页面，不受正文 <code>full-width</code> 控制。</li></ul>
+<p><strong>方案 2：页脚跟正文宽度一致</strong></p>
+<div class="codeblock"><pre><code>&lt;footer&gt;
+  &lt;div class=&quot;{% if page.full-width %} container-fluid {% else %} container-md {% endif %} beautiful-jekyll-footer py-4&quot;&gt;
+    &lt;div class=&quot;row justify-content-center&quot;&gt;
+      &lt;div class=&quot;{% if page.full-width %} col {% else %} col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 text-center {% endif %}&quot;&gt;
+        {% include social-networks-links.html %}
+        ...
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/footer&gt;</code></pre></div>
+<ul class="md-ul"><li>页脚在 <code>full-width=false</code> 时会严格跟正文列宽一致。</li><li>在 <code>full-width=true</code> 时会全屏。</li></ul>
+<p>---</p>
+<p>如果你愿意，我可以直接帮你写一个 <strong>适配所有页面、手机端和大屏幕都居中</strong> 的最终 <code>footer.html</code> 版本，把社交链接、版权信息、<code>footer-extra</code> 都包含进去。  </p>
+<p>你希望我直接做吗？</p></div>
+    </section>
+    <section id="s6" class="st1">
+      <div class="sec-h"><span class="idx st1">Q6</span><h2>你不应该提供page.html的修正后代码吗</h2><span class="hint">第 6 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>你不应该提供page.html的修正后代码吗</p></div>
+      <div class="qa-a"><p>明白了，你希望我直接提供一个 <strong>修正后的 <code>pages.html</code></strong>，保证正文和页脚在所有页面都居中、同时适配 <code>full-width</code> 和非 <code>full-width</code> 页面。下面是修改后的完整版本：</p>
+<div class="codeblock"><pre><code>---
+layout: base
+---
+
+{% include header.html type=&quot;page&quot; %}
+
+&lt;main class=&quot;{% if page.full-width %} container-fluid {% else %} container-md {% endif %}&quot;&gt;
+  &lt;div class=&quot;row justify-content-center&quot;&gt;
+    &lt;div class=&quot;{% if page.full-width %} col {% else %} col-xl-8 col-lg-10 {% endif %}&quot;&gt;
+      {% if page.before-content %}
+        &lt;div class=&quot;before-content&quot;&gt;
+          {% for file in page.before-content %}
+            {% include {{ file }} %}
+          {% endfor %}
+        &lt;/div&gt;
+      {% endif %}
+
+      {{ content }}
+
+      {% if page.after-content %}
+        &lt;div class=&quot;after-content&quot;&gt;
+          {% for file in page.after-content %}
+            {% include {{ file }} %}
+          {% endfor %}
+        &lt;/div&gt;
+      {% endif %}
+
+      {% include comments.html %}
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/main&gt;
+
+{% comment %}
+  页脚部分使用 container-fluid 保证全屏宽度，
+  内部列居中，适配所有屏幕和 full-width 页面
+{% endcomment %}
+&lt;footer&gt;
+  &lt;div class=&quot;container-fluid beautiful-jekyll-footer py-4&quot;&gt;
+    &lt;div class=&quot;row justify-content-center&quot;&gt;
+      &lt;div class=&quot;col-xl-8 col-lg-10 text-center&quot;&gt;
+        {% include social-networks-links.html %}
+
+        {% if page.footer-extra %}
+          &lt;div class=&quot;footer-custom-content my-3&quot;&gt;
+            {% for file in page.footer-extra %}
+              {% include {{ file }} %}
+            {% endfor %}
+          &lt;/div&gt;
+        {% endif %}
+
+        &lt;p class=&quot;copyright text-muted mb-0&quot;&gt;
+          {% if site.author %}{{ site.author }} &amp;nbsp;&amp;bull;&amp;nbsp;{% endif %}
+          {{ site.time | date: &#x27;%Y&#x27; }}
+          {% if site.url-pretty %}
+            &amp;nbsp;&amp;bull;&amp;nbsp;
+            &lt;span class=&quot;author-site&quot;&gt;
+              &lt;a href=&quot;{% if site.url-canonical %}{{ site.url-canonical }}{% else %}{{ &#x27;/&#x27; | absolute_url }}{% endif %}&quot;&gt;
+                {{ site.url-pretty }}
+              &lt;/a&gt;
+            &lt;/span&gt;
+          {% endif %}
+          {% if site.matomo and site.matomo.opt-out %}
+            &amp;nbsp;&amp;bull;&amp;nbsp;
+            &lt;a href=&quot;http://{{- site.matomo.uri -}}/index.php?module=CoreAdminHome&amp;action=optOut&quot;
+               target=&quot;_blank&quot; class=&quot;text-muted&quot;&gt;请勿追踪&lt;/a&gt;
+          {% endif %}
+          {% if site.edit_page_button and site.github.repository_url %}
+            &amp;nbsp;&amp;bull;&amp;nbsp;
+            &lt;a title=&quot;在 GitHub 上编辑此页面&quot;
+               href=&quot;{{ site.github.repository_url }}/edit/{{ site.github.source.branch }}/{{ page.path }}&quot;
+               class=&quot;text-muted&quot;&gt;编辑此页面&lt;/a&gt;
+          {% endif %}
+        &lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/footer&gt;</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">✅ 主要修改点</h4>
+<ol class="md-ol"><li><code>&lt;main&gt;</code> 内的列使用 <code>row justify-content-center</code> + <code>col</code>，保证正文居中。</li><li>页脚使用 <code>container-fluid</code>，内容列 <code>col-xl-8 col-lg-10 text-center</code> 居中。</li><li>适配 <code>full-width</code> 页面和普通页面，视觉上始终居中。</li><li>保留了 <code>footer-extra</code>、社交链接、版权、编辑链接等功能。</li></ol>
+<p>---</p>
+<p>如果你需要，我可以再帮你写一版 <strong>CSS 微调版</strong>，让页脚在手机端和超宽屏下都完全居中、间距美观。  </p>
+<p>你希望我做吗？</p></div>
+    </section>
+    <section id="s7" class="st2">
+      <div class="sec-h"><span class="idx st2">Q7</span><h2>页脚在博客文章的页面显示是正常的，在一些归档、关于的页面就居左了</h2><span class="hint">第 7 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>页脚在博客文章的页面显示是正常的，在一些归档、关于的页面就居左了</p></div>
+      <div class="qa-a"><p>明白了，你的情况很典型：页脚在博客文章页面正常，但在归档、关于页等非文章页面偏左。这背后的原因主要是 <strong>页脚的容器宽度和正文容器的列偏移不一致</strong>。我来详细分析：</p>
+<p>---</p>
+<h4 class="sub-h">1️⃣ 原因分析</h4>
+<ol class="md-ol"><li><strong>文章页 vs 非文章页的容器差异</strong>  </li></ol>
+<p>   - 博客文章页通常使用类似 <code>col-xl-8 offset-xl-2</code> 的列布局，正文居中，同时页脚宽度也跟随文章列宽，视觉上自然居中。      - 归档页、关于页等可能直接使用 <code>container-md</code> 或 <code>col</code> 布局，没有 offset 或者列宽更窄，页脚在大屏幕上就显得偏左。</p>
+<ol class="md-ol"><li><strong><code>full-width</code> 的影响</strong>  </li></ol>
+<p>   - 页面模板中 <code>full-width: true</code> 会让内容和页脚全屏宽度。      - 默认 <code>full-width: false</code> 时，正文列有偏移，页脚却没有，导致视觉偏左。</p>
+<ol class="md-ol"><li><strong>页脚在 <code>base.html</code> 中是固定的 <code>container-md</code></strong>  </li></ol>
+<p>   - 文章页内容和页脚宽度一致，非文章页内容列可能宽度变化，页脚依然是 <code>container-md</code>，导致不居中。</p>
+<p>---</p>
+<h4 class="sub-h">2️⃣ 解决方案思路</h4>
+<h5 class="sub-h">方法 A：页脚始终全屏 + 内部列居中（推荐）</h5>
+<div class="codeblock"><pre><code>&lt;footer&gt;
+  &lt;div class=&quot;container-fluid beautiful-jekyll-footer py-4&quot;&gt;
+    &lt;div class=&quot;row justify-content-center&quot;&gt;
+      &lt;div class=&quot;col-xl-8 col-lg-10 text-center&quot;&gt;
+        {% include social-networks-links.html %}
+        {% if page.footer-extra %}
+          &lt;div class=&quot;footer-custom-content my-3&quot;&gt;
+            {% for file in page.footer-extra %}
+              {% include {{ file }} %}
+            {% endfor %}
+          &lt;/div&gt;
+        {% endif %}
+        &lt;p class=&quot;copyright text-muted mb-0&quot;&gt;
+          ...
+        &lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/footer&gt;</code></pre></div>
+<ul class="md-ul"><li>页脚占满整个屏幕宽度 (<code>container-fluid</code>)。  </li><li>内部列和文章列宽度相同 (<code>col-xl-8 col-lg-10</code>) 并居中。  </li><li>归档页、关于页、文章页都适配。</li></ul>
+<h5 class="sub-h">方法 B：页脚跟随正文列宽 + 支持 <code>full-width</code></h5>
+<div class="codeblock"><pre><code>&lt;footer&gt;
+  &lt;div class=&quot;{% if page.full-width %} container-fluid {% else %} container-md {% endif %} beautiful-jekyll-footer py-4&quot;&gt;
+    &lt;div class=&quot;row justify-content-center&quot;&gt;
+      &lt;div class=&quot;{% if page.full-width %} col {% else %} col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 text-center {% endif %}&quot;&gt;
+        {% include social-networks-links.html %}
+        ...
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/footer&gt;</code></pre></div>
+<ul class="md-ul"><li>非文章页时，页脚宽度和正文列宽一致并居中。  </li><li><code>full-width</code> 页面页脚全屏。</li></ul>
+<p>---</p>
+<h4 class="sub-h">3️⃣ 建议</h4>
+<ul class="md-ul"><li>方法 A 更简洁，保证所有页面视觉统一，页脚不会因为页面类型不同而偏左。  </li><li>方法 B 更严格跟随正文宽度，但需要确保所有页面模板（归档页、关于页等）也能正确设置 <code>full-width</code> 或 <code>container</code>。</li></ul>
+<p>---</p>
+<p>如果你需要，我可以直接帮你改 <strong>完整的 <code>footer.html</code></strong>，保证：</p>
+<ol class="md-ol"><li>博客文章页、归档页、关于页都居中；</li><li>支持 <code>full-width</code> 和非 <code>full-width</code> 页面；</li><li>手机端和大屏端都自适应美观。  </li></ol>
+<p>你希望我直接给出这个版本吗？</p></div>
+    </section>
+    <section id="s8" class="st3">
+      <div class="sec-h"><span class="idx st3">Q8</span><h2>好的</h2><span class="hint">第 8 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>好的</p></div>
+      <div class="qa-a"><p>好的，以下是修正后的 <strong><code>footer.html</code></strong> 代码，确保所有页面（包括博客文章页、归档页、关于页等）都能居中，且在 <code>full-width</code> 页面下页脚会占满整个屏幕宽度，非 <code>full-width</code> 页面则跟随正文列宽。</p>
+<div class="codeblock"><pre><code>&lt;footer&gt;
+  &lt;!-- 页脚容器，确保在所有页面都能自适应宽度 --&gt;
+  &lt;div class=&quot;{% if page.full-width %} container-fluid {% else %} container-md {% endif %} beautiful-jekyll-footer py-4&quot;&gt;
+    &lt;div class=&quot;row justify-content-center&quot;&gt;
+      &lt;!-- 居中显示内容，根据页面宽度选择列宽 --&gt;
+      &lt;div class=&quot;{% if page.full-width %} col {% else %} col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 text-center {% endif %}&quot;&gt;
+        
+        {% include social-networks-links.html %}
+        
+        {% if page.footer-extra %}
+          &lt;div class=&quot;footer-custom-content my-3&quot;&gt;
+            {% for file in page.footer-extra %}
+              {% include {{ file }} %}
+            {% endfor %}
+          &lt;/div&gt;
+        {% endif %}
+        
+        &lt;!-- 页脚版权信息 --&gt;
+        &lt;p class=&quot;copyright text-muted mb-0&quot;&gt;
+          {% if site.author %}
+            {{ site.author }} &amp;nbsp;&amp;bull;&amp;nbsp;
+          {% endif %}
+          {{ site.time | date: &#x27;%Y&#x27; }}
+          {% if site.url-pretty %}
+            &amp;nbsp;&amp;bull;&amp;nbsp;
+            &lt;span class=&quot;author-site&quot;&gt;
+              &lt;a href=&quot;{% if site.url-canonical %}{{ site.url-canonical }}{% else %}{{ &#x27;/&#x27; | absolute_url }}{% endif %}&quot;&gt;
+                {{ site.url-pretty }}
+              &lt;/a&gt;
+            &lt;/span&gt;
+          {% endif %}
+          {% if site.matomo and site.matomo.opt-out %}
+            &amp;nbsp;&amp;bull;&amp;nbsp;
+            &lt;a href=&quot;http://{{- site.matomo.uri -}}/index.php?module=CoreAdminHome&amp;action=optOut&quot;
+               target=&quot;_blank&quot; class=&quot;text-muted&quot;&gt;请勿追踪&lt;/a&gt;
+          {% endif %}
+          {% if site.edit_page_button and site.github.repository_url %}
+            &amp;nbsp;&amp;bull;&amp;nbsp;
+            &lt;a title=&quot;在 GitHub 上编辑此页面&quot;
+               href=&quot;{{ site.github.repository_url }}/edit/{{ site.github.source.branch }}/{{ page.path }}&quot;
+               class=&quot;text-muted&quot;&gt;编辑此页面&lt;/a&gt;
+          {% endif %}
+        &lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/footer&gt;</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">✅ 关键点总结：</h4>
+<ol class="md-ol"><li><strong><code>container-fluid</code></strong>：如果页面的 <code>full-width</code> 设置为 <code>true</code>，页脚将占满整个屏幕宽度；</li><li><strong><code>container-md</code></strong>：如果页面是非 <code>full-width</code> 页面（例如归档页、关于页），页脚将使用 <code>container-md</code>，并且跟随正文列宽；</li><li><strong>居中列布局</strong>：在 <code>col-xl-8 offset-xl-2</code> 和 <code>col-lg-10 offset-lg-1</code> 下，页脚的内容会居中对齐，适配各种屏幕尺寸；</li><li><strong>社交链接和额外内容</strong>：通过 <code>social-networks-links.html</code> 和 <code>footer-extra</code> 插件，页脚可以显示动态内容，如社交链接和自定义的额外内容。</li></ol>
+<p>---</p>
+<h4 class="sub-h">⚡ 最终效果</h4>
+<ul class="md-ul"><li><strong>博客文章页面</strong>：页脚和正文宽度一致，且居中；</li><li><strong>归档页、关于页</strong>：页脚宽度与正文列宽一致，且居中；</li><li><strong>全屏页面（<code>full-width</code>）</strong>：页脚占满整个屏幕宽度；</li><li><strong>响应式布局</strong>：页脚在手机端和大屏端都居中并适应屏幕宽度。</li></ul>
+<p>如果有任何问题或者需要进一步调整，随时告诉我！</p></div>
+    </section>
+    <section id="s9" class="st4">
+      <div class="sec-h"><span class="idx st4">Q9</span><h2>现在出现了两个页脚</h2><span class="hint">第 9 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>现在出现了两个页脚</p></div>
+      <div class="qa-a"><p>出现两个页脚的原因可能是在 <code>base.html</code> 和 <code>pages.html</code> 中都包含了页脚的代码。根据你之前提供的信息，<code>base.html</code> 中已经包含了页脚部分，而在 <code>pages.html</code> 中，你也可能不小心再次引入了页脚，导致重复渲染。</p>
+<h4 class="sub-h">解决方法</h4>
+<p>你只需要确保页脚 <strong>只在一个地方</strong> 渲染，通常是放在 <code>base.html</code> 中，然后在 <code>pages.html</code> 中去掉重复的页脚代码。</p>
+<h4 class="sub-h">步骤：</h4>
+<ol class="md-ol"><li><strong>确认页脚只在 <code>base.html</code> 中渲染</strong>  </li></ol>
+<p>   在 <code>base.html</code> 中已经有了完整的页脚结构，所以你不需要在 <code>pages.html</code> 中再次添加页脚。</p>
+<ol class="md-ol"><li><strong>修改 <code>pages.html</code></strong>  </li></ol>
+<p>   在 <code>pages.html</code> 中，删除页脚的部分，只保留正文和其他内容。你可以修改 <code>pages.html</code> 为如下：</p>
+<div class="codeblock"><pre><code>   ---
+   layout: base
+   ---
+
+   {% include header.html type=&quot;page&quot; %}
+
+   &lt;main class=&quot;{% if page.full-width %} container-fluid {% else %} container-md {% endif %}&quot;&gt;
+     &lt;div class=&quot;row justify-content-center&quot;&gt;
+       &lt;div class=&quot;{% if page.full-width %} col {% else %} col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 {% endif %}&quot;&gt;
+         {% if page.before-content %}
+           &lt;div class=&quot;before-content&quot;&gt;
+             {% for file in page.before-content %}
+               {% include {{ file }} %}
+             {% endfor %}
+           &lt;/div&gt;
+         {% endif %}
+
+         {{ content }}
+
+         {% if page.after-content %}
+           &lt;div class=&quot;after-content&quot;&gt;
+             {% for file in page.after-content %}
+               {% include {{ file }} %}
+             {% endfor %}
+           &lt;/div&gt;
+         {% endif %}
+
+         {% include comments.html %}
+       &lt;/div&gt;
+     &lt;/div&gt;
+   &lt;/main&gt;</code></pre></div>
+<ol class="md-ol"><li><strong>确保 <code>base.html</code> 中包含页脚</strong>  </li></ol>
+<p>   在 <code>base.html</code> 中的页脚部分已经修复过了，现在页脚部分应当只出现在 <code>base.html</code> 中。</p>
+<h4 class="sub-h">结果：</h4>
+<p>这样处理之后，页脚只会出现在 <strong><code>base.html</code></strong> 中，不会在 <code>pages.html</code> 中重复显示。</p>
+<p>---</p>
+<p>请确保 <strong><code>base.html</code></strong> 中的页脚部分已经正确渲染，并且 <strong><code>pages.html</code></strong> 中没有重复的页脚代码。如果仍然有问题，可以检查是否在其他模板中重复引用了 <code>footer.html</code>。</p></div>
+    </section>
+    <section id="s10" class="st5">
+      <div class="sec-h"><span class="idx st5">Q10</span><h2>&lt;footer&gt;  &lt;!-- 页脚容器，确保在所有页面都能自适应宽度 --&gt;</h2><span class="hint">第 10 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>&lt;footer&gt;</p>
+<p>  &lt;!-- 页脚容器，确保在所有页面都能自适应宽度 --&gt;</p>
+<p>  &lt;div class="{% if page.full-width %} container-fluid {% else %} container-md {% endif %} beautiful-jekyll-footer py-4"&gt;</p>
+<p>    &lt;div class="row justify-content-center"&gt;</p>
+<p>      &lt;!-- 居中显示内容，根据页面宽度选择列宽 --&gt;</p>
+<p>      &lt;div class="{% if page.full-width %} col {% else %} col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 text-center {% endif %}"&gt;</p>
+<p>        {% include social-networks-links.html %}</p>
+<p>        {% if page.footer-extra %}</p>
+<p>          &lt;div class="footer-custom-content my-3"&gt;</p>
+<p>            {% for file in page.footer-extra %}</p>
+<p>              {% include {{ file }} %}</p>
+<p>            {% endfor %}</p>
+<p>          &lt;/div&gt;</p>
+<p>        {% endif %}</p>
+<p>        &lt;!-- 页脚版权信息 --&gt;</p>
+<p>        &lt;p class="copyright text-muted mb-0"&gt;</p>
+<p>          {% if site.author %}</p>
+<p>            {{ site.author }} &amp;nbsp;&amp;bull;&amp;nbsp;</p>
+<p>          {% endif %}</p>
+<p>          {{ site.time | date: '%Y' }}</p>
+<p>          {% if site.url-pretty %}</p>
+<p>            &amp;nbsp;&amp;bull;&amp;nbsp;</p>
+<p>            &lt;span class="author-site"&gt;</p>
+<p>              &lt;a href="{% if site.url-canonical %}{{ site.url-canonical }}{% else %}{{ '/' | absolute_url }}{% endif %}"&gt;</p>
+<p>                {{ site.url-pretty }}</p>
+<p>              &lt;/a&gt;</p>
+<p>            &lt;/span&gt;</p>
+<p>          {% endif %}</p>
+<p>          {% if site.matomo and site.matomo.opt-out %}</p>
+<p>            &amp;nbsp;&amp;bull;&amp;nbsp;</p>
+<p>            &lt;a href="http://{{- site.matomo.uri -}}/index.php?module=CoreAdminHome&amp;action=optOut"</p>
+<p>               target="_blank" class="text-muted"&gt;请勿追踪&lt;/a&gt;</p>
+<p>          {% endif %}</p>
+<p>          {% if site.edit_page_button and site.github.repository_url %}</p>
+<p>            &amp;nbsp;&amp;bull;&amp;nbsp;</p>
+<p>            &lt;a title="在 GitHub 上编辑此页面"</p>
+<p>               href="{{ site.github.repository_url }}/edit/{{ site.github.source.branch }}/{{ page.path }}"</p>
+<p>               class="text-muted"&gt;编辑此页面&lt;/a&gt;</p>
+<p>          {% endif %}</p>
+<p>        &lt;/p&gt;</p>
+<p>      &lt;/div&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>  &lt;/div&gt;</p>
+<p>&lt;/footer&gt;  能否去掉“请勿追踪”和“编辑此页面”这两个部分</p></div>
+      <div class="qa-a"><p>当然可以，下面是去掉 "请勿追踪" 和 "编辑此页面" 部分后的修改版：</p>
+<div class="codeblock"><pre><code>&lt;footer&gt;
+  &lt;!-- 页脚容器，确保在所有页面都能自适应宽度 --&gt;
+  &lt;div class=&quot;{% if page.full-width %} container-fluid {% else %} container-md {% endif %} beautiful-jekyll-footer py-4&quot;&gt;
+    &lt;div class=&quot;row justify-content-center&quot;&gt;
+      &lt;!-- 居中显示内容，根据页面宽度选择列宽 --&gt;
+      &lt;div class=&quot;{% if page.full-width %} col {% else %} col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 text-center {% endif %}&quot;&gt;
+        
+        {% include social-networks-links.html %}
+        
+        {% if page.footer-extra %}
+          &lt;div class=&quot;footer-custom-content my-3&quot;&gt;
+            {% for file in page.footer-extra %}
+              {% include {{ file }} %}
+            {% endfor %}
+          &lt;/div&gt;
+        {% endif %}
+        
+        &lt;!-- 页脚版权信息 --&gt;
+        &lt;p class=&quot;copyright text-muted mb-0&quot;&gt;
+          {% if site.author %}
+            {{ site.author }} &amp;nbsp;&amp;bull;&amp;nbsp;
+          {% endif %}
+          {{ site.time | date: &#x27;%Y&#x27; }}
+          {% if site.url-pretty %}
+            &amp;nbsp;&amp;bull;&amp;nbsp;
+            &lt;span class=&quot;author-site&quot;&gt;
+              &lt;a href=&quot;{% if site.url-canonical %}{{ site.url-canonical }}{% else %}{{ &#x27;/&#x27; | absolute_url }}{% endif %}&quot;&gt;
+                {{ site.url-pretty }}
+              &lt;/a&gt;
+            &lt;/span&gt;
+          {% endif %}
+        &lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/footer&gt;</code></pre></div>
+<h4 class="sub-h">变更内容：</h4>
+<ol class="md-ol"><li><strong>删除了“请勿追踪”</strong> 的链接部分：</li></ol>
+<div class="codeblock"><pre><code>   {% if site.matomo and site.matomo.opt-out %}
+     &amp;nbsp;&amp;bull;&amp;nbsp;
+     &lt;a href=&quot;http://{{- site.matomo.uri -}}/index.php?module=CoreAdminHome&amp;action=optOut&quot;
+        target=&quot;_blank&quot; class=&quot;text-muted&quot;&gt;请勿追踪&lt;/a&gt;
+   {% endif %}</code></pre></div>
+<ol class="md-ol"><li><strong>删除了“编辑此页面”</strong> 的链接部分：</li></ol>
+<div class="codeblock"><pre><code>   {% if site.edit_page_button and site.github.repository_url %}
+     &amp;nbsp;&amp;bull;&amp;nbsp;
+     &lt;a title=&quot;在 GitHub 上编辑此页面&quot;
+        href=&quot;{{ site.github.repository_url }}/edit/{{ site.github.source.branch }}/{{ page.path }}&quot;
+        class=&quot;text-muted&quot;&gt;编辑此页面&lt;/a&gt;
+   {% endif %}</code></pre></div>
+<p>这样，页脚将只保留版权信息和社交链接等其他内容。如果还有其他需要调整的部分，随时告诉我！</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>页脚居中问题解决 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：页脚居中问题解决（2025-11-10）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

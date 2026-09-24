@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>折线连接图修改 · 2025</title>
+<meta name="description" content="要把现在的“直接一条直线”换成“折线”，我们可以改写 drawLine 函数，让它画 path（折线路径）而不是 &lt;line。核心思想：  先水平，再垂直 → 出现清晰的拐角，更像思维导图线路。给你改好的 JS 部分，只需要替换 &lt;scri">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a><a href="#s2" data-sec="s2">Q2</a><a href="#s3" data-sec="s3">Q3</a><a href="#s4" data-sec="s4">Q4</a><a href="#s5" data-sec="s5">Q5</a><a href="#s6" data-sec="s6">Q6</a><a href="#s7" data-sec="s7">Q7</a><a href="#s8" data-sec="s8">Q8</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · 建站
+  <h1 class="s-h1">折线连接图修改</h1>
+  <p class="s-lede">要把现在的“直接一条直线”换成“折线”，我们可以改写 drawLine 函数，让它画 path（折线路径）而不是 &lt;line。核心思想：  先水平，再垂直 → 出现清晰的拐角，更像思维导图线路。给你改好的 JS 部分，只需要替换 &lt;scri</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>16</b></span>
+    <span>时间范围 <b>2025-11-05 ~ 2025-11-05</b></span>
+    <span>分类 <b>建站与技术</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">建站</span>
+    <span class="s-chip">2025</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>&lt;!DOCTYPE html&gt;&lt;html lang=&quot;zh-CN&quot;&gt;&lt;head&gt;…</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>&lt;!DOCTYPE html&gt;</p>
+<p>&lt;html lang="zh-CN"&gt;</p>
+<p>&lt;head&gt;</p>
+<p>&lt;meta charset="UTF-8"&gt;</p>
+<p>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p>&lt;title&gt;北京同仁堂集团组织架构&lt;/title&gt;</p>
+<p>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p>&lt;style&gt;</p>
+<p>  body { background:#f5f5f5; font-family: 'Segoe UI', sans-serif; }</p>
+<p>  .chart { display:flex; align-items:flex-start; justify-content:flex-start; padding:40px; overflow-x:auto; position:relative; }</p>
+<p>  .column { display:flex; flex-direction:column; align-items:center; margin:0 40px; position:relative; }</p>
+<p>  .card {</p>
+<p>    background:white;</p>
+<p>    border-radius:12px;</p>
+<p>    padding:16px 20px;</p>
+<p>    text-align:center;</p>
+<p>    min-width:200px;</p>
+<p>    max-width:240px;</p>
+<p>    box-shadow:0 6px 15px rgba(0,0,0,0.1);</p>
+<p>    margin:20px 0;</p>
+<p>    transition: transform 0.3s, box-shadow 0.3s;</p>
+<p>    position:relative;</p>
+<p>  }</p>
+<p>  .card:hover { transform:translateY(-6px); box-shadow:0 12px 24px rgba(0,0,0,0.15); }</p>
+<p>  .highlight { border:2px solid #ef4444; background:#fee2e2; font-weight:700; }</p>
+<p>  .title { font-weight:600; font-size:1.1rem; margin-bottom:6px; }</p>
+<p>  .subtitle { font-size:0.85rem; color:#6b7280; line-height:1.4; }</p>
+<p>  /* 连线 */</p>
+<p>  svg.connector { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }</p>
+<p>  line { stroke:#ef4444; stroke-width:2; stroke-linecap:round; opacity:0.4; }</p>
+<p>&lt;/style&gt;</p>
+<p>&lt;/head&gt;</p>
+<p>&lt;body&gt;</p>
+<p>&lt;header class="bg-red-600 text-white py-8 text-center"&gt;</p>
+<p>  &lt;h1 class="text-3xl font-bold"&gt;北京同仁堂集团组织架构&lt;/h1&gt;</p>
+<p>&lt;/header&gt;</p>
+<p>&lt;div class="chart" id="chart"&gt;</p>
+<p>  &lt;!-- 总集团列 --&gt;</p>
+<p>  &lt;div class="column" id="col1"&gt;</p>
+<p>    &lt;div class="card border-2 border-red-600" id="mainGroup"&gt;</p>
+<p>      &lt;div class="title"&gt;北京同仁堂（集团）有限公司&lt;/div&gt;</p>
+<p>      &lt;div class="subtitle"&gt;</p>
+<p>        中医药全产业链集团&lt;br&gt;</p>
+<p>        涵盖科研、种植、生产、销售、健康服务</p>
+<p>      &lt;/div&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>  &lt;/div&gt;</p>
+<p>  &lt;!-- 二级集团列 --&gt;</p>
+<p>  &lt;div class="column" id="col2"&gt;</p>
+<p>    &lt;div class="card" id="g1"&gt;</p>
+<p>      &lt;div class="title"&gt;股份集团&lt;/div&gt;</p>
+<p>      &lt;div class="subtitle"&gt;核心工业及商业平台，上交所上市&lt;/div&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>    &lt;div class="card" id="g2"&gt;</p>
+<p>      &lt;div class="title"&gt;科技发展集团&lt;/div&gt;</p>
+<p>      &lt;div class="subtitle"&gt;医药研发与制造，港交所上市&lt;/div&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>    &lt;div class="card" id="g3"&gt;</p>
+<p>      &lt;div class="title"&gt;国药集团&lt;/div&gt;</p>
+<p>      &lt;div class="subtitle"&gt;海外业务平台，拓展国际市场&lt;/div&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>    &lt;div class="card highlight" id="g4"&gt;</p>
+<p>      &lt;div class="title"&gt;健康药业集团&lt;/div&gt;</p>
+<p>      &lt;div class="subtitle"&gt;主营保健食品、健康产品，大健康核心力量&lt;/div&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>    &lt;div class="card" id="g5"&gt;</p>
+<p>      &lt;div class="title"&gt;商业投资集团&lt;/div&gt;</p>
+<p>      &lt;div class="subtitle"&gt;药品零售连锁与批发，庞大终端网络&lt;/div&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>    &lt;div class="card" id="g6"&gt;</p>
+<p>      &lt;div class="title"&gt;药材参茸投资集团&lt;/div&gt;</p>
+<p>      &lt;div class="subtitle"&gt;中药材种植、中药饮片及参茸贵细产品&lt;/div&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>    &lt;div class="card" id="g7"&gt;</p>
+<p>      &lt;div class="title"&gt;医养集团&lt;/div&gt;</p>
+<p>      &lt;div class="subtitle"&gt;中医医疗与健康养老产业&lt;/div&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>  &lt;/div&gt;</p>
+<p>  &lt;!-- 健康药业基地列 --&gt;</p>
+<p>  &lt;div class="column" id="col3"&gt;</p>
+<p>    &lt;div class="card highlight"&gt;北京大兴基地&lt;div class="subtitle"&gt;总部研发与智造，智慧工厂&lt;/div&gt;&lt;/div&gt;</p>
+<p>    &lt;div class="card highlight"&gt;福州基地&lt;div class="subtitle"&gt;滋补品与精制饮片&lt;/div&gt;&lt;/div&gt;</p>
+<p>    &lt;div class="card highlight"&gt;辽宁桓仁基地&lt;div class="subtitle"&gt;人参、西洋参精深加工&lt;/div&gt;&lt;/div&gt;</p>
+<p>    &lt;div class="card highlight"&gt;大连基地&lt;div class="subtitle"&gt;海洋健康食品、海参加工&lt;/div&gt;&lt;/div&gt;</p>
+<p>    &lt;div class="card highlight"&gt;江山基地&lt;div class="subtitle"&gt;蜂产品研发、生产、销售&lt;/div&gt;&lt;/div&gt;</p>
+<p>    &lt;div class="card highlight"&gt;青海德令哈基地&lt;div class="subtitle"&gt;西北特色生物资源，枸杞精深加工&lt;/div&gt;&lt;/div&gt;</p>
+<p>    &lt;div class="card highlight"&gt;海南基地&lt;div class="subtitle"&gt;有机药材产业，160+种饮片供应&lt;/div&gt;&lt;/div&gt;</p>
+<p>    &lt;div class="card highlight"&gt;普洱基地&lt;div class="subtitle"&gt;有机普洱茶种植与生产&lt;/div&gt;&lt;/div&gt;</p>
+<p>    &lt;div class="card highlight"&gt;山西基地&lt;div class="subtitle"&gt;药食同源膏方及零食化产品&lt;/div&gt;&lt;/div&gt;</p>
+<p>    &lt;div class="card highlight"&gt;宁夏银川基地&lt;div class="subtitle"&gt;有机洁净饮片全产业链标杆&lt;/div&gt;&lt;/div&gt;</p>
+<p>  &lt;/div&gt;</p>
+<p>  &lt;!-- SVG连线 --&gt;</p>
+<p>  &lt;svg class="connector" id="connector"&gt;&lt;/svg&gt;</p>
+<p>&lt;/div&gt;</p>
+<p>&lt;footer class="bg-gray-900 text-white py-6 text-center text-sm"&gt;</p>
+<p>  © 2025 北京同仁堂集团</p>
+<p>&lt;/footer&gt;</p>
+<p>&lt;script&gt;</p>
+<p>  function drawLine(svg, x1, y1, x2, y2) {</p>
+<p>    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");</p>
+<p>    line.setAttribute("x1", x1);</p>
+<p>    line.setAttribute("y1", y1);</p>
+<p>    line.setAttribute("x2", x2);</p>
+<p>    line.setAttribute("y2", y2);</p>
+<p>    svg.appendChild(line);</p>
+<p>  }</p>
+<p>  function connectCards() {</p>
+<p>    const svg = document.getElementById('connector');</p>
+<p>    svg.innerHTML = '';</p>
+<p>    const main = document.getElementById('mainGroup').getBoundingClientRect();</p>
+<p>    const col2 = document.getElementById('col2').getBoundingClientRect();</p>
+<p>    const col3 = document.getElementById('col3').getBoundingClientRect();</p>
+<p>    const chartOffset = document.getElementById('chart').getBoundingClientRect();</p>
+<p>    // 总集团 → 二级集团</p>
+<p>    document.querySelectorAll('#col2 .card').forEach(card =&gt; {</p>
+<p>      const c = card.getBoundingClientRect();</p>
+<p>      drawLine(svg,</p>
+<p>        main.right - chartOffset.left,</p>
+<p>        main.top + main.height/2 - chartOffset.top,</p>
+<p>        c.left - chartOffset.left,</p>
+<p>        c.top + c.height/2 - chartOffset.top</p>
+<p>      );</p>
+<p>    });</p>
+<p>    // 健康药业集团 → 所有基地</p>
+<p>    const healthGroup = document.getElementById('g4').getBoundingClientRect();</p>
+<p>    document.querySelectorAll('#col3 .card').forEach(card =&gt; {</p>
+<p>      const c = card.getBoundingClientRect();</p>
+<p>      drawLine(svg,</p>
+<p>        healthGroup.right - chartOffset.left,</p>
+<p>        healthGroup.top + healthGroup.height/2 - chartOffset.top,</p>
+<p>        c.left - chartOffset.left,</p>
+<p>        c.top + c.height/2 - chartOffset.top</p>
+<p>      );</p>
+<p>    });</p>
+<p>  }</p>
+<p>  window.addEventListener('load', connectCards);</p>
+<p>  window.addEventListener('resize', connectCards);</p>
+<p>&lt;/script&gt;</p>
+<p>&lt;/body&gt;</p>
+<p>&lt;/html&gt;  把直线换成折线</p></div>
+      <div class="qa-a"><p>要把现在的“直接一条直线”换成“折线”，我们可以改写 <code>drawLine</code> 函数，让它画 path（折线路径）而不是 <code>&lt;line&gt;</code>。</p>
+<p>核心思想：   先水平，再垂直 → 出现清晰的拐角，更像思维导图线路。</p>
+<p>给你改好的 JS 部分，只需要替换 <code>&lt;script&gt;</code> 里的 <code>drawLine()</code> 和内部调用部分：</p>
+<div class="codeblock"><pre><code>&lt;script&gt;
+  function drawPolyline(svg, x1, y1, x2, y2) {
+    // 计算折点：先水平移动到中间，再垂直下去
+    const midX = (x1 + x2) / 2;
+
+    const path = document.createElementNS(&quot;http://www.w3.org/2000/svg&quot;, &quot;path&quot;);
+    const d = `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`;
+    path.setAttribute(&quot;d&quot;, d);
+    path.setAttribute(&quot;stroke&quot;, &quot;#ef4444&quot;);
+    path.setAttribute(&quot;stroke-width&quot;, &quot;2&quot;);
+    path.setAttribute(&quot;fill&quot;, &quot;none&quot;);
+    path.setAttribute(&quot;stroke-linecap&quot;, &quot;round&quot;);
+    path.setAttribute(&quot;opacity&quot;, &quot;0.4&quot;);
+
+    svg.appendChild(path);
+  }
+
+  function connectCards() {
+    const svg = document.getElementById(&#x27;connector&#x27;);
+    svg.innerHTML = &#x27;&#x27;;
+
+    const main = document.getElementById(&#x27;mainGroup&#x27;).getBoundingClientRect();
+    const chartOffset = document.getElementById(&#x27;chart&#x27;).getBoundingClientRect();
+
+    // 总集团 → 二级集团
+    document.querySelectorAll(&#x27;#col2 .card&#x27;).forEach(card =&gt; {
+      const c = card.getBoundingClientRect();
+      drawPolyline(
+        svg,
+        main.right - chartOffset.left,
+        main.top + main.height / 2 - chartOffset.top,
+        c.left - chartOffset.left,
+        c.top + c.height / 2 - chartOffset.top
+      );
+    });
+
+    // 健康药业集团 → 基地
+    const healthGroup = document.getElementById(&#x27;g4&#x27;).getBoundingClientRect();
+    document.querySelectorAll(&#x27;#col3 .card&#x27;).forEach(card =&gt; {
+      const c = card.getBoundingClientRect();
+      drawPolyline(
+        svg,
+        healthGroup.right - chartOffset.left,
+        healthGroup.top + healthGroup.height / 2 - chartOffset.top,
+        c.left - chartOffset.left,
+        c.top + c.height / 2 - chartOffset.top
+      );
+    });
+  }
+
+  window.addEventListener(&#x27;load&#x27;, connectCards);
+  window.addEventListener(&#x27;resize&#x27;, connectCards);
+&lt;/script&gt;</code></pre></div>
+<p>效果：  </p>
+<ul class="md-ul"><li>连线从“主集团”出来 → 横折 → 竖直连接目标  </li><li>视觉更清晰、有“组织架构图”味道  </li><li>也保留了 hover 动画不动</li></ul>
+<p>如果你想更丝滑些，可以加圆角折线弧度（贝塞尔曲线）。等你说一声，我就给你升级成“奶油顺滑”路径版。</p></div>
+    </section>
+    <section id="s2" class="st2">
+      <div class="sec-h"><span class="idx st2">Q2</span><h2>奶油顺滑”路径版</h2><span class="hint">第 2 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>奶油顺滑”路径版</p></div>
+      <div class="qa-a"><p>来了，“奶油顺滑版”，线条不再硬邦邦拐角，而是优雅弯过来。像乌龙茶的香气一样顺滑，不急不躁。</p>
+<p>思路：用 <code>C</code>（三阶贝塞尔曲线）让线条从 A 点轻轻探出，再顺弯到 B 点。   控制点设在中间偏水平，更像思维导图的柔线。</p>
+<p>把你当前 <code>&lt;script&gt;</code> 全部换成下面这个：</p>
+<div class="codeblock"><pre><code>&lt;script&gt;
+  function drawSmoothCurve(svg, x1, y1, x2, y2) {
+    const midX = (x1 + x2) / 2;
+
+    const path = document.createElementNS(&quot;http://www.w3.org/2000/svg&quot;, &quot;path&quot;);
+
+    // 三阶贝塞尔曲线
+    // 控制点在水平中点
+    const d = `
+      M ${x1} ${y1}
+      C ${midX} ${y1},
+        ${midX} ${y2},
+        ${x2} ${y2}
+    `;
+
+    path.setAttribute(&quot;d&quot;, d);
+    path.setAttribute(&quot;stroke&quot;, &quot;#ef4444&quot;);
+    path.setAttribute(&quot;stroke-width&quot;, &quot;2&quot;);
+    path.setAttribute(&quot;fill&quot;, &quot;none&quot;);
+    path.setAttribute(&quot;stroke-linecap&quot;, &quot;round&quot;);
+    path.setAttribute(&quot;opacity&quot;, &quot;0.45&quot;);
+
+    // 动画：淡淡柔滑出现
+    path.style.transition = &quot;stroke 0.3s ease, opacity 0.3s ease&quot;;
+    svg.appendChild(path);
+  }
+
+  function connectCards() {
+    const svg = document.getElementById(&quot;connector&quot;);
+    svg.innerHTML = &quot;&quot;;
+
+    const chartOffset = document.getElementById(&quot;chart&quot;).getBoundingClientRect();
+    const main = document.getElementById(&quot;mainGroup&quot;).getBoundingClientRect();
+
+    // 连接主集团 → 二级集团
+    document.querySelectorAll(&quot;#col2 .card&quot;).forEach(card =&gt; {
+      const c = card.getBoundingClientRect();
+      drawSmoothCurve(
+        svg,
+        main.right - chartOffset.left,
+        main.top + main.height / 2 - chartOffset.top,
+        c.left - chartOffset.left,
+        c.top + c.height / 2 - chartOffset.top
+      );
+    });
+
+    // 连接健康药业集团 → 全部基地
+    const health = document.getElementById(&quot;g4&quot;).getBoundingClientRect();
+    document.querySelectorAll(&quot;#col3 .card&quot;).forEach(card =&gt; {
+      const c = card.getBoundingClientRect();
+      drawSmoothCurve(
+        svg,
+        health.right - chartOffset.left,
+        health.top + health.height / 2 - chartOffset.top,
+        c.left - chartOffset.left,
+        c.top + c.height / 2 - chartOffset.top
+      );
+    });
+  }
+
+  window.addEventListener(&quot;load&quot;, connectCards);
+  window.addEventListener(&quot;resize&quot;, connectCards);
+&lt;/script&gt;</code></pre></div>
+<p>现在的线条效果——   不是“企业组织架构要严肃正气⚔️”，   而是“品牌架构优雅活泼🌿”，   滑进视线，轻盈又有科技感。</p>
+<p>再说一句有趣的事：   贝塞尔曲线原本设计用来画汽车车身轮廓。所以你这个组织图，骨子里也带了点豪华跑车灵魂。</p>
+<p>接下来如果你想让线条“动态生长出现”，我可以给你一个 <code>stroke-dasharray</code> + <code>stroke-dashoffset</code> 版本，让树脉络一笔一笔长出来，像毛细血管扩展。</p></div>
+    </section>
+    <section id="s3" class="st3">
+      <div class="sec-h"><span class="idx st3">Q3</span><h2>提供完整的index吧</h2><span class="hint">第 3 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>提供完整的index吧</p></div>
+      <div class="qa-a"><p>下面是整合好“奶油顺滑曲线”版本的完整 <code>index.html</code>。  </p>
+<p>直接复制即可使用 ✅   你原来的结构样式都保留，只是把连线换成柔和贝塞尔曲线。</p>
+<p>---</p>
+<h4 class="sub-h">✅ <strong>完整 index.html</strong></h4>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;UTF-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+&lt;title&gt;北京同仁堂集团组织架构&lt;/title&gt;
+&lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+&lt;style&gt;
+  body { background:#f5f5f5; font-family: &#x27;Segoe UI&#x27;, sans-serif; }
+  .chart { display:flex; align-items:flex-start; justify-content:flex-start; padding:40px; overflow-x:auto; position:relative; }
+  .column { display:flex; flex-direction:column; align-items:center; margin:0 40px; position:relative; }
+  .card {
+    background:white;
+    border-radius:12px;
+    padding:16px 20px;
+    text-align:center;
+    min-width:200px;
+    max-width:240px;
+    box-shadow:0 6px 15px rgba(0,0,0,0.1);
+    margin:20px 0;
+    transition: transform 0.3s, box-shadow 0.3s;
+    position:relative;
+  }
+  .card:hover { transform:translateY(-6px); box-shadow:0 12px 24px rgba(0,0,0,0.15); }
+  .highlight { border:2px solid #ef4444; background:#fee2e2; font-weight:700; }
+  .title { font-weight:600; font-size:1.1rem; margin-bottom:6px; }
+  .subtitle { font-size:0.85rem; color:#6b7280; line-height:1.4; }
+
+  svg.connector { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;header class=&quot;bg-red-600 text-white py-8 text-center&quot;&gt;
+  &lt;h1 class=&quot;text-3xl font-bold&quot;&gt;北京同仁堂集团组织架构&lt;/h1&gt;
+&lt;/header&gt;
+
+&lt;div class=&quot;chart&quot; id=&quot;chart&quot;&gt;
+
+  &lt;div class=&quot;column&quot; id=&quot;col1&quot;&gt;
+    &lt;div class=&quot;card border-2 border-red-600&quot; id=&quot;mainGroup&quot;&gt;
+      &lt;div class=&quot;title&quot;&gt;北京同仁堂（集团）有限公司&lt;/div&gt;
+      &lt;div class=&quot;subtitle&quot;&gt;
+        中医药全产业链集团&lt;br&gt;科研｜种植｜生产｜销售｜健康服务
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;column&quot; id=&quot;col2&quot;&gt;
+    &lt;div class=&quot;card&quot; id=&quot;g1&quot;&gt;&lt;div class=&quot;title&quot;&gt;股份集团&lt;/div&gt;&lt;div class=&quot;subtitle&quot;&gt;工业与商业平台｜上交所上市&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;card&quot; id=&quot;g2&quot;&gt;&lt;div class=&quot;title&quot;&gt;科技发展集团&lt;/div&gt;&lt;div class=&quot;subtitle&quot;&gt;医药研发制造｜港交所上市&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;card&quot; id=&quot;g3&quot;&gt;&lt;div class=&quot;title&quot;&gt;国药集团&lt;/div&gt;&lt;div class=&quot;subtitle&quot;&gt;海外业务平台｜国际市场&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;card highlight&quot; id=&quot;g4&quot;&gt;&lt;div class=&quot;title&quot;&gt;健康药业集团&lt;/div&gt;&lt;div class=&quot;subtitle&quot;&gt;大健康核心平台｜健康食品&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;card&quot; id=&quot;g5&quot;&gt;&lt;div class=&quot;title&quot;&gt;商业投资集团&lt;/div&gt;&lt;div class=&quot;subtitle&quot;&gt;零售连锁与批发&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;card&quot; id=&quot;g6&quot;&gt;&lt;div class=&quot;title&quot;&gt;药材参茸投资集团&lt;/div&gt;&lt;div class=&quot;subtitle&quot;&gt;中药材｜参茸贵细&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;card&quot; id=&quot;g7&quot;&gt;&lt;div class=&quot;title&quot;&gt;医养集团&lt;/div&gt;&lt;div class=&quot;subtitle&quot;&gt;中医医疗与养老&lt;/div&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;column&quot; id=&quot;col3&quot;&gt;
+    &lt;div class=&quot;card highlight&quot;&gt;北京大兴基地&lt;div class=&quot;subtitle&quot;&gt;总部研发与智造&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;card highlight&quot;&gt;福州基地&lt;div class=&quot;subtitle&quot;&gt;滋补品｜饮片&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;card highlight&quot;&gt;辽宁桓仁基地&lt;div class=&quot;subtitle&quot;&gt;人参｜西洋参&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;card highlight&quot;&gt;大连基地&lt;div class=&quot;subtitle&quot;&gt;海洋健康产品&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;card highlight&quot;&gt;江山基地&lt;div class=&quot;subtitle&quot;&gt;蜂产品研发生产&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;card highlight&quot;&gt;青海德令哈基地&lt;div class=&quot;subtitle&quot;&gt;枸杞精深加工&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;card highlight&quot;&gt;海南基地&lt;div class=&quot;subtitle&quot;&gt;有机饮片&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;card highlight&quot;&gt;普洱基地&lt;div class=&quot;subtitle&quot;&gt;普洱茶&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;card highlight&quot;&gt;山西基地&lt;div class=&quot;subtitle&quot;&gt;膏方及零食&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;card highlight&quot;&gt;宁夏银川基地&lt;div class=&quot;subtitle&quot;&gt;洁净饮片链&lt;/div&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;svg class=&quot;connector&quot; id=&quot;connector&quot;&gt;&lt;/svg&gt;
+&lt;/div&gt;
+
+&lt;footer class=&quot;bg-gray-900 text-white py-6 text-center text-sm&quot;&gt;
+  © 2025 北京同仁堂集团
+&lt;/footer&gt;
+
+&lt;script&gt;
+  function drawSmoothCurve(svg, x1, y1, x2, y2) {
+    const midX = (x1 + x2) / 2;
+
+    const path = document.createElementNS(&quot;http://www.w3.org/2000/svg&quot;, &quot;path&quot;);
+    const d = `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`;
+    path.setAttribute(&quot;d&quot;, d);
+    path.setAttribute(&quot;stroke&quot;, &quot;#ef4444&quot;);
+    path.setAttribute(&quot;stroke-width&quot;, &quot;2&quot;);
+    path.setAttribute(&quot;fill&quot;, &quot;none&quot;);
+    path.setAttribute(&quot;stroke-linecap&quot;, &quot;round&quot;);
+    path.setAttribute(&quot;opacity&quot;, &quot;0.45&quot;);
+
+    svg.appendChild(path);
+  }
+
+  function connectCards() {
+    const svg = document.getElementById(&quot;connector&quot;);
+    svg.innerHTML = &quot;&quot;;
+
+    const chartOffset = document.getElementById(&quot;chart&quot;).getBoundingClientRect();
+    const main = document.getElementById(&quot;mainGroup&quot;).getBoundingClientRect();
+
+    document.querySelectorAll(&quot;#col2 .card&quot;).forEach(card =&gt; {
+      const c = card.getBoundingClientRect();
+      drawSmoothCurve(
+        svg,
+        main.right - chartOffset.left,
+        main.top + main.height / 2 - chartOffset.top,
+        c.left - chartOffset.left,
+        c.top + c.height / 2 - chartOffset.top
+      );
+    });
+
+    const health = document.getElementById(&quot;g4&quot;).getBoundingClientRect();
+    document.querySelectorAll(&quot;#col3 .card&quot;).forEach(card =&gt; {
+      const c = card.getBoundingClientRect();
+      drawSmoothCurve(
+        svg,
+        health.right - chartOffset.left,
+        health.top + health.height / 2 - chartOffset.top,
+        c.left - chartOffset.left,
+        c.top + c.height / 2 - chartOffset.top
+      );
+    });
+  }
+
+  window.addEventListener(&quot;load&quot;, connectCards);
+  window.addEventListener(&quot;resize&quot;, connectCards);
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<p>连线现在已经是“中药汤剂慢慢拉丝”那种圆润顺滑路线。  </p>
+<p>接下来你想试哪种风格？  </p>
+<ul class="md-ul"><li>曲线加动态“生长动画”</li><li>把节点变成小圆点+脉冲效果</li><li>加淡淡渐变线条提升高级感  </li></ul>
+<p>组织结构图也能美得像艺术品，挺好玩的。</p></div>
+    </section>
+    <section id="s4" class="st4">
+      <div class="sec-h"><span class="idx st4">Q4</span><h2>能不能去掉标题栏，改成markdown格式</h2><span class="hint">第 4 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>能不能去掉标题栏，改成markdown格式</p></div>
+      <div class="qa-a"><p>当然可以，兄弟这波像是把西装脱掉换成中国风布衣——本质不变，气质更轻盈。   我们把页面那一坨 <code>&lt;header&gt;</code> 删掉，然后把组织架构用 Markdown 层级来呈现。   曲线 SVG 那些东西 Markdown 搞不来，但层级树很优雅。</p>
+<p>下面是 <strong>去标题版 + Markdown格式组织结构</strong>：</p>
+<p>---</p>
+<h4 class="sub-h">📦 北京同仁堂集团组织架构（Markdown版）</h4>
+<div class="codeblock"><pre><code># 北京同仁堂（集团）有限公司
+&gt; 中医药全产业链：科研 / 种植 / 生产 / 销售 / 健康服务
+
+---
+
+## 二级集团
+
+- **股份集团**
+  - 工业及商业平台
+  - 上交所上市
+- **科技发展集团**
+  - 医药研发与制造
+  - 港交所上市
+- **国药集团**
+  - 海外业务平台
+  - 国际市场拓展
+- **健康药业集团** ✅（重点）
+  - 健康食品与大健康业务
+- **商业投资集团**
+  - 药品零售连锁与批发
+- **药材参茸投资集团**
+  - 中药材 / 参茸贵细
+- **医养集团**
+  - 医疗与养老服务
+
+---
+
+## 健康药业集团 · 旗下基地
+
+- 北京大兴基地 — 智慧工厂 / 总部研发
+- 福州基地 — 滋补品 / 精制饮片
+- 辽宁桓仁基地 — 人参 / 西洋参深加工
+- 大连基地 — 海洋健康食品 / 海参加工
+- 江山基地 — 蜂产品研发与生产
+- 青海德令哈基地 — 枸杞精深加工
+- 海南基地 — 有机饮片产业链
+- 普洱基地 — 有机普洱茶生产
+- 山西基地 — 药食同源膏方 / 零食化产品
+- 宁夏银川基地 — 洁净饮片全产业链</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">如果你还想更“组织图一点”</h4>
+<p>可以做 <strong>emoji 版结构树</strong>：</p>
+<div class="codeblock"><pre><code>🏛️ 北京同仁堂集团  
+ ┣━━📊 股份集团  
+ ┣━━🔬 科技发展集团  
+ ┣━━🌍 国药集团  
+ ┣━━❤️ 健康药业集团 ✅  
+ ┣━━🏪 商业投资集团  
+ ┣━━🌿 药材参茸投资集团  
+ ┗━━🏥 医养集团  
+
+❤️ 健康药业集团  
+ ┣━━🏭 北京大兴基地  
+ ┣━━🌿 福州基地  
+ ┣━━🌱 辽宁桓仁基地  
+ ┣━━🌊 大连基地  
+ ┣━━🍯 江山基地  
+ ┣━━🌄 青海德令哈基地  
+ ┣━━🌴 海南基地  
+ ┣━━🍃 普洱基地  
+ ┣━━🥄 山西基地  
+ ┗━━🌾 宁夏银川基地</code></pre></div>
+<p>---</p>
+<p>如果你想，我还能继续升级版本，比如：</p>
+<ul class="md-ul"><li>✅ Graphviz <code>.dot</code> 文件（自动生成结构图）</li><li>✅ mermaid.js 组织架构图 Markdown</li><li>✅ Typora/Obsidian 演示版</li><li>✅ Hugo/Jekyll 用的纯 Markdown目录页</li></ul>
+<p>你现在更偏向“知识整理？展示？还是继续做前端可视化”？   接下来走哪条路，我们就铺哪套砖。</p></div>
+    </section>
+    <section id="s5" class="st5">
+      <div class="sec-h"><span class="idx st5">Q5</span><h2>北京同仁堂（集团）有限责任公司下属的七个二级集团如下。| 二级集团名称</h2><span class="hint">第 5 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>北京同仁堂（集团）有限责任公司下属的七个二级集团如下。</p>
+<p>| 二级集团名称                                                 | 核心业务简介                                                 |</p>
+<p>| ------------------------------------------------------------ | ------------------------------------------------------------ |</p>
+<p>| <strong>股</strong><strong>份集团</strong>(北京同仁堂股份有限公司) <a href="http://szb.infomorning.com/html/2020-04/25/content_13961.htm?div=-1" target="_blank" rel="noopener">2 </a> <a href="https://caifuhao.eastmoney.com/news/20230719152930274821790" target="_blank" rel="noopener">5 </a> | 集团的核心工业及商业平台，在上海证券交易所上市 <a href="http://szb.infomorning.com/html/2020-04/25/content_13961.htm?div=-1" target="_blank" rel="noopener">2 </a>。 |</p>
+<p>| <strong>科</strong><strong>技发展集团</strong>(北京同仁堂科技发展股份有限公司) <a href="http://szb.infomorning.com/html/2020-04/25/content_13961.htm?div=-1" target="_blank" rel="noopener">2 </a> <a href="https://caifuhao.eastmoney.com/news/20230719152930274821790" target="_blank" rel="noopener">5 </a> | 专注于医药研发与制造，在香港联合交易所上市 <a href="http://szb.infomorning.com/html/2020-04/25/content_13961.htm?div=-1" target="_blank" rel="noopener">2 </a>。 |</p>
+<p>| <strong>国</strong><strong>药集团</strong>(北京同仁堂国药有限公司) <a href="http://szb.infomorning.com/html/2020-04/25/content_13961.htm?div=-1" target="_blank" rel="noopener">2 </a> <a href="https://caifuhao.eastmoney.com/news/20230719152930274821790" target="_blank" rel="noopener">5 </a> | 集团的海外业务平台，总部位于香港，负责国际市场的开拓与发展 <a href="http://szb.infomorning.com/html/2020-04/25/content_13961.htm?div=-1" target="_blank" rel="noopener">2 </a> <a href="https://caifuhao.eastmoney.com/news/20230719152930274821790" target="_blank" rel="noopener">5 </a>。 |</p>
+<p>| <strong>健</strong><strong>康药业集团</strong>(北京同仁堂健康药业股份有限公司) <a href="https://caifuhao.eastmoney.com/news/20230719152930274821790" target="_blank" rel="noopener">5 </a> | 主营保健食品和健康产品 <a href="https://caifuhao.eastmoney.com/news/20230719152930274821790" target="_blank" rel="noopener">5 </a>。 |</p>
+<p>| <strong>商</strong><strong>业投资集团</strong>(北京同仁堂商业投资集团有限公司) <a href="https://caifuhao.eastmoney.com/news/20230719152930274821790" target="_blank" rel="noopener">5 </a> | 负责药品的零售连锁和批发业务，拥有庞大的终端销售网络 <a href="https://caifuhao.eastmoney.com/news/20230719152930274821790" target="_blank" rel="noopener">5 </a>。 |</p>
+<p>| <strong>药</strong><strong>材参茸投资集团</strong>(北京同仁堂药材参茸投资集团有限公司) <a href="https://ycsr.tongrentang.com/" target="_blank" rel="noopener">1 </a> <a href="https://ncss.cn/student/jobs/647408ccf7df4411849a660ae8f4eec9/corp.html" target="_blank" rel="noopener">7 </a> | 专注于中药材种植、中药饮片和参茸贵细产品的生产与销售 <a href="https://ycsr.tongrentang.com/" target="_blank" rel="noopener">1 </a>。 |</p>
+<p>| <strong>医</strong><strong>养集团</strong>(北京同仁堂医养产业投资集团有限公司) <a href="https://www.tongrentang.com/menu51/newsDetail/479.html" target="_blank" rel="noopener">8 </a> | 致力于发展中医医疗服务和健康养老产业 <a href="https://www.tongrentang.com/menu51/newsDetail/479.html" target="_blank" rel="noopener">8 </a>。 |</p>
+<h4 class="sub-h"><strong>北京同仁堂健康药业全球生产基地布局介绍 (1.0版)</strong></h4>
+<p>北京同仁堂健康药业股份有限公司，作为同仁堂集团在大健康产业的核心力量，为保障产品品质与供应，已在全球构建了一个布局完善、品类齐全、技术领先的<strong>现代化生产基地网络</strong>。</p>
+<p><strong>全球布局，本土深耕：</strong></p>
+<p>我们的<strong>12大生产基地</strong>战略性分布于<strong>中国北京、福州、四川、江山、辽宁、大连、青海、海南、云南、宁夏、山西以及美国威斯康辛州</strong>，实现了从原料溯源到精深加工的全产业链覆盖。</p>
+<p>以下是对各核心基地的详细介绍：</p>
+<p><strong>1. 北京大兴基地（总部研发与智造中心）</strong></p>
+<ul class="md-ul"><li><strong>定位</strong>：集团的“智慧大脑”与核心制造枢纽。</li></ul>
+<ul class="md-ul"><li><strong>核心业务</strong>：覆盖中成药、中药饮片、保健食品、普通食品四大领域。</li></ul>
+<ul class="md-ul"><li><strong>技术亮点</strong>：以<strong>工业4.0</strong>为标准，引入全自动智能化生产线、AGV无人小车与智能机器人，打造行业顶级的智慧工厂，确保产能与品控的极致标准。</li></ul>
+<p><strong>2. 美国威斯康辛基地（西洋参核心原料基地）</strong></p>
+<ul class="md-ul"><li><strong>定位</strong>：海外高端原料的桥头堡。</li></ul>
+<ul class="md-ul"><li><strong>核心业务</strong>：专注于<strong>美国西洋参</strong>的种植、加工与销售。</li></ul>
+<ul class="md-ul"><li><strong>资源价值</strong>：坐拥全球品质最纯净的西洋参原产地，从源头掌控核心原料，保障了健康药业西洋参产品的道地性与供应稳定。</li></ul>
+<p><strong>3. 宁夏银川基地（有机洁净饮片全球标杆）</strong></p>
+<ul class="md-ul"><li><strong>定位</strong>：全球首家有机洁净饮片全产业链企业。</li></ul>
+<ul class="md-ul"><li><strong>核心业务</strong>：从事中药材、中药饮片、保健食品、医疗器械等七大品类的开发与生产。</li></ul>
+<ul class="md-ul"><li><strong>产业规模</strong>：拥有饮片、食品、提取、医疗器械等<strong>七大智造中心</strong>，致力于打造从田间到成品的全程可追溯、高标准的质量体系。</li></ul>
+<p><strong>4. 福州基地（滋补品与精制饮片中心）</strong></p>
+<ul class="md-ul"><li><strong>定位</strong>：中药饮片行业的质量标杆。</li></ul>
+<ul class="md-ul"><li><strong>核心业务</strong>：主营<strong>西洋参、燕窝</strong>等滋补品和中药饮片。</li></ul>
+<ul class="md-ul"><li><strong>科研实力</strong>：拥有<strong>CNAS国家级认证实验室</strong>，是“福建省高新技术企业”，以科技驱动产品质量持续提升。</li></ul>
+<p><strong>5. 辽宁桓仁基地（人参健康产品中心）</strong></p>
+<ul class="md-ul"><li><strong>定位</strong>：“总统牌”参系列产品核心生产基地。</li></ul>
+<ul class="md-ul"><li><strong>核心业务</strong>：专注于<strong>人参、西洋参</strong>等资源的精深加工。</li></ul>
+<ul class="md-ul"><li><strong>主要产品</strong>：涵盖“总统牌”人参晶、林下山参冻干粉、红参制品等一系列高端参茸健康食品与饮片。</li></ul>
+<p><strong>6. 大连基地（海洋健康食品中心）</strong></p>
+<ul class="md-ul"><li><strong>定位</strong>：综合性海产品精深加工基地。</li></ul>
+<ul class="md-ul"><li><strong>核心业务</strong>：专业生产<strong>淡干、速发、即食、冻干</strong>全品类<strong>海参</strong>，并拓展至鱼胶、元贝等产品。</li></ul>
+<ul class="md-ul"><li><strong>品质认证</strong>：独创海参加工工艺，荣获“大连海参”地理标志认定，是品质的保证。</li></ul>
+<p><strong>7. 江山基地（蜂产品专家）</strong></p>
+<ul class="md-ul"><li><strong>定位</strong>：“中国蜜蜂之乡”的智慧型蜂产业链。</li></ul>
+<ul class="md-ul"><li><strong>核心业务</strong>：集蜂产品研发、生产、销售于一体。</li></ul>
+<ul class="md-ul"><li><strong>产品特色</strong>：生产<strong>洋槐蜜、椴树蜜</strong>等20余种原生态、无添加的蜂产品，建立全程可溯源管控体系。</li></ul>
+<p><strong>8. 青海德令哈基地（西北特色生物资源中心）</strong></p>
+<ul class="md-ul"><li><strong>定位</strong>：西北特色生物资源精深加工枢纽。</li></ul>
+<ul class="md-ul"><li><strong>核心业务</strong>：开展<strong>枸杞精深加工</strong>项目。</li></ul>
+<ul class="md-ul"><li><strong>主要产品</strong>：高品质的黑枸杞、红枸杞系列产品，荣获“国家高新技术企业”称号。</li></ul>
+<p><strong>9. 海南基地（有机产业先锋）</strong></p>
+<ul class="md-ul"><li><strong>定位</strong>：有机中药材的领导者。</li></ul>
+<ul class="md-ul"><li><strong>核心业务</strong>：拥有大量<strong>有机药源基地</strong>，常态化供应超160种有机饮片。</li></ul>
+<ul class="md-ul"><li><strong>企业愿景</strong>：以“让中药不再有农药”为目标，筑牢中医药“安全、有效”的根基。</li></ul>
+<p><strong>10. 普洱基地（健康茶产业）</strong></p>
+<ul class="md-ul"><li><strong>定位</strong>：原产地有机茶园的守护者。</li></ul>
+<ul class="md-ul"><li><strong>核心业务</strong>：专注于<strong>有机普洱茶</strong>的种植与生产。</li></ul>
+<ul class="md-ul"><li><strong>基地特色</strong>：拥有数千亩通过国家有机认证的茶园，从源头确保茶叶的绿色、环保与高品质。</li></ul>
+<p><strong>11. 山西基地（药食同源创新工场）</strong></p>
+<ul class="md-ul"><li><strong>定位</strong>：传统食养与现代消费的融合创新平台。</li></ul>
+<ul class="md-ul"><li><strong>核心业务</strong>：以药食同源原料开发<strong>膏方食品</strong>及便携、零食化剂型产品。</li></ul>
+<ul class="md-ul"><li><strong>工艺追求</strong>：秉承古法熬制，追求膏滋“一拉成丝、滴水成珠”的上乘品质。</li></ul>
+<p><strong>总结：</strong></p>
+<p>同仁堂健康药业通过这张覆盖全球、功能互补的基地网络，实现了<strong>“源头可控、制造智能、品类全面、品质卓越”</strong>的战略目标。这不仅确保了从一粒种子到一件成品全过程的卓越品质，也为我们满足全球消费者多元化的健康需求提供了坚实可靠的供应链保障。</p>
+<p><strong>此版话术特点：</strong></p>
+<ul class="md-ul"><li><strong>结构统一</strong>：每个基地介绍均按“定位-核心业务-特色/优势”的逻辑展开，清晰规整。</li></ul>
+<ul class="md-ul"><li><strong>重点突出</strong>：提炼了每个基地最核心的产业角色和最具竞争力的产品线。</li></ul>
+<ul class="md-ul"><li><strong>语言专业</strong>：使用了“桥头堡”、“质量标杆”、“智慧工厂”等词汇，提升专业形象。</li></ul>
+<ul class="md-ul"><li><strong>战略升华</strong>：在开头和结尾部分，将分散的基地提升到“全球供应链网络”的战略高度进行阐述。 根据您提供的文档内容，北京同仁堂健康药业股份有限公司在国内拥有以下生产基地：</li></ul>
+<h4 class="sub-h"><strong>同仁堂健康国内生产基地列表</strong></h4>
+<p>| 基地名称              | 所在地     | 核心定位与业务特色                                           |</p>
+<p>| --------------------- | ---------- | ------------------------------------------------------------ |</p>
+<p>| <strong>1. 北京大兴基地</strong>   | 北京       | <strong>总部研发与智造中心</strong>。集团的“智慧大脑”与核心制造枢纽，覆盖中成药、中药饮片、保健食品、普通食品四大领域，引入工业4.0标准打造顶级智慧工厂。 |</p>
+<p>| <strong>2. 福州基地</strong>       | 福建福州   | <strong>滋补品与精制饮片中心</strong>。中药饮片行业的质量标杆，主营西洋参、燕窝等滋补品和中药饮片，拥有CNAS国家级认证实验室。 |</p>
+<p>| <strong>3. 辽宁桓仁基地</strong>   | 辽宁桓仁   | <strong>人参健康产品中心</strong>。“总统牌”参系列产品核心生产基地，专注于人参、西洋参等资源的精深加工。 |</p>
+<p>| <strong>4. 大连基地</strong>       | 辽宁大连   | <strong>海洋健康食品中心</strong>。综合性海产品精深加工基地，专业生产全品类海参（淡干、速发、即食、冻干）及鱼胶、元贝等产品，工艺获地理标志认定。 |</p>
+<p>| <strong>5. 江山基地</strong>       | 浙江江山   | <strong>蜂产品专家</strong>。位于“中国蜜蜂之乡”，集蜂产品研发、生产、销售于一体，生产20余种原生态、无添加的蜂产品。 |</p>
+<p>| <strong>6. 青海德令哈基地</strong> | 青海德令哈 | <strong>西北特色生物资源中心</strong>。开展枸杞等西北特色生物资源的精深加工，生产高品质黑枸杞、红枸杞系列产品，为国家高新技术企业。 |</p>
+<p>| <strong>7. 海南基地</strong>       | 海南       | <strong>有机产业先锋</strong>。拥有大量有机药源基地，常态化供应超160种有机饮片，以“让中药不再有农药”为目标。 |</p>
+<p>| <strong>8. 普洱基地</strong>       | 云南普洱   | <strong>健康茶产业</strong>。原产地有机茶园的守护者，拥有数千亩国家有机认证茶园，专注于有机普洱茶的种植与生产。 |</p>
+<p>| <strong>9. 山西基地</strong>       | 山西       | <strong>药食同源创新工场</strong>。传统食养与现代消费的融合创新平台，以药食同源原料开发膏方食品及便携、零食化剂型产品。 |</p>
+<p>| <strong>10. 宁夏银川基地</strong>  | 宁夏银川   | <strong>有机洁净饮片全球标杆</strong>。全球首家有机洁净饮片全产业链企业，拥有七大智造中心，致力于打造全程可追溯的高标准质量体系。 |</p>
+<h4 class="sub-h"><strong>总结</strong></h4>
+<p>同仁堂健康药业在国内构建了一个<strong>覆盖东西南北中、功能互补</strong>的现代化生产基地网络。这些基地战略性分布于不同地域，充分依托当地道地药材资源和产业优势，实现了从原料溯源到精深加工的全产业链覆盖，确保了产品“源头可控、制造智能、品类全面、品质卓越”。</p>
+<p>    根据以上内容生成一份北京同仁堂（集团）有限公司的markdown格式</p></div>
+      <div class="qa-a"><p>下面是把你这一长串资料，炼成一份<strong>严谨、干净、适合直接放进文档或网页的 Markdown</strong>版本。   逻辑更像企业介绍 + 组织结构手册。</p>
+<p>你放心，我没有改事实，只是把格式与语气打磨得更顺滑，让它读起来像“官方，但有气息”。</p>
+<p>---</p>
+<div class="codeblock"><pre><code># 北京同仁堂（集团）有限责任公司
+
+北京同仁堂（集团）有限责任公司，是拥有三百余年历史的中医药企业集团，构建了覆盖**科研、种植、生产、销售、健康服务**的全产业链体系，形成现代化、国际化的中医药创新发展格局。
+
+---
+
+## 集团七大二级集团
+
+| 二级集团 | 核心业务简介 |
+| --- | --- |
+| **同仁堂股份集团**（北京同仁堂股份有限公司） | 集团核心工业及商业平台，在上海证券交易所上市。 |
+| **同仁堂科技发展集团**（北京同仁堂科技发展股份有限公司） | 聚焦医药研发与制造，在香港联合交易所上市。 |
+| **同仁堂国药集团**（北京同仁堂国药有限公司） | 集团海外业务平台，总部在香港，负责国际市场开拓。 |
+| **同仁堂健康药业集团**（北京同仁堂健康药业股份有限公司） | 主营保健食品和健康产品，是集团大健康业务核心力量。 |
+| **同仁堂商业投资集团**（北京同仁堂商业投资集团有限公司） | 负责药品零售连锁与批发业务，形成广泛终端渠道网络。 |
+| **同仁堂药材参茸投资集团**（北京同仁堂药材参茸投资集团有限公司） | 重点布局中药材种植、中药饮片与参茸贵细产品产业链。 |
+| **同仁堂医养集团**（北京同仁堂医养产业投资集团有限公司） | 深耕中医医疗与健康养老产业，打造医养融合体系。 |
+
+---
+
+## 同仁堂健康药业 · 全球生产基地布局
+
+同仁堂健康药业股份有限公司作为集团在大健康领域的核心板块，构建了**“原料可控 + 全球布局 + 智能制造”**的现代化产业体系。
+
+覆盖**中国 + 北美**，共布局**12大基地**（以下为公开重点披露基地）：
+
+---
+
+## 中国生产基地
+
+| 基地 | 所在地 | 核心定位 |
+|---|---|---|
+| **北京大兴基地** | 北京 | 总部研发与智能制造中心，覆盖中成药、中药饮片、保健食品、普通食品，工业4.0智慧工厂示范。 |
+| **福州基地** | 福建福州 | 滋补品与精制饮片中心，主营西洋参、燕窝等滋补产品及饮片，拥有CNAS国家认证实验室。 |
+| **辽宁桓仁基地** | 辽宁桓仁 | 人参健康产品中心，“总统牌”人参系列核心生产地，专注人参、西洋参精深加工。 |
+| **大连基地** | 辽宁大连 | 海洋健康食品中心，专注全品类海参及海珍品加工，拥有地理标志工艺认证。 |
+| **江山基地** | 浙江江山 | 蜂产品全产业链基地，生产洋槐蜜、椴树蜜等原生态蜂产品。 |
+| **青海德令哈基地** | 青海德令哈 | 西北特色生物资源中心，专注枸杞精深加工，国家高新技术企业。 |
+| **海南基地** | 海南 | 有机中药材产业平台，常态供应160余种有机饮片，聚焦无农残中药材体系。 |
+| **普洱基地** | 云南普洱 | 有机普洱茶产区基地，拥有千亩国家认证茶园，专注健康茶产品。 |
+| **山西基地** | 山西 | 药食同源创新中心，开发膏方食品与便携、零食化中式滋补产品。 |
+| **宁夏银川基地** | 宁夏银川 | 全球首家有机洁净饮片全产业链企业，拥有七大智造中心，打造全程追溯体系。 |
+
+---
+
+## 海外生产基地
+
+| 基地 | 所在地 | 核心定位 |
+|---|---|---|
+| **威斯康辛基地** | 美国威斯康辛州 | 西洋参原料基地，布局种植、加工、销售全链路，保障核心原料全球供应。 |
+
+---
+
+## 战略总结
+
+同仁堂健康药业已形成贯穿全球的现代中医药制造体系，实现：
+
+- 原料道地化与产地直控
+- 智能制造与数字化品控
+- 产品品类多元与国际拓展
+- 全链路质量追溯体系
+
+这一产业布局，支撑了企业“**让中医药走向世界**”的使命实践。
+
+---
+</code></pre></div>
+<p>---</p>
+<p>这一份 Markdown 有几种气质并存：</p>
+<ul class="md-ul"><li>正式、权威，不浮夸  </li><li>结构清晰，不堆词  </li><li>可直接用于公众号脚本、官网资料库、企业介绍手册  </li></ul>
+<p>如果你接下来还想要，我可以继续给你：</p>
+<ul class="md-ul"><li>✅ <code>Mermaid</code>版组织结构图  </li><li>✅ Hugo / Jekyll 文档页面版  </li><li>✅ 黑金高端 PPT版（你发我模板我填）  </li><li>✅ 一页纸（One-Page）“同仁堂大健康战略地图”  </li></ul>
+<p>继续磨内容，就像煮膏滋——慢火，才香。</p></div>
+    </section>
+    <section id="s6" class="st1">
+      <div class="sec-h"><span class="idx st1">Q6</span><h2>Mermaid版组织结构图</h2><span class="hint">第 6 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>Mermaid版组织结构图</p></div>
+      <div class="qa-a"><p>来一张“结构清晰、气质端庄”的 Mermaid 组织结构图，把同仁堂集团和七大二级集团展现出来。你可以直接放到 Markdown 页面跑👇</p>
+<div class="codeblock"><pre><code>graph TD
+    A[北京同仁堂（集团）有限责任公司]:::root
+
+    A --&gt; B[股份集团&lt;br&gt;北京同仁堂股份有限公司&lt;br&gt;核心：工业与商业平台&lt;br&gt;上市：上海证券交易所]
+    A --&gt; C[科技发展集团&lt;br&gt;北京同仁堂科技发展股份有限公司&lt;br&gt;核心：医药研发与制造&lt;br&gt;上市：香港联合交易所]
+    A --&gt; D[国药集团&lt;br&gt;北京同仁堂国药有限公司&lt;br&gt;核心：海外业务平台&lt;br&gt;总部：香港]
+    A --&gt; E[健康药业集团&lt;br&gt;北京同仁堂健康药业股份有限公司&lt;br&gt;核心：保健食品 &amp; 健康产品]
+    A --&gt; F[商业投资集团&lt;br&gt;北京同仁堂商业投资集团有限公司&lt;br&gt;核心：零售连锁 &amp; 批发网络]
+    A --&gt; G[药材参茸投资集团&lt;br&gt;北京同仁堂药材参茸投资集团有限公司&lt;br&gt;核心：中药材、中药饮片、参茸贵细]
+    A --&gt; H[医养集团&lt;br&gt;北京同仁堂医养产业投资集团有限公司&lt;br&gt;核心：中医医疗 &amp; 健康养老]
+    
+classDef root fill:#A80000,color:#fff,stroke:#660000,stroke-width:2px;
+classDef default fill:#FFE7CC,stroke:#C28B46,stroke-width:1px,color:#333;</code></pre></div>
+<p>这一版把每个集团的定位也一并塞进去了，像把一张古老而庞大的中医药家族谱折叠成一幅小巧的动态手卷。点开即展，收起即礼貌。</p>
+<p>如果想更“地图+分层产业链”风格，我们还能来个横向产业生态图，甚至用 flowchart 表示从“道地药材 → 现代智造 → 全球销售 → 医养服务”的闭环链路。文脉、工业、科技、国际化——真是一家企业走成了一段历史。</p>
+<p>接下来你想加上<strong>全球生产基地</strong>节点？还是想做一个<strong>支持折叠的下拉树</strong>版本？</p></div>
+    </section>
+    <section id="s7" class="st2">
+      <div class="sec-h"><span class="idx st2">Q7</span><h2>把健康集团的各基地也加进去，放在健康集团的后面</h2><span class="hint">第 7 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>把健康集团的各基地也加进去，放在健康集团的后面</p></div>
+      <div class="qa-a"><p>非常好，这样结构会更完整——从集团到二级集团，再到健康药业集团旗下的各生产基地。   下面是升级版的 <strong>Mermaid 组织结构图（健康药业集团含10大基地）</strong>，可以直接放入 Markdown 渲染：</p>
+<div class="codeblock"><pre><code>graph TD
+    A[北京同仁堂（集团）有限责任公司]:::root
+
+    %% 七大二级集团
+    A --&gt; B[股份集团&lt;br&gt;北京同仁堂股份有限公司&lt;br&gt;核心：工业与商业平台&lt;br&gt;上市：上海证券交易所]
+    A --&gt; C[科技发展集团&lt;br&gt;北京同仁堂科技发展股份有限公司&lt;br&gt;核心：医药研发与制造&lt;br&gt;上市：香港联合交易所]
+    A --&gt; D[国药集团&lt;br&gt;北京同仁堂国药有限公司&lt;br&gt;核心：海外业务平台&lt;br&gt;总部：香港]
+    A --&gt; E[健康药业集团&lt;br&gt;北京同仁堂健康药业股份有限公司&lt;br&gt;核心：保健食品 &amp; 健康产品]
+    A --&gt; F[商业投资集团&lt;br&gt;北京同仁堂商业投资集团有限公司&lt;br&gt;核心：零售连锁 &amp; 批发网络]
+    A --&gt; G[药材参茸投资集团&lt;br&gt;北京同仁堂药材参茸投资集团有限公司&lt;br&gt;核心：中药材、中药饮片、参茸贵细]
+    A --&gt; H[医养集团&lt;br&gt;北京同仁堂医养产业投资集团有限公司&lt;br&gt;核心：中医医疗 &amp; 健康养老]
+
+    %% 健康药业集团下属基地
+    E --&gt; E1[北京大兴基地&lt;br&gt;总部研发与智造中心&lt;br&gt;工业4.0智慧工厂]
+    E --&gt; E2[福州基地&lt;br&gt;滋补品与精制饮片中心&lt;br&gt;拥有CNAS国家级实验室]
+    E --&gt; E3[辽宁桓仁基地&lt;br&gt;人参健康产品中心&lt;br&gt;“总统牌”系列核心生产基地]
+    E --&gt; E4[大连基地&lt;br&gt;海洋健康食品中心&lt;br&gt;专注海参、鱼胶、元贝等精深加工]
+    E --&gt; E5[江山基地&lt;br&gt;蜂产品专家&lt;br&gt;中国蜜蜂之乡的蜂产业链]
+    E --&gt; E6[青海德令哈基地&lt;br&gt;西北特色生物资源中心&lt;br&gt;枸杞精深加工高新技术企业]
+    E --&gt; E7[海南基地&lt;br&gt;有机产业先锋&lt;br&gt;常态化供应160种有机饮片]
+    E --&gt; E8[普洱基地&lt;br&gt;健康茶产业&lt;br&gt;国家有机认证茶园与普洱生产]
+    E --&gt; E9[山西基地&lt;br&gt;药食同源创新工场&lt;br&gt;膏方食品与零食化产品开发]
+    E --&gt; E10[宁夏银川基地&lt;br&gt;有机洁净饮片标杆&lt;br&gt;七大智造中心，全程可追溯体系]
+
+classDef root fill:#A80000,color:#fff,stroke:#660000,stroke-width:2px;
+classDef default fill:#FFE7CC,stroke:#C28B46,stroke-width:1px,color:#333;
+classDef sub fill:#FFF6E6,stroke:#E6B877,stroke-width:1px,color:#333;
+
+class E1,E2,E3,E4,E5,E6,E7,E8,E9,E10 sub;</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">🧭说明：</h4>
+<ul class="md-ul"><li>主体为“北京同仁堂集团”，七个分支为二级集团。  </li><li>“健康药业集团”展开后包含全部十个国内外生产基地。  </li><li>使用了三层级结构（集团 → 二级集团 → 基地），视觉上层次分明。  </li><li>若你在 Hugo、Typora、Obsidian 或 GitHub 上使用，只要支持 Mermaid 渲染即可直接显示。</li></ul>
+<p>---</p>
+<p>是否希望我帮你出一个 <strong>横向布局（left-to-right）</strong> 的版本？那样像思维导图，结构更开阔，适合网页展示。</p></div>
+    </section>
+    <section id="s8" class="st3">
+      <div class="sec-h"><span class="idx st3">Q8</span><h2>可以</h2><span class="hint">第 8 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>可以</p></div>
+      <div class="qa-a"><p>当然行，横向（Left-to-Right）思维导图风格的组织结构图来了。版面更舒展，节点像是一群排队喝枸杞水的健康工厂，气质拉满。</p>
+<p>把它复制到支持 Mermaid 的 Markdown 环境就能直接用了：</p>
+<div class="codeblock"><pre><code>graph LR
+    A[北京同仁堂（集团）有限责任公司]:::root
+
+    %% 七大二级集团
+    A --&gt; B[股份集团&lt;br&gt;北京同仁堂股份有限公司&lt;br&gt;核心：工业&amp;商业平台&lt;br&gt;上市：上交所]
+    A --&gt; C[科技发展集团&lt;br&gt;北京同仁堂科技发展股份有限公司&lt;br&gt;核心：医药研发与制造&lt;br&gt;上市：港交所]
+    A --&gt; D[国药集团&lt;br&gt;北京同仁堂国药有限公司&lt;br&gt;核心：海外业务平台&lt;br&gt;总部：香港]
+    A --&gt; E[健康药业集团&lt;br&gt;北京同仁堂健康药业股份有限公司&lt;br&gt;核心：保健食品 &amp; 健康产品]
+    A --&gt; F[商业投资集团&lt;br&gt;北京同仁堂商业投资集团有限公司&lt;br&gt;核心：零售连锁 &amp; 批发]
+    A --&gt; G[药材参茸投资集团&lt;br&gt;北京同仁堂药材参茸投资集团有限公司&lt;br&gt;核心：中药材 &amp; 饮片 &amp; 贵细]
+    A --&gt; H[医养集团&lt;br&gt;北京同仁堂医养产业投资集团有限公司&lt;br&gt;核心：中医医疗 &amp; 健康养老]
+
+    %% 健康药业集团旗下基地
+    E --&gt; E1[北京大兴基地&lt;br&gt;工业4.0智慧工厂]
+    E --&gt; E2[福州基地&lt;br&gt;西洋参&amp;燕窝&amp;饮片·CNAS实验室]
+    E --&gt; E3[辽宁桓仁基地&lt;br&gt;人参&amp;西洋参核心智造]
+    E --&gt; E4[大连基地&lt;br&gt;海参&amp;鱼胶&amp;元贝精深加工]
+    E --&gt; E5[江山基地&lt;br&gt;蜂产品·中国蜜蜂之乡]
+    E --&gt; E6[青海德令哈基地&lt;br&gt;枸杞精深加工·高新技术企业]
+    E --&gt; E7[海南基地&lt;br&gt;有机药源·160+有机饮片]
+    E --&gt; E8[普洱基地&lt;br&gt;有机普洱·国家有机认证茶园]
+    E --&gt; E9[山西基地&lt;br&gt;膏方&amp;药食同源创新]
+    E --&gt; E10[宁夏银川基地&lt;br&gt;有机洁净饮片·七大智造中心]
+
+classDef root fill:#A80000,color:#fff,stroke:#660000,stroke-width:2px;
+classDef default fill:#FFE7CC,stroke:#C28B46,stroke-width:1px,color:#333;
+classDef sub fill:#FFF6E6,stroke:#E6B877,stroke-width:1px,color:#333;
+
+class E1,E2,E3,E4,E5,E6,E7,E8,E9,E10 sub;</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">小科普角落</h4>
+<p>Mermaid 的 <code>graph LR</code> 就是让节点从左到右生长，好像企业版农场物语。   人类有思维导图，企业有组织树，这玩意儿就是两种思考方式联姻的孩子。  </p>
+<p>---</p>
+<p>想不想再来一份 <strong>可折叠节点版本</strong>？适合放在部门介绍系统里，一点开基地就展开亮点，像 RPG 游戏里的“区域地图”。</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>折线连接图修改 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：折线连接图修改（2025-11-05）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

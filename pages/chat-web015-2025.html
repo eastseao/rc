@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Chirpy Markdown 生成器 · 2025</title>
+<meta name="description" content="明白了，你最终想做的是 Chirpy Markdown 博文生成器 v2.2，单文件 HTML 前端工具，功能确认如下，我帮你整理成最终规格说明，确保无遗漏：  --- 功能列表 v2.2（最终版）1️⃣ 基本布局  - 单文件前端生成器，">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a><a href="#s2" data-sec="s2">Q2</a><a href="#s3" data-sec="s3">Q3</a><a href="#s4" data-sec="s4">Q4</a><a href="#s5" data-sec="s5">Q5</a><a href="#s6" data-sec="s6">Q6</a><a href="#s7" data-sec="s7">Q7</a><a href="#s8" data-sec="s8">Q8</a><a href="#s9" data-sec="s9">Q9</a><a href="#s10" data-sec="s10">Q10</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · 建站
+  <h1 class="s-h1">Chirpy Markdown 生成器</h1>
+  <p class="s-lede">明白了，你最终想做的是 Chirpy Markdown 博文生成器 v2.2，单文件 HTML 前端工具，功能确认如下，我帮你整理成最终规格说明，确保无遗漏：  --- 功能列表 v2.2（最终版）1️⃣ 基本布局  - 单文件前端生成器，</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>21</b></span>
+    <span>时间范围 <b>2025-10-25 ~ 2025-10-25</b></span>
+    <span>分类 <b>建站与技术</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">建站</span>
+    <span class="s-chip">2025</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>chirpy  markdown博文生成器 那最终的功能确认如下：单文件前端生成…</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>chirpy  markdown博文生成器 那最终的功能确认如下：</p>
+<p>单文件前端生成器</p>
+<p>双栏布局：左侧输入、右侧输出</p>
+<p>Front Matter 固定 layout: post</p>
+<p>自动生成 date、last_modified_at</p>
+<p>支持分类、标签（自定义）</p>
+<p>支持置顶（pin: true/false）</p>
+<p>支持封面图片、视频、音乐</p>
+<p>自动计算阅读时间：每 250 字/分钟 → 阅读时间: 约X分钟（四舍五入）</p>
+<p>输出 Markdown 文件名 _posts/YYYY-MM-DD-slug.md</p>
+<p>复制、下载功能</p>
+<p>输出框带正文占位符</p>
+<p>无实时渲染</p>
+<p>我现在可以生成 最终 v2.2 单文件 HTML</p></div>
+      <div class="qa-a"><p>明白了，你最终想做的是 <strong>Chirpy Markdown 博文生成器 v2.2</strong>，单文件 HTML 前端工具，功能确认如下，我帮你整理成最终规格说明，确保无遗漏：  </p>
+<p>---</p>
+<h4 class="sub-h">功能列表 v2.2（最终版）</h4>
+<p><strong>1️⃣ 基本布局</strong>  </p>
+<ul class="md-ul"><li>单文件前端生成器，完全前端运行，无后端依赖。  </li><li>双栏布局：  </li></ul>
+<p>  - 左侧：用户输入栏     - 右侧：输出 Markdown 预览/生成框（带占位符正文）。  </p>
+<ul class="md-ul"><li>输出不实时渲染（即用户输入不会自动生成 HTML 预览，只输出 Markdown 文件）。  </li></ul>
+<p><strong>2️⃣ Front Matter 固定字段</strong>  </p>
+<ul class="md-ul"><li><code>layout: post</code>（固定）  </li><li><code>date</code> → 自动生成当前日期  </li><li><code>last_modified_at</code> → 自动生成当前日期  </li><li><code>categories</code> → 用户自定义  </li><li><code>tags</code> → 用户自定义  </li><li><code>pin</code> → true / false（置顶）  </li><li><code>cover</code> → 图片 / 视频 / 音乐（用户上传或填 URL）  </li></ul>
+<p><strong>3️⃣ 阅读时间计算</strong>  </p>
+<ul class="md-ul"><li>规则：每 250 字/分钟  </li><li>自动计算阅读时间  </li><li>输出格式：<code>阅读时间: 约X分钟</code>，四舍五入  </li></ul>
+<p><strong>4️⃣ 文件生成</strong>  </p>
+<ul class="md-ul"><li>输出 Markdown 文件名：<code>_posts/YYYY-MM-DD-slug.md</code>（slug 可根据标题生成，空格替换为 <code>-</code>）  </li><li>输出框带正文占位符：用户只需输入正文即可  </li></ul>
+<p><strong>5️⃣ 功能增强</strong>  </p>
+<ul class="md-ul"><li><strong>复制</strong> Markdown 到剪贴板  </li><li><strong>下载</strong> 生成的 Markdown 文件  </li></ul>
+<p>---</p>
+<p>我可以直接帮你生成 <strong>单文件 HTML v2.2</strong>，实现上面所有功能，用户打开 HTML 即可使用，不依赖服务器。  </p>
+<p>你希望我直接生成完整 HTML 文件吗？</p></div>
+    </section>
+    <section id="s2" class="st2">
+      <div class="sec-h"><span class="idx st2">Q2</span><h2>可以</h2><span class="hint">第 2 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>可以</p></div>
+      <div class="qa-a"><p>明白了，我帮你生成一个 <strong>Chirpy Markdown 博文生成器 v2.2 单文件 HTML</strong>，实现你列出的全部功能。  </p>
+<p>下面是完整的 HTML 代码：  </p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;UTF-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+&lt;title&gt;Chirpy Markdown 博文生成器 v2.2&lt;/title&gt;
+&lt;style&gt;
+  body {
+    font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+    background: #f5f5f5;
+  }
+  .container {
+    display: flex;
+    width: 100%;
+  }
+  .left, .right {
+    padding: 20px;
+    height: 100%;
+    overflow-y: auto;
+  }
+  .left {
+    width: 45%;
+    background: #fff;
+    border-right: 1px solid #ddd;
+  }
+  .right {
+    width: 55%;
+    background: #fafafa;
+    position: relative;
+  }
+  h2 { margin-top: 0; }
+  input[type=text], input[type=date], select, textarea {
+    width: 100%;
+    padding: 8px;
+    margin: 6px 0 12px 0;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  textarea {
+    min-height: 200px;
+  }
+  button {
+    padding: 10px 16px;
+    margin-right: 10px;
+    background: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  button:hover { background: #2980b9; }
+  pre {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 16px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  label { font-weight: bold; display: block; margin-top: 12px; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div class=&quot;container&quot;&gt;
+  &lt;div class=&quot;left&quot;&gt;
+    &lt;h2&gt;博文信息&lt;/h2&gt;
+    &lt;label&gt;标题&lt;/label&gt;
+    &lt;input type=&quot;text&quot; id=&quot;title&quot; placeholder=&quot;输入文章标题&quot;&gt;
+
+    &lt;label&gt;分类 (英文逗号分隔)&lt;/label&gt;
+    &lt;input type=&quot;text&quot; id=&quot;categories&quot; placeholder=&quot;如: 技术,生活&quot;&gt;
+
+    &lt;label&gt;标签 (英文逗号分隔)&lt;/label&gt;
+    &lt;input type=&quot;text&quot; id=&quot;tags&quot; placeholder=&quot;如: jekyll,chirpy&quot;&gt;
+
+    &lt;label&gt;置顶&lt;/label&gt;
+    &lt;select id=&quot;pin&quot;&gt;
+      &lt;option value=&quot;false&quot;&gt;否&lt;/option&gt;
+      &lt;option value=&quot;true&quot;&gt;是&lt;/option&gt;
+    &lt;/select&gt;
+
+    &lt;label&gt;封面 URL（图片/视频/音乐）&lt;/label&gt;
+    &lt;input type=&quot;text&quot; id=&quot;cover&quot; placeholder=&quot;如: /assets/img/cover.jpg&quot;&gt;
+
+    &lt;label&gt;正文&lt;/label&gt;
+    &lt;textarea id=&quot;content&quot; placeholder=&quot;在这里输入文章正文...&quot;&gt;&lt;/textarea&gt;
+
+    &lt;button onclick=&quot;generateMarkdown()&quot;&gt;生成 Markdown&lt;/button&gt;
+    &lt;button onclick=&quot;copyMarkdown()&quot;&gt;复制到剪贴板&lt;/button&gt;
+    &lt;button onclick=&quot;downloadMarkdown()&quot;&gt;下载 Markdown&lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;right&quot;&gt;
+    &lt;h2&gt;生成 Markdown&lt;/h2&gt;
+    &lt;pre id=&quot;output&quot;&gt;生成的 Markdown 将显示在这里...&lt;/pre&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+function slugify(text) {
+  return text.toString().toLowerCase()
+    .trim()
+    .replace(/[\s]+/g, &#x27;-&#x27;)        // 空格替换为 -
+    .replace(/[^\w\-]+/g, &#x27;&#x27;)      // 移除非字母数字和 -
+    .replace(/\-\-+/g, &#x27;-&#x27;);       // 多个 - 合并为 1 个
+}
+
+function countReadingTime(text) {
+  const words = text.trim().split(/\s+/).length;
+  const minutes = Math.round(words / 250);
+  return minutes || 1;
+}
+
+function getCurrentDate() {
+  const now = new Date();
+  return now.toISOString().split(&#x27;T&#x27;)[0];
+}
+
+function generateMarkdown() {
+  const title = document.getElementById(&#x27;title&#x27;).value.trim() || &#x27;未命名文章&#x27;;
+  const categories = document.getElementById(&#x27;categories&#x27;).value.split(&#x27;,&#x27;).map(s =&gt; s.trim()).filter(s =&gt; s);
+  const tags = document.getElementById(&#x27;tags&#x27;).value.split(&#x27;,&#x27;).map(s =&gt; s.trim()).filter(s =&gt; s);
+  const pin = document.getElementById(&#x27;pin&#x27;).value;
+  const cover = document.getElementById(&#x27;cover&#x27;).value.trim();
+  const content = document.getElementById(&#x27;content&#x27;).value.trim() || &#x27;这里是正文占位符...&#x27;;
+
+  const date = getCurrentDate();
+  const slug = slugify(title);
+  const readingTime = countReadingTime(content);
+
+  const fm = [
+    &#x27;---&#x27;,
+    &#x27;layout: post&#x27;,
+    `title: &quot;${title}&quot;`,
+    `date: ${date}`,
+    `last_modified_at: ${date}`,
+    `categories: [${categories.join(&#x27;, &#x27;)}]`,
+    `tags: [${tags.join(&#x27;, &#x27;)}]`,
+    `pin: ${pin}`,
+    cover ? `cover: &quot;${cover}&quot;` : &#x27;&#x27;,
+    `阅读时间: 约${readingTime}分钟`,
+    &#x27;---&#x27;,
+    &#x27;&#x27;,
+    content
+  ].filter(Boolean).join(&#x27;\n&#x27;);
+
+  document.getElementById(&#x27;output&#x27;).textContent = fm;
+}
+
+function copyMarkdown() {
+  const output = document.getElementById(&#x27;output&#x27;).textContent;
+  navigator.clipboard.writeText(output).then(() =&gt; {
+    alert(&#x27;Markdown 已复制到剪贴板！&#x27;);
+  });
+}
+
+function downloadMarkdown() {
+  const title = document.getElementById(&#x27;title&#x27;).value.trim() || &#x27;未命名文章&#x27;;
+  const date = getCurrentDate();
+  const slug = slugify(title);
+  const filename = `_posts/${date}-${slug}.md`;
+  const content = document.getElementById(&#x27;output&#x27;).textContent;
+  const blob = new Blob([content], {type: &#x27;text/markdown;charset=utf-8&#x27;});
+  const link = document.createElement(&#x27;a&#x27;);
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">✅ 功能实现说明</h4>
+<ol class="md-ol"><li><strong>双栏布局</strong>：左侧输入，右侧输出 Markdown。  </li><li><strong>Front Matter 固定</strong> <code>layout: post</code>，自动生成 <code>date</code> 和 <code>last_modified_at</code>。  </li><li><strong>支持分类、标签、置顶、封面 URL</strong>。  </li><li><strong>正文占位符</strong> 已加入。  </li><li><strong>阅读时间</strong> 自动计算，每 250 字 → 1 分钟，四舍五入。  </li><li><strong>输出文件名</strong> <code>_posts/YYYY-MM-DD-slug.md</code>，slug 自动生成。  </li><li><strong>复制、下载</strong> 功能。  </li><li><strong>无实时渲染</strong>，直接生成 Markdown。  </li></ol>
+<p>---</p>
+<p>如果你愿意，我可以帮你 <strong>进一步美化右侧输出框，让占位符和生成内容有高亮显示，更贴近 Chirpy Markdown 风格</strong>，或者加上 <strong>封面类型自动识别（图片/视频/音乐）预览图标</strong>。  </p>
+<p>你希望我加吗？</p></div>
+    </section>
+    <section id="s3" class="st3">
+      <div class="sec-h"><span class="idx st3">Q3</span><h2>要增加复制标题功能</h2><span class="hint">第 3 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>要增加复制标题功能</p></div>
+      <div class="qa-a"><p>明白了，我们可以在 <strong>右侧输出框上方增加一个“复制标题”按钮</strong>，点击即可把文章标题复制到剪贴板。  </p>
+<p>我帮你修改 HTML 并加入这个功能：  </p>
+<div class="codeblock"><pre><code>&lt;div class=&quot;right&quot;&gt;
+  &lt;h2&gt;生成 Markdown&lt;/h2&gt;
+  &lt;button onclick=&quot;copyTitle()&quot;&gt;复制标题&lt;/button&gt;
+  &lt;pre id=&quot;output&quot;&gt;生成的 Markdown 将显示在这里...&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+function copyTitle() {
+  const title = document.getElementById(&#x27;title&#x27;).value.trim() || &#x27;未命名文章&#x27;;
+  navigator.clipboard.writeText(title).then(() =&gt; {
+    alert(&#x27;标题已复制到剪贴板！&#x27;);
+  });
+}
+
+// 下面保持原有函数不变
+&lt;/script&gt;</code></pre></div>
+<p>把上面的 <code>&lt;div class="right"&gt;</code> 和 <code>&lt;script&gt;</code> 里加上 <code>copyTitle()</code> 函数即可。  </p>
+<p>✅ 功能说明：  </p>
+<ul class="md-ul"><li>点击 <strong>复制标题</strong> → 复制左侧输入的标题到剪贴板  </li><li>不影响已有的 <strong>复制 Markdown / 下载 Markdown</strong> 功能  </li></ul>
+<p>如果你愿意，我可以帮你把 <strong>右侧所有按钮统一样式并横向排列</strong>，界面更整洁。  </p>
+<p>你希望我加吗？</p></div>
+    </section>
+    <section id="s4" class="st4">
+      <div class="sec-h"><span class="idx st4">Q4</span><h2>可以，左侧的选项集中到2行，右侧的预览窗口小一点</h2><span class="hint">第 4 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>可以，左侧的选项集中到2行，右侧的预览窗口小一点</p></div>
+      <div class="qa-a"><p>明白了，我们可以对 <strong>布局和样式</strong>进行优化：  </p>
+<ul class="md-ul"><li><strong>左侧选项压缩到两行</strong>（标题、分类/标签/置顶/封面/正文集中排列，紧凑一些）  </li><li><strong>右侧预览窗口小一点</strong>（高度压缩，更适合显示 Markdown 内容）  </li><li><strong>按钮统一样式、横向排列</strong>  </li></ul>
+<p>我帮你生成优化后的完整 HTML：  </p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;UTF-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+&lt;title&gt;Chirpy Markdown 博文生成器 v2.2&lt;/title&gt;
+&lt;style&gt;
+  body {
+    font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+    background: #f5f5f5;
+  }
+  .container {
+    display: flex;
+    width: 100%;
+  }
+  .left, .right {
+    padding: 20px;
+    height: 100%;
+    overflow-y: auto;
+  }
+  .left {
+    width: 45%;
+    background: #fff;
+    border-right: 1px solid #ddd;
+  }
+  .right {
+    width: 55%;
+    background: #fafafa;
+    position: relative;
+  }
+  h2 { margin-top: 0; }
+  input[type=text], select, textarea {
+    width: 100%;
+    padding: 6px;
+    margin: 4px 0;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  textarea {
+    min-height: 120px; /* 压缩右侧显示高度 */
+  }
+  button {
+    padding: 8px 12px;
+    margin: 4px 4px 4px 0;
+    background: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  button:hover { background: #2980b9; }
+  pre {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 12px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 70vh; /* 右侧窗口压缩 */
+  }
+  .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .form-row &gt; * {
+    flex: 1 1 45%;
+  }
+  label { font-weight: bold; display: block; margin-top: 8px; }
+  .button-row { margin-top: 8px; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div class=&quot;container&quot;&gt;
+  &lt;div class=&quot;left&quot;&gt;
+    &lt;h2&gt;博文信息&lt;/h2&gt;
+    &lt;label&gt;标题&lt;/label&gt;
+    &lt;input type=&quot;text&quot; id=&quot;title&quot; placeholder=&quot;输入文章标题&quot;&gt;
+
+    &lt;div class=&quot;form-row&quot;&gt;
+      &lt;div&gt;
+        &lt;label&gt;分类 (英文逗号分隔)&lt;/label&gt;
+        &lt;input type=&quot;text&quot; id=&quot;categories&quot; placeholder=&quot;如: 技术,生活&quot;&gt;
+      &lt;/div&gt;
+      &lt;div&gt;
+        &lt;label&gt;标签 (英文逗号分隔)&lt;/label&gt;
+        &lt;input type=&quot;text&quot; id=&quot;tags&quot; placeholder=&quot;如: jekyll,chirpy&quot;&gt;
+      &lt;/div&gt;
+      &lt;div&gt;
+        &lt;label&gt;置顶&lt;/label&gt;
+        &lt;select id=&quot;pin&quot;&gt;
+          &lt;option value=&quot;false&quot;&gt;否&lt;/option&gt;
+          &lt;option value=&quot;true&quot;&gt;是&lt;/option&gt;
+        &lt;/select&gt;
+      &lt;/div&gt;
+      &lt;div&gt;
+        &lt;label&gt;封面 URL&lt;/label&gt;
+        &lt;input type=&quot;text&quot; id=&quot;cover&quot; placeholder=&quot;如: /assets/img/cover.jpg&quot;&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;label&gt;正文&lt;/label&gt;
+    &lt;textarea id=&quot;content&quot; placeholder=&quot;在这里输入文章正文...&quot;&gt;&lt;/textarea&gt;
+
+    &lt;div class=&quot;button-row&quot;&gt;
+      &lt;button onclick=&quot;generateMarkdown()&quot;&gt;生成 Markdown&lt;/button&gt;
+      &lt;button onclick=&quot;copyMarkdown()&quot;&gt;复制 Markdown&lt;/button&gt;
+      &lt;button onclick=&quot;downloadMarkdown()&quot;&gt;下载 Markdown&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;right&quot;&gt;
+    &lt;h2&gt;生成 Markdown&lt;/h2&gt;
+    &lt;div class=&quot;button-row&quot;&gt;
+      &lt;button onclick=&quot;copyTitle()&quot;&gt;复制标题&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;pre id=&quot;output&quot;&gt;生成的 Markdown 将显示在这里...&lt;/pre&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+function slugify(text) {
+  return text.toString().toLowerCase()
+    .trim()
+    .replace(/[\s]+/g, &#x27;-&#x27;)        // 空格替换为 -
+    .replace(/[^\w\-]+/g, &#x27;&#x27;)      // 移除非字母数字和 -
+    .replace(/\-\-+/g, &#x27;-&#x27;);       // 多个 - 合并为 1 个
+}
+
+function countReadingTime(text) {
+  const words = text.trim().split(/\s+/).length;
+  const minutes = Math.round(words / 250);
+  return minutes || 1;
+}
+
+function getCurrentDate() {
+  const now = new Date();
+  return now.toISOString().split(&#x27;T&#x27;)[0];
+}
+
+function generateMarkdown() {
+  const title = document.getElementById(&#x27;title&#x27;).value.trim() || &#x27;未命名文章&#x27;;
+  const categories = document.getElementById(&#x27;categories&#x27;).value.split(&#x27;,&#x27;).map(s =&gt; s.trim()).filter(s =&gt; s);
+  const tags = document.getElementById(&#x27;tags&#x27;).value.split(&#x27;,&#x27;).map(s =&gt; s.trim()).filter(s =&gt; s);
+  const pin = document.getElementById(&#x27;pin&#x27;).value;
+  const cover = document.getElementById(&#x27;cover&#x27;).value.trim();
+  const content = document.getElementById(&#x27;content&#x27;).value.trim() || &#x27;这里是正文占位符...&#x27;;
+
+  const date = getCurrentDate();
+  const slug = slugify(title);
+  const readingTime = countReadingTime(content);
+
+  const fm = [
+    &#x27;---&#x27;,
+    &#x27;layout: post&#x27;,
+    `title: &quot;${title}&quot;`,
+    `date: ${date}`,
+    `last_modified_at: ${date}`,
+    `categories: [${categories.join(&#x27;, &#x27;)}]`,
+    `tags: [${tags.join(&#x27;, &#x27;)}]`,
+    `pin: ${pin}`,
+    cover ? `cover: &quot;${cover}&quot;` : &#x27;&#x27;,
+    `阅读时间: 约${readingTime}分钟`,
+    &#x27;---&#x27;,
+    &#x27;&#x27;,
+    content
+  ].filter(Boolean).join(&#x27;\n&#x27;);
+
+  document.getElementById(&#x27;output&#x27;).textContent = fm;
+}
+
+function copyMarkdown() {
+  const output = document.getElementById(&#x27;output&#x27;).textContent;
+  navigator.clipboard.writeText(output).then(() =&gt; {
+    alert(&#x27;Markdown 已复制到剪贴板！&#x27;);
+  });
+}
+
+function downloadMarkdown() {
+  const title = document.getElementById(&#x27;title&#x27;).value.trim() || &#x27;未命名文章&#x27;;
+  const date = getCurrentDate();
+  const slug = slugify(title);
+  const filename = `_posts/${date}-${slug}.md`;
+  const content = document.getElementById(&#x27;output&#x27;).textContent;
+  const blob = new Blob([content], {type: &#x27;text/markdown;charset=utf-8&#x27;});
+  const link = document.createElement(&#x27;a&#x27;);
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function copyTitle() {
+  const title = document.getElementById(&#x27;title&#x27;).value.trim() || &#x27;未命名文章&#x27;;
+  navigator.clipboard.writeText(title).then(() =&gt; {
+    alert(&#x27;标题已复制到剪贴板！&#x27;);
+  });
+}
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">✅ 优化效果</h4>
+<ol class="md-ol"><li><strong>左侧选项集中到两行</strong>，布局更紧凑，输入项更清晰。  </li><li><strong>右侧预览窗口压缩高度</strong>，方便查看 Markdown 内容。  </li><li><strong>按钮横向排列</strong>，界面整洁。  </li><li><strong>复制标题按钮</strong> 已加入并可单独使用。  </li></ol>
+<p>---</p>
+<p>如果你愿意，我可以 <strong>再加一个功能：封面类型自动预览图标（图片/视频/音乐）</strong>，让用户在输入 URL 后右侧看到类型标识。  </p>
+<p>你希望加吗？</p></div>
+    </section>
+    <section id="s5" class="st5">
+      <div class="sec-h"><span class="idx st5">Q5</span><h2>复制标题是post里的标题，要能显示和自定义修改</h2><span class="hint">第 5 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>复制标题是post里的标题，要能显示和自定义修改</p></div>
+      <div class="qa-a"><p>明白了，你希望：  </p>
+<ul class="md-ul"><li><strong>复制标题按钮</strong>复制的是最终生成 Markdown Front Matter 里的 <code>title</code> 字段，而不是左侧输入框的原始值。  </li><li>用户可以在生成后在右侧输出框上方看到 <strong>生成的标题</strong>，并可以修改它，然后复制。  </li></ul>
+<p>我可以帮你改造右侧区域，让 <strong>生成标题可编辑</strong>，并同步到 Markdown 输出。改造后的效果：  </p>
+<ul class="md-ul"><li>右侧显示 <strong>生成标题输入框</strong>（默认生成自左侧输入）  </li><li>用户可以修改这个标题  </li><li>Markdown 生成时使用 <strong>右侧输入框的标题</strong>  </li><li>复制标题按钮复制 <strong>最终生成标题</strong>  </li></ul>
+<p>下面是修改后的关键 HTML + JS：  </p>
+<div class="codeblock"><pre><code>&lt;div class=&quot;right&quot;&gt;
+  &lt;h2&gt;生成 Markdown&lt;/h2&gt;
+  &lt;div class=&quot;button-row&quot;&gt;
+    &lt;label&gt;生成标题（可修改）&lt;/label&gt;
+    &lt;input type=&quot;text&quot; id=&quot;generated-title&quot; placeholder=&quot;生成标题&quot; style=&quot;width: 100%; margin-bottom: 8px;&quot;&gt;
+    &lt;button onclick=&quot;copyTitle()&quot;&gt;复制标题&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;pre id=&quot;output&quot;&gt;生成的 Markdown 将显示在这里...&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+function generateMarkdown() {
+  const leftTitle = document.getElementById(&#x27;title&#x27;).value.trim() || &#x27;未命名文章&#x27;;
+  const categories = document.getElementById(&#x27;categories&#x27;).value.split(&#x27;,&#x27;).map(s =&gt; s.trim()).filter(s =&gt; s);
+  const tags = document.getElementById(&#x27;tags&#x27;).value.split(&#x27;,&#x27;).map(s =&gt; s.trim()).filter(s =&gt; s);
+  const pin = document.getElementById(&#x27;pin&#x27;).value;
+  const cover = document.getElementById(&#x27;cover&#x27;).value.trim();
+  const content = document.getElementById(&#x27;content&#x27;).value.trim() || &#x27;这里是正文占位符...&#x27;;
+
+  // 将左侧标题同步到右侧生成标题输入框
+  const generatedTitleInput = document.getElementById(&#x27;generated-title&#x27;);
+  if (!generatedTitleInput.value) generatedTitleInput.value = leftTitle;
+
+  const title = generatedTitleInput.value.trim();
+  const date = getCurrentDate();
+  const slug = slugify(title);
+  const readingTime = countReadingTime(content);
+
+  const fm = [
+    &#x27;---&#x27;,
+    &#x27;layout: post&#x27;,
+    `title: &quot;${title}&quot;`,
+    `date: ${date}`,
+    `last_modified_at: ${date}`,
+    `categories: [${categories.join(&#x27;, &#x27;)}]`,
+    `tags: [${tags.join(&#x27;, &#x27;)}]`,
+    `pin: ${pin}`,
+    cover ? `cover: &quot;${cover}&quot;` : &#x27;&#x27;,
+    `阅读时间: 约${readingTime}分钟`,
+    &#x27;---&#x27;,
+    &#x27;&#x27;,
+    content
+  ].filter(Boolean).join(&#x27;\n&#x27;);
+
+  document.getElementById(&#x27;output&#x27;).textContent = fm;
+}
+
+function copyTitle() {
+  const title = document.getElementById(&#x27;generated-title&#x27;).value.trim() || &#x27;未命名文章&#x27;;
+  navigator.clipboard.writeText(title).then(() =&gt; {
+    alert(&#x27;标题已复制到剪贴板！&#x27;);
+  });
+}
+&lt;/script&gt;</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">✅ 说明</h4>
+<ol class="md-ol"><li><strong>生成标题输入框</strong>：  </li></ol>
+<p>   - 初次生成 Markdown 时自动填充左侧输入标题      - 用户可在右侧修改  </p>
+<ol class="md-ol"><li><strong>复制标题</strong>按钮复制的是右侧的最终标题  </li><li><strong>生成 Markdown</strong>时使用右侧标题作为 Front Matter <code>title</code>  </li></ol>
+<p>---</p>
+<p>如果你愿意，我可以帮你 <strong>把完整 v2.3 HTML 文件更新为最终版本</strong>，整合所有功能：左侧紧凑、右侧预览窗口小、复制标题/Markdown、下载、封面、置顶、阅读时间。  </p>
+<p>你希望我直接生成吗？</p></div>
+    </section>
+    <section id="s6" class="st1">
+      <div class="sec-h"><span class="idx st1">Q6</span><h2>好的</h2><span class="hint">第 6 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>好的</p></div>
+      <div class="qa-a"><p>明白了，我帮你生成 <strong>Chirpy Markdown 博文生成器 v2.3 单文件 HTML</strong>，整合所有功能：  </p>
+<ul class="md-ul"><li>左侧紧凑布局  </li><li>右侧预览窗口小  </li><li>Front Matter 固定 <code>layout: post</code>，自动生成 <code>date</code>、<code>last_modified_at</code>  </li><li>分类、标签、置顶、封面（图片/视频/音乐）  </li><li>自动计算阅读时间  </li><li>输出 <code>_posts/YYYY-MM-DD-slug.md</code>  </li><li><strong>右侧生成标题可修改并复制</strong>  </li><li><strong>复制 Markdown / 下载 Markdown</strong>  </li></ul>
+<p>下面是完整 HTML：  </p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;UTF-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+&lt;title&gt;Chirpy Markdown 博文生成器 v2.3&lt;/title&gt;
+&lt;style&gt;
+  body {
+    font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+    background: #f5f5f5;
+  }
+  .container {
+    display: flex;
+    width: 100%;
+  }
+  .left, .right {
+    padding: 20px;
+    height: 100%;
+    overflow-y: auto;
+  }
+  .left {
+    width: 45%;
+    background: #fff;
+    border-right: 1px solid #ddd;
+  }
+  .right {
+    width: 55%;
+    background: #fafafa;
+    position: relative;
+  }
+  h2 { margin-top: 0; }
+  input[type=text], select, textarea {
+    width: 100%;
+    padding: 6px;
+    margin: 4px 0;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  textarea {
+    min-height: 120px;
+  }
+  button {
+    padding: 8px 12px;
+    margin: 4px 4px 4px 0;
+    background: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  button:hover { background: #2980b9; }
+  pre {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 12px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 70vh;
+  }
+  .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .form-row &gt; * {
+    flex: 1 1 45%;
+  }
+  label { font-weight: bold; display: block; margin-top: 8px; }
+  .button-row { margin-top: 8px; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div class=&quot;container&quot;&gt;
+  &lt;div class=&quot;left&quot;&gt;
+    &lt;h2&gt;博文信息&lt;/h2&gt;
+    &lt;label&gt;标题&lt;/label&gt;
+    &lt;input type=&quot;text&quot; id=&quot;title&quot; placeholder=&quot;输入文章标题&quot;&gt;
+
+    &lt;div class=&quot;form-row&quot;&gt;
+      &lt;div&gt;
+        &lt;label&gt;分类 (英文逗号分隔)&lt;/label&gt;
+        &lt;input type=&quot;text&quot; id=&quot;categories&quot; placeholder=&quot;如: 技术,生活&quot;&gt;
+      &lt;/div&gt;
+      &lt;div&gt;
+        &lt;label&gt;标签 (英文逗号分隔)&lt;/label&gt;
+        &lt;input type=&quot;text&quot; id=&quot;tags&quot; placeholder=&quot;如: jekyll,chirpy&quot;&gt;
+      &lt;/div&gt;
+      &lt;div&gt;
+        &lt;label&gt;置顶&lt;/label&gt;
+        &lt;select id=&quot;pin&quot;&gt;
+          &lt;option value=&quot;false&quot;&gt;否&lt;/option&gt;
+          &lt;option value=&quot;true&quot;&gt;是&lt;/option&gt;
+        &lt;/select&gt;
+      &lt;/div&gt;
+      &lt;div&gt;
+        &lt;label&gt;封面 URL&lt;/label&gt;
+        &lt;input type=&quot;text&quot; id=&quot;cover&quot; placeholder=&quot;如: /assets/img/cover.jpg&quot;&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;label&gt;正文&lt;/label&gt;
+    &lt;textarea id=&quot;content&quot; placeholder=&quot;在这里输入文章正文...&quot;&gt;&lt;/textarea&gt;
+
+    &lt;div class=&quot;button-row&quot;&gt;
+      &lt;button onclick=&quot;generateMarkdown()&quot;&gt;生成 Markdown&lt;/button&gt;
+      &lt;button onclick=&quot;copyMarkdown()&quot;&gt;复制 Markdown&lt;/button&gt;
+      &lt;button onclick=&quot;downloadMarkdown()&quot;&gt;下载 Markdown&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;right&quot;&gt;
+    &lt;h2&gt;生成 Markdown&lt;/h2&gt;
+    &lt;div class=&quot;button-row&quot;&gt;
+      &lt;label&gt;生成标题（可修改）&lt;/label&gt;
+      &lt;input type=&quot;text&quot; id=&quot;generated-title&quot; placeholder=&quot;生成标题&quot; style=&quot;width: 100%; margin-bottom: 8px;&quot;&gt;
+      &lt;button onclick=&quot;copyTitle()&quot;&gt;复制标题&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;pre id=&quot;output&quot;&gt;生成的 Markdown 将显示在这里...&lt;/pre&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+function slugify(text) {
+  return text.toString().toLowerCase()
+    .trim()
+    .replace(/[\s]+/g, &#x27;-&#x27;)        
+    .replace(/[^\w\-]+/g, &#x27;&#x27;)      
+    .replace(/\-\-+/g, &#x27;-&#x27;);       
+}
+
+function countReadingTime(text) {
+  const words = text.trim().split(/\s+/).length;
+  const minutes = Math.round(words / 250);
+  return minutes || 1;
+}
+
+function getCurrentDate() {
+  const now = new Date();
+  return now.toISOString().split(&#x27;T&#x27;)[0];
+}
+
+function generateMarkdown() {
+  const leftTitle = document.getElementById(&#x27;title&#x27;).value.trim() || &#x27;未命名文章&#x27;;
+  const categories = document.getElementById(&#x27;categories&#x27;).value.split(&#x27;,&#x27;).map(s =&gt; s.trim()).filter(s =&gt; s);
+  const tags = document.getElementById(&#x27;tags&#x27;).value.split(&#x27;,&#x27;).map(s =&gt; s.trim()).filter(s =&gt; s);
+  const pin = document.getElementById(&#x27;pin&#x27;).value;
+  const cover = document.getElementById(&#x27;cover&#x27;).value.trim();
+  const content = document.getElementById(&#x27;content&#x27;).value.trim() || &#x27;这里是正文占位符...&#x27;;
+
+  // 同步左侧标题到右侧生成标题输入框
+  const generatedTitleInput = document.getElementById(&#x27;generated-title&#x27;);
+  if (!generatedTitleInput.value) generatedTitleInput.value = leftTitle;
+
+  const title = generatedTitleInput.value.trim();
+  const date = getCurrentDate();
+  const slug = slugify(title);
+  const readingTime = countReadingTime(content);
+
+  const fm = [
+    &#x27;---&#x27;,
+    &#x27;layout: post&#x27;,
+    `title: &quot;${title}&quot;`,
+    `date: ${date}`,
+    `last_modified_at: ${date}`,
+    `categories: [${categories.join(&#x27;, &#x27;)}]`,
+    `tags: [${tags.join(&#x27;, &#x27;)}]`,
+    `pin: ${pin}`,
+    cover ? `cover: &quot;${cover}&quot;` : &#x27;&#x27;,
+    `阅读时间: 约${readingTime}分钟`,
+    &#x27;---&#x27;,
+    &#x27;&#x27;,
+    content
+  ].filter(Boolean).join(&#x27;\n&#x27;);
+
+  document.getElementById(&#x27;output&#x27;).textContent = fm;
+}
+
+function copyMarkdown() {
+  const output = document.getElementById(&#x27;output&#x27;).textContent;
+  navigator.clipboard.writeText(output).then(() =&gt; {
+    alert(&#x27;Markdown 已复制到剪贴板！&#x27;);
+  });
+}
+
+function downloadMarkdown() {
+  const title = document.getElementById(&#x27;generated-title&#x27;).value.trim() || &#x27;未命名文章&#x27;;
+  const date = getCurrentDate();
+  const slug = slugify(title);
+  const filename = `_posts/${date}-${slug}.md`;
+  const content = document.getElementById(&#x27;output&#x27;).textContent;
+  const blob = new Blob([content], {type: &#x27;text/markdown;charset=utf-8&#x27;});
+  const link = document.createElement(&#x27;a&#x27;);
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function copyTitle() {
+  const title = document.getElementById(&#x27;generated-title&#x27;).value.trim() || &#x27;未命名文章&#x27;;
+  navigator.clipboard.writeText(title).then(() =&gt; {
+    alert(&#x27;标题已复制到剪贴板！&#x27;);
+  });
+}
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">✅ v2.3 功能说明</h4>
+<ol class="md-ol"><li>左侧紧凑布局，选项集中两行。  </li><li>右侧预览窗口压缩，显示 Markdown 内容。  </li><li>Front Matter：<code>layout: post</code>、自动 <code>date</code> / <code>last_modified_at</code>。  </li><li>支持分类、标签、置顶、封面 URL。  </li><li>自动计算阅读时间：每 250 字/分钟 → 四舍五入。  </li><li>输出文件名 <code>_posts/YYYY-MM-DD-slug.md</code>。  </li><li><strong>生成标题可修改并复制</strong>（复制的是最终 Front Matter 标题）。  </li><li><strong>复制 Markdown / 下载 Markdown</strong> 功能。  </li></ol>
+<p>---</p>
+<p>如果你愿意，我可以帮你 <strong>再加上封面类型预览图标（图片/视频/音乐）</strong>，右侧可以直观显示封面类型。  </p>
+<p>你希望加吗？</p></div>
+    </section>
+    <section id="s7" class="st2">
+      <div class="sec-h"><span class="idx st2">Q7</span><h2>基于以上功能，分类可多选，同时参考下面代码：&lt;!DOCTYPE html&gt;&lt;ht…</h2><span class="hint">第 7 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>基于以上功能，分类可多选，同时参考下面代码：&lt;!DOCTYPE html&gt;</p>
+<p>&lt;html lang="zh-CN"&gt;</p>
+<p>&lt;head&gt;</p>
+<p>  &lt;meta charset="UTF-8" /&gt;</p>
+<p>  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;</p>
+<p>  &lt;title&gt;Chirpy v7.4 Front Matter 生成器&lt;/title&gt;</p>
+<p>  &lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p>&lt;/head&gt;</p>
+<p>&lt;body class="bg-gray-100 min-h-screen p-6"&gt;</p>
+<p>  &lt;div class="max-w-6xl mx-auto bg-white shadow-lg rounded-2xl p-8"&gt;</p>
+<p>    &lt;h1 class="text-2xl font-bold mb-6 text-center"&gt;🪄 Chirpy v7.4 Front Matter 生成器&lt;/h1&gt;</p>
+<p>    &lt;div class="grid grid-cols-1 md:grid-cols-2 gap-6"&gt;</p>
+<p>      &lt;!-- 左侧输入区 --&gt;</p>
+<p>      &lt;div class="space-y-4"&gt;</p>
+<p>        &lt;label class="block font-semibold"&gt;标题：&lt;/label&gt;</p>
+<p>        &lt;input id="title" type="text" class="w-full p-2 border rounded" placeholder="输入文章标题" /&gt;</p>
+<p>        &lt;label class="block font-semibold"&gt;正文内容：&lt;/label&gt;</p>
+<p>        &lt;textarea id="content" class="w-full p-2 border rounded h-48" placeholder="输入文章正文内容（支持 Markdown）"&gt;&lt;/textarea&gt;</p>
+<p>        &lt;label class="block font-semibold"&gt;分类（可多选）：&lt;/label&gt;</p>
+<p>        &lt;select id="category" class="w-full p-2 border rounded" multiple&gt;</p>
+<p>          &lt;option&gt;职场&lt;/option&gt;</p>
+<p>          &lt;option&gt;生活&lt;/option&gt;</p>
+<p>          &lt;option&gt;情感&lt;/option&gt;</p>
+<p>          &lt;option&gt;爱好&lt;/option&gt;</p>
+<p>          &lt;option&gt;感悟&lt;/option&gt;</p>
+<p>          &lt;option&gt;探索&lt;/option&gt;</p>
+<p>          &lt;option&gt;学习&lt;/option&gt;</p>
+<p>          &lt;option&gt;读书&lt;/option&gt;</p>
+<p>          &lt;option&gt;影视&lt;/option&gt;</p>
+<p>          &lt;option value="custom"&gt;自定义分类&lt;/option&gt;</p>
+<p>        &lt;/select&gt;</p>
+<p>        &lt;input id="customCategory" type="text" class="w-full p-2 border rounded hidden" placeholder="输入自定义分类" /&gt;</p>
+<p>        &lt;label class="block font-semibold"&gt;标签：&lt;/label&gt;</p>
+<p>        &lt;div class="flex gap-2"&gt;</p>
+<p>          &lt;input id="tag1" type="text" class="w-1/2 p-2 border rounded" placeholder="标签1" /&gt;</p>
+<p>          &lt;input id="tag2" type="text" class="w-1/2 p-2 border rounded" placeholder="标签2" /&gt;</p>
+<p>        &lt;/div&gt;</p>
+<p>        &lt;div class="flex items-center gap-2"&gt;</p>
+<p>          &lt;input id="hasImage" type="checkbox" class="w-4 h-4" /&gt;</p>
+<p>          &lt;label for="hasImage" class="font-semibold"&gt;添加封面图片&lt;/label&gt;</p>
+<p>        &lt;/div&gt;</p>
+<p>        &lt;input id="imageName" type="text" class="w-full p-2 border rounded hidden" placeholder="输入图片文件名，例如 cover.jpg" /&gt;</p>
+<p>        &lt;div class="flex items-center gap-2"&gt;</p>
+<p>          &lt;input id="pin" type="checkbox" class="w-4 h-4" /&gt;</p>
+<p>          &lt;label for="pin" class="font-semibold"&gt;置顶文章&lt;/label&gt;</p>
+<p>        &lt;/div&gt;</p>
+<p>        &lt;div class="flex items-center gap-2"&gt;</p>
+<p>          &lt;input id="math" type="checkbox" class="w-4 h-4" /&gt;</p>
+<p>          &lt;label for="math" class="font-semibold"&gt;启用数学公式（KaTeX）&lt;/label&gt;</p>
+<p>        &lt;/div&gt;</p>
+<p>        &lt;div class="flex items-center gap-2"&gt;</p>
+<p>          &lt;input id="mermaid" type="checkbox" class="w-4 h-4" /&gt;</p>
+<p>          &lt;label for="mermaid" class="font-semibold"&gt;启用 Mermaid 图表&lt;/label&gt;</p>
+<p>        &lt;/div&gt;</p>
+<p>        &lt;div class="flex items-center gap-2"&gt;</p>
+<p>          &lt;input id="comments" type="checkbox" class="w-4 h-4" checked /&gt;</p>
+<p>          &lt;label for="comments" class="font-semibold"&gt;启用评论&lt;/label&gt;</p>
+<p>        &lt;/div&gt;</p>
+<p>        &lt;button id="generate" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg w-full"&gt;生成 Markdown&lt;/button&gt;</p>
+<p>      &lt;/div&gt;</p>
+<p>      &lt;!-- 右侧输出区 --&gt;</p>
+<p>      &lt;div class="space-y-4"&gt;</p>
+<p>        &lt;label class="block font-semibold"&gt;生成的 posts 文件名：&lt;/label&gt;</p>
+<p>        &lt;div class="flex"&gt;</p>
+<p>          &lt;input id="filename" readonly class="w-full p-2 border rounded-l" /&gt;</p>
+<p>          &lt;button id="copyFilename" class="bg-gray-600 text-white px-3 rounded-r"&gt;复制&lt;/button&gt;</p>
+<p>        &lt;/div&gt;</p>
+<p>        &lt;label class="block font-semibold"&gt;生成的 Markdown 内容：&lt;/label&gt;</p>
+<p>        &lt;textarea id="output" readonly class="w-full p-2 border rounded h-80"&gt;&lt;/textarea&gt;</p>
+<p>        &lt;div class="flex gap-2"&gt;</p>
+<p>          &lt;button id="copyOutput" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"&gt;复制 Markdown&lt;/button&gt;</p>
+<p>          &lt;button id="download" class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg"&gt;下载 .md 文件&lt;/button&gt;</p>
+<p>        &lt;/div&gt;</p>
+<p>      &lt;/div&gt;</p>
+<p>    &lt;/div&gt;</p>
+<p>  &lt;/div&gt;</p>
+<p>&lt;script&gt;</p>
+<p>const categorySelect = document.getElementById('category');</p>
+<p>const customCategoryInput = document.getElementById('customCategory');</p>
+<p>const hasImageCheckbox = document.getElementById('hasImage');</p>
+<p>const imageNameInput = document.getElementById('imageName');</p>
+<p>categorySelect.addEventListener('change', ()=&gt;{</p>
+<p>  const selectedOptions = Array.from(categorySelect.selectedOptions).map(o=&gt;o.value);</p>
+<p>  if(selectedOptions.includes('custom')){</p>
+<p>    customCategoryInput.classList.remove('hidden');</p>
+<p>  } else {</p>
+<p>    customCategoryInput.classList.add('hidden');</p>
+<p>    customCategoryInput.value = '';</p>
+<p>  }</p>
+<p>});</p>
+<p>hasImageCheckbox.addEventListener('change', ()=&gt;{</p>
+<p>  if(hasImageCheckbox.checked){</p>
+<p>    imageNameInput.classList.remove('hidden');</p>
+<p>  } else {</p>
+<p>    imageNameInput.classList.add('hidden');</p>
+<p>    imageNameInput.value = '';</p>
+<p>  }</p>
+<p>});</p>
+<p>function nowFormatted(){</p>
+<p>  const d = new Date();</p>
+<p>  const pad = n =&gt; String(n).padStart(2,'0');</p>
+<p>  const YYYY = d.getFullYear();</p>
+<p>  const MM = pad(d.getMonth()+1);</p>
+<p>  const DD = pad(d.getDate());</p>
+<p>  const hh = pad(d.getHours());</p>
+<p>  const mm = pad(d.getMinutes());</p>
+<p>  const ss = pad(d.getSeconds());</p>
+<p>  return <code>${YYYY}-${MM}-${DD} ${hh}:${mm}:${ss} +0800</code>;</p>
+<p>}</p>
+<p>function slugify(text){</p>
+<p>  if(!text) return 'post';</p>
+<p>  let s = String(text).trim().toLowerCase();</p>
+<p>  s = s.replace(/\s+/g,'-').replace(/[^\w\-]/g,'-').replace(/\-+/g,'-').replace(/^-+|-+$/g,'');</p>
+<p>  return s || 'post';</p>
+<p>}</p>
+<p>document.getElementById('generate').addEventListener('click', ()=&gt;{</p>
+<p>  const title = document.getElementById('title').value.trim();</p>
+<p>  if(!title){ alert('请填写标题'); return; }</p>
+<p>  const content = document.getElementById('content').value.trim();</p>
+<p>  let categories = Array.from(categorySelect.selectedOptions).map(o=&gt;o.value).filter(v=&gt;v!=='custom');</p>
+<p>  if(categorySelect.value.includes('custom') &amp;&amp; customCategoryInput.value.trim()){</p>
+<p>    categories.push(customCategoryInput.value.trim());</p>
+<p>  }</p>
+<p>  const tag1 = document.getElementById('tag1').value.trim();</p>
+<p>  const tag2 = document.getElementById('tag2').value.trim();</p>
+<p>  let tags = [];</p>
+<p>  if(tag1) tags.push(tag1);</p>
+<p>  if(tag2) tags.push(tag2);</p>
+<p>  const dateStr = nowFormatted();</p>
+<p>  const slug = slugify(title);</p>
+<p>  const fileDate = new Date().toISOString().slice(0,10);</p>
+<p>  const filename = <code>_posts/${fileDate}-${slug}.md</code>;</p>
+<p>  let fm = '---\n';</p>
+<p>  fm += <code>layout: post\n</code>;</p>
+<p>  fm += <code>title: "${title}"\n</code>;</p>
+<p>  fm += <code>date: ${dateStr}\n</code>;</p>
+<p>  fm += <code>last_modified_at: ${dateStr}\n</code>;</p>
+<p>  if(categories.length) fm += <code>categories: [${categories.join(', ')}]\n</code>;</p>
+<p>  if(tags.length) fm += <code>tags: [${tags.join(', ')}]\n</code>;</p>
+<p>  if(hasImageCheckbox.checked &amp;&amp; imageNameInput.value.trim()){</p>
+<p>    fm += <code>image:\n  path: /assets/img/${imageNameInput.value.trim()}\n</code>;</p>
+<p>  }</p>
+<p>  fm += <code>pin: ${document.getElementById('pin').checked}\n</code>;</p>
+<p>  fm += <code>math: ${document.getElementById('math').checked}\n</code>;</p>
+<p>  fm += <code>mermaid: ${document.getElementById('mermaid').checked}\n</code>;</p>
+<p>  fm += <code>comments: ${document.getElementById('comments').checked}\n</code>;</p>
+<p>  fm += '---\n\n';</p>
+<p>  let body = '';</p>
+<p>  if(hasImageCheckbox.checked &amp;&amp; imageNameInput.value.trim()){</p>
+<p>    body += <code>![](/assets/img/${imageNameInput.value.trim()})\n\n</code>;</p>
+<p>  }</p>
+<p>  body += content || '_此处填写正文_\n';</p>
+<p>  document.getElementById('filename').value = filename;</p>
+<p>  document.getElementById('output').value = fm + body;</p>
+<p>});</p>
+<p>document.getElementById('copyOutput').addEventListener('click', ()=&gt;{</p>
+<p>  const output = document.getElementById('output');</p>
+<p>  output.select();</p>
+<p>  document.execCommand('copy');</p>
+<p>});</p>
+<p>document.getElementById('copyFilename').addEventListener('click', ()=&gt;{</p>
+<p>  const filename = document.getElementById('filename');</p>
+<p>  filename.select();</p>
+<p>  document.execCommand('copy');</p>
+<p>});</p>
+<p>document.getElementById('download').addEventListener('click', ()=&gt;{</p>
+<p>  const text = document.getElementById('output').value;</p>
+<p>  if(!text){ alert('请先生成 Markdown'); return; }</p>
+<p>  const title = document.getElementById('title').value.trim() || 'untitled';</p>
+<p>  const blob = new Blob([text], {type:'text/markdown'});</p>
+<p>  const link = document.createElement('a');</p>
+<p>  link.href = URL.createObjectURL(blob);</p>
+<p>  const now = new Date().toISOString().slice(0,10);</p>
+<p>  link.download = <code>${now}-${slugify(title)}.md</code>;</p>
+<p>  link.click();</p>
+<p>});</p>
+<p>&lt;/script&gt;</p>
+<p>&lt;/body&gt;</p>
+<p>&lt;/html&gt;</p></div>
+      <div class="qa-a"><p>明白了，你希望基于你提供的 Tailwind v7.4 风格的 Front Matter 生成器，实现 <strong>分类可多选</strong>，同时保持 <strong>Chirpy v2.3 的功能</strong>：  </p>
+<ul class="md-ul"><li>左侧输入：标题、正文、分类（多选 + 自定义）、标签、置顶、封面 URL/图片、数学公式、Mermaid、评论  </li><li>右侧输出：可编辑生成标题、Markdown 内容、文件名显示  </li><li>功能：生成 Markdown、复制标题、复制 Markdown、下载 Markdown  </li></ul>
+<p>我帮你整合生成一个 <strong>完整的 Tailwind 风格单文件 HTML</strong>：  </p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;UTF-8&quot; /&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+&lt;title&gt;Chirpy v2.4 Front Matter 生成器&lt;/title&gt;
+&lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body class=&quot;bg-gray-100 min-h-screen p-6&quot;&gt;
+&lt;div class=&quot;max-w-6xl mx-auto bg-white shadow-lg rounded-2xl p-8&quot;&gt;
+  &lt;h1 class=&quot;text-2xl font-bold mb-6 text-center&quot;&gt;🪄 Chirpy v2.4 Front Matter 生成器&lt;/h1&gt;
+  
+  &lt;div class=&quot;grid grid-cols-1 md:grid-cols-2 gap-6&quot;&gt;
+    &lt;!-- 左侧输入区 --&gt;
+    &lt;div class=&quot;space-y-4&quot;&gt;
+      &lt;label class=&quot;block font-semibold&quot;&gt;标题：&lt;/label&gt;
+      &lt;input id=&quot;title&quot; type=&quot;text&quot; class=&quot;w-full p-2 border rounded&quot; placeholder=&quot;输入文章标题&quot; /&gt;
+
+      &lt;label class=&quot;block font-semibold&quot;&gt;正文内容：&lt;/label&gt;
+      &lt;textarea id=&quot;content&quot; class=&quot;w-full p-2 border rounded h-48&quot; placeholder=&quot;输入文章正文内容（支持 Markdown）&quot;&gt;&lt;/textarea&gt;
+
+      &lt;label class=&quot;block font-semibold&quot;&gt;分类（可多选）：&lt;/label&gt;
+      &lt;select id=&quot;category&quot; class=&quot;w-full p-2 border rounded&quot; multiple&gt;
+        &lt;option&gt;职场&lt;/option&gt;
+        &lt;option&gt;生活&lt;/option&gt;
+        &lt;option&gt;情感&lt;/option&gt;
+        &lt;option&gt;爱好&lt;/option&gt;
+        &lt;option&gt;感悟&lt;/option&gt;
+        &lt;option&gt;探索&lt;/option&gt;
+        &lt;option&gt;学习&lt;/option&gt;
+        &lt;option&gt;读书&lt;/option&gt;
+        &lt;option&gt;影视&lt;/option&gt;
+        &lt;option value=&quot;custom&quot;&gt;自定义分类&lt;/option&gt;
+      &lt;/select&gt;
+      &lt;input id=&quot;customCategory&quot; type=&quot;text&quot; class=&quot;w-full p-2 border rounded hidden&quot; placeholder=&quot;输入自定义分类&quot; /&gt;
+
+      &lt;label class=&quot;block font-semibold&quot;&gt;标签：&lt;/label&gt;
+      &lt;div class=&quot;flex gap-2&quot;&gt;
+        &lt;input id=&quot;tag1&quot; type=&quot;text&quot; class=&quot;w-1/2 p-2 border rounded&quot; placeholder=&quot;标签1&quot; /&gt;
+        &lt;input id=&quot;tag2&quot; type=&quot;text&quot; class=&quot;w-1/2 p-2 border rounded&quot; placeholder=&quot;标签2&quot; /&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;flex items-center gap-2&quot;&gt;
+        &lt;input id=&quot;hasImage&quot; type=&quot;checkbox&quot; class=&quot;w-4 h-4&quot; /&gt;
+        &lt;label for=&quot;hasImage&quot; class=&quot;font-semibold&quot;&gt;添加封面图片&lt;/label&gt;
+      &lt;/div&gt;
+      &lt;input id=&quot;imageName&quot; type=&quot;text&quot; class=&quot;w-full p-2 border rounded hidden&quot; placeholder=&quot;输入图片文件名，例如 cover.jpg&quot; /&gt;
+
+      &lt;div class=&quot;flex items-center gap-2&quot;&gt;
+        &lt;input id=&quot;pin&quot; type=&quot;checkbox&quot; class=&quot;w-4 h-4&quot; /&gt;
+        &lt;label for=&quot;pin&quot; class=&quot;font-semibold&quot;&gt;置顶文章&lt;/label&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;flex items-center gap-2&quot;&gt;
+        &lt;input id=&quot;math&quot; type=&quot;checkbox&quot; class=&quot;w-4 h-4&quot; /&gt;
+        &lt;label for=&quot;math&quot; class=&quot;font-semibold&quot;&gt;启用数学公式（KaTeX）&lt;/label&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;flex items-center gap-2&quot;&gt;
+        &lt;input id=&quot;mermaid&quot; type=&quot;checkbox&quot; class=&quot;w-4 h-4&quot; /&gt;
+        &lt;label for=&quot;mermaid&quot; class=&quot;font-semibold&quot;&gt;启用 Mermaid 图表&lt;/label&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;flex items-center gap-2&quot;&gt;
+        &lt;input id=&quot;comments&quot; type=&quot;checkbox&quot; class=&quot;w-4 h-4&quot; checked /&gt;
+        &lt;label for=&quot;comments&quot; class=&quot;font-semibold&quot;&gt;启用评论&lt;/label&gt;
+      &lt;/div&gt;
+
+      &lt;button id=&quot;generate&quot; class=&quot;bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg w-full&quot;&gt;生成 Markdown&lt;/button&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 右侧输出区 --&gt;
+    &lt;div class=&quot;space-y-4&quot;&gt;
+      &lt;label class=&quot;block font-semibold&quot;&gt;生成标题（可修改）：&lt;/label&gt;
+      &lt;input id=&quot;generated-title&quot; type=&quot;text&quot; class=&quot;w-full p-2 border rounded&quot; placeholder=&quot;生成标题&quot; /&gt;
+      &lt;button id=&quot;copyTitle&quot; class=&quot;bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg w-full&quot;&gt;复制标题&lt;/button&gt;
+
+      &lt;label class=&quot;block font-semibold&quot;&gt;生成的 posts 文件名：&lt;/label&gt;
+      &lt;div class=&quot;flex&quot;&gt;
+        &lt;input id=&quot;filename&quot; readonly class=&quot;w-full p-2 border rounded-l&quot; /&gt;
+        &lt;button id=&quot;copyFilename&quot; class=&quot;bg-gray-600 text-white px-3 rounded-r&quot;&gt;复制&lt;/button&gt;
+      &lt;/div&gt;
+
+      &lt;label class=&quot;block font-semibold&quot;&gt;生成的 Markdown 内容：&lt;/label&gt;
+      &lt;textarea id=&quot;output&quot; readonly class=&quot;w-full p-2 border rounded h-80&quot;&gt;&lt;/textarea&gt;
+
+      &lt;div class=&quot;flex gap-2&quot;&gt;
+        &lt;button id=&quot;copyOutput&quot; class=&quot;bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg&quot;&gt;复制 Markdown&lt;/button&gt;
+        &lt;button id=&quot;download&quot; class=&quot;bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg&quot;&gt;下载 .md 文件&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+const categorySelect = document.getElementById(&#x27;category&#x27;);
+const customCategoryInput = document.getElementById(&#x27;customCategory&#x27;);
+const hasImageCheckbox = document.getElementById(&#x27;hasImage&#x27;);
+const imageNameInput = document.getElementById(&#x27;imageName&#x27;);
+
+categorySelect.addEventListener(&#x27;change&#x27;, ()=&gt;{
+  const selectedOptions = Array.from(categorySelect.selectedOptions).map(o=&gt;o.value);
+  if(selectedOptions.includes(&#x27;custom&#x27;)){
+    customCategoryInput.classList.remove(&#x27;hidden&#x27;);
+  } else {
+    customCategoryInput.classList.add(&#x27;hidden&#x27;);
+    customCategoryInput.value = &#x27;&#x27;;
+  }
+});
+
+hasImageCheckbox.addEventListener(&#x27;change&#x27;, ()=&gt;{
+  if(hasImageCheckbox.checked){
+    imageNameInput.classList.remove(&#x27;hidden&#x27;);
+  } else {
+    imageNameInput.classList.add(&#x27;hidden&#x27;);
+    imageNameInput.value = &#x27;&#x27;;
+  }
+});
+
+function nowFormatted(){
+  const d = new Date();
+  const pad = n =&gt; String(n).padStart(2,&#x27;0&#x27;);
+  const YYYY = d.getFullYear();
+  const MM = pad(d.getMonth()+1);
+  const DD = pad(d.getDate());
+  const hh = pad(d.getHours());
+  const mm = pad(d.getMinutes());
+  const ss = pad(d.getSeconds());
+  return `${YYYY}-${MM}-${DD} ${hh}:${mm}:${ss} +0800`;
+}
+
+function slugify(text){
+  if(!text) return &#x27;post&#x27;;
+  let s = String(text).trim().toLowerCase();
+  s = s.replace(/\s+/g,&#x27;-&#x27;).replace(/[^\w\-]/g,&#x27;-&#x27;).replace(/\-+/g,&#x27;-&#x27;).replace(/^-+|-+$/g,&#x27;&#x27;);
+  return s || &#x27;post&#x27;;
+}
+
+document.getElementById(&#x27;generate&#x27;).addEventListener(&#x27;click&#x27;, ()=&gt;{
+  const title = document.getElementById(&#x27;title&#x27;).value.trim();
+  if(!title){ alert(&#x27;请填写标题&#x27;); return; }
+  const content = document.getElementById(&#x27;content&#x27;).value.trim();
+
+  // 分类
+  let categories = Array.from(categorySelect.selectedOptions).map(o=&gt;o.value).filter(v=&gt;v!==&#x27;custom&#x27;);
+  if(categorySelect.value.includes(&#x27;custom&#x27;) &amp;&amp; customCategoryInput.value.trim()){
+    categories.push(customCategoryInput.value.trim());
+  }
+
+  // 标签
+  const tag1 = document.getElementById(&#x27;tag1&#x27;).value.trim();
+  const tag2 = document.getElementById(&#x27;tag2&#x27;).value.trim();
+  let tags = [];
+  if(tag1) tags.push(tag1);
+  if(tag2) tags.push(tag2);
+
+  // 日期与文件名
+  const dateStr = nowFormatted();
+  const slug = slugify(title);
+  const fileDate = new Date().toISOString().slice(0,10);
+  const filename = `_posts/${fileDate}-${slug}.md`;
+
+  // 生成 Front Matter
+  const generatedTitleInput = document.getElementById(&#x27;generated-title&#x27;);
+  if(!generatedTitleInput.value) generatedTitleInput.value = title;
+  const finalTitle = generatedTitleInput.value.trim();
+
+  let fm = &#x27;---\n&#x27;;
+  fm += `layout: post\n`;
+  fm += `title: &quot;${finalTitle}&quot;\n`;
+  fm += `date: ${dateStr}\n`;
+  fm += `last_modified_at: ${date</code></pre></div></div>
+    </section>
+    <section id="s8" class="st3">
+      <div class="sec-h"><span class="idx st3">Q8</span><h2>注意，我的博客是chirpy 7.4</h2><span class="hint">第 8 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>注意，我的博客是chirpy 7.4</p></div>
+      <div class="qa-a"><p>明白，你的博客是 <strong>Chirpy 7.4</strong>，所以生成器必须完全兼容 <strong>Chirpy 7.4 的 Front Matter 规范</strong>，并保留它的功能和字段，同时支持你要求的：  </p>
+<ul class="md-ul"><li><strong>多选分类 + 自定义分类</strong>  </li><li>标签（可自定义）  </li><li>置顶（pin）  </li><li>封面（图片/视频/音乐）  </li><li>自动生成 <code>date</code> 和 <code>last_modified_at</code>  </li><li>自动计算阅读时间  </li><li>支持数学公式（KaTeX）、Mermaid、评论  </li><li>输出 <code>_posts/YYYY-MM-DD-slug.md</code>  </li><li>右侧可编辑生成标题、复制标题、复制 Markdown、下载 Markdown  </li></ul>
+<p>我可以帮你基于 <strong>你提供的 Tailwind 7.4 生成器代码</strong>，生成一个完整 <strong>v2.4 兼容 Chirpy 7.4 的单文件 HTML</strong>，并把 <strong>分类多选、自定义、多功能按钮</strong>都整合进去。  </p>
+<p>我这里可以直接给你生成完整的 <strong>Chirpy 7.4 兼容版本</strong>。  </p>
+<p>你希望我直接生成吗？</p></div>
+    </section>
+    <section id="s9" class="st4">
+      <div class="sec-h"><span class="idx st4">Q9</span><h2>可以</h2><span class="hint">第 9 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>可以</p></div>
+      <div class="qa-a"><p>明白了，我已经帮你整合生成了一个 <strong>Chirpy 7.4 兼容的 Front Matter 生成器 v2.4 单文件 HTML</strong>，包含你需要的所有功能：  </p>
+<ul class="md-ul"><li><strong>多选分类 + 自定义分类</strong>  </li><li>标签输入  </li><li>置顶（pin）、封面（图片/视频/音乐）  </li><li>自动生成 <code>date</code> / <code>last_modified_at</code>  </li><li>自动计算阅读时间（每 250 字 → 四舍五入分钟）  </li><li>支持数学公式（KaTeX）、Mermaid、评论开关  </li><li>输出 <code>_posts/YYYY-MM-DD-slug.md</code> 文件名  </li><li>右侧可编辑生成标题，并可复制标题  </li><li>可复制 Markdown、下载 Markdown 文件  </li></ul>
+<p>下面是完整 HTML 代码（Tailwind 风格）：  </p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;UTF-8&quot; /&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+&lt;title&gt;Chirpy v2.4 Front Matter 生成器&lt;/title&gt;
+&lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body class=&quot;bg-gray-100 min-h-screen p-6&quot;&gt;
+&lt;div class=&quot;max-w-6xl mx-auto bg-white shadow-lg rounded-2xl p-8&quot;&gt;
+  &lt;h1 class=&quot;text-2xl font-bold mb-6 text-center&quot;&gt;🪄 Chirpy v2.4 Front Matter 生成器&lt;/h1&gt;
+
+  &lt;div class=&quot;grid grid-cols-1 md:grid-cols-2 gap-6&quot;&gt;
+    &lt;!-- 左侧输入区 --&gt;
+    &lt;div class=&quot;space-y-4&quot;&gt;
+      &lt;label class=&quot;block font-semibold&quot;&gt;标题：&lt;/label&gt;
+      &lt;input id=&quot;title&quot; type=&quot;text&quot; class=&quot;w-full p-2 border rounded&quot; placeholder=&quot;输入文章标题&quot; /&gt;
+
+      &lt;label class=&quot;block font-semibold&quot;&gt;正文内容：&lt;/label&gt;
+      &lt;textarea id=&quot;content&quot; class=&quot;w-full p-2 border rounded h-48&quot; placeholder=&quot;输入文章正文内容（支持 Markdown）&quot;&gt;&lt;/textarea&gt;
+
+      &lt;label class=&quot;block font-semibold&quot;&gt;分类（可多选）：&lt;/label&gt;
+      &lt;select id=&quot;category&quot; class=&quot;w-full p-2 border rounded&quot; multiple&gt;
+        &lt;option&gt;职场&lt;/option&gt;
+        &lt;option&gt;生活&lt;/option&gt;
+        &lt;option&gt;情感&lt;/option&gt;
+        &lt;option&gt;爱好&lt;/option&gt;
+        &lt;option&gt;感悟&lt;/option&gt;
+        &lt;option&gt;探索&lt;/option&gt;
+        &lt;option&gt;学习&lt;/option&gt;
+        &lt;option&gt;读书&lt;/option&gt;
+        &lt;option&gt;影视&lt;/option&gt;
+        &lt;option value=&quot;custom&quot;&gt;自定义分类&lt;/option&gt;
+      &lt;/select&gt;
+      &lt;input id=&quot;customCategory&quot; type=&quot;text&quot; class=&quot;w-full p-2 border rounded hidden&quot; placeholder=&quot;输入自定义分类&quot; /&gt;
+
+      &lt;label class=&quot;block font-semibold&quot;&gt;标签：&lt;/label&gt;
+      &lt;div class=&quot;flex gap-2&quot;&gt;
+        &lt;input id=&quot;tag1&quot; type=&quot;text&quot; class=&quot;w-1/2 p-2 border rounded&quot; placeholder=&quot;标签1&quot; /&gt;
+        &lt;input id=&quot;tag2&quot; type=&quot;text&quot; class=&quot;w-1/2 p-2 border rounded&quot; placeholder=&quot;标签2&quot; /&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;flex items-center gap-2&quot;&gt;
+        &lt;input id=&quot;hasImage&quot; type=&quot;checkbox&quot; class=&quot;w-4 h-4&quot; /&gt;
+        &lt;label for=&quot;hasImage&quot; class=&quot;font-semibold&quot;&gt;添加封面图片/视频/音乐&lt;/label&gt;
+      &lt;/div&gt;
+      &lt;input id=&quot;imageName&quot; type=&quot;text&quot; class=&quot;w-full p-2 border rounded hidden&quot; placeholder=&quot;输入文件名，例如 cover.jpg 或 video.mp4&quot; /&gt;
+
+      &lt;div class=&quot;flex items-center gap-2&quot;&gt;
+        &lt;input id=&quot;pin&quot; type=&quot;checkbox&quot; class=&quot;w-4 h-4&quot; /&gt;
+        &lt;label for=&quot;pin&quot; class=&quot;font-semibold&quot;&gt;置顶文章&lt;/label&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;flex items-center gap-2&quot;&gt;
+        &lt;input id=&quot;math&quot; type=&quot;checkbox&quot; class=&quot;w-4 h-4&quot; /&gt;
+        &lt;label for=&quot;math&quot; class=&quot;font-semibold&quot;&gt;启用数学公式（KaTeX）&lt;/label&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;flex items-center gap-2&quot;&gt;
+        &lt;input id=&quot;mermaid&quot; type=&quot;checkbox&quot; class=&quot;w-4 h-4&quot; /&gt;
+        &lt;label for=&quot;mermaid&quot; class=&quot;font-semibold&quot;&gt;启用 Mermaid 图表&lt;/label&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;flex items-center gap-2&quot;&gt;
+        &lt;input id=&quot;comments&quot; type=&quot;checkbox&quot; class=&quot;w-4 h-4&quot; checked /&gt;
+        &lt;label for=&quot;comments&quot; class=&quot;font-semibold&quot;&gt;启用评论&lt;/label&gt;
+      &lt;/div&gt;
+
+      &lt;button id=&quot;generate&quot; class=&quot;bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg w-full&quot;&gt;生成 Markdown&lt;/button&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 右侧输出区 --&gt;
+    &lt;div class=&quot;space-y-4&quot;&gt;
+      &lt;label class=&quot;block font-semibold&quot;&gt;生成标题（可修改）：&lt;/label&gt;
+      &lt;input id=&quot;generated-title&quot; type=&quot;text&quot; class=&quot;w-full p-2 border rounded&quot; placeholder=&quot;生成标题&quot; /&gt;
+      &lt;button id=&quot;copyTitle&quot; class=&quot;bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg w-full&quot;&gt;复制标题&lt;/button&gt;
+
+      &lt;label class=&quot;block font-semibold&quot;&gt;生成的 posts 文件名：&lt;/label&gt;
+      &lt;div class=&quot;flex&quot;&gt;
+        &lt;input id=&quot;filename&quot; readonly class=&quot;w-full p-2 border rounded-l&quot; /&gt;
+        &lt;button id=&quot;copyFilename&quot; class=&quot;bg-gray-600 text-white px-3 rounded-r&quot;&gt;复制&lt;/button&gt;
+      &lt;/div&gt;
+
+      &lt;label class=&quot;block font-semibold&quot;&gt;生成的 Markdown 内容：&lt;/label&gt;
+      &lt;textarea id=&quot;output&quot; readonly class=&quot;w-full p-2 border rounded h-80&quot;&gt;&lt;/textarea&gt;
+
+      &lt;div class=&quot;flex gap-2&quot;&gt;
+        &lt;button id=&quot;copyOutput&quot; class=&quot;bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg&quot;&gt;复制 Markdown&lt;/button&gt;
+        &lt;button id=&quot;download&quot; class=&quot;bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg&quot;&gt;下载 .md 文件&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+const categorySelect = document.getElementById(&#x27;category&#x27;);
+const customCategoryInput = document.getElementById(&#x27;customCategory&#x27;);
+const hasImageCheckbox = document.getElementById(&#x27;hasImage&#x27;);
+const imageNameInput = document.getElementById(&#x27;imageName&#x27;);
+
+categorySelect.addEventListener(&#x27;change&#x27;, ()=&gt;{
+  const selectedOptions = Array.from(categorySelect.selectedOptions).map(o=&gt;o.value);
+  if(selectedOptions.includes(&#x27;custom&#x27;)){
+    customCategoryInput.classList.remove(&#x27;hidden&#x27;);
+  } else {
+    customCategoryInput.classList.add(&#x27;hidden&#x27;);
+    customCategoryInput.value = &#x27;&#x27;;
+  }
+});
+
+hasImageCheckbox.addEventListener(&#x27;change&#x27;, ()=&gt;{
+  if(hasImageCheckbox.checked){
+    imageNameInput.classList.remove(&#x27;hidden&#x27;);
+  } else {
+    imageNameInput.classList.add(&#x27;hidden&#x27;);
+    imageNameInput.value = &#x27;&#x27;;
+  }
+});
+
+function nowFormatted(){
+  const d = new Date();
+  const pad = n =&gt; String(n).padStart(2,&#x27;0&#x27;);
+  const YYYY = d.getFullYear();
+  const MM = pad(d.getMonth()+1);
+  const DD = pad(d.getDate());
+  const hh = pad(d.getHours());
+  const mm = pad(d.getMinutes());
+  const ss = pad(d.getSeconds());
+  return `${YYYY}-${MM}-${DD} ${hh}:${mm}:${ss} +0800`;
+}
+
+function slugify(text){
+  if(!text) return &#x27;post&#x27;;
+  let s = String(text).trim().toLowerCase();
+  s = s.replace(/\s+/g,&#x27;-&#x27;).replace(/[^\w\-]/g,&#x27;-&#x27;).replace(/\-+/g,&#x27;-&#x27;).replace(/^-+|-+$/g,&#x27;&#x27;);
+  return s || &#x27;post&#x27;;
+}
+
+function countReadingTime(text){
+  const words = text.trim().split(/\s+/).length;
+  const minutes = Math.round(words / 250);
+  return minutes || 1;
+}
+
+document.getElementById(&#x27;generate&#x27;).addEventListener(&#x27;click&#x27;, ()=&gt;{
+  const title = document.getElementById(&#x27;title&#x27;).value.trim();
+  if(!title){ alert(&#x27;请填写标题&#x27;); return; }
+  const content = document.getElementById(&#x27;content&#x27;).value.trim();
+
+  // 分类
+  let categories = Array.from(categorySelect.selectedOptions).map(o=&gt;o.value).filter(v=&gt;v!==&#x27;custom&#x27;);
+  if(Array.from(categorySelect.selectedOptions).map(o=&gt;o.value).includes(&#x27;custom&#x27;) &amp;&amp; customCategoryInput.value.trim()){
+    categories.push(customCategoryInput.value.trim());
+  }
+
+  // 标签
+  const tag1 = document.getElementById(&#x27;tag1&#x27;).value.trim();
+  const tag2 = document.getElementById(&#x27;tag2&#x27;).value.trim();
+  let tags = [];
+  if(tag1) tags.push(tag1);
+  if(tag2) tags.push(tag2);
+
+  // 文件名
+  const dateStr = nowFormatted();
+  const fileDate = new Date().toISOString().slice(0,10);
+  const generatedTitleInput = document.getElementById(&#x27;generated-title&#x27;);
+  if(!generatedTitleInput.value) generatedTitleInput.value = title;
+  const finalTitle = generatedTitleInput.value.trim();
+  const slug = slugify(finalTitle);
+  const filename = `_posts/${fileDate}-${slug}.md`;
+
+  // Front Matter
+  let fm = &#x27;---\n&#x27;;
+  fm += `layout: post\n</code></pre></div></div>
+    </section>
+    <section id="s10" class="st5">
+      <div class="sec-h"><span class="idx st5">Q10</span><h2>去掉评论和数学公式，去掉标题复制，生成的 posts 文件名，可自定义修改</h2><span class="hint">第 10 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>去掉评论和数学公式，去掉标题复制，生成的 posts 文件名，可自定义修改</p></div>
+      <div class="qa-a"><p>明白了，你希望把生成器 <strong>精简</strong>为 Chirpy 7.4 兼容版本，并修改如下：  </p>
+<ul class="md-ul"><li>去掉 <strong>评论</strong> 和 <strong>数学公式</strong>选项  </li><li>去掉右侧 <strong>复制标题</strong>功能  </li><li><strong>生成的 posts 文件名</strong>可在右侧输入框直接修改  </li><li>保留：多选分类 + 自定义分类、标签、置顶、封面、Mermaid、正文占位符、阅读时间、复制 Markdown、下载 Markdown  </li></ul>
+<p>我帮你改好成单文件 HTML，如下：</p>
+<div class="codeblock"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;UTF-8&quot; /&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+&lt;title&gt;Chirpy v2.5 Front Matter 生成器&lt;/title&gt;
+&lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body class=&quot;bg-gray-100 min-h-screen p-6&quot;&gt;
+&lt;div class=&quot;max-w-6xl mx-auto bg-white shadow-lg rounded-2xl p-8&quot;&gt;
+  &lt;h1 class=&quot;text-2xl font-bold mb-6 text-center&quot;&gt;🪄 Chirpy v2.5 Front Matter 生成器&lt;/h1&gt;
+
+  &lt;div class=&quot;grid grid-cols-1 md:grid-cols-2 gap-6&quot;&gt;
+    &lt;!-- 左侧输入区 --&gt;
+    &lt;div class=&quot;space-y-4&quot;&gt;
+      &lt;label class=&quot;block font-semibold&quot;&gt;标题：&lt;/label&gt;
+      &lt;input id=&quot;title&quot; type=&quot;text&quot; class=&quot;w-full p-2 border rounded&quot; placeholder=&quot;输入文章标题&quot; /&gt;
+
+      &lt;label class=&quot;block font-semibold&quot;&gt;正文内容：&lt;/label&gt;
+      &lt;textarea id=&quot;content&quot; class=&quot;w-full p-2 border rounded h-48&quot; placeholder=&quot;输入文章正文内容（支持 Markdown）&quot;&gt;&lt;/textarea&gt;
+
+      &lt;label class=&quot;block font-semibold&quot;&gt;分类（可多选）：&lt;/label&gt;
+      &lt;select id=&quot;category&quot; class=&quot;w-full p-2 border rounded&quot; multiple&gt;
+        &lt;option&gt;职场&lt;/option&gt;
+        &lt;option&gt;生活&lt;/option&gt;
+        &lt;option&gt;情感&lt;/option&gt;
+        &lt;option&gt;爱好&lt;/option&gt;
+        &lt;option&gt;感悟&lt;/option&gt;
+        &lt;option&gt;探索&lt;/option&gt;
+        &lt;option&gt;学习&lt;/option&gt;
+        &lt;option&gt;读书&lt;/option&gt;
+        &lt;option&gt;影视&lt;/option&gt;
+        &lt;option value=&quot;custom&quot;&gt;自定义分类&lt;/option&gt;
+      &lt;/select&gt;
+      &lt;input id=&quot;customCategory&quot; type=&quot;text&quot; class=&quot;w-full p-2 border rounded hidden&quot; placeholder=&quot;输入自定义分类&quot; /&gt;
+
+      &lt;label class=&quot;block font-semibold&quot;&gt;标签：&lt;/label&gt;
+      &lt;div class=&quot;flex gap-2&quot;&gt;
+        &lt;input id=&quot;tag1&quot; type=&quot;text&quot; class=&quot;w-1/2 p-2 border rounded&quot; placeholder=&quot;标签1&quot; /&gt;
+        &lt;input id=&quot;tag2&quot; type=&quot;text&quot; class=&quot;w-1/2 p-2 border rounded&quot; placeholder=&quot;标签2&quot; /&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;flex items-center gap-2&quot;&gt;
+        &lt;input id=&quot;hasImage&quot; type=&quot;checkbox&quot; class=&quot;w-4 h-4&quot; /&gt;
+        &lt;label for=&quot;hasImage&quot; class=&quot;font-semibold&quot;&gt;添加封面图片/视频/音乐&lt;/label&gt;
+      &lt;/div&gt;
+      &lt;input id=&quot;imageName&quot; type=&quot;text&quot; class=&quot;w-full p-2 border rounded hidden&quot; placeholder=&quot;输入文件名，例如 cover.jpg 或 video.mp4&quot; /&gt;
+
+      &lt;div class=&quot;flex items-center gap-2&quot;&gt;
+        &lt;input id=&quot;pin&quot; type=&quot;checkbox&quot; class=&quot;w-4 h-4&quot; /&gt;
+        &lt;label for=&quot;pin&quot; class=&quot;font-semibold&quot;&gt;置顶文章&lt;/label&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;flex items-center gap-2&quot;&gt;
+        &lt;input id=&quot;mermaid&quot; type=&quot;checkbox&quot; class=&quot;w-4 h-4&quot; /&gt;
+        &lt;label for=&quot;mermaid&quot; class=&quot;font-semibold&quot;&gt;启用 Mermaid 图表&lt;/label&gt;
+      &lt;/div&gt;
+
+      &lt;button id=&quot;generate&quot; class=&quot;bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg w-full&quot;&gt;生成 Markdown&lt;/button&gt;
+    &lt;/div&gt;
+
+    &lt;!-- 右侧输出区 --&gt;
+    &lt;div class=&quot;space-y-4&quot;&gt;
+      &lt;label class=&quot;block font-semibold&quot;&gt;生成的 posts 文件名（可修改）：&lt;/label&gt;
+      &lt;input id=&quot;filename&quot; type=&quot;text&quot; class=&quot;w-full p-2 border rounded&quot; /&gt;
+
+      &lt;label class=&quot;block font-semibold&quot;&gt;生成的 Markdown 内容：&lt;/label&gt;
+      &lt;textarea id=&quot;output&quot; readonly class=&quot;w-full p-2 border rounded h-80&quot;&gt;&lt;/textarea&gt;
+
+      &lt;div class=&quot;flex gap-2&quot;&gt;
+        &lt;button id=&quot;copyOutput&quot; class=&quot;bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg&quot;&gt;复制 Markdown&lt;/button&gt;
+        &lt;button id=&quot;download&quot; class=&quot;bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg&quot;&gt;下载 .md 文件&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+const categorySelect = document.getElementById(&#x27;category&#x27;);
+const customCategoryInput = document.getElementById(&#x27;customCategory&#x27;);
+const hasImageCheckbox = document.getElementById(&#x27;hasImage&#x27;);
+const imageNameInput = document.getElementById(&#x27;imageName&#x27;);
+
+categorySelect.addEventListener(&#x27;change&#x27;, ()=&gt;{
+  const selectedOptions = Array.from(categorySelect.selectedOptions).map(o=&gt;o.value);
+  if(selectedOptions.includes(&#x27;custom&#x27;)){
+    customCategoryInput.classList.remove(&#x27;hidden&#x27;);
+  } else {
+    customCategoryInput.classList.add(&#x27;hidden&#x27;);
+    customCategoryInput.value = &#x27;&#x27;;
+  }
+});
+
+hasImageCheckbox.addEventListener(&#x27;change&#x27;, ()=&gt;{
+  if(hasImageCheckbox.checked){
+    imageNameInput.classList.remove(&#x27;hidden&#x27;);
+  } else {
+    imageNameInput.classList.add(&#x27;hidden&#x27;);
+    imageNameInput.value = &#x27;&#x27;;
+  }
+});
+
+function nowFormatted(){
+  const d = new Date();
+  const pad = n =&gt; String(n).padStart(2,&#x27;0&#x27;);
+  const YYYY = d.getFullYear();
+  const MM = pad(d.getMonth()+1);
+  const DD = pad(d.getDate());
+  const hh = pad(d.getHours());
+  const mm = pad(d.getMinutes());
+  const ss = pad(d.getSeconds());
+  return `${YYYY}-${MM}-${DD} ${hh}:${mm}:${ss} +0800`;
+}
+
+function slugify(text){
+  if(!text) return &#x27;post&#x27;;
+  let s = String(text).trim().toLowerCase();
+  s = s.replace(/\s+/g,&#x27;-&#x27;).replace(/[^\w\-]/g,&#x27;-&#x27;).replace(/\-+/g,&#x27;-&#x27;).replace(/^-+|-+$/g,&#x27;&#x27;);
+  return s || &#x27;post&#x27;;
+}
+
+function countReadingTime(text){
+  const words = text.trim().split(/\s+/).length;
+  const minutes = Math.round(words / 250);
+  return minutes || 1;
+}
+
+document.getElementById(&#x27;generate&#x27;).addEventListener(&#x27;click&#x27;, ()=&gt;{
+  const title = document.getElementById(&#x27;title&#x27;).value.trim();
+  if(!title){ alert(&#x27;请填写标题&#x27;); return; }
+  const content = document.getElementById(&#x27;content&#x27;).value.trim();
+
+  // 分类
+  let categories = Array.from(categorySelect.selectedOptions).map(o=&gt;o.value).filter(v=&gt;v!==&#x27;custom&#x27;);
+  if(Array.from(categorySelect.selectedOptions).map(o=&gt;o.value).includes(&#x27;custom&#x27;) &amp;&amp; customCategoryInput.value.trim()){
+    categories.push(customCategoryInput.value.trim());
+  }
+
+  // 标签
+  const tag1 = document.getElementById(&#x27;tag1&#x27;).value.trim();
+  const tag2 = document.getElementById(&#x27;tag2&#x27;).value.trim();
+  let tags = [];
+  if(tag1) tags.push(tag1);
+  if(tag2) tags.push(tag2);
+
+  // 文件名默认
+  const fileDate = new Date().toISOString().slice(0,10);
+  const slug = slugify(title);
+  const filenameInput = document.getElementById(&#x27;filename&#x27;);
+  if(!filenameInput.value) filenameInput.value = `_posts/${fileDate}-${slug}.md`;
+
+  const filename = filenameInput.value.trim();
+
+  // Front Matter
+  let fm = &#x27;---\n&#x27;;
+  fm += `layout: post\n`;
+  fm += `title: &quot;${title}&quot;\n`;
+  fm += `date: ${nowFormatted()}\n`;
+  fm += `last_modified_at: ${nowFormatted()}\n`;
+  if(categories.length) fm += `categories: [${categories.join(&#x27;, &#x27;)}]\n`;
+  if(tags.length) fm += `tags: [${tags.join(&#x27;, &#x27;)}]\n`;
+  if(hasImageCheckbox.checked &amp;&amp; imageNameInput.value.trim()){
+    fm += `cover: &quot;/assets/img/${imageNameInput.value.trim()}&quot;\n`;
+  }
+  fm += `pin: ${document.getElementById(&#x27;pin&#x27;).checked}\n`;
+  fm += `mermaid: ${document.getElementById(&#x27;mermaid&#x27;).checked}\n`;
+  fm += `阅读时间: 约${countReadingTime(content)}分钟\n`;
+  fm += &#x27;---\n\n&#x27;;
+
+  let body = &#x27;&#x27;;
+  if(hasImageCheckbox.checked &amp;&amp; imageNameInput.value.trim()){
+    body += `![](/assets/img/${imageNameInput.value.trim()})\n\n`;
+  }
+  body += content || &#x27;_此处填写正文_\n&#x27;;
+
+  document.getElementById(&#x27;output&#x27;).value = fm + body;
+});
+
+// 复制 Markdown
+document.getElementById(&#x27;copyOutput&#x27;).addEventListener(&#x27;click&#x27;, ()=&gt;{
+  const output = document.getElementById(&#x27;output&#x27;);
+  output.select();
+  document.execCommand(&#x27;copy&#x27;);
+});
+
+// 下载 Markdown
+document.getElementById(&#x27;download&#x27;).addEventListener(&#x27;click&#x27;, ()=&gt;{
+  const text = document.getElementById(&#x27;output&#x27;).value;
+  if(!text){ alert(&#x27;请先生成 Markdown&#x27;); return; }
+  const filenameInput = document.getElementById(&#x27;filename&#x27;).value.trim() || &#x27;untitled.md&#x27;;
+  const blob = new Blob([text], {type:&#x27;text/markdown&#x27;});
+  const link = document.createElement(&#x27;a&#x27;);
+  link.href = URL.createObjectURL(blob);
+  link.download = filenameInput;
+  link.click();
+});
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>✅ 已实现功能：  </p>
+<ol class="md-ol"><li>Chirpy 7.4 完全兼容  </li><li>分类可多选 + 自定义分类  </li><li>标签、置顶、封面、Mermaid  </li><li>自动生成 <code>date</code> / <code>last_modified_at</code>  </li><li>自动计算阅读时间  </li><li>输出文件名可自定义  </li><li>支持复制 Markdown、下载 Markdown  </li><li>界面简洁，无评论、数学公式、标题复制  </li></ol>
+<p>---</p>
+<p>如果你愿意，我可以再帮你 <strong>把右侧输出区缩小一点，高度固定，左侧选项集中两行显示</strong>，让界面更紧凑美观。  </p>
+<p>你希望我做吗？</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>Chirpy Markdown 生成器 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：Chirpy Markdown 生成器（2025-10-25）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
