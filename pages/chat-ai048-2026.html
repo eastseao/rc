@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>OpenClaw/QClaw 操作技巧 · 2026</title>
+<meta name="description" content="日常使用 OpenClaw / QClaw，真正拉开差距的不是“模型多强”，而是你会不会“调度 AI”。  很多人只是把它当聊天工具，但熟练用户其实是在把它当：- AI 工作流系统- Agent 操作系统- 多人格协作平台- 自动化内容工厂">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a><a href="#s2" data-sec="s2">Q2</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · AI
+  <h1 class="s-h1">OpenClaw/QClaw 操作技巧</h1>
+  <p class="s-lede">日常使用 OpenClaw / QClaw，真正拉开差距的不是“模型多强”，而是你会不会“调度 AI”。  很多人只是把它当聊天工具，但熟练用户其实是在把它当：- AI 工作流系统- Agent 操作系统- 多人格协作平台- 自动化内容工厂</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>4</b></span>
+    <span>时间范围 <b>2026-05-21 ~ 2026-05-21</b></span>
+    <span>分类 <b>AI与Agent</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">AI</span>
+    <span class="s-chip">2026</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>不考虑之前记忆，不要聊小说写作和SEO的话题，日常使用OpenClaw/QCla…</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>不考虑之前记忆，不要聊小说写作和SEO的话题，日常使用OpenClaw/QClaw有哪些操作技巧</p></div>
+      <div class="qa-a"><p>日常使用 OpenClaw / QClaw，真正拉开差距的不是“模型多强”，而是你会不会“调度 AI”。   很多人只是把它当聊天工具，但熟练用户其实是在把它当：</p>
+<ul class="md-ul"><li>AI 工作流系统</li><li>Agent 操作系统</li><li>多人格协作平台</li><li>自动化内容工厂</li><li>私人知识中台</li></ul>
+<p>下面给你一套偏“老玩家”的高频实战技巧。</p>
+<p>---</p>
+<p># 一、最核心的思维：不要“问 AI”，要“指挥 AI”</p>
+<p>新手：</p>
+<blockquote class="md-quote">“帮我写一个方案”</blockquote>
+<p>高手：</p>
+<blockquote class="md-quote">“你现在是产品经理，目标用户是 XX，输出结构包含： 1. 用户画像 2. 核心需求 3. 功能优先级 4. MVP路线 用 markdown 表格输出”</blockquote>
+<p>差距本质：</p>
+<ul class="md-ul"><li>新手 = 聊天</li><li>高手 = 下指令</li></ul>
+<p>在 OpenClaw/QClaw 里尤其明显，因为它本身就是 Agent 化设计。</p>
+<p>---</p>
+<p># 二、最实用的操作技巧（高频）</p>
+<p>---</p>
+<h3 class="sub-h">1. 不要只建一个 Agent</h3>
+<p>很多人只做：</p>
+<ul class="md-ul"><li>一个写作助手</li><li>一个翻译助手</li></ul>
+<p>这是低效率玩法。</p>
+<p>真正好用的是：</p>
+<p># “专业分工 Agent”</p>
+<p>例如：</p>
+<div class="tblwrap"><table><thead><tr><th>Agent</th><th>职责</th></tr></thead><tbody><tr><td>Researcher</td><td>搜资料</td></tr><tr><td>Planner</td><td>拆解任务</td></tr><tr><td>Writer</td><td>正式输出</td></tr><tr><td>Critic</td><td>挑错</td></tr><tr><td>Refiner</td><td>润色</td></tr><tr><td>Executor</td><td>执行格式化</td></tr></tbody></table></div>
+<p>这就是“小型 AI 公司”。</p>
+<p>QClaw/OpenClaw 特别适合这种玩法。</p>
+<p>---</p>
+<p># 三、最强技巧：Agent 串联</p>
+<p>这是很多人不会的。</p>
+<p>例如：</p>
+<div class="codeblock"><pre><code>用户需求
+↓
+需求分析 Agent
+↓
+方案设计 Agent
+↓
+内容生成 Agent
+↓
+审核 Agent
+↓
+格式化 Agent
+↓
+最终输出</code></pre></div>
+<p>这比：</p>
+<blockquote class="md-quote">“一次性让 AI 全做”</blockquote>
+<p>质量高很多。</p>
+<p>因为：</p>
+<ul class="md-ul"><li>AI 最怕任务太大</li><li>最擅长“小步骤链式处理”</li></ul>
+<p>---</p>
+<p># 四、不要直接生成最终内容</p>
+<p>高手会：</p>
+<p># 先生成“结构”</p>
+<p>例如：</p>
+<div class="codeblock"><pre><code>先给我目录</code></pre></div>
+<p>再：</p>
+<div class="codeblock"><pre><code>展开第二部分</code></pre></div>
+<p>再：</p>
+<div class="codeblock"><pre><code>优化语气</code></pre></div>
+<p>再：</p>
+<div class="codeblock"><pre><code>压缩冗余</code></pre></div>
+<p>这样稳定性会暴增。</p>
+<p>---</p>
+<p># 五、上下文污染控制（特别重要）</p>
+<p>OpenClaw/QClaw 用久了：</p>
+<p>最大问题不是不会生成。</p>
+<p>而是：</p>
+<p># “上下文脏了”</p>
+<p>表现：</p>
+<ul class="md-ul"><li>AI开始胡说</li><li>风格漂移</li><li>指令失效</li><li>逻辑混乱</li></ul>
+<p>解决办法：</p>
+<h3 class="sub-h">技巧1：短上下文工作</h3>
+<p>不要一个对话做所有事。</p>
+<p>应该：</p>
+<ul class="md-ul"><li>一个会话 = 一个任务</li></ul>
+<p>---</p>
+<h3 class="sub-h">技巧2：阶段性重开</h3>
+<p>例如：</p>
+<div class="codeblock"><pre><code>这是最终确认版设定：
+（粘贴）
+后续严格基于这个版本继续。</code></pre></div>
+<p>等于“重置记忆”。</p>
+<p>---</p>
+<h3 class="sub-h">技巧3：固定 System Prompt</h3>
+<p>高手会做：</p>
+<div class="codeblock"><pre><code># 永久规则
+- 禁止发散
+- 禁止自作主张
+- 不补充未确认信息
+- 优先结构化输出</code></pre></div>
+<p>稳定性会高很多。</p>
+<p>---</p>
+<p># 六、让 AI 输出更稳定的秘诀</p>
+<p>很多人不知道：</p>
+<p># AI最怕“模糊”</p>
+<p>例如：</p>
+<p>❌：</p>
+<div class="codeblock"><pre><code>写得高级一点</code></pre></div>
+<p>✅：</p>
+<div class="codeblock"><pre><code>模仿咨询公司汇报风格：
+- 短句
+- 结论先行
+- 数据导向
+- 不使用空洞形容词</code></pre></div>
+<p>越具体越稳定。</p>
+<p>---</p>
+<p># 七、少用“继续”，多用“续写规则”</p>
+<p>不要：</p>
+<div class="codeblock"><pre><code>继续</code></pre></div>
+<p>而是：</p>
+<div class="codeblock"><pre><code>继续第三章：
+- 延续当前语气
+- 不重复前文
+- 节奏加快
+- 保持角色关系一致</code></pre></div>
+<p>这会减少 AI “失忆”。</p>
+<p>---</p>
+<p># 八、学会“压缩上下文”</p>
+<p>这是高手核心技巧。</p>
+<p>例如：</p>
+<div class="codeblock"><pre><code>请把以上内容压缩成：
+1. 世界观
+2. 人物关系
+3. 当前任务
+4. 输出风格
+控制在1000字</code></pre></div>
+<p>然后：</p>
+<p># 开新会话继续</p>
+<p>这样能：</p>
+<ul class="md-ul"><li>提高稳定性</li><li>降低 token 消耗</li><li>避免混乱</li></ul>
+<p>---</p>
+<p># 九、最重要的能力：建立 Prompt 模板库</p>
+<p>真正高效的人：</p>
+<p>不是临时想 prompt。</p>
+<p>而是：</p>
+<p># 有自己的“技能库”</p>
+<p>例如：</p>
+<div class="codeblock"><pre><code>/analysis
+/rewrite
+/critic
+/summary
+/deepthink
+/translate
+/meeting</code></pre></div>
+<p>每个都是固定模板。</p>
+<p>长期效率会暴涨。</p>
+<p>---</p>
+<p># 十、QClaw/OpenClaw 最容易被忽略的高级玩法</p>
+<p>---</p>
+<h3 class="sub-h">1. 让 Agent 自我批评</h3>
+<p>例如：</p>
+<div class="codeblock"><pre><code>先生成答案
+再从：
+- 逻辑
+- 事实
+- 可执行性
+三个维度自检</code></pre></div>
+<p>质量提升非常明显。</p>
+<p>---</p>
+<h3 class="sub-h">2. 多 Agent 辩论</h3>
+<p>例如：</p>
+<div class="codeblock"><pre><code>Agent A：支持方案
+Agent B：反对方案
+Agent C：最终裁决</code></pre></div>
+<p>特别适合：</p>
+<ul class="md-ul"><li>商业决策</li><li>产品设计</li><li>采购分析</li><li>风险评估</li></ul>
+<p>---</p>
+<h3 class="sub-h">3. 角色固定化</h3>
+<p>不要每次重新描述。</p>
+<p>而是：</p>
+<div class="codeblock"><pre><code>你永久扮演：
+10年经验供应链经理</code></pre></div>
+<p>持续输出会更稳定。</p>
+<p>---</p>
+<p># 十一、实际工作里特别好用的玩法</p>
+<p>你是做采购的，其实 AI 很适合：</p>
+<p>---</p>
+<h3 class="sub-h">供应商对比</h3>
+<div class="codeblock"><pre><code>从：
+- 成本
+- 风险
+- 交期
+- 议价能力
+- 替代性
+进行评分</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">邮件优化</h3>
+<div class="codeblock"><pre><code>把这封邮件改成：
+专业、强势、但不冒犯</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">会议纪要整理</h3>
+<div class="codeblock"><pre><code>提取：
+- 决策
+- 待办
+- 风险
+- 时间节点</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">EXCEL分析辅助</h3>
+<p>让 AI：</p>
+<ul class="md-ul"><li>写公式</li><li>解释公式</li><li>设计表结构</li><li>做采购数据分类</li></ul>
+<p>非常高效。</p>
+<p>---</p>
+<p># 十二、真正的高手都在做的一件事</p>
+<p># “把重复工作 Agent 化”</p>
+<p>例如：</p>
+<p>每次询盘都重复：</p>
+<ul class="md-ul"><li>比价</li><li>风险判断</li><li>邮件回复</li><li>谈判措辞</li></ul>
+<p>那就：</p>
+<p># 直接做成固定 Agent</p>
+<p>以后：</p>
+<div class="codeblock"><pre><code>输入供应商信息
+↓
+自动输出完整分析</code></pre></div>
+<p>效率会非常夸张。</p>
+<p>---</p>
+<p># 十三、最后一个关键技巧：不要追求“万能 Agent”</p>
+<p>很多人失败在：</p>
+<blockquote class="md-quote">“我想做一个什么都会的超级 AI”</blockquote>
+<p>实际上：</p>
+<p># 小而专精 才最强</p>
+<p>例如：</p>
+<ul class="md-ul"><li>专门改邮件</li><li>专门做总结</li><li>专门提需求</li><li>专门审查逻辑</li></ul>
+<p>这种效果远超“大杂烩 Agent”。</p>
+<p>---</p>
+<p>如果你愿意，我还能继续给你：</p>
+<ul class="md-ul"><li>OpenClaw/QClaw 的「高手工作流」</li><li>Agent 组织架构模板</li><li>多 Agent 协同架构</li><li>最强 Prompt 写法</li><li>日常办公自动化玩法</li><li>采购岗位专用 AI 工作流</li><li>AI 长上下文防崩技巧</li><li>AI 指令工程进阶技巧</li><li>QClaw 常见翻车点合集</li><li>“为什么你的 Agent 不稳定”的根本原因</li></ul>
+<p>这些才是 OpenClaw/QClaw 真正进入生产力层面的核心。</p></div>
+    </section>
+    <section id="s2" class="st2">
+      <div class="sec-h"><span class="idx st2">Q2</span><h2>好的，继续</h2><span class="hint">第 2 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>好的，继续</p></div>
+      <div class="qa-a"><p>很多人用了几个月 OpenClaw/QClaw 后，会进入一个瓶颈：</p>
+<ul class="md-ul"><li>Agent 越来越多</li><li>Prompt 越来越长</li><li>输出越来越不稳定</li><li>自己越来越乱</li></ul>
+<p>真正进阶的关键，其实是：</p>
+<p># 从“会用 AI” 升级到 # “会设计 AI 工作系统”</p>
+<p>下面给你继续讲真正偏高手层面的玩法。</p>
+<p>---</p>
+<p># 一、高手的核心：工作流 &gt; 单次 Prompt</p>
+<p>新手：</p>
+<div class="codeblock"><pre><code>一个 prompt 解决全部问题</code></pre></div>
+<p>高手：</p>
+<div class="codeblock"><pre><code>任务拆解
+→ 多阶段处理
+→ 多 Agent 协同
+→ 中间结果校验
+→ 最终输出</code></pre></div>
+<p>这是本质区别。</p>
+<p>因为：</p>
+<p># AI最怕复杂任务一步到位</p>
+<p>但非常擅长：</p>
+<p># “小步骤链式推理”</p>
+<p>---</p>
+<p># 二、最实用的 AI 工作流结构</p>
+<p>这是非常经典的一套。</p>
+<div class="codeblock"><pre><code>用户输入
+↓
+需求理解
+↓
+信息补全
+↓
+方案规划
+↓
+执行生成
+↓
+质量检查
+↓
+格式化输出</code></pre></div>
+<p>很多人直接跳：</p>
+<div class="codeblock"><pre><code>用户输入 → 最终输出</code></pre></div>
+<p>质量一定不稳定。</p>
+<p>---</p>
+<p># 三、真正稳定的 Agent，都有“状态管理”</p>
+<p>很多人做 Agent 最大问题：</p>
+<p># AI 没有“当前状态”</p>
+<p>导致：</p>
+<ul class="md-ul"><li>一会儿像顾问</li><li>一会儿像客服</li><li>一会儿像写手</li></ul>
+<p>所以高手会：</p>
+<p># 强制 Agent 持续自我确认</p>
+<p>例如：</p>
+<div class="codeblock"><pre><code>当前身份：
+当前目标：
+当前限制：
+当前输出格式：</code></pre></div>
+<p>每轮都重复。</p>
+<p>稳定性会大幅提升。</p>
+<p>---</p>
+<p># 四、高手为什么喜欢“结构化输出”</p>
+<p>因为 AI：</p>
+<p># 天生容易发散</p>
+<p>所以不要：</p>
+<div class="codeblock"><pre><code>自由发挥</code></pre></div>
+<p>而是：</p>
+<div class="codeblock"><pre><code>使用以下结构输出：
+
+# 结论
+# 原因
+# 风险
+# 建议</code></pre></div>
+<p>这会极大减少胡言乱语。</p>
+<p>---</p>
+<p># 五、最容易被忽略的技巧：禁止 AI 自动补全</p>
+<p>很多 AI 翻车：</p>
+<p>不是因为不会。</p>
+<p>而是：</p>
+<p># “脑补太多”</p>
+<p>所以高手会加：</p>
+<div class="codeblock"><pre><code>禁止虚构
+禁止猜测
+信息不足时先提问</code></pre></div>
+<p>尤其：</p>
+<ul class="md-ul"><li>商业</li><li>采购</li><li>合同</li><li>数据</li><li>技术</li></ul>
+<p>特别重要。</p>
+<p>---</p>
+<p># 六、真正厉害的人，会做“Prompt 模块化”</p>
+<p>而不是：</p>
+<p>一个超级长 prompt。</p>
+<p>例如：</p>
+<p>---</p>
+<h3 class="sub-h">模块1：人格</h3>
+<div class="codeblock"><pre><code>你是资深供应链经理</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">模块2：输出规则</h3>
+<div class="codeblock"><pre><code>使用表格
+先结论后分析</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">模块3：限制</h3>
+<div class="codeblock"><pre><code>禁止编造数据</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">模块4：任务</h3>
+<div class="codeblock"><pre><code>分析以下供应商</code></pre></div>
+<p>---</p>
+<p>这样：</p>
+<p># 更容易维护</p>
+<p>否则后面 prompt 会变成“屎山”。</p>
+<p>---</p>
+<p># 七、OpenClaw/QClaw 高手常用的“反幻觉技巧”</p>
+<p>这是非常关键的。</p>
+<p>---</p>
+<h3 class="sub-h">技巧1：引用来源</h3>
+<div class="codeblock"><pre><code>每个结论后给出依据</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">技巧2：置信度机制</h3>
+<div class="codeblock"><pre><code>输出：
+- 高可信
+- 中可信
+- 推测</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">技巧3：缺失信息提示</h3>
+<div class="codeblock"><pre><code>如果信息不足，列出缺失项</code></pre></div>
+<p>这会让 AI 稳很多。</p>
+<p>---</p>
+<p># 八、最重要的进阶：让 Agent “先思考再输出”</p>
+<p>很多人不知道：</p>
+<p># AI默认是“边想边写”</p>
+<p>所以容易：</p>
+<ul class="md-ul"><li>逻辑跳跃</li><li>前后矛盾</li><li>中途跑偏</li></ul>
+<p>高手会：</p>
+<div class="codeblock"><pre><code>先进行内部分析
+不要立刻输出
+完成推理后再给最终答案</code></pre></div>
+<p>效果提升很明显。</p>
+<p>---</p>
+<p># 九、多 Agent 协作的真正玩法</p>
+<p>很多人以为：</p>
+<p>多 Agent = 多人聊天。</p>
+<p>其实高手玩法是：</p>
+<p># “流水线”</p>
+<p>例如：</p>
+<p>---</p>
+<h3 class="sub-h">Agent 1：信息提取</h3>
+<p>只负责：</p>
+<ul class="md-ul"><li>提取重点</li><li>去除废话</li></ul>
+<p>---</p>
+<h3 class="sub-h">Agent 2：逻辑分析</h3>
+<p>只负责：</p>
+<ul class="md-ul"><li>风险</li><li>逻辑</li><li>决策</li></ul>
+<p>---</p>
+<h3 class="sub-h">Agent 3：表达优化</h3>
+<p>只负责：</p>
+<ul class="md-ul"><li>排版</li><li>语言</li><li>专业感</li></ul>
+<p>---</p>
+<p>这叫：</p>
+<p># 单一职责原则</p>
+<p>比万能 Agent 强太多。</p>
+<p>---</p>
+<p># 十、真正高级的：Agent 自治循环</p>
+<p>这是很多 AI 工作室在用的。</p>
+<p>例如：</p>
+<div class="codeblock"><pre><code>生成
+↓
+自检
+↓
+修复
+↓
+重新评分
+↓
+继续优化</code></pre></div>
+<p>甚至：</p>
+<div class="codeblock"><pre><code>低于80分自动重写</code></pre></div>
+<p>这就是：</p>
+<p># AI 自动迭代</p>
+<p>---</p>
+<p># 十一、QClaw/OpenClaw 最容易崩的地方</p>
+<p>---</p>
+<h3 class="sub-h">1. Prompt 太长</h3>
+<p>后果：</p>
+<ul class="md-ul"><li>指令丢失</li><li>后文覆盖前文</li><li>风格漂移</li></ul>
+<p>解决：</p>
+<p># Prompt 分层</p>
+<p>---</p>
+<h3 class="sub-h">2. 一个 Agent 做太多事</h3>
+<p>后果：</p>
+<ul class="md-ul"><li>人格混乱</li><li>输出不稳定</li></ul>
+<p>解决：</p>
+<p># 拆 Agent</p>
+<p>---</p>
+<h3 class="sub-h">3. 上下文太久</h3>
+<p>后果：</p>
+<ul class="md-ul"><li>AI 开始失忆</li></ul>
+<p>解决：</p>
+<p># 定期摘要压缩</p>
+<p>---</p>
+<p># 十二、高手最常用的 Prompt 写法</p>
+<p>这是非常经典的一种。</p>
+<p>---</p>
+<h3 class="sub-h">不要这样：</h3>
+<div class="codeblock"><pre><code>帮我分析一下</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">要这样：</h3>
+<div class="codeblock"><pre><code>任务：
+分析供应商风险
+
+目标：
+判断是否长期合作
+
+维度：
+- 成本
+- 稳定性
+- 替代性
+- 议价能力
+
+输出格式：
+表格 + 最终建议
+
+限制：
+不要虚构数据</code></pre></div>
+<p>这会稳定非常多。</p>
+<p>---</p>
+<p># 十三、真正拉开差距的能力：建立自己的 AI SOP</p>
+<p>高手会：</p>
+<p># 把经验沉淀成固定流程</p>
+<p>例如：</p>
+<p>---</p>
+<h3 class="sub-h">采购分析 SOP</h3>
+<div class="codeblock"><pre><code>输入供应商资料
+↓
+自动提取参数
+↓
+风险评分
+↓
+价格比较
+↓
+谈判建议
+↓
+邮件生成</code></pre></div>
+<p>以后：</p>
+<p># 一键复用</p>
+<p>---</p>
+<p># 十四、高手为什么越来越快</p>
+<p>因为他们：</p>
+<p># 不再“现场思考 Prompt”</p>
+<p>而是：</p>
+<ul class="md-ul"><li>有模板</li><li>有流程</li><li>有模块</li><li>有固定结构</li></ul>
+<p>这才是真正的 AI 工程化。</p>
+<p>---</p>
+<p># 十五、最后一个非常关键的能力</p>
+<p># 学会“控制 AI 的自由度”</p>
+<p>AI自由度越高：</p>
+<ul class="md-ul"><li>创造力越强</li><li>失控概率越大</li></ul>
+<p>AI限制越强：</p>
+<ul class="md-ul"><li>稳定性越高</li><li>创意下降</li></ul>
+<p>高手会：</p>
+<div class="tblwrap"><table><thead><tr><th>场景</th><th>自由度</th></tr></thead><tbody><tr><td>创意 brainstorm</td><td>高</td></tr><tr><td>商务邮件</td><td>低</td></tr><tr><td>数据分析</td><td>极低</td></tr><tr><td>会议纪要</td><td>极低</td></tr><tr><td>方案设计</td><td>中</td></tr><tr><td>风格创作</td><td>高</td></tr></tbody></table></div>
+<p>这叫：</p>
+<p># AI 温度控制思维</p>
+<p>---</p>
+<p>真正的 OpenClaw/QClaw 高阶玩法，本质上已经不是“聊天”。</p>
+<p>而是：</p>
+<p># AI 系统设计</p>
+<p>再往后，其实就是：</p>
+<ul class="md-ul"><li>Agent Engineering</li><li>Prompt Engineering</li><li>Workflow Engineering</li><li>Context Engineering</li></ul>
+<p>这几个方向了。</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>OpenClaw/QClaw 操作技巧 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：OpenClaw/QClaw 操作技巧（2026-05-21）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1", "s2"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

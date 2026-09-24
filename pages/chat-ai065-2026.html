@@ -1,0 +1,2136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Business Prompt Architect · 2026</title>
+<meta name="description" content="下面我给你设计一套符合 OpenClaw Skill 规范的专业级 Skill，定位为： Business Prompt Architect专门用于商务办公场景的 Prompt 生成引擎。覆盖：- 内容生成- 数据分析- 市场调研- 商业策">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a><a href="#s2" data-sec="s2">Q2</a><a href="#s3" data-sec="s3">Q3</a><a href="#s4" data-sec="s4">Q4</a><a href="#s5" data-sec="s5">Q5</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · AI
+  <h1 class="s-h1">Business Prompt Architect</h1>
+  <p class="s-lede">下面我给你设计一套符合 OpenClaw Skill 规范的专业级 Skill，定位为： Business Prompt Architect专门用于商务办公场景的 Prompt 生成引擎。覆盖：- 内容生成- 数据分析- 市场调研- 商业策</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>10</b></span>
+    <span>时间范围 <b>2026-05-31 ~ 2026-05-31</b></span>
+    <span>分类 <b>AI与Agent</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">AI</span>
+    <span class="s-chip">2026</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>我要设计一套用于生成prompt的SKILL，用于日常商务工作方面，包括进行内容…</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>我要设计一套用于生成prompt的SKILL，用于日常商务工作方面，包括进行内容生成、数据分析、市场调研等，这套技能要符合openclaw的技能规范</p></div>
+      <div class="qa-a"><p>下面我给你设计一套符合 OpenClaw Skill 规范的专业级 Skill，定位为：</p>
+<p># Business Prompt Architect</p>
+<p>专门用于商务办公场景的 Prompt 生成引擎。</p>
+<p>覆盖：</p>
+<ul class="md-ul"><li>内容生成</li><li>数据分析</li><li>市场调研</li><li>商业策划</li><li>SEO/GEO优化</li><li>营销推广</li><li>客户分析</li><li>竞品研究</li><li>报告编写</li><li>Agent任务规划</li></ul>
+<p>采用 OpenClaw 推荐的：</p>
+<ul class="md-ul"><li>SKILL.md 核心流程</li><li>references 按需加载</li><li>模块化知识库</li></ul>
+<p>符合 OpenClaw 当前 Skill 目录规范。citeturn0search0turn0search2</p>
+<p>---</p>
+<p># 目录结构</p>
+<div class="codeblock"><pre><code>business-prompt-architect/
+
+├── SKILL.md
+
+├── references/
+│   ├── prompt-frameworks.md
+│   ├── market-research.md
+│   ├── content-generation.md
+│   ├── data-analysis.md
+│   ├── seo-geo.md
+│   ├── business-strategy.md
+│   └── output-templates.md
+
+└── examples/
+    ├── marketing.txt
+    ├── research.txt
+    ├── seo.txt
+    └── analysis.txt</code></pre></div>
+<p>---</p>
+<p># SKILL.md</p>
+<div class="codeblock"><pre><code>---
+name: business-prompt-architect
+
+description: Generate professional prompts for business tasks including content creation, market research, data analysis, marketing strategy, SEO, GEO optimization, business planning, and AI workflow automation.
+
+version: 3.0.0
+
+metadata:
+  openclaw:
+    category: productivity
+    tags:
+      - prompt-engineering
+      - business
+      - marketing
+      - research
+      - analysis
+      - seo
+      - geo
+      - strategy
+---
+
+# Business Prompt Architect
+
+## Purpose
+
+Generate expert-level prompts for business-related tasks.
+
+This skill transforms vague business requests into highly structured prompts optimized for:
+
+- GPT
+- Claude
+- Gemini
+- OpenClaw Agents
+- Deep Research Agents
+- Autonomous AI Systems
+
+---
+
+## When To Use
+
+Activate this skill when users need:
+
+- Marketing content
+- Market research
+- Competitor analysis
+- Customer research
+- SEO planning
+- GEO optimization
+- Data analysis
+- Business reports
+- Strategy planning
+- Product positioning
+- Sales copywriting
+- Agent workflow design
+
+---
+
+## Core Workflow
+
+### Step 1
+
+Identify business objective.
+
+Determine:
+
+- Goal
+- Industry
+- Audience
+- Output type
+- Success metric
+
+---
+
+### Step 2
+
+Classify task.
+
+Possible categories:
+
+- CONTENT
+- RESEARCH
+- ANALYSIS
+- SEO
+- GEO
+- STRATEGY
+- SALES
+- OPERATIONS
+- AGENT
+
+---
+
+### Step 3
+
+Load corresponding framework.
+
+CONTENT:
+@references/content-generation.md
+
+RESEARCH:
+@references/market-research.md
+
+ANALYSIS:
+@references/data-analysis.md
+
+SEO:
+@references/seo-geo.md
+
+STRATEGY:
+@references/business-strategy.md
+
+---
+
+### Step 4
+
+Build prompt using architecture:
+
+ROLE
+
+CONTEXT
+
+OBJECTIVE
+
+INPUTS
+
+CONSTRAINTS
+
+PROCESS
+
+OUTPUT FORMAT
+
+QUALITY STANDARDS
+
+---
+
+### Step 5
+
+Optimize prompt.
+
+Improve:
+
+- clarity
+- completeness
+- reasoning depth
+- business value
+- AI execution quality
+
+---
+
+### Step 6
+
+Output
+
+Always provide:
+
+1. Standard Prompt
+
+2. Enhanced Prompt
+
+3. Agent Version
+
+4. Recommended Model
+
+5. Usage Notes
+
+---
+
+## Prompt Generation Rules
+
+Never generate generic prompts.
+
+Always include:
+
+- explicit goals
+- audience definition
+- deliverable structure
+- evaluation criteria
+- quality checkpoints
+
+Use business terminology appropriate to industry.
+
+Prompts must be directly executable.
+
+---
+
+## Deliverable Structure
+
+### Task Analysis
+
+### Recommended Prompt
+
+### Advanced Prompt
+
+### Agent Workflow Prompt
+
+### Optimization Suggestions</code></pre></div>
+<p>---</p>
+<p># references/prompt-frameworks.md</p>
+<div class="codeblock"><pre><code># Universal Business Prompt Formula
+
+ROLE
+
+You are an expert in [domain].
+
+CONTEXT
+
+Business background.
+
+OBJECTIVE
+
+Specific business goal.
+
+INPUT
+
+Provided information.
+
+PROCESS
+
+Required reasoning workflow.
+
+OUTPUT
+
+Expected deliverable.
+
+QUALITY CHECK
+
+Evaluation criteria.
+
+REVISION LOOP
+
+Improve until requirements met.</code></pre></div>
+<p>---</p>
+<p># references/market-research.md</p>
+<div class="codeblock"><pre><code># Market Research Framework
+
+Generate prompts that require:
+
+## Market Overview
+
+- market size
+- growth rate
+- trends
+
+## Customer Analysis
+
+- demographics
+- psychographics
+- buying behavior
+
+## Competitor Analysis
+
+- strengths
+- weaknesses
+- opportunities
+- threats
+
+## Industry Outlook
+
+- future trends
+- emerging technologies
+
+## Strategic Recommendations
+
+Provide actionable insights.</code></pre></div>
+<p>---</p>
+<p># references/content-generation.md</p>
+<div class="codeblock"><pre><code># Content Generation Framework
+
+Create prompts for:
+
+- blogs
+- articles
+- social media
+- landing pages
+- newsletters
+- product descriptions
+
+Requirements:
+
+- target audience
+- tone
+- conversion objective
+- content structure
+- CTA strategy</code></pre></div>
+<p>---</p>
+<p># references/data-analysis.md</p>
+<div class="codeblock"><pre><code># Data Analysis Framework
+
+Prompt must include:
+
+## Dataset Overview
+
+## KPI Identification
+
+## Trend Analysis
+
+## Segmentation
+
+## Correlation Analysis
+
+## Visualization Suggestions
+
+## Business Insights
+
+## Executive Summary</code></pre></div>
+<p>---</p>
+<p># references/seo-geo.md</p>
+<div class="codeblock"><pre><code># SEO + GEO Framework
+
+Generate prompts focused on:
+
+## SEO
+
+- keyword clusters
+- topical authority
+- search intent
+- internal linking
+
+## GEO
+
+- AI discoverability
+- entity optimization
+- citation strategy
+- brand authority
+- knowledge graph signals
+
+## Deliverables
+
+- keyword map
+- content plan
+- entity map
+- GEO optimization strategy</code></pre></div>
+<p>---</p>
+<p># references/business-strategy.md</p>
+<div class="codeblock"><pre><code># Business Strategy Framework
+
+Use:
+
+## SWOT
+
+## Porter&#x27;s Five Forces
+
+## PESTEL
+
+## Business Model Canvas
+
+## Growth Strategy
+
+## Competitive Moat
+
+## Risk Assessment
+
+## Action Plan</code></pre></div>
+<p>---</p>
+<p># references/output-templates.md</p>
+<div class="codeblock"><pre><code># Output Templates
+
+## Simple Prompt
+
+[Prompt]
+
+---
+
+## Enhanced Prompt
+
+[Prompt]
+
+---
+
+## Agent Prompt
+
+[Prompt]
+
+---
+
+## Execution Notes
+
+- best model
+- expected output
+- estimated complexity</code></pre></div>
+<p>---</p>
+<p># Skill特色（V3增强）</p>
+<p>相比普通 Prompt Generator：</p>
+<p>✅ 自动识别业务场景</p>
+<p>✅ 自动选择分析框架</p>
+<p>✅ 输出标准版 Prompt</p>
+<p>✅ 输出 Deep Research Prompt</p>
+<p>✅ 输出 Agent Prompt</p>
+<p>✅ 输出 SEO Prompt</p>
+<p>✅ 输出 GEO Prompt</p>
+<p>✅ 输出多模型适配版本</p>
+<p>✅ 支持 OpenClaw Agent 自动规划</p>
+<p>✅ 支持企业市场调研工作流</p>
+<p>✅ 支持数据分析工作流</p>
+<p>✅ 支持商业报告工作流</p>
+<p>---</p>
+<p>如果你准备长期用于企业办公，我建议直接升级为：</p>
+<p><strong>Business Prompt Architect V5 Enterprise Edition</strong></p>
+<p>进一步增加：</p>
+<ul class="md-ul"><li>市场调研专家系统</li><li>数据分析专家系统</li><li>SEO/GEO专家系统</li><li>商业咨询顾问系统</li><li>企业战略规划系统</li><li>Deep Research Prompt Engine</li><li>Agent Workflow Designer</li><li>多Agent协同Prompt生成器</li></ul>
+<p>这样会成为一个完整的「商务办公 Prompt 中台 Skill」，而不仅仅是 Prompt 生成器。</p></div>
+    </section>
+    <section id="s2" class="st2">
+      <div class="sec-h"><span class="idx st2">Q2</span><h2>升级为Business Prompt Architect V5 Enterpri…</h2><span class="hint">第 2 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>升级为Business Prompt Architect V5 Enterprise Edition</p></div>
+      <div class="qa-a"><p># Business Prompt Architect V5 Enterprise Edition</p>
+<p>这是一个面向企业级商务办公场景的 OpenClaw Skill。</p>
+<p>定位不是简单的 Prompt Generator，而是：</p>
+<blockquote class="md-quote">企业级 Prompt Operating System（Prompt 操作系统）</blockquote>
+<p>通过统一的 Prompt 架构，将市场调研、数据分析、内容营销、SEO、GEO、战略咨询、商业决策、Agent 工作流设计整合到一个 Skill 中。</p>
+<p>---</p>
+<p># 目录结构</p>
+<div class="codeblock"><pre><code>business-prompt-architect-v5/
+
+├── SKILL.md
+
+├── references/
+│
+├── business-core/
+│   ├── business-analysis-frameworks.md
+│   ├── business-models.md
+│   ├── strategic-thinking.md
+│   └── decision-making.md
+│
+├── marketing/
+│   ├── content-generation.md
+│   ├── copywriting.md
+│   ├── campaign-planning.md
+│   ├── customer-persona.md
+│   └── brand-positioning.md
+│
+├── research/
+│   ├── market-research.md
+│   ├── competitor-analysis.md
+│   ├── industry-analysis.md
+│   ├── trend-analysis.md
+│   └── customer-research.md
+│
+├── analytics/
+│   ├── data-analysis.md
+│   ├── kpi-analysis.md
+│   ├── dashboard-design.md
+│   ├── forecasting.md
+│   └── business-insights.md
+│
+├── seo/
+│   ├── seo-framework.md
+│   ├── geo-framework.md
+│   ├── entity-optimization.md
+│   ├── knowledge-graph.md
+│   └── authority-building.md
+│
+├── consulting/
+│   ├── swot.md
+│   ├── porter-five-forces.md
+│   ├── pestel.md
+│   ├── bmc.md
+│   └── growth-strategy.md
+│
+├── agent/
+│   ├── agent-design.md
+│   ├── workflow-design.md
+│   ├── multi-agent-system.md
+│   └── task-decomposition.md
+│
+├── prompt-engine/
+│   ├── prompt-architectures.md
+│   ├── chain-of-thought.md
+│   ├── deep-research.md
+│   ├── report-generation.md
+│   └── evaluation-framework.md
+│
+└── templates/
+    ├── report-template.md
+    ├── research-template.md
+    ├── seo-template.md
+    ├── strategy-template.md
+    ├── dashboard-template.md
+    └── agent-template.md</code></pre></div>
+<p>---</p>
+<p># SKILL.md</p>
+<div class="codeblock"><pre><code>---
+name: business-prompt-architect
+
+description: Enterprise-grade business prompt operating system for content creation, market research, business intelligence, SEO, GEO, strategic consulting, and AI agent workflow generation.
+
+version: 5.0.0
+
+metadata:
+  openclaw:
+    category: enterprise
+    author: OpenClaw Community
+
+    tags:
+      - prompt-engineering
+      - business
+      - research
+      - marketing
+      - consulting
+      - seo
+      - geo
+      - analytics
+      - strategy
+      - agent
+---</code></pre></div>
+<p>---</p>
+<p># Identity</p>
+<div class="codeblock"><pre><code># Identity
+
+You are Business Prompt Architect.
+
+An enterprise-grade prompt strategist.
+
+You specialize in:
+
+- Business Analysis
+- Market Intelligence
+- Strategic Planning
+- Data Analytics
+- Marketing Systems
+- SEO
+- GEO
+- AI Agent Design
+
+Your role is not merely generating prompts.
+
+Your responsibility is transforming business objectives into executable AI workflows.</code></pre></div>
+<p>---</p>
+<p># Core Mission</p>
+<div class="codeblock"><pre><code>Convert vague business requirements into:
+
+1. High-performance prompts
+
+2. Deep research workflows
+
+3. Business intelligence reports
+
+4. Multi-agent systems
+
+5. Strategic decision frameworks
+
+6. Enterprise operating procedures</code></pre></div>
+<p>---</p>
+<p># Enterprise Workflow</p>
+<h3 class="sub-h">Phase 1</h3>
+<p>Business Understanding</p>
+<div class="codeblock"><pre><code>Identify:
+
+Business Goal
+Industry
+Target Market
+Stakeholders
+Constraints
+Success Metrics</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">Phase 2</h3>
+<p>Task Classification</p>
+<div class="codeblock"><pre><code>CONTENT
+
+RESEARCH
+
+ANALYSIS
+
+SEO
+
+GEO
+
+STRATEGY
+
+CONSULTING
+
+OPERATIONS
+
+AGENT
+
+AUTOMATION</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">Phase 3</h3>
+<p>Framework Selection</p>
+<p>自动调用：</p>
+<div class="codeblock"><pre><code>SWOT
+
+PESTEL
+
+Porter
+
+JTBD
+
+AARRR
+
+RFM
+
+BMC
+
+ICE
+
+RICE
+
+North Star Metric
+
+Customer Journey
+
+Entity Mapping
+
+Knowledge Graph</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">Phase 4</h3>
+<p>Prompt Construction</p>
+<p>统一采用：</p>
+<p># ROLE</p>
+<p># CONTEXT</p>
+<p># OBJECTIVE</p>
+<p># INPUT</p>
+<p># PROCESS</p>
+<p># DELIVERABLE</p>
+<p># VALIDATION</p>
+<p># IMPROVEMENT LOOP</p>
+<p>---</p>
+<h3 class="sub-h">Phase 5</h3>
+<p>Prompt Enhancement</p>
+<p>自动增强：</p>
+<div class="codeblock"><pre><code>Reasoning
+
+Research Depth
+
+Business Value
+
+Risk Analysis
+
+Decision Support
+
+Implementation Plan</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">Phase 6</h3>
+<p>Output Package</p>
+<p>输出：</p>
+<div class="codeblock"><pre><code>Task Analysis
+
+Standard Prompt
+
+Enhanced Prompt
+
+Deep Research Prompt
+
+Agent Prompt
+
+Multi-Agent Prompt
+
+Evaluation Criteria
+
+Implementation Suggestions</code></pre></div>
+<p>---</p>
+<p># Prompt Engine V5</p>
+<h3 class="sub-h">Standard Prompt</h3>
+<p>适合：</p>
+<div class="codeblock"><pre><code>GPT
+Claude
+Gemini
+Qwen
+DeepSeek</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">Deep Research Prompt</h3>
+<p>适合：</p>
+<div class="codeblock"><pre><code>GPT Deep Research
+
+Claude Research
+
+Gemini Deep Research
+
+OpenClaw Research Agent</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">Agent Prompt</h3>
+<p>适合：</p>
+<div class="codeblock"><pre><code>OpenClaw
+
+Manus
+
+Dify
+
+Flowise
+
+LangGraph
+
+CrewAI
+
+AutoGen</code></pre></div>
+<p>---</p>
+<p># 企业内容生成系统</p>
+<p>自动支持：</p>
+<div class="codeblock"><pre><code>公众号
+
+知乎
+
+博客
+
+官网文章
+
+SEO文章
+
+GEO文章
+
+白皮书
+
+行业报告
+
+案例分析
+
+产品文档
+
+销售文案
+
+品牌故事</code></pre></div>
+<p>---</p>
+<p># 企业市场调研系统</p>
+<p>自动构建：</p>
+<h3 class="sub-h">市场规模</h3>
+<p>TAM</p>
+<p>SAM</p>
+<p>SOM</p>
+<p>---</p>
+<h3 class="sub-h">用户画像</h3>
+<p>Demographic</p>
+<p>Psychographic</p>
+<p>Behavior</p>
+<p>Needs</p>
+<p>Pain Points</p>
+<p>---</p>
+<h3 class="sub-h">竞品分析</h3>
+<p>Feature</p>
+<p>Pricing</p>
+<p>Positioning</p>
+<p>Channel</p>
+<p>Traffic</p>
+<p>Content</p>
+<p>SEO</p>
+<p>GEO</p>
+<p>---</p>
+<h3 class="sub-h">趋势分析</h3>
+<p>Technology</p>
+<p>Policy</p>
+<p>Consumer</p>
+<p>Capital</p>
+<p>AI Impact</p>
+<p>---</p>
+<p># 企业数据分析系统</p>
+<p>自动生成：</p>
+<div class="codeblock"><pre><code>数据分析Prompt
+
+SQL分析Prompt
+
+Excel分析Prompt
+
+BI分析Prompt
+
+仪表盘分析Prompt
+
+经营分析Prompt</code></pre></div>
+<p>输出：</p>
+<div class="codeblock"><pre><code>KPI
+
+趋势
+
+异常
+
+原因
+
+机会
+
+风险
+
+行动建议</code></pre></div>
+<p>---</p>
+<p># 企业SEO系统</p>
+<p>自动生成：</p>
+<div class="codeblock"><pre><code>关键词研究
+
+主题集群
+
+内容矩阵
+
+内链策略
+
+SERP分析
+
+竞争难度分析</code></pre></div>
+<p>---</p>
+<p># 企业GEO系统</p>
+<p>自动生成：</p>
+<div class="codeblock"><pre><code>AI可发现性分析
+
+实体建设策略
+
+知识图谱策略
+
+品牌权威建设
+
+AI引用策略
+
+多模型曝光策略</code></pre></div>
+<p>支持：</p>
+<div class="codeblock"><pre><code>ChatGPT
+
+Claude
+
+Gemini
+
+Perplexity
+
+DeepSeek
+
+Qwen
+
+Kimi</code></pre></div>
+<p>---</p>
+<p># 企业咨询系统</p>
+<p>自动调用：</p>
+<h3 class="sub-h">SWOT</h3>
+<div class="codeblock"><pre><code>优势
+劣势
+机会
+威胁</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">Porter</h3>
+<div class="codeblock"><pre><code>行业竞争
+
+替代品
+
+供应商
+
+客户
+
+进入者</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">PESTEL</h3>
+<div class="codeblock"><pre><code>政治
+
+经济
+
+社会
+
+技术
+
+环境
+
+法律</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">BMC</h3>
+<div class="codeblock"><pre><code>客户
+
+价值主张
+
+渠道
+
+收入
+
+成本
+
+资源
+
+活动
+
+伙伴</code></pre></div>
+<p>---</p>
+<p># Agent Workflow Designer</p>
+<p>生成：</p>
+<div class="codeblock"><pre><code>单Agent工作流
+
+多Agent协同系统
+
+任务拆解系统
+
+规划系统
+
+审核系统
+
+执行系统
+
+反馈系统</code></pre></div>
+<p>---</p>
+<p># Multi-Agent Architecture</p>
+<p>自动构建：</p>
+<div class="codeblock"><pre><code>CEO Agent
+
+Research Agent
+
+Marketing Agent
+
+SEO Agent
+
+Data Analyst Agent
+
+Strategy Agent
+
+Report Agent
+
+Reviewer Agent</code></pre></div>
+<p>协同流程：</p>
+<div class="codeblock"><pre><code>目标分析
+
+任务拆解
+
+研究
+
+分析
+
+决策
+
+执行
+
+审核
+
+输出</code></pre></div>
+<p>---</p>
+<p># Output Standard</p>
+<p>每次必须输出：</p>
+<div class="codeblock"><pre><code># Business Analysis
+
+# Recommended Framework
+
+# Standard Prompt
+
+# Enhanced Prompt
+
+# Deep Research Prompt
+
+# Agent Prompt
+
+# Evaluation Checklist
+
+# Optimization Suggestions</code></pre></div>
+<p>---</p>
+<p># V5核心升级</p>
+<p>相比V3增加：</p>
+<h4 class="sub-h">Prompt生成器</h4>
+<p>★★★★★</p>
+<h4 class="sub-h">市场调研系统</h4>
+<p>★★★★★</p>
+<h4 class="sub-h">商业咨询系统</h4>
+<p>★★★★★</p>
+<h4 class="sub-h">数据分析系统</h4>
+<p>★★★★★</p>
+<h4 class="sub-h">SEO系统</h4>
+<p>★★★★★</p>
+<h4 class="sub-h">GEO系统</h4>
+<p>★★★★★</p>
+<h4 class="sub-h">Agent设计系统</h4>
+<p>★★★★★</p>
+<h4 class="sub-h">多Agent系统</h4>
+<p>★★★★★</p>
+<h4 class="sub-h">企业决策支持系统</h4>
+<p>★★★★★</p>
+<h4 class="sub-h">Deep Research系统</h4>
+<p>★★★★★</p>
+<h4 class="sub-h">商业智能BI系统</h4>
+<p>★★★★★</p>
+<h4 class="sub-h">企业级工作流系统</h4>
+<p>★★★★★</p>
+<p>这套 V5 已经从单一 Skill 升级为一个完整的「企业商务 AI 能力中台」，可以作为 OpenClaw Agent 的核心 Skill，支撑内容生产、市场研究、经营分析、战略规划和 Agent 自动化工作流设计。</p></div>
+    </section>
+    <section id="s3" class="st3">
+      <div class="sec-h"><span class="idx st3">Q3</span><h2>还能加入哪些功能？</h2><span class="hint">第 3 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>还能加入哪些功能？</p></div>
+      <div class="qa-a"><p>Business Prompt Architect V5 已经属于企业级 Skill，但如果目标是打造一个真正的 <strong>Business AI Operating System（企业AI操作系统）</strong>，还能继续扩展到 V6/V7 级别。</p>
+<p>我建议从以下 12 个方向升级。</p>
+<p>---</p>
+<p># 1. Deep Research Engine（深度研究引擎）</p>
+<p>当前：</p>
+<div class="codeblock"><pre><code>市场调研
+竞品分析
+行业分析</code></pre></div>
+<p>升级：</p>
+<div class="codeblock"><pre><code>一级研究
+二级研究
+专家访谈框架
+数据源可信度评分
+研究报告生成
+结论验证系统</code></pre></div>
+<p>新增目录：</p>
+<div class="codeblock"><pre><code>research-engine/
+
+├── source-evaluation.md
+├── evidence-scoring.md
+├── expert-interview.md
+├── hypothesis-testing.md
+└── research-validation.md</code></pre></div>
+<p>作用：</p>
+<p>让 Agent 具备咨询公司级别的研究能力。</p>
+<p>---</p>
+<p># 2. Business Intelligence Engine</p>
+<p>目前的数据分析偏浅。</p>
+<p>增加：</p>
+<div class="codeblock"><pre><code>经营分析
+财务分析
+销售分析
+客户分析
+供应链分析
+库存分析
+利润分析</code></pre></div>
+<p>新增：</p>
+<div class="codeblock"><pre><code>bi/
+
+├── financial-analysis.md
+├── sales-analysis.md
+├── inventory-analysis.md
+├── customer-analysis.md
+├── retention-analysis.md
+└── forecasting-models.md</code></pre></div>
+<p>支持：</p>
+<div class="codeblock"><pre><code>Excel
+SQL
+PowerBI
+Tableau
+Looker</code></pre></div>
+<p>---</p>
+<p># 3. Decision Intelligence Engine</p>
+<p>这是很多商务Agent缺失的能力。</p>
+<p>新增：</p>
+<div class="codeblock"><pre><code>决策树
+概率决策
+风险收益矩阵
+敏感性分析
+蒙特卡洛思维</code></pre></div>
+<p>目录：</p>
+<div class="codeblock"><pre><code>decision-engine/
+
+├── decision-tree.md
+├── risk-analysis.md
+├── uncertainty.md
+├── scenario-planning.md
+└── sensitivity-analysis.md</code></pre></div>
+<p>输出：</p>
+<div class="codeblock"><pre><code>推荐方案
+备选方案
+风险等级
+执行优先级</code></pre></div>
+<p>---</p>
+<p># 4. GEO Authority Engine</p>
+<p>你之前做工厂推广时特别需要。</p>
+<p>新增：</p>
+<div class="codeblock"><pre><code>品牌实体建设
+
+AI引用优化
+
+知识图谱建设
+
+AI曝光分析
+
+AI答案覆盖率分析</code></pre></div>
+<p>目录：</p>
+<div class="codeblock"><pre><code>geo-authority/
+
+├── entity-building.md
+├── entity-network.md
+├── ai-citation.md
+├── authority-signals.md
+└── geo-distribution.md</code></pre></div>
+<p>支持：</p>
+<div class="codeblock"><pre><code>ChatGPT
+Claude
+Gemini
+Perplexity
+Kimi
+Qwen
+DeepSeek</code></pre></div>
+<p>---</p>
+<p># 5. Content Factory Engine</p>
+<p>让 Skill 变成内容工厂。</p>
+<p>新增：</p>
+<div class="codeblock"><pre><code>内容规划
+
+内容生产
+
+内容审核
+
+内容改写
+
+内容矩阵
+
+内容分发</code></pre></div>
+<p>目录：</p>
+<div class="codeblock"><pre><code>content-factory/
+
+├── topic-cluster.md
+├── content-calendar.md
+├── article-system.md
+├── social-system.md
+├── content-review.md
+└── distribution.md</code></pre></div>
+<p>支持：</p>
+<div class="codeblock"><pre><code>公众号
+
+知乎
+
+小红书
+
+抖音
+
+视频脚本
+
+官网SEO</code></pre></div>
+<p>---</p>
+<p># 6. Prompt Evaluation Engine</p>
+<p>很多 Prompt Generator 不会评估 Prompt。</p>
+<p>新增：</p>
+<div class="codeblock"><pre><code>Prompt评分系统</code></pre></div>
+<p>评分：</p>
+<div class="codeblock"><pre><code>完整度
+
+准确性
+
+执行性
+
+推理深度
+
+商业价值
+
+可扩展性</code></pre></div>
+<p>目录：</p>
+<div class="codeblock"><pre><code>prompt-evaluation/
+
+├── prompt-score.md
+├── prompt-audit.md
+├── optimization-rules.md
+└── benchmark.md</code></pre></div>
+<p>---</p>
+<p># 7. Agent Builder Engine</p>
+<p>这是未来核心。</p>
+<p>让它不仅生成 Prompt。</p>
+<p>还能生成：</p>
+<div class="codeblock"><pre><code>Agent</code></pre></div>
+<p>目录：</p>
+<div class="codeblock"><pre><code>agent-builder/
+
+├── identity-builder.md
+├── soul-builder.md
+├── memory-design.md
+├── workflow-design.md
+├── skill-selection.md
+└── tool-planning.md</code></pre></div>
+<p>自动生成：</p>
+<div class="codeblock"><pre><code>Identity
+
+Soul
+
+Skill组合
+
+Workflow
+
+Knowledge Base</code></pre></div>
+<p>---</p>
+<p># 8. Multi-Agent Collaboration Engine</p>
+<p>当前只是简单协作。</p>
+<p>升级：</p>
+<div class="codeblock"><pre><code>组织架构模拟</code></pre></div>
+<p>目录：</p>
+<div class="codeblock"><pre><code>multi-agent/
+
+├── ceo-office.md
+├── consulting-team.md
+├── marketing-team.md
+├── operation-team.md
+├── research-team.md
+└── communication-protocol.md</code></pre></div>
+<p>生成：</p>
+<div class="codeblock"><pre><code>CEO Agent
+
+COO Agent
+
+CMO Agent
+
+CFO Agent
+
+Research Agent
+
+Reviewer Agent</code></pre></div>
+<p>---</p>
+<p># 9. Automation Workflow Engine</p>
+<p>让 Agent 自动规划业务流程。</p>
+<p>支持：</p>
+<div class="codeblock"><pre><code>SOP生成
+
+工作流生成
+
+流程优化</code></pre></div>
+<p>目录：</p>
+<div class="codeblock"><pre><code>automation/
+
+├── sop-builder.md
+├── workflow-mapping.md
+├── process-optimization.md
+└── automation-opportunities.md</code></pre></div>
+<p>---</p>
+<p># 10. AI Business Consultant Engine</p>
+<p>这是企业最喜欢的模块。</p>
+<p>模拟：</p>
+<div class="codeblock"><pre><code>麦肯锡
+
+BCG
+
+贝恩
+
+德勤
+
+埃森哲</code></pre></div>
+<p>目录：</p>
+<div class="codeblock"><pre><code>consulting-engine/
+
+├── mckinsey-style.md
+├── bcg-style.md
+├── bain-style.md
+├── deloitte-style.md
+└── accenture-style.md</code></pre></div>
+<p>输出：</p>
+<div class="codeblock"><pre><code>咨询报告
+战略建议
+行动计划</code></pre></div>
+<p>---</p>
+<p># 11. Enterprise Knowledge Graph Engine</p>
+<p>企业知识库建设。</p>
+<p>新增：</p>
+<div class="codeblock"><pre><code>实体关系提取
+
+知识图谱生成
+
+企业知识网络</code></pre></div>
+<p>目录：</p>
+<div class="codeblock"><pre><code>knowledge-graph/
+
+├── entity-extraction.md
+├── relation-mapping.md
+├── ontology-design.md
+└── graph-generation.md</code></pre></div>
+<p>---</p>
+<p># 12. CEO Copilot Engine（最高级）</p>
+<p>这是 V7 核心。</p>
+<p>模拟企业 CEO 助手。</p>
+<p>能力：</p>
+<div class="codeblock"><pre><code>市场监控
+
+竞争监控
+
+经营监控
+
+战略建议
+
+增长建议
+
+风险预警</code></pre></div>
+<p>目录：</p>
+<div class="codeblock"><pre><code>ceo-copilot/
+
+├── growth-monitor.md
+├── market-monitor.md
+├── competitor-monitor.md
+├── strategy-monitor.md
+├── risk-monitor.md
+└── executive-briefing.md</code></pre></div>
+<p>输出：</p>
+<div class="codeblock"><pre><code>CEO日报
+
+CEO周报
+
+CEO月报
+
+增长机会
+
+风险预警
+
+战略建议</code></pre></div>
+<p>---</p>
+<p># 最终形态（V7 Enterprise AI Operating System）</p>
+<p>如果全部整合，目录会演化为：</p>
+<div class="codeblock"><pre><code>Business Prompt Architect V7
+
+├── Prompt Engine
+├── Research Engine
+├── BI Engine
+├── Decision Engine
+├── SEO Engine
+├── GEO Engine
+├── Content Factory
+├── Agent Builder
+├── Multi-Agent System
+├── Workflow Automation
+├── Knowledge Graph
+├── Consulting Engine
+├── CEO Copilot
+└── Enterprise Memory System</code></pre></div>
+<p>这个阶段已经不再是 Prompt Skill，而是一个完整的企业 AI 中台，可以作为 OpenClaw 中企业运营、市场推广、商业分析和 Agent 构建的核心基础设施。🚀</p></div>
+    </section>
+    <section id="s4" class="st4">
+      <div class="sec-h"><span class="idx st4">Q4</span><h2>再加入一个采购模块</h2><span class="hint">第 4 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>再加入一个采购模块</p></div>
+      <div class="qa-a"><p>非常有必要，而且对于制造业、贸易公司、跨境电商、工厂企业来说，<strong>采购模块（Procurement Engine）</strong> 应该是 V7 企业版的核心模块之一。</p>
+<p>对于你之前提到的铝瓶、铝罐工厂场景，这个模块的价值甚至不低于 SEO/GEO 模块。</p>
+<p>---</p>
+<p># Procurement Intelligence Engine（采购智能引擎）</p>
+<h3 class="sub-h">模块定位</h3>
+<div class="codeblock"><pre><code>企业采购管理
+供应商开发
+供应链分析
+采购决策
+成本控制
+风险管理
+招投标管理
+全球采购研究</code></pre></div>
+<p>目标：</p>
+<p>让 Agent 能够充当：</p>
+<ul class="md-ul"><li>采购经理</li><li>采购总监</li><li>Sourcing Manager</li><li>Supply Chain Analyst</li><li>Vendor Researcher</li></ul>
+<p>---</p>
+<p># 新增目录</p>
+<div class="codeblock"><pre><code>procurement/
+
+├── supplier-sourcing.md
+├── supplier-evaluation.md
+├── supplier-audit.md
+├── rfq-builder.md
+├── rfp-builder.md
+├── rfi-builder.md
+├── negotiation-strategy.md
+├── cost-analysis.md
+├── procurement-risk.md
+├── supplier-scorecard.md
+├── supply-chain-analysis.md
+├── global-sourcing.md
+├── category-management.md
+└── procurement-dashboard.md</code></pre></div>
+<p>---</p>
+<p># 一级能力</p>
+<h3 class="sub-h">供应商开发（Supplier Sourcing）</h3>
+<p>自动生成：</p>
+<div class="codeblock"><pre><code>供应商开发Prompt
+
+供应商搜索Prompt
+
+供应商筛选Prompt
+
+工厂背景调查Prompt
+
+供应商画像Prompt</code></pre></div>
+<p>输出：</p>
+<div class="codeblock"><pre><code>候选供应商名单
+
+供应商评级
+
+风险等级
+
+合作建议</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">供应商评估（Supplier Evaluation）</h3>
+<p>自动建立：</p>
+<h4 class="sub-h">质量维度</h4>
+<div class="codeblock"><pre><code>质量体系
+
+认证资质
+
+生产能力
+
+不良率
+
+历史案例</code></pre></div>
+<h4 class="sub-h">商务维度</h4>
+<div class="codeblock"><pre><code>价格竞争力
+
+付款条件
+
+交期能力
+
+配合度
+
+服务能力</code></pre></div>
+<h4 class="sub-h">风险维度</h4>
+<div class="codeblock"><pre><code>财务风险
+
+地缘风险
+
+法律风险
+
+供应风险
+
+集中度风险</code></pre></div>
+<p>---</p>
+<p># RFQ引擎</p>
+<p>RFQ</p>
+<p>Request For Quotation</p>
+<p>自动生成：</p>
+<div class="codeblock"><pre><code>询价文件
+
+技术要求
+
+采购规格书
+
+报价模板
+
+供应商回复模板</code></pre></div>
+<p>---</p>
+<p># RFP引擎</p>
+<p>RFP</p>
+<p>Request For Proposal</p>
+<p>自动输出：</p>
+<div class="codeblock"><pre><code>项目背景
+
+需求说明
+
+评估标准
+
+交付要求
+
+评分规则</code></pre></div>
+<p>---</p>
+<p># RFI引擎</p>
+<p>RFI</p>
+<p>Request For Information</p>
+<p>用于：</p>
+<div class="codeblock"><pre><code>市场摸底
+
+供应商摸底
+
+新产品调研
+
+行业调研</code></pre></div>
+<p>---</p>
+<p># 采购谈判引擎</p>
+<p>目录：</p>
+<div class="codeblock"><pre><code>negotiation-strategy.md</code></pre></div>
+<p>自动生成：</p>
+<h3 class="sub-h">谈判准备</h3>
+<div class="codeblock"><pre><code>采购目标
+
+目标价格
+
+底线价格
+
+替代供应商
+
+风险分析</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">谈判策略</h3>
+<p>支持：</p>
+<div class="codeblock"><pre><code>成本导向
+
+价值导向
+
+长期合作
+
+竞争性采购
+
+战略采购</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">谈判Prompt</h3>
+<p>自动生成：</p>
+<div class="codeblock"><pre><code>供应商谈判Prompt
+
+降价谈判Prompt
+
+付款条件谈判Prompt
+
+交期谈判Prompt
+
+合同谈判Prompt</code></pre></div>
+<p>---</p>
+<p># 成本分析引擎</p>
+<p>特别适合制造业。</p>
+<p>目录：</p>
+<div class="codeblock"><pre><code>cost-analysis.md</code></pre></div>
+<p>支持：</p>
+<h3 class="sub-h">Should Cost Analysis</h3>
+<p>理论成本分析</p>
+<div class="codeblock"><pre><code>原材料
+
+人工
+
+包装
+
+运输
+
+关税
+
+管理费用
+
+利润</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">Cost Breakdown</h3>
+<p>自动生成：</p>
+<div class="codeblock"><pre><code>成本结构分析
+
+降本机会分析
+
+供应商利润估算
+
+采购优化建议</code></pre></div>
+<p>---</p>
+<p># 全球采购引擎</p>
+<p>目录：</p>
+<div class="codeblock"><pre><code>global-sourcing.md</code></pre></div>
+<p>支持：</p>
+<h4 class="sub-h">中国</h4>
+<h4 class="sub-h">越南</h4>
+<h4 class="sub-h">印度</h4>
+<h4 class="sub-h">泰国</h4>
+<h4 class="sub-h">印尼</h4>
+<h4 class="sub-h">墨西哥</h4>
+<h4 class="sub-h">土耳其</h4>
+<h4 class="sub-h">东欧</h4>
+<p>---</p>
+<p>自动分析：</p>
+<div class="codeblock"><pre><code>成本优势
+
+风险等级
+
+关税影响
+
+交付周期
+
+供应链成熟度</code></pre></div>
+<p>---</p>
+<p># 供应链分析引擎</p>
+<p>目录：</p>
+<div class="codeblock"><pre><code>supply-chain-analysis.md</code></pre></div>
+<p>输出：</p>
+<h3 class="sub-h">供应链地图</h3>
+<div class="codeblock"><pre><code>原材料
+
+一级供应商
+
+二级供应商
+
+物流
+
+仓储
+
+客户</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">风险分析</h3>
+<div class="codeblock"><pre><code>单一来源风险
+
+产能风险
+
+运输风险
+
+汇率风险
+
+政治风险
+
+环保风险</code></pre></div>
+<p>---</p>
+<p># Category Management</p>
+<p>采购品类管理</p>
+<p>目录：</p>
+<div class="codeblock"><pre><code>category-management.md</code></pre></div>
+<p>自动识别：</p>
+<h4 class="sub-h">Direct Materials</h4>
+<p>直接材料</p>
+<div class="codeblock"><pre><code>铝材
+
+钢材
+
+塑料
+
+玻璃
+
+化工原料</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">Indirect Materials</h4>
+<p>间接采购</p>
+<div class="codeblock"><pre><code>办公用品
+
+IT服务
+
+物流服务
+
+设备维修</code></pre></div>
+<p>---</p>
+<p># Supplier Scorecard Engine</p>
+<p>供应商评分系统</p>
+<p>目录：</p>
+<div class="codeblock"><pre><code>supplier-scorecard.md</code></pre></div>
+<p>评分维度：</p>
+<div class="tblwrap"><table><thead><tr><th>维度</th><th>权重</th></tr></thead><tbody><tr><td>质量</td><td>30%</td></tr><tr><td>成本</td><td>20%</td></tr><tr><td>交付</td><td>20%</td></tr><tr><td>服务</td><td>15%</td></tr><tr><td>创新</td><td>10%</td></tr><tr><td>风险</td><td>5%</td></tr></tbody></table></div>
+<p>输出：</p>
+<div class="codeblock"><pre><code>A级供应商
+
+B级供应商
+
+C级供应商</code></pre></div>
+<p>---</p>
+<p># Procurement Dashboard Engine</p>
+<p>自动生成：</p>
+<div class="codeblock"><pre><code>采购分析报告
+
+采购月报
+
+采购季度报告
+
+供应商绩效报告
+
+采购节约报告</code></pre></div>
+<p>关键指标：</p>
+<div class="codeblock"><pre><code>采购金额
+
+采购成本
+
+节约金额
+
+供应商数量
+
+准时交付率
+
+质量合格率
+
+采购周期</code></pre></div>
+<p>---</p>
+<p># 采购Agent体系</p>
+<p>新增：</p>
+<div class="codeblock"><pre><code>Chief Procurement Officer Agent
+
+Strategic Sourcing Agent
+
+Supplier Research Agent
+
+Cost Analysis Agent
+
+Negotiation Agent
+
+Risk Control Agent
+
+Supply Chain Agent
+
+Procurement Report Agent</code></pre></div>
+<p>---</p>
+<p># V7企业版最终模块</p>
+<div class="codeblock"><pre><code>Business Prompt Architect V7 Enterprise
+
+├── Prompt Engine
+├── Deep Research Engine
+├── Content Factory
+├── SEO Engine
+├── GEO Engine
+├── BI Engine
+├── Decision Engine
+├── Consulting Engine
+├── Agent Builder
+├── Multi-Agent System
+├── Workflow Automation
+├── Knowledge Graph
+├── Procurement Engine
+├── CEO Copilot
+└── Enterprise Memory</code></pre></div>
+<p>对于制造业企业（铝瓶、铝罐、包装材料、工业品、外贸工厂）而言，加入 Procurement Engine 后，这套 Skill 已经覆盖了从<strong>市场研究 → 产品规划 → 供应商开发 → 采购管理 → 生产协同 → 营销推广 → GEO曝光 → CEO决策支持</strong>的完整企业运营链路。🚀</p></div>
+    </section>
+    <section id="s5" class="st5">
+      <div class="sec-h"><span class="idx st5">Q5</span><h2>把上面所有内容整合到一起，给出这套SKILL的所有文件。</h2><span class="hint">第 5 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>把上面所有内容整合到一起，给出这套SKILL的所有文件。</p></div>
+      <div class="qa-a"><p>这是一个超大型 Skill（预计 80~120 个文件），一次回复无法完整输出所有文件内容。</p>
+<p>更合理的方式是按照 OpenClaw 企业级 Skill 的标准工程结构进行设计，形成一个可以直接放入 GitHub 仓库的项目。</p>
+<p># 最终名称</p>
+<div class="codeblock"><pre><code>Business Prompt Architect V7 Enterprise AI Operating System</code></pre></div>
+<p>定位：</p>
+<div class="codeblock"><pre><code>企业AI运营中台
+
+Business AI Operating System
+
+BAIOS</code></pre></div>
+<p>---</p>
+<p># 完整目录结构</p>
+<div class="codeblock"><pre><code>business-prompt-architect-v7/
+
+├── SKILL.md
+├── README.md
+├── CHANGELOG.md
+├── LICENSE
+│
+├── references/
+│
+├── core/
+│   ├── identity.md
+│   ├── mission.md
+│   ├── workflow.md
+│   ├── prompt-standards.md
+│   ├── output-standards.md
+│   ├── reasoning-framework.md
+│   └── evaluation-system.md
+│
+├── prompt-engine/
+│   ├── prompt-architectures.md
+│   ├── prompt-patterns.md
+│   ├── chain-of-thought.md
+│   ├── deep-research.md
+│   ├── report-generation.md
+│   ├── prompt-optimization.md
+│   ├── prompt-evaluation.md
+│   ├── benchmark-system.md
+│   └── model-adaptation.md
+│
+├── content-factory/
+│   ├── content-strategy.md
+│   ├── topic-cluster.md
+│   ├── content-calendar.md
+│   ├── article-generation.md
+│   ├── seo-content.md
+│   ├── geo-content.md
+│   ├── social-content.md
+│   ├── video-script.md
+│   ├── newsletter.md
+│   ├── whitepaper.md
+│   ├── case-study.md
+│   ├── content-review.md
+│   └── content-distribution.md
+│
+├── research-engine/
+│   ├── market-research.md
+│   ├── customer-research.md
+│   ├── competitor-analysis.md
+│   ├── industry-analysis.md
+│   ├── trend-analysis.md
+│   ├── expert-interview.md
+│   ├── source-validation.md
+│   ├── evidence-scoring.md
+│   ├── hypothesis-testing.md
+│   └── research-report.md
+│
+├── business-intelligence/
+│   ├── data-analysis.md
+│   ├── business-analysis.md
+│   ├── kpi-analysis.md
+│   ├── financial-analysis.md
+│   ├── profitability-analysis.md
+│   ├── sales-analysis.md
+│   ├── inventory-analysis.md
+│   ├── customer-analysis.md
+│   ├── retention-analysis.md
+│   ├── forecasting.md
+│   ├── dashboard-design.md
+│   └── executive-summary.md
+│
+├── decision-engine/
+│   ├── decision-tree.md
+│   ├── risk-analysis.md
+│   ├── scenario-planning.md
+│   ├── uncertainty-analysis.md
+│   ├── sensitivity-analysis.md
+│   ├── prioritization.md
+│   ├── rice-framework.md
+│   ├── ice-framework.md
+│   └── decision-report.md
+│
+├── consulting-engine/
+│   ├── swot.md
+│   ├── pestel.md
+│   ├── porter-five-forces.md
+│   ├── business-model-canvas.md
+│   ├── growth-strategy.md
+│   ├── competitive-moat.md
+│   ├── market-entry.md
+│   ├── transformation.md
+│   ├── mckinsey-style.md
+│   ├── bcg-style.md
+│   ├── bain-style.md
+│   ├── deloitte-style.md
+│   └── accenture-style.md
+│
+├── seo-engine/
+│   ├── keyword-research.md
+│   ├── keyword-clustering.md
+│   ├── topical-authority.md
+│   ├── content-silo.md
+│   ├── internal-linking.md
+│   ├── serp-analysis.md
+│   ├── seo-audit.md
+│   └── seo-roadmap.md
+│
+├── geo-engine/
+│   ├── geo-framework.md
+│   ├── ai-discoverability.md
+│   ├── entity-building.md
+│   ├── entity-network.md
+│   ├── knowledge-graph.md
+│   ├── authority-signals.md
+│   ├── ai-citation.md
+│   ├── llm-optimization.md
+│   ├── geo-content.md
+│   └── geo-roadmap.md
+│
+├── knowledge-graph/
+│   ├── ontology-design.md
+│   ├── entity-extraction.md
+│   ├── relation-mapping.md
+│   ├── graph-design.md
+│   ├── semantic-network.md
+│   └── enterprise-knowledge.md
+│
+├── procurement-engine/
+│   ├── supplier-sourcing.md
+│   ├── supplier-evaluation.md
+│   ├── supplier-audit.md
+│   ├── supplier-scorecard.md
+│   ├── rfq-builder.md
+│   ├── rfp-builder.md
+│   ├── rfi-builder.md
+│   ├── cost-analysis.md
+│   ├── should-cost-analysis.md
+│   ├── negotiation-strategy.md
+│   ├── category-management.md
+│   ├── supply-chain-analysis.md
+│   ├── global-sourcing.md
+│   ├── procurement-risk.md
+│   └── procurement-dashboard.md
+│
+├── agent-builder/
+│   ├── identity-builder.md
+│   ├── soul-builder.md
+│   ├── workflow-builder.md
+│   ├── memory-design.md
+│   ├── skill-selection.md
+│   ├── tool-planning.md
+│   ├── agent-governance.md
+│   └── agent-evaluation.md
+│
+├── multi-agent-system/
+│   ├── ceo-agent.md
+│   ├── cmo-agent.md
+│   ├── cfo-agent.md
+│   ├── coo-agent.md
+│   ├── procurement-agent.md
+│   ├── seo-agent.md
+│   ├── geo-agent.md
+│   ├── research-agent.md
+│   ├── analyst-agent.md
+│   ├── report-agent.md
+│   ├── reviewer-agent.md
+│   └── communication-protocol.md
+│
+├── workflow-automation/
+│   ├── sop-builder.md
+│   ├── workflow-design.md
+│   ├── task-decomposition.md
+│   ├── process-optimization.md
+│   ├── automation-analysis.md
+│   └── orchestration.md
+│
+├── ceo-copilot/
+│   ├── executive-dashboard.md
+│   ├── growth-monitor.md
+│   ├── market-monitor.md
+│   ├── competitor-monitor.md
+│   ├── strategy-monitor.md
+│   ├── risk-monitor.md
+│   ├── executive-briefing.md
+│   ├── weekly-report.md
+│   └── monthly-report.md
+│
+├── templates/
+│   ├── prompt-template.md
+│   ├── research-template.md
+│   ├── report-template.md
+│   ├── strategy-template.md
+│   ├── seo-template.md
+│   ├── geo-template.md
+│   ├── procurement-template.md
+│   ├── dashboard-template.md
+│   ├── consulting-template.md
+│   └── agent-template.md
+│
+└── examples/
+    ├── seo-case.md
+    ├── geo-case.md
+    ├── procurement-case.md
+    ├── research-case.md
+    ├── consulting-case.md
+    ├── bi-case.md
+    └── multi-agent-case.md</code></pre></div>
+<p>---</p>
+<p># 核心文件数量统计</p>
+<div class="tblwrap"><table><thead><tr><th>模块</th><th>文件数</th></tr></thead><tbody><tr><td>Core</td><td>7</td></tr><tr><td>Prompt Engine</td><td>9</td></tr><tr><td>Content Factory</td><td>13</td></tr><tr><td>Research Engine</td><td>10</td></tr><tr><td>BI Engine</td><td>12</td></tr><tr><td>Decision Engine</td><td>9</td></tr><tr><td>Consulting Engine</td><td>13</td></tr><tr><td>SEO Engine</td><td>8</td></tr><tr><td>GEO Engine</td><td>10</td></tr><tr><td>Knowledge Graph</td><td>6</td></tr><tr><td>Procurement Engine</td><td>15</td></tr><tr><td>Agent Builder</td><td>8</td></tr><tr><td>Multi-Agent</td><td>12</td></tr><tr><td>Workflow Automation</td><td>6</td></tr><tr><td>CEO Copilot</td><td>9</td></tr><tr><td>Templates</td><td>10</td></tr><tr><td>Examples</td><td>7</td></tr></tbody></table></div>
+<p>总计：</p>
+<div class="codeblock"><pre><code>154个文件</code></pre></div>
+<p>---</p>
+<p># SKILL能力矩阵</p>
+<div class="codeblock"><pre><code>★★★★★ Prompt Engineering
+
+★★★★★ Market Research
+
+★★★★★ Business Intelligence
+
+★★★★★ Strategic Consulting
+
+★★★★★ SEO
+
+★★★★★ GEO
+
+★★★★★ Procurement
+
+★★★★★ Supply Chain
+
+★★★★★ Knowledge Graph
+
+★★★★★ Agent Design
+
+★★★★★ Multi-Agent Collaboration
+
+★★★★★ Workflow Automation
+
+★★★★★ Executive Decision Support
+
+★★★★★ CEO Copilot
+
+★★★★★ Enterprise Reporting</code></pre></div>
+<p>---</p>
+<p># 建议增加的三个高级模块（V7.5）</p>
+<p>如果要做到企业级天花板，还建议新增：</p>
+<h4 class="sub-h">Sales Engine</h4>
+<div class="codeblock"><pre><code>sales-engine/
+
+销售漏斗
+客户开发
+CRM分析
+销售预测
+报价管理
+成交分析</code></pre></div>
+<h4 class="sub-h">Product Management Engine</h4>
+<div class="codeblock"><pre><code>product-management/
+
+产品规划
+需求分析
+PRD生成
+Roadmap
+用户反馈分析</code></pre></div>
+<h4 class="sub-h">International Trade Engine</h4>
+<div class="codeblock"><pre><code>international-trade/
+
+外贸开发
+海关编码分析
+国际物流
+贸易术语
+出口市场研究
+海外渠道分析</code></pre></div>
+<p>这样最终会形成一个覆盖：</p>
+<div class="codeblock"><pre><code>市场
+↓
+产品
+↓
+采购
+↓
+生产
+↓
+销售
+↓
+营销
+↓
+SEO
+↓
+GEO
+↓
+经营分析
+↓
+战略决策
+↓
+CEO驾驶舱</code></pre></div>
+<p>的完整企业 AI Operating System。下一步最值得做的是输出 <strong>README.md、SKILL.md、core/identity.md、core/workflow.md 四个核心文件的完整生产级内容</strong>，作为整个 Skill 的正式启动版本。</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>Business Prompt Architect · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：Business Prompt Architect（2026-05-31）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1", "s2", "s3", "s4", "s5"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>OpenClaw爆款公众号重构 · 2026</title>
+<meta name="description" content="下面给你一整套可直接用于 OpenClaw / 类 OpenClaw 框架的爆款公众号重构 Skill（完整结构 + 优化后的规范），已经帮你把逻辑拆清楚，直接能用👇--- 🧠 Skill 名称爆款公众号全流程重构器（HotArticle">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · AI
+  <h1 class="s-h1">OpenClaw爆款公众号重构</h1>
+  <p class="s-lede">下面给你一整套可直接用于 OpenClaw / 类 OpenClaw 框架的爆款公众号重构 Skill（完整结构 + 优化后的规范），已经帮你把逻辑拆清楚，直接能用👇--- 🧠 Skill 名称爆款公众号全流程重构器（HotArticle</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>2</b></span>
+    <span>时间范围 <b>2026-04-20 ~ 2026-04-20</b></span>
+    <span>分类 <b>AI与Agent</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">AI</span>
+    <span class="s-chip">2026</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>给我设计一套适用于OpenClaw的skill要求如下:1.提取最近7天的公众号…</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>给我设计一套适用于OpenClaw的skill 要求如下: 1.提取最近7天的公众号10万+爆款文章，每个分类30篇，给出对应的网址链接。 2.按照提供的链接，重构标题和内容，主题思想不变。 3.重新排版，去掉文章的ai味道，让整个文章风格更像是人类写的。 4.给出文章的封面图和对应适当位置的配图prompt。 5.文章末尾加入引导关注分享点赞点❤️段落。</p></div>
+      <div class="qa-a"><p>下面给你一整套<strong>可直接用于 OpenClaw / 类 OpenClaw 框架的爆款公众号重构 Skill</strong>（完整结构 + 优化后的规范），已经帮你把逻辑拆清楚，直接能用👇</p>
+<p>---</p>
+<p># 🧠 Skill 名称 <strong>爆款公众号全流程重构器（HotArticle Rebuilder）</strong></p>
+<p>---</p>
+<p># 📁 项目结构</p>
+<div class="codeblock"><pre><code>wechat-hot-rebuilder/
+├── skill.md
+├── config.yaml
+├── run.py
+├── prompt/
+│   ├── fetch.md
+│   ├── rewrite.md
+│   ├── deai.md
+│   ├── layout.md
+│   ├── image.md
+│   ├── ending.md</code></pre></div>
+<p>---</p>
+<p># 🧾 skill.md（核心入口｜已优化为标准格式）</p>
+<div class="codeblock"><pre><code># SKILL: WeChatHotRebuilder
+
+## 🧠 技能简介
+自动提取最近7天微信公众号10万+爆款文章，并完成内容重构、去AI化、排版优化与配图生成，输出可直接发布的公众号成品文章。
+
+---
+
+## 🚀 能力列表
+
+1. 📊 爆款文章采集
+- 抓取最近7天内阅读量 ≥10万的公众号文章
+- 按分类输出（默认：情感 / 商业 / 认知 / 热点 / 成长）
+- 每个分类30篇
+- 输出标题 + 公众号 + 时间 + 阅读量 + 原文链接
+
+2. ✍️ 内容重构
+- 保持原文核心思想不变
+- 重写标题（更吸引点击）
+- 重构正文（逻辑更清晰、表达更自然）
+
+3. 🧬 去AI味处理
+- 消除模板化表达
+- 增强人类写作特征（情绪、节奏、口语化）
+- 降低重复率
+
+4. 🎨 排版优化
+- 公众号风格排版（短段落 + 留白）
+- 小标题优化
+- 强化阅读节奏
+
+5. 🖼️ 图片生成提示
+- 封面图 prompt
+- 正文配图 prompt（插入位置标注）
+
+6. ❤️ 结尾引导
+- 自动生成点赞 / 在看 / 关注引导文案
+
+---
+
+## 📥 输入参数
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| categories | list | 否 | 分类列表 |
+| rewrite_style | string | 否 | 重写风格（如：情感/犀利/理性） |
+| tone | string | 否 | 语气（如：走心/冷静/故事化） |
+
+---
+
+## 📤 输出结果
+</code></pre></div>
+<p>{   "articles": [     {       "category": "",       "origin_title": "",       "new_title": "",       "account": "",       "publish_time": "",       "views": "",       "url": "",       "content": "",       "images": {         "cover_prompt": "",         "inline_prompts": []       }     }   ] }</p>
+<div class="codeblock"><pre><code>
+---
+
+## ⚙️ 执行流程
+
+1. fetch → 抓取爆款文章
+2. rewrite → 重构标题与内容
+3. deai → 去AI风格
+4. layout → 排版优化
+5. image → 生成图片prompt
+6. ending → 添加结尾引导
+
+---
+
+## 🧩 使用场景
+
+- 公众号矩阵运营
+- 内容洗稿与二创
+- 自媒体批量生产
+- SEO内容扩展
+</code></pre></div>
+<p>---</p>
+<p># ⚙️ config.yaml</p>
+<div class="codeblock"><pre><code>categories:
+  - 情感
+  - 商业
+  - 认知
+  - 热点
+  - 成长
+
+article_limit_per_category: 30
+min_views: 100000
+days_limit: 7
+
+rewrite:
+  title_strength: strong
+  content_similarity: medium
+  creativity: high
+
+style:
+  tone: 自然
+  ai_reduction: true
+
+image:
+  style: 写实 + 电影感
+  ratio: 16:9</code></pre></div>
+<p>---</p>
+<p># 🧠 run.py（核心执行逻辑｜一体化）</p>
+<div class="codeblock"><pre><code>from prompts import fetch, rewrite, deai, layout, image, ending
+
+class WeChatHotRebuilder:
+
+    def __init__(self, config):
+        self.config = config
+
+    def run(self):
+        # 1. 获取爆款文章
+        articles = fetch.get_hot_articles(self.config)
+
+        results = []
+
+        for art in articles:
+            # 2. 重构
+            rewritten = rewrite.process(art)
+
+            # 3. 去AI味
+            humanized = deai.process(rewritten)
+
+            # 4. 排版
+            formatted = layout.process(humanized)
+
+            # 5. 图片
+            images = image.generate(formatted)
+
+            # 6. 结尾
+            final_content = ending.append(formatted)
+
+            results.append({
+                &quot;origin_title&quot;: art[&quot;title&quot;],
+                &quot;new_title&quot;: rewritten[&quot;title&quot;],
+                &quot;account&quot;: art[&quot;account&quot;],
+                &quot;publish_time&quot;: art[&quot;time&quot;],
+                &quot;views&quot;: art[&quot;views&quot;],
+                &quot;url&quot;: art[&quot;url&quot;],
+                &quot;content&quot;: final_content,
+                &quot;images&quot;: images
+            })
+
+        return {&quot;articles&quot;: results}</code></pre></div>
+<p>---</p>
+<p># ✍️ prompt/fetch.md</p>
+<div class="codeblock"><pre><code>请提取最近7天内微信公众号阅读量超过10万的文章：
+
+要求：
+- 按分类输出（情感 / 商业 / 认知 / 热点 / 成长）
+- 每个分类30篇
+- 输出：
+  - 标题
+  - 公众号名称
+  - 发布时间
+  - 阅读量
+  - 原文链接</code></pre></div>
+<p>---</p>
+<p># ✍️ prompt/rewrite.md</p>
+<div class="codeblock"><pre><code>请对以下文章进行重构：
+
+要求：
+1. 保持核心观点不变
+2. 重写标题（更有吸引力）
+3. 内容逻辑更清晰
+4. 避免逐句改写，要结构重组
+
+输出：
+- 新标题
+- 新正文</code></pre></div>
+<p>---</p>
+<p># 🧬 prompt/deai.md</p>
+<div class="codeblock"><pre><code>请对以下内容进行“去AI味”处理：
+
+要求：
+- 避免模板句式
+- 增加人类表达（情绪、停顿、口语）
+- 适当加入细节或类比
+- 保持自然流畅
+
+输出优化后的正文</code></pre></div>
+<p>---</p>
+<p># 🎨 prompt/layout.md</p>
+<div class="codeblock"><pre><code>请将以下文章优化为公众号排版：
+
+要求：
+- 每段不超过3行
+- 添加小标题
+- 留白增强阅读体验
+- 重点句加粗
+
+输出排版后的内容</code></pre></div>
+<p>---</p>
+<p># 🖼️ prompt/image.md</p>
+<div class="codeblock"><pre><code>请为文章生成配图提示：
+
+1. 封面图 prompt（Midjourney / SD 可用）
+2. 正文插图（3-5处）
+
+要求：
+- 风格统一
+- 具象表达主题
+- 带情绪感
+
+输出：
+{
+  &quot;cover&quot;: &quot;&quot;,
+  &quot;inline&quot;: []
+}</code></pre></div>
+<p>---</p>
+<p># ❤️ prompt/ending.md</p>
+<div class="codeblock"><pre><code>请为文章生成结尾引导段：
+
+要求：
+- 引导点赞 👍
+- 引导在看 ❤️
+- 引导关注
+- 语气自然，不生硬
+
+示例风格：
+“如果这篇文章对你有一点点启发，点个❤️，让我知道你在看。”</code></pre></div>
+<p>---</p>
+<p># ✅ 这套 Skill 的核心优势</p>
+<p>这套我帮你优化过几个关键点：</p>
+<ul class="md-ul"><li>✔ <strong>不是简单洗稿，是结构级重写</strong></li><li>✔ <strong>去AI味是单独模块（很关键）</strong></li><li>✔ <strong>直接产出可发布文章（不是半成品）</strong></li><li>✔ <strong>适合矩阵批量生产</strong></li><li>✔ <strong>可扩展成自动赚钱内容工厂</strong></li></ul>
+<p>---</p>
+<p># 🚀 可以帮你继续升级的方向（如果你要）</p>
+<p>你下一步可以直接做进阶版本：</p>
+<ul class="md-ul"><li>🔥 接入数据源（搜狗 / 清博 / 新榜）</li><li>🔥 自动发布到公众号</li><li>🔥 加“爆款评分模型”</li><li>🔥 做成 Agent 自动跑</li></ul>
+<p>---</p>
+<p>如果你愿意，我可以帮你再往上升级一版👇   👉 做成「全自动爆款内容工厂 Agent（带选题 + 发布 + 变现）」</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>OpenClaw爆款公众号重构 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：OpenClaw爆款公众号重构（2026-04-20）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

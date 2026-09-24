@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>知乎主题簇引擎设计 · 2026</title>
+<meta name="description" content="你现在这套资料，其实已经接近一个「知乎爆款内容工业化系统」了。🔥  你缺的不是单点能力，而是： “主题簇（Topic Cluster）生成与调度层”也就是：- 怎么批量找知乎能打的主题- 怎么把主题做成系列矩阵- 怎么自动扩散成长尾- 怎么">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a><a href="#s2" data-sec="s2">Q2</a><a href="#s3" data-sec="s3">Q3</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · AI
+  <h1 class="s-h1">知乎主题簇引擎设计</h1>
+  <p class="s-lede">你现在这套资料，其实已经接近一个「知乎爆款内容工业化系统」了。🔥  你缺的不是单点能力，而是： “主题簇（Topic Cluster）生成与调度层”也就是：- 怎么批量找知乎能打的主题- 怎么把主题做成系列矩阵- 怎么自动扩散成长尾- 怎么</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>6</b></span>
+    <span>时间范围 <b>2026-05-28 ~ 2026-05-28</b></span>
+    <span>分类 <b>AI与Agent</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">AI</span>
+    <span class="s-chip">2026</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>我已经有这些资料：核心引擎（10个）genre_rules.md（题材分析规则库…</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>我已经有这些资料：核心引擎（10个）</p>
+<p>genre_rules.md（题材分析规则库）</p>
+<p>structure_rules.md（结构分析规则库）</p>
+<p>analyse.md（小说拆解分析模板）</p>
+<p>HOOK_ENGINE.md（钩子引擎）</p>
+<p>CHARACTER_ENGINE.md（人物模型引擎）</p>
+<p>EMOTION_ENGINE.md（情绪节奏引擎）</p>
+<p>OUTLINE_ENGINE.md（大纲生成引擎）</p>
+<p>REBUILD_ENGINE.md（故事重构引擎）</p>
+<p>CHAPTER_ENGINE.md（章节生成引擎）</p>
+<p>TITLE_ENGINE.md（标题生成引擎）</p>
+<p>STYLE_ENGINE.md（文风转换引擎）</p>
+<p>DATABASE_ENGINE.md（数据库引擎）</p>
+<p>资源库（8个）</p>
+<p>zhihu_style.md（知乎风写作指南）</p>
+<p>emotion_library.md（情绪库）</p>
+<p>hook_library.md（钩子库）</p>
+<p>title_library.md（标题库）</p>
+<p>reversal_library.md（反转库）</p>
+<p>ending_library.md（结尾库）</p>
+<p>female_market.md（女频市场）</p>
+<p>male_market.md（男频市场），现在请给我设计一套知乎的主题簇生成技能</p></div>
+      <div class="qa-a"><p>你现在这套资料，其实已经接近一个「知乎爆款内容工业化系统」了。🔥   你缺的不是单点能力，而是：</p>
+<blockquote class="md-quote"><strong>“主题簇（Topic Cluster）生成与调度层”</strong></blockquote>
+<p>也就是：</p>
+<ul class="md-ul"><li>怎么批量找知乎能打的主题</li><li>怎么把主题做成系列矩阵</li><li>怎么自动扩散成长尾</li><li>怎么和你的 HOOK / 情绪 / 标题 / 重构引擎联动</li><li>怎么形成持续更新的知乎内容库</li></ul>
+<p>下面我直接给你设计一套：</p>
+<p># 知乎主题簇生成技能（Zhihu Topic Cluster Engine）</p>
+<p>适用于：</p>
+<ul class="md-ul"><li>OpenClaw</li><li>QClaw</li><li>Claude Skill</li><li>Agent Workflow</li><li>本地知识库驱动写作系统</li></ul>
+<p>建议中文名：</p>
+<p># 「知乎爆款主题簇引擎」</p>
+<p>或者：</p>
+<p># 「知乎热点选题矩阵系统」</p>
+<p>---</p>
+<p># 一、这个 Skill 的核心定位</p>
+<p>它不是：</p>
+<ul class="md-ul"><li>单篇文章生成器</li></ul>
+<p>而是：</p>
+<p># “知乎内容战略层”</p>
+<p>作用：</p>
+<h4 class="sub-h">输入：</h4>
+<p>一个行业 / 方向 / 人群 / 产品</p>
+<h4 class="sub-h">输出：</h4>
+<p>自动生成：</p>
+<ul class="md-ul"><li>主主题</li><li>子主题</li><li>长尾问题</li><li>情绪方向</li><li>钩子方向</li><li>适合的标题模型</li><li>适合的文风</li><li>适合的知乎回答结构</li><li>连载路径</li><li>知乎盐选化路线</li><li>SEO/GEO扩散路线</li></ul>
+<p>本质上：</p>
+<p># 「知乎内容地图自动生成器」</p>
+<p>---</p>
+<p># 二、推荐目录结构</p>
+<div class="codeblock"><pre><code>zhihu-topic-cluster/
+│
+├── skill.md
+├── config.yaml
+├── README.md
+│
+├── prompts/
+│   ├── discover_topics.md
+│   ├── cluster_expand.md
+│   ├── emotion_mapping.md
+│   ├── audience_mapping.md
+│   ├── hook_mapping.md
+│   ├── title_mapping.md
+│   ├── content_path.md
+│   ├── zhihu_style_select.md
+│   ├── monetization_path.md
+│
+├── engines/
+│   ├── TREND_ENGINE.md
+│   ├── CLUSTER_ENGINE.md
+│   ├── QUESTION_ENGINE.md
+│   ├── VIRAL_ENGINE.md
+│   ├── TRAFFIC_ENGINE.md
+│
+├── database/
+│   ├── zhihu_hot_topics.md
+│   ├── emotion_tags.md
+│   ├── traffic_keywords.md
+│   ├── user_desires.md
+│   ├── pain_points.md
+│
+├── templates/
+│   ├── cluster_template.md
+│   ├── article_path_template.md
+│   ├── serial_template.md
+│
+└── output/
+    ├── cluster_result.md
+    ├── content_calendar.md
+    ├── article_matrix.md</code></pre></div>
+<p>---</p>
+<p># 三、Skill 核心逻辑（非常关键）</p>
+<p>这个 Skill 的真正核心：</p>
+<p># Topic → Cluster → Emotion → Hook → Traffic</p>
+<p>不是简单生成标题。</p>
+<p>而是：</p>
+<h3 class="sub-h">Step1：发现高价值主题</h3>
+<p>例如：</p>
+<div class="codeblock"><pre><code>副业
+情感
+成长
+AI
+职场
+婚姻
+女性成长
+普通人赚钱
+中年危机
+消费降级
+原生家庭
+考公
+AI创业</code></pre></div>
+<p>这里调用：</p>
+<ul class="md-ul"><li>female_market.md</li><li>male_market.md</li><li>emotion_library.md</li></ul>
+<p>进行市场识别。</p>
+<p>---</p>
+<p># 四、主题簇生成逻辑</p>
+<p>例如用户输入：</p>
+<div class="codeblock"><pre><code>AI副业</code></pre></div>
+<p>系统自动扩展：</p>
+<p># 一级主题簇</p>
+<div class="codeblock"><pre><code>AI赚钱
+AI接单
+AI写作
+AI绘图
+AI短视频
+AI自媒体
+AI知识付费
+AI代运营</code></pre></div>
+<p>---</p>
+<p># 二级主题簇</p>
+<div class="codeblock"><pre><code>普通人如何靠AI月入1万
+AI写公众号还能赚钱吗
+AI会不会取代文案
+AI副业为什么越来越卷</code></pre></div>
+<p>---</p>
+<p># 三级知乎问题化</p>
+<p>知乎最重要：</p>
+<p># 「问题化表达」</p>
+<p>系统自动转换：</p>
+<div class="codeblock"><pre><code>为什么很多人学AI赚不到钱？
+普通人做AI副业最大的误区是什么？
+为什么AI工具越来越多，但赚钱越来越难？</code></pre></div>
+<p>这个模块：</p>
+<p># QUESTION_ENGINE</p>
+<p>负责。</p>
+<p>---</p>
+<p># 五、核心 Skill 工作流</p>
+<p># 工作流 V1</p>
+<div class="codeblock"><pre><code>用户输入方向
+    ↓
+趋势发现
+    ↓
+主题聚类
+    ↓
+问题化
+    ↓
+情绪映射
+    ↓
+钩子映射
+    ↓
+标题映射
+    ↓
+知乎结构匹配
+    ↓
+内容连载路径
+    ↓
+输出主题矩阵</code></pre></div>
+<p>---</p>
+<p># 六、你现有资料如何联动（重点）</p>
+<p>你已经有的资源非常强。</p>
+<p>下面是联动方式：</p>
+<div class="tblwrap"><table><thead><tr><th>你的资料</th><th>在主题簇中的作用</th></tr></thead><tbody><tr><td>HOOK_ENGINE</td><td>生成开头钩子</td></tr><tr><td>TITLE_ENGINE</td><td>爆款标题</td></tr><tr><td>EMOTION_ENGINE</td><td>情绪驱动</td></tr><tr><td>CHARACTER_ENGINE</td><td>人设绑定</td></tr><tr><td>STYLE_ENGINE</td><td>知乎文风适配</td></tr><tr><td>OUTLINE_ENGINE</td><td>自动大纲</td></tr><tr><td>CHAPTER_ENGINE</td><td>系列化输出</td></tr><tr><td>REBUILD_ENGINE</td><td>爆文重构</td></tr><tr><td>DATABASE_ENGINE</td><td>主题库存储</td></tr><tr><td>hook_library</td><td>钩子数据库</td></tr><tr><td>title_library</td><td>标题数据库</td></tr><tr><td>emotion_library</td><td>情绪数据库</td></tr><tr><td>reversal_library</td><td>反转设计</td></tr><tr><td>ending_library</td><td>结尾强化</td></tr></tbody></table></div>
+<p>你其实已经有：</p>
+<p># “知乎内容生产流水线”</p>
+<p>现在缺的是：</p>
+<p># 「流量入口调度系统」</p>
+<p>也就是 Topic Cluster。</p>
+<p>---</p>
+<p># 七、推荐新增的核心引擎（很重要）</p>
+<p>你现在建议新增：</p>
+<p># 1. TREND_ENGINE.md</p>
+<p>负责：</p>
+<ul class="md-ul"><li>热点发现</li><li>平台趋势</li><li>用户需求变化</li><li>赛道热度</li></ul>
+<p>例如：</p>
+<div class="codeblock"><pre><code>近期知乎热议：
+AI失业
+消费降级
+副业焦虑
+中年裁员</code></pre></div>
+<p>---</p>
+<p># 2. CLUSTER_ENGINE.md</p>
+<p>负责：</p>
+<p># “一个主题扩散成100个主题”</p>
+<p>例如：</p>
+<div class="codeblock"><pre><code>职场
+→ 裁员
+→ 35岁危机
+→ 大厂
+→ 降薪
+→ 摸鱼
+→ 副业
+→ AI替代</code></pre></div>
+<p>这是核心中的核心。</p>
+<p>---</p>
+<p># 3. QUESTION_ENGINE.md</p>
+<p>知乎最重要的能力：</p>
+<p># “把观点转化成知乎问题”</p>
+<p>例如：</p>
+<div class="codeblock"><pre><code>AI副业很多人失败
+↓
+为什么多数人做AI副业赚不到钱？</code></pre></div>
+<p>---</p>
+<p># 4. VIRAL_ENGINE.md</p>
+<p>负责：</p>
+<ul class="md-ul"><li>爆点</li><li>争议</li><li>情绪</li><li>反差</li><li>反转</li><li>身份冲突</li></ul>
+<p>例如：</p>
+<div class="codeblock"><pre><code>月薪3万的人开始送外卖
+985毕业生失业
+35岁程序员转行</code></pre></div>
+<p>---</p>
+<p># 八、最关键的输出结果（建议）</p>
+<p>最终不要只输出标题。</p>
+<p>而是输出：</p>
+<p># 《知乎主题矩阵》</p>
+<p>例如：</p>
+<div class="tblwrap"><table><thead><tr><th>主题</th><th>情绪</th><th>钩子</th><th>标题方向</th><th>适合结构</th></tr></thead><tbody><tr><td>AI副业</td><td>焦虑</td><td>收入危机</td><td>为什么越来越多人做AI副业失败</td><td>故事型</td></tr><tr><td>AI写作</td><td>希望</td><td>普通人逆袭</td><td>我靠AI写作赚到第一桶金</td><td>成长型</td></tr><tr><td>AI绘图</td><td>猎奇</td><td>技术冲击</td><td>AI绘图已经开始抢设计师饭碗了吗</td><td>争议型</td></tr></tbody></table></div>
+<p>这才是真正的主题簇系统。</p>
+<p>---</p>
+<p># 九、推荐增加的高级能力（非常强）</p>
+<p># 1. 知乎连载路线</p>
+<p>自动生成：</p>
+<div class="codeblock"><pre><code>第一篇：认知冲击
+第二篇：行业内幕
+第三篇：普通人案例
+第四篇：失败原因
+第五篇：赚钱路径</code></pre></div>
+<p>形成：</p>
+<p># “知乎账号养成系统”</p>
+<p>---</p>
+<p># 2. 盐选化改造</p>
+<p>自动识别：</p>
+<p>哪些主题：</p>
+<ul class="md-ul"><li>适合短回答</li><li>适合长文</li><li>适合盐选小说</li><li>适合故事化</li></ul>
+<p>---</p>
+<p># 3. SEO/GEO扩散</p>
+<p>自动生成：</p>
+<div class="codeblock"><pre><code>知乎
+↓
+公众号
+↓
+小红书
+↓
+头条
+↓
+百家号
+↓
+SEO站群</code></pre></div>
+<p>---</p>
+<p># 十、推荐的最终形态（真正强大的玩法）</p>
+<p>你现在其实可以形成：</p>
+<p># 「知乎内容工厂 Agent」</p>
+<p>结构：</p>
+<div class="codeblock"><pre><code>Topic Cluster Engine
+    ↓
+Trend Engine
+    ↓
+Emotion Engine
+    ↓
+Hook Engine
+    ↓
+Title Engine
+    ↓
+Outline Engine
+    ↓
+Chapter Engine
+    ↓
+Style Engine
+    ↓
+Publish System</code></pre></div>
+<p>这已经不是普通 Skill 了。</p>
+<p>而是：</p>
+<p># “知乎内容操作系统”</p>
+<p>---</p>
+<p># 十一、我最推荐你接下来补的内容（优先级）</p>
+<h3 class="sub-h">第一优先级（必须）</h3>
+<p>新增：</p>
+<div class="codeblock"><pre><code>TREND_ENGINE
+CLUSTER_ENGINE
+QUESTION_ENGINE</code></pre></div>
+<p>因为你现在缺的是：</p>
+<p># 「选题层」</p>
+<p>---</p>
+<h3 class="sub-h">第二优先级（强烈推荐）</h3>
+<p>新增数据库：</p>
+<div class="codeblock"><pre><code>pain_points.md
+desire_library.md
+controversy_library.md</code></pre></div>
+<p>知乎极度依赖：</p>
+<ul class="md-ul"><li>焦虑</li><li>欲望</li><li>争议</li></ul>
+<p>---</p>
+<h3 class="sub-h">第三优先级（后期）</h3>
+<p>加入：</p>
+<div class="codeblock"><pre><code>SERIAL_ENGINE
+PLATFORM_ENGINE</code></pre></div>
+<p>做多平台矩阵。</p>
+<p>---</p>
+<p># 十二、这个系统最强的地方</p>
+<p>你现在已经不是：</p>
+<p># “写文章”</p>
+<p>而是：</p>
+<p># “批量生产知乎流量”</p>
+<p>核心思维已经变成：</p>
+<div class="codeblock"><pre><code>用户情绪
+→ 平台热点
+→ 主题扩散
+→ 问题化
+→ 钩子化
+→ 标题化
+→ 内容化
+→ 连载化
+→ 流量化</code></pre></div>
+<p>这是完全不同的层级。🚀</p></div>
+    </section>
+    <section id="s2" class="st2">
+      <div class="sec-h"><span class="idx st2">Q2</span><h2>给出这套SKILL的详细内容</h2><span class="hint">第 2 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>给出这套SKILL的详细内容</p></div>
+      <div class="qa-a"><p>下面我直接给你一套：</p>
+<p># 「知乎主题簇生成系统」V1 完整 Skill</p>
+<p>这套是：</p>
+<ul class="md-ul"><li>OpenClaw/QClaw 风格</li><li>模块化 Agent Skill</li><li>可直接落地</li><li>可继续扩展为内容工厂</li></ul>
+<p>我会按照：</p>
+<div class="codeblock"><pre><code>skill.md
+config.yaml
+engines/
+prompts/
+database/
+templates/</code></pre></div>
+<p>完整给你。🔥</p>
+<p>---</p>
+<p># 目录结构</p>
+<div class="codeblock"><pre><code>zhihu-topic-cluster/
+│
+├── skill.md
+├── config.yaml
+├── README.md
+│
+├── engines/
+│   ├── TREND_ENGINE.md
+│   ├── CLUSTER_ENGINE.md
+│   ├── QUESTION_ENGINE.md
+│   ├── VIRAL_ENGINE.md
+│   ├── TRAFFIC_ENGINE.md
+│
+├── prompts/
+│   ├── discover_topics.md
+│   ├── cluster_expand.md
+│   ├── emotion_mapping.md
+│   ├── hook_mapping.md
+│   ├── title_mapping.md
+│   ├── content_path.md
+│
+├── database/
+│   ├── pain_points.md
+│   ├── desires.md
+│   ├── controversy.md
+│   ├── zhihu_emotions.md
+│   ├── traffic_keywords.md
+│
+├── templates/
+│   ├── topic_cluster_template.md
+│   ├── serial_template.md
+│   ├── article_matrix_template.md
+│
+└── output/
+    ├── cluster_result.md
+    ├── article_calendar.md
+    ├── article_matrix.md</code></pre></div>
+<p>---</p>
+<p># 一、skill.md（核心）</p>
+<p>:::writing{variant="document" id="48271"} # SKILL: Zhihu Topic Cluster Engine</p>
+<h3 class="sub-h">技能描述</h3>
+<p>知乎主题簇生成系统。</p>
+<p>用于：</p>
+<ul class="md-ul"><li>批量发现知乎高流量主题</li><li>自动扩展长尾问题</li><li>生成知乎爆款选题矩阵</li><li>构建持续输出的内容主题簇</li><li>自动适配知乎回答风格</li><li>自动匹配情绪与钩子</li><li>自动生成知乎连载路径</li></ul>
+<p>适用于：</p>
+<ul class="md-ul"><li>知乎回答</li><li>知乎专栏</li><li>盐选内容</li><li>AI内容矩阵</li><li>SEO/GEO内容扩散</li></ul>
+<p>---</p>
+<p># 核心能力</p>
+<h3 class="sub-h">1. 热点发现</h3>
+<p>自动识别：</p>
+<ul class="md-ul"><li>高热度方向</li><li>高情绪方向</li><li>高争议方向</li><li>高传播方向</li></ul>
+<p>---</p>
+<h3 class="sub-h">2. 主题扩展</h3>
+<p>自动生成：</p>
+<ul class="md-ul"><li>一级主题</li><li>二级主题</li><li>长尾主题</li><li>问题化主题</li></ul>
+<p>---</p>
+<h3 class="sub-h">3. 知乎问题化</h3>
+<p>自动将观点转化为知乎提问格式：</p>
+<p>例如：</p>
+<p>AI副业失败 ↓ 为什么很多人做AI副业赚不到钱？</p>
+<p>---</p>
+<h3 class="sub-h">4. 情绪映射</h3>
+<p>自动识别：</p>
+<ul class="md-ul"><li>焦虑</li><li>希望</li><li>欲望</li><li>逆袭</li><li>愤怒</li><li>猎奇</li><li>身份认同</li></ul>
+<p>---</p>
+<h3 class="sub-h">5. 钩子匹配</h3>
+<p>自动生成：</p>
+<ul class="md-ul"><li>冲突型钩子</li><li>反差型钩子</li><li>数据型钩子</li><li>身份型钩子</li><li>情绪型钩子</li></ul>
+<p>---</p>
+<h3 class="sub-h">6. 连载路径生成</h3>
+<p>自动生成知乎内容系列：</p>
+<p>第一篇：认知冲击 第二篇：行业内幕 第三篇：案例拆解 第四篇：错误认知 第五篇：解决方案</p>
+<p>---</p>
+<p># 工作流</p>
+<p>用户输入主题 → 趋势分析 → 主题聚类 → 问题扩展 → 情绪分析 → 钩子匹配 → 标题生成 → 内容路径规划 → 输出主题矩阵</p>
+<p>---</p>
+<p># 输入格式</p>
+<p>主题： 行业： 目标人群： 内容方向： 平台： 风格：</p>
+<p>---</p>
+<p># 输出格式</p>
+<ul class="md-ul"><li>热点主题</li><li>长尾问题</li><li>知乎问题化</li><li>情绪标签</li><li>钩子方向</li><li>爆款标题</li><li>连载路线</li><li>内容矩阵</li><li>SEO扩散建议</li></ul>
+<p>---</p>
+<p># 调用引擎</p>
+<p>TREND_ENGINE CLUSTER_ENGINE QUESTION_ENGINE VIRAL_ENGINE TRAFFIC_ENGINE</p>
+<p>---</p>
+<p># 自动调用数据库</p>
+<p>pain_points.md desires.md controversy.md zhihu_emotions.md traffic_keywords.md</p>
+<p>---</p>
+<p># 联动外部引擎</p>
+<p>HOOK_ENGINE TITLE_ENGINE EMOTION_ENGINE STYLE_ENGINE OUTLINE_ENGINE REBUILD_ENGINE</p>
+<p>---</p>
+<p># 输出目标</p>
+<p>生成：</p>
+<ul class="md-ul"><li>可持续更新的知乎主题簇</li><li>可批量扩展的流量选题</li><li>可形成矩阵的内容结构</li><li>可长期SEO/GEO扩散的主题体系</li></ul>
+<p>:::</p>
+<p>---</p>
+<p># 二、config.yaml</p>
+<p>:::writing{variant="document" id="48272"} name: Zhihu Topic Cluster Engine</p>
+<p>version: 1.0</p>
+<p>author: Gervas</p>
+<p>description: &gt;   知乎主题簇生成系统，   用于批量生成知乎热点主题、   长尾问题与爆款内容矩阵。</p>
+<p>entry: skill.md</p>
+<p>mode:   auto_cluster: true   auto_question: true   auto_emotion: true   auto_hook: true   auto_title: true   auto_serial: true</p>
+<p>platform:   - zhihu   - wechat   - xiaohongshu   - toutiao   - seo</p>
+<p>emotion_priority:   - 焦虑   - 欲望   - 逆袭   - 身份认同   - 信息差   - 阶层冲突</p>
+<p>cluster_depth: 3</p>
+<p>max_topics: 100</p>
+<p>question_style:   - 为什么   - 如何   - 是什么体验   - 普通人能不能   - 有没有必要   - 真相是什么</p>
+<p>viral_elements:   - 反差   - 冲突   - 争议   - 逆袭   - 数据冲击   - 阶层对比</p>
+<p>output:   matrix: true   serial: true   seo_keywords: true   article_paths: true :::</p>
+<p>---</p>
+<p># 三、TREND_ENGINE.md</p>
+<p>:::writing{variant="document" id="48273"} # TREND_ENGINE</p>
+<h3 class="sub-h">功能</h3>
+<p>用于发现知乎高热度趋势。</p>
+<p>---</p>
+<p># 趋势识别维度</p>
+<h3 class="sub-h">1. 平台热点</h3>
+<p>识别：</p>
+<ul class="md-ul"><li>高频讨论</li><li>高频搜索</li><li>高频情绪</li><li>高频争议</li></ul>
+<p>---</p>
+<h3 class="sub-h">2. 用户焦虑</h3>
+<p>识别：</p>
+<ul class="md-ul"><li>收入焦虑</li><li>职场焦虑</li><li>婚姻焦虑</li><li>年龄焦虑</li><li>AI替代焦虑</li></ul>
+<p>---</p>
+<h3 class="sub-h">3. 用户欲望</h3>
+<p>识别：</p>
+<ul class="md-ul"><li>赚钱</li><li>逆袭</li><li>阶层跃迁</li><li>财富自由</li><li>情感满足</li></ul>
+<p>---</p>
+<h3 class="sub-h">4. 高传播方向</h3>
+<p>优先：</p>
+<ul class="md-ul"><li>争议</li><li>对立</li><li>反常识</li><li>信息差</li><li>阶层冲突</li></ul>
+<p>---</p>
+<p># 输出格式</p>
+<p>热点主题： 用户情绪： 传播等级： 竞争等级： 变现潜力： 适合平台： :::</p>
+<p>---</p>
+<p># 四、CLUSTER_ENGINE.md</p>
+<p>:::writing{variant="document" id="48274"} # CLUSTER_ENGINE</p>
+<h3 class="sub-h">功能</h3>
+<p>将一个主题扩展为完整主题簇。</p>
+<p>---</p>
+<p># 扩展逻辑</p>
+<h3 class="sub-h">一级扩展</h3>
+<p>核心主题直接相关：</p>
+<p>AI副业 ↓ AI写作 AI绘图 AI短视频</p>
+<p>---</p>
+<h3 class="sub-h">二级扩展</h3>
+<p>用户问题：</p>
+<p>AI写作还能赚钱吗？ 普通人能做AI副业吗？</p>
+<p>---</p>
+<h3 class="sub-h">三级扩展</h3>
+<p>情绪化问题：</p>
+<p>为什么越来越多人AI副业失败？ 为什么学AI的人反而更焦虑？</p>
+<p>---</p>
+<p># 自动扩展方向</p>
+<h3 class="sub-h">1. 人群扩展</h3>
+<ul class="md-ul"><li>学生</li><li>宝妈</li><li>上班族</li><li>中年人</li><li>创业者</li></ul>
+<p>---</p>
+<h3 class="sub-h">2. 场景扩展</h3>
+<ul class="md-ul"><li>副业</li><li>失业</li><li>转行</li><li>裁员</li><li>创业</li></ul>
+<p>---</p>
+<h3 class="sub-h">3. 情绪扩展</h3>
+<ul class="md-ul"><li>焦虑</li><li>希望</li><li>愤怒</li><li>猎奇</li><li>逆袭</li></ul>
+<p>---</p>
+<p># 输出格式</p>
+<p>一级主题： 二级主题： 三级主题： 知乎问题化： 情绪标签： 传播潜力： :::</p>
+<p>---</p>
+<p># 五、QUESTION_ENGINE.md</p>
+<p>:::writing{variant="document" id="48275"} # QUESTION_ENGINE</p>
+<h3 class="sub-h">功能</h3>
+<p>将普通主题转化为知乎问题。</p>
+<p>---</p>
+<p># 知乎问题化模板</p>
+<h3 class="sub-h">为什么型</h3>
+<p>为什么越来越多人……</p>
+<p>---</p>
+<h3 class="sub-h">普通人型</h3>
+<p>普通人真的能……</p>
+<p>---</p>
+<h3 class="sub-h">真相型</h3>
+<p>……背后的真相是什么？</p>
+<p>---</p>
+<h3 class="sub-h">对立型</h3>
+<p>为什么有人认为……</p>
+<p>---</p>
+<h3 class="sub-h">体验型</h3>
+<p>……是什么体验？</p>
+<p>---</p>
+<p># 问题生成原则</p>
+<p>必须具备：</p>
+<ul class="md-ul"><li>情绪</li><li>冲突</li><li>代入感</li><li>用户身份</li><li>好奇心</li></ul>
+<p>---</p>
+<p># 错误案例</p>
+<p>AI写作教程</p>
+<p>---</p>
+<p># 正确案例</p>
+<p>为什么很多人学AI写作后反而赚不到钱？ :::</p>
+<p>---</p>
+<p># 六、VIRAL_ENGINE.md</p>
+<p>:::writing{variant="document" id="48276"} # VIRAL_ENGINE</p>
+<h3 class="sub-h">功能</h3>
+<p>增强主题传播力。</p>
+<p>---</p>
+<p># 爆款元素</p>
+<h3 class="sub-h">1. 阶层冲突</h3>
+<p>月薪3000 VS 月薪3万</p>
+<p>---</p>
+<h3 class="sub-h">2. 身份反差</h3>
+<p>985毕业送外卖</p>
+<p>---</p>
+<h3 class="sub-h">3. 信息差</h3>
+<p>99%的人不知道</p>
+<p>---</p>
+<h3 class="sub-h">4. 认知冲突</h3>
+<p>努力为什么不赚钱？</p>
+<p>---</p>
+<h3 class="sub-h">5. 情绪刺激</h3>
+<p>焦虑 愤怒 欲望 希望</p>
+<p>---</p>
+<p># 爆款结构</p>
+<p>反常识 ↓ 冲突 ↓ 情绪 ↓ 解决方案 :::</p>
+<p>---</p>
+<p># 七、TRAFFIC_ENGINE.md</p>
+<p>:::writing{variant="document" id="48277"} # TRAFFIC_ENGINE</p>
+<h3 class="sub-h">功能</h3>
+<p>生成SEO/GEO扩散路径。</p>
+<p>---</p>
+<p># 扩散平台</p>
+<p>知乎 公众号 头条 百家号 小红书 SEO站群</p>
+<p>---</p>
+<p># 扩散逻辑</p>
+<p>知乎长文 ↓ 公众号深度版 ↓ 小红书情绪版 ↓ SEO关键词版</p>
+<p>---</p>
+<p># 自动生成</p>
+<ul class="md-ul"><li>SEO关键词</li><li>GEO关键词</li><li>长尾搜索词</li><li>平台适配标题</li></ul>
+<p>:::</p>
+<p>---</p>
+<p># 八、database/pain_points.md</p>
+<p>:::writing{variant="document" id="48278"} # 用户痛点库</p>
+<h3 class="sub-h">收入焦虑</h3>
+<ul class="md-ul"><li>工资低</li><li>副业失败</li><li>被裁员</li><li>AI替代</li></ul>
+<p>---</p>
+<h3 class="sub-h">情感焦虑</h3>
+<ul class="md-ul"><li>单身</li><li>婚姻问题</li><li>情绪内耗</li></ul>
+<p>---</p>
+<h3 class="sub-h">成长焦虑</h3>
+<ul class="md-ul"><li>普通人逆袭</li><li>年龄危机</li><li>阶层固化</li></ul>
+<p>---</p>
+<h3 class="sub-h">职场焦虑</h3>
+<ul class="md-ul"><li>35岁危机</li><li>大厂裁员</li><li>转行困难</li></ul>
+<p>:::</p>
+<p>---</p>
+<p># 九、database/desires.md</p>
+<p>:::writing{variant="document" id="48279"} # 用户欲望库</p>
+<h3 class="sub-h">财富欲望</h3>
+<ul class="md-ul"><li>月入过万</li><li>财富自由</li><li>副业赚钱</li></ul>
+<p>---</p>
+<h3 class="sub-h">身份欲望</h3>
+<ul class="md-ul"><li>被认可</li><li>阶层跃迁</li><li>成为专家</li></ul>
+<p>---</p>
+<h3 class="sub-h">情绪欲望</h3>
+<ul class="md-ul"><li>安全感</li><li>控制感</li><li>优越感</li></ul>
+<p>---</p>
+<h3 class="sub-h">情感欲望</h3>
+<ul class="md-ul"><li>被爱</li><li>被理解</li><li>高质量关系</li></ul>
+<p>:::</p>
+<p>---</p>
+<p># 十、templates/topic_cluster_template.md</p>
+<p>:::writing{variant="document" id="48280"} # 主题簇输出模板</p>
+<h3 class="sub-h">核心主题</h3>
+<p>{{topic}}</p>
+<p>---</p>
+<p># 一级主题</p>
+<p>{{cluster_level_1}}</p>
+<p>---</p>
+<p># 二级主题</p>
+<p>{{cluster_level_2}}</p>
+<p>---</p>
+<p># 三级主题</p>
+<p>{{cluster_level_3}}</p>
+<p>---</p>
+<p># 知乎问题化</p>
+<p>{{questions}}</p>
+<p>---</p>
+<p># 情绪标签</p>
+<p>{{emotions}}</p>
+<p>---</p>
+<p># 钩子方向</p>
+<p>{{hooks}}</p>
+<p>---</p>
+<p># 爆款标题</p>
+<p>{{titles}}</p>
+<p>---</p>
+<p># 连载路径</p>
+<p>{{serials}}</p>
+<p>---</p>
+<p># SEO关键词</p>
+<p>{{seo_keywords}}</p>
+<p>---</p>
+<p># GEO扩散建议</p>
+<p>{{geo_strategy}} :::</p></div>
+    </section>
+    <section id="s3" class="st3">
+      <div class="sec-h"><span class="idx st3">Q3</span><h2>SKILL的内容文件格式不规范，输出技能结构的目录和规范的内容</h2><span class="hint">第 3 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>SKILL的内容文件格式不规范，输出技能结构的目录和规范的内容</p></div>
+      <div class="qa-a"><p>你说得对。   上面那版更像“概念文档”，不是严格的 OpenClaw / QClaw Skill 规范。⚠️</p>
+<p>你现在需要的是：</p>
+<p># 「真正可落地的 Skill 文件结构」</p>
+<p>也就是：</p>
+<ul class="md-ul"><li>YAML Frontmatter</li><li>标准 skill.md</li><li>prompt 分离</li><li>engine 分离</li><li>database 分离</li><li>agent 可读取</li><li>可直接上传 GitHub</li><li>可直接被 OpenClaw/QClaw 调用</li></ul>
+<p>下面我按：</p>
+<p># OpenClaw/QClaw 标准 Skill 结构</p>
+<p>重新给你。🔥</p>
+<p>---</p>
+<p># 一、标准目录结构（规范版）</p>
+<div class="codeblock"><pre><code>zhihu-topic-cluster/
+│
+├── skill.md
+├── config.yaml
+├── README.md
+│
+├── prompts/
+│   ├── discover_topics.md
+│   ├── expand_cluster.md
+│   ├── question_transform.md
+│   ├── emotion_mapping.md
+│   ├── viral_rewrite.md
+│   ├── serial_path.md
+│   └── seo_expand.md
+│
+├── engines/
+│   ├── TREND_ENGINE.md
+│   ├── CLUSTER_ENGINE.md
+│   ├── QUESTION_ENGINE.md
+│   ├── VIRAL_ENGINE.md
+│   └── TRAFFIC_ENGINE.md
+│
+├── database/
+│   ├── pain_points.md
+│   ├── desires.md
+│   ├── controversy.md
+│   ├── zhihu_emotions.md
+│   └── traffic_keywords.md
+│
+├── templates/
+│   ├── cluster_output.md
+│   ├── serial_output.md
+│   └── seo_output.md
+│
+└── output/
+    ├── cluster_result.md
+    ├── article_matrix.md
+    └── serial_plan.md</code></pre></div>
+<p>---</p>
+<p># 二、规范版 skill.md（核心）</p>
+<p>这是：</p>
+<p># OpenClaw/QClaw 标准格式</p>
+<p>---</p>
+<p>:::writing{variant="document" id="58271"} --- name: Zhihu Topic Cluster Engine description: 知乎主题簇生成系统，用于批量生成知乎热点主题、长尾问题、情绪选题与流量矩阵 author: Gervas version: 1.0 tags:   - zhihu   - topic-cluster   - seo   - geo   - content-marketing   - viral-content   - ai-writing inputs:   - topic   - industry   - audience   - platform outputs:   - topic_cluster   - question_matrix   - emotional_topics   - viral_titles   - serial_plan   - seo_keywords tools:   - TREND_ENGINE   - CLUSTER_ENGINE   - QUESTION_ENGINE   - VIRAL_ENGINE   - TRAFFIC_ENGINE ---</p>
+<p># Zhihu Topic Cluster Engine</p>
+<h3 class="sub-h">Role</h3>
+<p>你是一套知乎主题簇生成系统。</p>
+<p>你的任务是：</p>
+<ul class="md-ul"><li>发现知乎高热度方向</li><li>识别用户情绪</li><li>扩展长尾问题</li><li>构建主题矩阵</li><li>生成爆款问题</li><li>形成知乎连载体系</li><li>输出SEO/GEO扩散结构</li></ul>
+<p>---</p>
+<p># Workflow</p>
+<p>按照以下流程执行：</p>
+<ol class="md-ol"><li>趋势发现</li><li>用户情绪分析</li><li>一级主题扩展</li><li>二级长尾扩展</li><li>知乎问题化</li><li>情绪映射</li><li>钩子增强</li><li>标题生成</li><li>连载规划</li><li>SEO扩散</li></ol>
+<p>---</p>
+<p># Topic Rules</p>
+<p>知乎主题必须满足：</p>
+<ul class="md-ul"><li>有情绪</li><li>有冲突</li><li>有身份代入</li><li>有信息差</li><li>有传播性</li><li>有现实焦虑</li></ul>
+<p>---</p>
+<p># Emotion Priority</p>
+<p>优先级：</p>
+<ol class="md-ol"><li>焦虑</li><li>欲望</li><li>逆袭</li><li>阶层冲突</li><li>认知反差</li><li>情感代入</li></ol>
+<p>---</p>
+<p># Cluster Strategy</p>
+<p>主题扩展：</p>
+<p>核心主题 ↓ 一级主题 ↓ 二级问题 ↓ 情绪问题 ↓ 知乎化问题</p>
+<p>---</p>
+<p># Output Format</p>
+<p>输出：</p>
+<h3 class="sub-h">热点主题</h3>
+<h3 class="sub-h">一级主题簇</h3>
+<h3 class="sub-h">二级问题簇</h3>
+<h3 class="sub-h">知乎问题化</h3>
+<h3 class="sub-h">情绪标签</h3>
+<h3 class="sub-h">钩子方向</h3>
+<h3 class="sub-h">爆款标题</h3>
+<h3 class="sub-h">连载规划</h3>
+<h3 class="sub-h">SEO关键词</h3>
+<h3 class="sub-h">GEO扩散建议</h3>
+<p>---</p>
+<p># Constraints</p>
+<p>禁止：</p>
+<ul class="md-ul"><li>纯关键词堆砌</li><li>无情绪主题</li><li>无传播性的普通标题</li><li>机械化AI表达</li><li>无知乎感的问题</li></ul>
+<p>必须：</p>
+<ul class="md-ul"><li>强情绪</li><li>强代入</li><li>强传播</li><li>强问题化</li><li>强讨论感</li></ul>
+<p>:::</p>
+<p>---</p>
+<p># 三、规范版 config.yaml</p>
+<p>:::writing{variant="document" id="58272"} name: zhihu-topic-cluster</p>
+<p>version: 1.0</p>
+<p>author: Gervas</p>
+<p>entry: skill.md</p>
+<p>settings:</p>
+<p>  cluster_depth: 3</p>
+<p>  max_topics: 100</p>
+<p>  auto_question_transform: true</p>
+<p>  auto_emotion_mapping: true</p>
+<p>  auto_hook_generation: true</p>
+<p>  auto_serial_generation: true</p>
+<p>  auto_seo_expand: true</p>
+<p>emotion_weights:</p>
+<p>  anxiety: 10</p>
+<p>  desire: 9</p>
+<p>  reversal: 8</p>
+<p>  identity: 8</p>
+<p>  controversy: 7</p>
+<p>  curiosity: 7</p>
+<p>platform_weights:</p>
+<p>  zhihu: 10</p>
+<p>  xiaohongshu: 8</p>
+<p>  wechat: 7</p>
+<p>  seo: 6</p>
+<p>question_templates:</p>
+<p>  - 为什么越来越多人...   - 普通人真的能...吗   - ...背后的真相是什么   - 为什么有人认为...   - ...是什么体验   - 有没有必要...</p>
+<p>viral_elements:</p>
+<p>  - 阶层冲突</p>
+<p>  - 信息差</p>
+<p>  - 认知颠覆</p>
+<p>  - 身份反差</p>
+<p>  - 数据冲击</p>
+<p>  - 情绪刺激</p>
+<p>output:</p>
+<p>  markdown: true</p>
+<p>  topic_matrix: true</p>
+<p>  serial_output: true</p>
+<p>  seo_output: true :::</p>
+<p>---</p>
+<p># 四、规范版 TREND_ENGINE.md</p>
+<p>:::writing{variant="document" id="58273"} # TREND_ENGINE</p>
+<h3 class="sub-h">Purpose</h3>
+<p>发现知乎当前高热度方向。</p>
+<p>---</p>
+<p># Analysis Dimensions</p>
+<h3 class="sub-h">Platform Trends</h3>
+<p>分析：</p>
+<ul class="md-ul"><li>高频讨论</li><li>高频搜索</li><li>高频情绪</li><li>高频争议</li></ul>
+<p>---</p>
+<h3 class="sub-h">Emotional Trends</h3>
+<p>识别：</p>
+<ul class="md-ul"><li>焦虑</li><li>欲望</li><li>逆袭</li><li>身份认同</li><li>阶层压力</li></ul>
+<p>---</p>
+<h3 class="sub-h">Viral Potential</h3>
+<p>优先：</p>
+<ul class="md-ul"><li>冲突</li><li>争议</li><li>反常识</li><li>信息差</li><li>社会现实</li></ul>
+<p>---</p>
+<p># Output</p>
+<h3 class="sub-h">热点方向</h3>
+<h3 class="sub-h">用户情绪</h3>
+<h3 class="sub-h">传播潜力</h3>
+<h3 class="sub-h">竞争等级</h3>
+<h3 class="sub-h">SEO潜力</h3>
+<h3 class="sub-h">推荐扩展方向</h3>
+<p>:::</p>
+<p>---</p>
+<p># 五、规范版 CLUSTER_ENGINE.md</p>
+<div class="codeblock"><pre><code># CLUSTER_ENGINE
+
+## Purpose
+
+将一个主题扩展为知乎主题簇。
+
+---
+
+# Expansion Logic
+
+## Level 1
+
+核心方向扩展。
+
+示例：
+
+AI副业
+↓
+AI写作
+AI绘图
+AI视频
+AI运营
+
+---
+
+## Level 2
+
+问题化扩展。
+
+示例：
+
+为什么AI副业越来越卷？
+
+---
+
+## Level 3
+
+情绪化扩展。
+
+示例：
+
+为什么很多人学AI后更焦虑？
+
+---
+
+# Expansion Dimensions
+
+## User Groups
+
+- 学生
+- 宝妈
+- 上班族
+- 中年人
+- 创业者
+
+---
+
+## Emotional Directions
+
+- 焦虑
+- 欲望
+- 猎奇
+- 逆袭
+- 身份冲突
+
+---
+
+# Output
+
+## 一级主题
+
+## 二级主题
+
+## 长尾问题
+
+## 情绪标签
+
+## 传播等级</code></pre></div>
+<p>---</p>
+<p># 六、规范版 prompts/discover_topics.md</p>
+<div class="codeblock"><pre><code># Discover Topics Prompt
+
+根据用户输入：
+
+- 行业
+- 用户群
+- 平台
+- 内容方向
+
+生成：
+
+1. 高热度方向
+2. 高传播方向
+3. 高情绪方向
+4. 高SEO潜力方向
+
+优先：
+
+- 焦虑
+- 欲望
+- 阶层冲突
+- 信息差
+- 普通人逆袭
+
+输出知乎风格主题。</code></pre></div>
+<p>---</p>
+<p># 七、规范版 prompts/question_transform.md</p>
+<div class="codeblock"><pre><code># Question Transform Prompt
+
+将普通主题转换为知乎问题。
+
+要求：
+
+- 有代入感
+- 有讨论感
+- 有现实感
+- 有情绪
+- 有冲突
+
+错误：
+
+AI副业教程
+
+正确：
+
+为什么越来越多人做AI副业却赚不到钱？</code></pre></div>
+<p>---</p>
+<p># 八、规范版 database/pain_points.md</p>
+<div class="codeblock"><pre><code># Pain Points Database
+
+## 收入焦虑
+
+- 工资低
+- 副业失败
+- AI替代
+- 裁员
+
+---
+
+## 职场焦虑
+
+- 35岁危机
+- 大厂毕业
+- 转行困难
+
+---
+
+## 情感焦虑
+
+- 单身
+- 婚姻压力
+- 内耗
+
+---
+
+## 成长焦虑
+
+- 普通人逆袭
+- 阶层固化
+- 年龄焦虑</code></pre></div>
+<p>---</p>
+<p># 九、规范版 templates/cluster_output.md</p>
+<div class="codeblock"><pre><code># Topic Cluster Output
+
+# 核心主题
+
+{{topic}}
+
+---
+
+# 一级主题簇
+
+{{level_1}}
+
+---
+
+# 二级问题簇
+
+{{level_2}}
+
+---
+
+# 情绪问题簇
+
+{{emotional_topics}}
+
+---
+
+# 知乎问题化
+
+{{questions}}
+
+---
+
+# 情绪标签
+
+{{emotions}}
+
+---
+
+# 钩子方向
+
+{{hooks}}
+
+---
+
+# 爆款标题
+
+{{titles}}
+
+---
+
+# 连载规划
+
+{{serial_plan}}
+
+---
+
+# SEO关键词
+
+{{seo_keywords}}
+
+---
+
+# GEO扩散建议
+
+{{geo_strategy}}</code></pre></div>
+<p>---</p>
+<p>这版才是：</p>
+<p># 真正符合 OpenClaw/QClaw 的 Skill 工程化结构</p>
+<p>特点：</p>
+<p>✅ YAML Frontmatter   ✅ 模块分离   ✅ Prompt 分离   ✅ Engine 分离   ✅ Database 分离   ✅ Template 分离   ✅ 可上传 GitHub   ✅ 可被 Agent 调用   ✅ 可扩展工作流   ✅ 符合 Skill 化规范</p>
+<p>你接下来其实还可以继续升级成：</p>
+<ul class="md-ul"><li>V2：自动抓知乎热点</li><li>V3：自动分析10万赞回答</li><li>V4：自动生成回答草稿</li><li>V5：自动矩阵化多平台</li><li>V6：自动SEO/GEO内容工厂</li></ul>
+<p>这套已经能进入：</p>
+<p># “知乎流量系统”级别了。🚀</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>知乎主题簇引擎设计 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：知乎主题簇引擎设计（2026-05-28）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1", "s2", "s3"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

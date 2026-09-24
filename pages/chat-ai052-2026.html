@@ -1,0 +1,2236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>主题簇技能设计 · 2026</title>
+<meta name="description" content="主题簇生成系统（Topic Cluster Engine）  适用于 OpenClaw / QClaw / Claude Skill 的完整规范版 Skill这套技能的核心目标是：- 自动生成 SEO + GEO 双适配的主题簇- 支持企">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a><a href="#s2" data-sec="s2">Q2</a><a href="#s3" data-sec="s3">Q3</a><a href="#s4" data-sec="s4">Q4</a><a href="#s5" data-sec="s5">Q5</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · AI
+  <h1 class="s-h1">主题簇技能设计</h1>
+  <p class="s-lede">主题簇生成系统（Topic Cluster Engine）  适用于 OpenClaw / QClaw / Claude Skill 的完整规范版 Skill这套技能的核心目标是：- 自动生成 SEO + GEO 双适配的主题簇- 支持企</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>10</b></span>
+    <span>时间范围 <b>2026-05-25 ~ 2026-05-25</b></span>
+    <span>分类 <b>AI与Agent</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">AI</span>
+    <span class="s-chip">2026</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>设计一套主题簇技能</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>设计一套主题簇技能</p></div>
+      <div class="qa-a"><p># 主题簇生成系统（Topic Cluster Engine）   适用于 OpenClaw / QClaw / Claude Skill 的完整规范版 Skill</p>
+<p>这套技能的核心目标是：</p>
+<ul class="md-ul"><li>自动生成 SEO + GEO 双适配的主题簇</li><li>支持企业站 / 博客 / 知识库 / B2B 官网</li><li>自动拆分：</li></ul>
+<p>  - 核心主题（Pillar）   - 子主题（Cluster）   - 长尾问题（Long-tail）   - GEO 问答节点   - 内容发布顺序</p>
+<ul class="md-ul"><li>自动构建：</li></ul>
+<p>  - 内链结构   - 权重流转   - 用户搜索意图   - AI搜索适配结构</p>
+<p>尤其适合：</p>
+<ul class="md-ul"><li>铝瓶铝罐企业</li><li>食品行业</li><li>工业制造</li><li>SaaS</li><li>AI工具站</li><li>小说/知识类博客</li><li>独立站SEO</li></ul>
+<p>---</p>
+<p># 一、目录结构</p>
+<div class="codeblock"><pre><code>topic-cluster-engine/
+├── skill.md
+├── config.yaml
+├── memory/
+│   └── topic_memory.md
+├── prompts/
+│   ├── cluster_system.md
+│   ├── search_intent.md
+│   ├── geo_expansion.md
+│   ├── internal_link.md
+│   ├── content_calendar.md
+│   └── authority_map.md
+├── templates/
+│   ├── cluster_output.md
+│   ├── geo_output.md
+│   ├── calendar_output.md
+│   └── authority_output.md
+└── outputs/</code></pre></div>
+<p>---</p>
+<p># 二、skill.md</p>
+<div class="codeblock"><pre><code>---
+name: TopicClusterEngine
+description: 自动生成SEO/GEO主题簇、权威内容结构、长尾关键词矩阵、AI搜索适配内容体系
+author: Gervas
+version: 4.0
+category: SEO
+tags:
+  - SEO
+  - GEO
+  - Topic Cluster
+  - Content Strategy
+  - Authority Building
+model:
+  - claude
+  - gpt
+  - gemini
+capabilities:
+  - keyword-clustering
+  - topic-authority
+  - geo-search-optimization
+  - content-planning
+  - internal-link-structure
+  - long-tail-generation
+---
+
+# TopicClusterEngine
+
+## 技能目标
+
+围绕某个核心主题，
+自动构建：
+
+- Pillar Page（支柱页面）
+- Topic Cluster（主题簇）
+- GEO问答矩阵
+- 长尾关键词
+- 搜索意图分类
+- AI搜索适配结构
+- 内容发布顺序
+- 权威内容地图
+
+适用于：
+
+- 企业SEO
+- 独立站
+- B2B官网
+- 博客矩阵
+- AI搜索优化
+- 知识库建设
+
+---
+
+# 输入格式
+
+用户输入：
+</code></pre></div>
+<p>核心主题： 行业： 目标用户： 目标地区： 竞争对手： 内容目标：</p>
+<div class="codeblock"><pre><code>
+示例：
+</code></pre></div>
+<p>核心主题：铝瓶 行业：包装制造 目标用户：饮料品牌商 目标地区：欧美 竞争对手：Trivium Packaging 内容目标：获取Google自然流量和AI搜索曝光</p>
+<div class="codeblock"><pre><code>
+---
+
+# 系统执行流程
+
+## STEP 1：核心主题拆解
+
+自动识别：
+
+- 核心关键词
+- 商业关键词
+- 信息型关键词
+- GEO问答关键词
+- 采购型关键词
+- 长尾问题
+
+输出：
+
+- Topic Seed
+- Search Intent
+- User Journey
+
+---
+
+## STEP 2：建立Pillar Page
+
+生成：
+
+- 支柱页面标题
+- 页面结构
+- H1-H4结构
+- FAQ模块
+- GEO引用结构
+
+要求：
+
+- 能成为行业权威页面
+- 支持AI引用
+- 支持Google精选摘要
+
+---
+
+## STEP 3：生成主题簇
+
+自动输出：
+
+- Cluster Topic
+- 对应搜索意图
+- 难度
+- 商业价值
+- GEO价值
+- 推荐字数
+- 推荐发布日期
+
+每个主题簇必须：
+
+- 与Pillar强相关
+- 支持内链
+- 支持长尾流量
+- 支持AI搜索引用
+
+---
+
+## STEP 4：生成GEO结构
+
+自动扩展：
+
+- AI搜索问题
+- 对话式问题
+- Reddit风格问题
+- Perplexity问题
+- ChatGPT风格提问
+
+包括：
+
+- Why
+- How
+- What
+- Best
+- Comparison
+- Supplier
+- Cost
+- Manufacturing
+- OEM
+- MOQ
+- Sustainability
+
+---
+
+## STEP 5：建立权威地图
+
+输出：
+
+- 内容层级
+- 权重流向
+- 内链逻辑
+- 权威路径
+- 收录优先级
+
+---
+
+## STEP 6：生成发布日历
+
+自动规划：
+
+- 30天
+- 60天
+- 90天
+
+包括：
+
+- 发布时间
+- 发布顺序
+- 更新顺序
+- 内链插入时机
+- 社媒扩散节点
+
+---
+
+# 输出规范
+
+必须输出：
+
+# 1. 核心主题分析
+
+# 2. Pillar Page
+
+# 3. Topic Cluster列表
+
+# 4. GEO问题矩阵
+
+# 5. 长尾关键词
+
+# 6. 内链结构
+
+# 7. 权威地图
+
+# 8. 内容发布计划
+
+# 9. AI搜索适配建议
+
+输出格式必须为Markdown。
+
+禁止：
+
+- 空泛建议
+- 只有关键词无结构
+- 无搜索意图分类
+- 无用户阶段划分</code></pre></div>
+<p>---</p>
+<p># 三、config.yaml</p>
+<div class="codeblock"><pre><code>system:
+  language: zh-CN
+  output_format: markdown
+  creativity: high
+  reasoning: deep
+  temperature: 0.8
+
+seo:
+  enable_semantic_keywords: true
+  enable_search_intent: true
+  enable_longtail: true
+  enable_internal_linking: true
+
+geo:
+  enable_ai_search: true
+  enable_conversation_queries: true
+  enable_reddit_style: true
+  enable_perplexity_style: true
+  enable_chatgpt_style: true
+
+content:
+  enable_calendar: true
+  enable_authority_map: true
+  enable_priority_score: true
+
+quality_control:
+  avoid_keyword_stuffing: true
+  avoid_generic_topics: true
+  require_business_value: true</code></pre></div>
+<p>---</p>
+<p># 四、cluster_system.md</p>
+<div class="codeblock"><pre><code># 主题簇生成规则
+
+围绕核心主题：
+
+1. 建立一个Pillar Page
+2. 生成10-50个Cluster Topic
+3. 每个Cluster必须：
+   - 可独立排名
+   - 能回链Pillar
+   - 有明确搜索意图
+   - 有商业价值
+   - 有AI搜索价值
+
+---
+
+# 搜索意图分类
+
+- Informational
+- Commercial
+- Transactional
+- Navigational
+- GEO Conversational
+
+---
+
+# 用户阶段
+
+- Awareness
+- Consideration
+- Decision
+- Purchase
+- Retention</code></pre></div>
+<p>---</p>
+<p># 五、search_intent.md</p>
+<div class="codeblock"><pre><code># 搜索意图分析系统
+
+分析：
+
+- 用户为什么搜索
+- 用户想解决什么问题
+- 用户下一步动作
+- 用户采购阶段
+- AI搜索可能提问方式
+
+输出：
+
+- 搜索意图
+- 用户痛点
+- 用户目标
+- 转化可能性</code></pre></div>
+<p>---</p>
+<p># 六、geo_expansion.md</p>
+<div class="codeblock"><pre><code># GEO问题扩展规则
+
+扩展：
+
+- ChatGPT风格问题
+- Reddit真实提问
+- Perplexity问题
+- Google SGE问题
+- AI摘要问题
+
+生成：
+
+- Why
+- What
+- How
+- Best
+- VS
+- Alternative
+- Cost
+- Supplier
+- Manufacturer
+- OEM
+- Factory
+- Sustainability</code></pre></div>
+<p>---</p>
+<p># 七、internal_link.md</p>
+<div class="codeblock"><pre><code># 内链结构规则
+
+Pillar：
+
+- 指向所有Cluster
+
+Cluster：
+
+- 回链Pillar
+- 横向连接相关Cluster
+
+高商业价值页面：
+
+- 获得更多内部链接
+
+高流量页面：
+
+- 导流采购页面</code></pre></div>
+<p>---</p>
+<p># 八、content_calendar.md</p>
+<div class="codeblock"><pre><code># 内容发布系统
+
+优先发布：
+
+1. 高搜索量低竞争
+2. 高商业价值
+3. 高AI引用概率
+4. 高转化主题
+
+发布频率：
+
+- 初期：每日2-3篇
+- 中期：每日1篇
+- 后期：每周更新
+
+更新策略：
+
+- 30天更新
+- 增量更新
+- FAQ扩展
+- GEO扩展</code></pre></div>
+<p>---</p>
+<p># 九、authority_map.md</p>
+<div class="codeblock"><pre><code># 权威地图规则
+
+建立：
+
+- 行业权威节点
+- 高价值内容节点
+- AI高引用节点
+- FAQ节点
+- GEO节点
+
+形成：
+
+Pillar
+  ↓
+Cluster
+  ↓
+Longtail
+  ↓
+FAQ
+  ↓
+AI引用</code></pre></div>
+<p>---</p>
+<p># 十、cluster_output.md</p>
+<div class="codeblock"><pre><code># Topic Cluster 输出模板
+
+| Topic | Intent | Difficulty | Business Value | GEO Value | Priority |
+|---|---|---|---|---|---|
+
+---
+
+# 示例
+
+| Best Aluminum Bottle Manufacturers | Commercial | Medium | High | High | P1 |
+| Aluminum Bottle vs Plastic Bottle | Informational | Low | Medium | High | P2 |</code></pre></div>
+<p>---</p>
+<p># 十一、geo_output.md</p>
+<div class="codeblock"><pre><code># GEO问题矩阵
+
+## ChatGPT风格
+
+- 什么是最适合饮料行业的铝瓶？
+- 为什么越来越多品牌使用铝瓶？
+
+## Reddit风格
+
+- 有没有真正靠谱的铝瓶供应商？
+- 铝瓶真的比PET环保吗？
+
+## Perplexity风格
+
+- Compare aluminum bottles and PET bottles in beverage packaging.</code></pre></div>
+<p>---</p>
+<p># 十二、calendar_output.md</p>
+<div class="codeblock"><pre><code># 内容发布日历
+
+| Day | Topic | Type | Goal |
+|---|---|---|---|
+
+| Day 1 | Ultimate Guide to Aluminum Bottles | Pillar | Authority |
+| Day 2 | Aluminum Bottle MOQ Explained | Cluster | Conversion |</code></pre></div>
+<p>---</p>
+<p># 十三、authority_output.md</p>
+<div class="codeblock"><pre><code># 权威结构图
+
+Pillar
+├── Manufacturing
+├── OEM
+├── MOQ
+├── Sustainability
+├── Beverage Packaging
+├── Cosmetic Packaging
+└── Supplier Guide</code></pre></div>
+<p>---</p>
+<p># 十四、推荐升级方向（V5）</p>
+<p>下一代建议增加：</p>
+<h3 class="sub-h">1. SERP抓取</h3>
+<p>自动分析：</p>
+<ul class="md-ul"><li>Google前10</li><li>Reddit</li><li>Quora</li><li>Perplexity</li></ul>
+<p>---</p>
+<h3 class="sub-h">2. 自动生成文章</h3>
+<p>主题簇生成后：</p>
+<p>直接生成：</p>
+<ul class="md-ul"><li>标题</li><li>大纲</li><li>FAQ</li><li>Schema</li><li>正文</li></ul>
+<p>---</p>
+<h3 class="sub-h">3. AI搜索引用优化</h3>
+<p>自动生成：</p>
+<ul class="md-ul"><li>AI引用块</li><li>精简答案</li><li>TL;DR</li><li>实体定义</li></ul>
+<p>---</p>
+<h3 class="sub-h">4. 自动形成站点结构</h3>
+<p>生成：</p>
+<ul class="md-ul"><li>URL结构</li><li>分类目录</li><li>Breadcrumb</li><li>Sitemap</li></ul>
+<div class="codeblock"><pre><code></code></pre></div></div>
+    </section>
+    <section id="s2" class="st2">
+      <div class="sec-h"><span class="idx st2">Q2</span><h2>这个技能主要针对国内</h2><span class="hint">第 2 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>这个技能主要针对国内</p></div>
+      <div class="qa-a"><p>如果这套技能主要面向国内（中文互联网 + 百度/微信/小红书/知乎/抖音生态），那么原版偏 Google SEO / GEO 的结构需要进行一次“中文搜索生态重构”。</p>
+<p>因为国内的主题簇逻辑和海外完全不一样：</p>
+<ul class="md-ul"><li>海外：</li></ul>
+<p>  - Google   - Reddit   - Quora   - Perplexity   - ChatGPT</p>
+<ul class="md-ul"><li>国内：</li></ul>
+<p>  - 百度SEO   - 微信搜一搜   - 小红书搜索   - 知乎搜索   - 抖音搜索   - 豆包 / Kimi / 元宝 / DeepSeek   - AI摘要流量   - 百度智能体   - 腾讯元宝引用   - 百家号   - 公众号矩阵</p>
+<p>所以建议你把这个技能升级成：</p>
+<p># 中文主题簇系统（CN Topic Cluster Engine）</p>
+<p>更适合：</p>
+<ul class="md-ul"><li>企业官网</li><li>百度SEO</li><li>微信公众号</li><li>小红书矩阵</li><li>知乎专栏</li><li>抖音口播文案</li><li>AI搜索流量</li><li>GEO中文生态</li></ul>
+<p>下面给你一套真正适合国内生态的升级版架构。</p>
+<p>---</p>
+<p># 一、技能定位（国内版）</p>
+<h3 class="sub-h">核心目标</h3>
+<p>围绕一个核心行业词：</p>
+<p>自动生成：</p>
+<ul class="md-ul"><li>百度SEO主题簇</li><li>微信搜一搜内容矩阵</li><li>小红书种草矩阵</li><li>知乎问答矩阵</li><li>AI搜索问答矩阵</li><li>抖音口播选题</li><li>百家号收录结构</li><li>中文长尾关键词</li><li>用户决策路径</li></ul>
+<p>最终形成：</p>
+<p># “全中文内容流量矩阵”</p>
+<p>而不仅仅是SEO。</p>
+<p>---</p>
+<p># 二、建议技能名称</p>
+<p>推荐几个：</p>
+<div class="tblwrap"><table><thead><tr><th>名称</th><th>风格</th></tr></thead><tbody><tr><td>CNTopicCluster</td><td>专业</td></tr><tr><td>中文主题簇引擎</td><td>通用</td></tr><tr><td>流量矩阵生成器</td><td>国内流量风</td></tr><tr><td>中文SEO内容工厂</td><td>企业风</td></tr><tr><td>全域主题簇系统</td><td>高级感</td></tr><tr><td>百度GEO内容引擎</td><td>GEO方向</td></tr><tr><td>中文搜索矩阵系统</td><td>AI搜索方向</td></tr></tbody></table></div>
+<p>我最推荐：</p>
+<p># 中文搜索矩阵系统 （Chinese Search Matrix Engine）</p>
+<p>因为它不局限于SEO。</p>
+<p>---</p>
+<p># 三、国内版目录结构</p>
+<div class="codeblock"><pre><code>cn-topic-cluster/
+├── skill.md
+├── config.yaml
+├── memory/
+│   ├── keyword_memory.md
+│   ├── platform_memory.md
+│   └── content_memory.md
+├── prompts/
+│   ├── baidu_cluster.md
+│   ├── wechat_cluster.md
+│   ├── xiaohongshu_cluster.md
+│   ├── zhihu_cluster.md
+│   ├── douyin_cluster.md
+│   ├── ai_search_cluster.md
+│   ├── longtail.md
+│   ├── internal_link.md
+│   └── authority.md
+├── templates/
+│   ├── cluster_table.md
+│   ├── ai_questions.md
+│   ├── platform_matrix.md
+│   └── content_calendar.md
+└── outputs/</code></pre></div>
+<p>---</p>
+<p># 四、国内版 skill.md 核心升级</p>
+<p>新增：</p>
+<div class="codeblock"><pre><code>capabilities:
+  - baidu-seo
+  - wechat-search
+  - xiaohongshu-seo
+  - zhihu-traffic
+  - douyin-topics
+  - ai-search-optimization
+  - chinese-longtail-keywords
+  - platform-clustering</code></pre></div>
+<p>---</p>
+<p># 五、国内主题簇核心逻辑（重点）</p>
+<p>国内不能只做“关键词”。</p>
+<p>而是：</p>
+<p># “平台主题簇”</p>
+<p>例如：</p>
+<p>核心主题：</p>
+<div class="codeblock"><pre><code>铝瓶包装</code></pre></div>
+<p>系统会自动拆分：</p>
+<div class="tblwrap"><table><thead><tr><th>平台</th><th>内容方向</th></tr></thead><tbody><tr><td>百度</td><td>行业词SEO</td></tr><tr><td>微信</td><td>深度行业文章</td></tr><tr><td>小红书</td><td>种草场景</td></tr><tr><td>知乎</td><td>专业问答</td></tr><tr><td>抖音</td><td>口播选题</td></tr><tr><td>AI搜索</td><td>问答摘要</td></tr><tr><td>百家号</td><td>收录流量</td></tr><tr><td>B2B平台</td><td>采购词</td></tr></tbody></table></div>
+<p>---</p>
+<p># 六、国内版 GEO（重点升级）</p>
+<p>海外GEO已经变成：</p>
+<ul class="md-ul"><li>ChatGPT</li><li>Perplexity</li></ul>
+<p>而国内正在变成：</p>
+<ul class="md-ul"><li>豆包</li><li>腾讯元宝</li><li>Kimi</li><li>DeepSeek</li><li>百度AI</li><li>通义</li></ul>
+<p>所以：</p>
+<p>你需要加入：</p>
+<div class="codeblock"><pre><code># 中文AI搜索问题生成
+
+生成：
+
+- 豆包式提问
+- 元宝式提问
+- Kimi式提问
+- DeepSeek式提问
+- 百度AI摘要问题
+
+要求：
+
+- 中文自然口语
+- 用户真实提问
+- 对话式搜索
+- 采购场景
+- 对比场景</code></pre></div>
+<p>---</p>
+<p># 七、平台级主题簇（核心）</p>
+<h3 class="sub-h">1. 百度SEO主题簇</h3>
+<p>输出：</p>
+<div class="codeblock"><pre><code>- 铝瓶是什么
+- 铝瓶生产厂家
+- 铝瓶包装优势
+- 铝瓶和PET区别
+- 食品级铝瓶
+- 铝瓶定制</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">2. 微信公众号主题簇</h3>
+<p>输出：</p>
+<div class="codeblock"><pre><code>- 为什么越来越多饮料品牌开始用铝瓶？
+- 铝瓶包装会成为下一个趋势吗？
+- 高端饮料为什么偏爱铝瓶？</code></pre></div>
+<p>特点：</p>
+<ul class="md-ul"><li>深度</li><li>行业分析</li><li>观点型</li></ul>
+<p>---</p>
+<h3 class="sub-h">3. 小红书主题簇</h3>
+<p>输出：</p>
+<div class="codeblock"><pre><code>- 巨高级的饮料包装！
+- 被这个铝瓶颜值惊艳了
+- 为什么精品咖啡都开始用铝瓶？</code></pre></div>
+<p>特点：</p>
+<ul class="md-ul"><li>情绪</li><li>种草</li><li>场景化</li><li>标题党</li></ul>
+<p>---</p>
+<h3 class="sub-h">4. 知乎主题簇</h3>
+<p>输出：</p>
+<div class="codeblock"><pre><code>- 铝瓶真的比塑料瓶环保吗？
+- 为什么高端饮料越来越少用PET？
+- 铝瓶包装成本到底高多少？</code></pre></div>
+<p>特点：</p>
+<ul class="md-ul"><li>问答</li><li>专业解释</li><li>对比</li></ul>
+<p>---</p>
+<h3 class="sub-h">5. 抖音主题簇</h3>
+<p>输出：</p>
+<div class="codeblock"><pre><code>- 一分钟看懂铝瓶生产过程
+- 为什么高端饮料都换成铝瓶？
+- 铝瓶居然比塑料瓶更便宜？</code></pre></div>
+<p>特点：</p>
+<ul class="md-ul"><li>冲突</li><li>反差</li><li>口播</li></ul>
+<p>---</p>
+<p># 八、国内版长尾关键词生成（核心）</p>
+<p>重点加入：</p>
+<h3 class="sub-h">采购词</h3>
+<div class="codeblock"><pre><code>铝瓶厂家
+铝瓶定制
+食品级铝瓶
+铝瓶OEM
+铝瓶ODM</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">地域词</h3>
+<div class="codeblock"><pre><code>广东铝瓶厂家
+浙江铝瓶工厂
+江苏铝瓶供应商</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">微信搜索词</h3>
+<div class="codeblock"><pre><code>铝瓶包装趋势
+铝瓶案例
+铝瓶品牌</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">AI搜索词</h3>
+<div class="codeblock"><pre><code>哪家铝瓶厂家靠谱
+铝瓶适合饮料吗
+铝瓶环保吗</code></pre></div>
+<p>---</p>
+<p># 九、国内版内容日历（重点）</p>
+<p>国内需要：</p>
+<p># “平台同步发布”</p>
+<p>例如：</p>
+<div class="tblwrap"><table><thead><tr><th>Day</th><th>平台</th><th>内容</th></tr></thead><tbody><tr><td>1</td><td>官网</td><td>Pillar</td></tr><tr><td>2</td><td>微信</td><td>深度文章</td></tr><tr><td>3</td><td>知乎</td><td>问答</td></tr><tr><td>4</td><td>小红书</td><td>种草</td></tr><tr><td>5</td><td>抖音</td><td>口播</td></tr></tbody></table></div>
+<p>形成：</p>
+<p># 百度收录 + 社媒扩散 + AI引用</p>
+<p>三位一体。</p>
+<p>---</p>
+<p># 十、最关键升级（真正核心）</p>
+<p>国内SEO已经不是：</p>
+<p># “网站SEO”</p>
+<p>而是：</p>
+<p># “全域内容矩阵”</p>
+<p>所以：</p>
+<p>你这个技能真正应该变成：</p>
+<p># 中文全域流量系统</p>
+<p>核心是：</p>
+<div class="tblwrap"><table><thead><tr><th>模块</th><th>作用</th></tr></thead><tbody><tr><td>百度SEO</td><td>搜索流量</td></tr><tr><td>微信</td><td>私域沉淀</td></tr><tr><td>小红书</td><td>种草</td></tr><tr><td>知乎</td><td>信任</td></tr><tr><td>抖音</td><td>曝光</td></tr><tr><td>AI搜索</td><td>新流量入口</td></tr><tr><td>官网</td><td>转化</td></tr><tr><td>B2B平台</td><td>获客</td></tr></tbody></table></div>
+<p>这才是国内玩法。</p></div>
+    </section>
+    <section id="s3" class="st3">
+      <div class="sec-h"><span class="idx st3">Q3</span><h2>提供国内版的全套SKILL</h2><span class="hint">第 3 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>提供国内版的全套SKILL</p></div>
+      <div class="qa-a"><p># 中文全域主题簇系统（CN Search Matrix Engine）</p>
+<p>适用于：</p>
+<ul class="md-ul"><li>OpenClaw</li><li>QClaw</li><li>Claude Skill</li><li>企业内容矩阵</li><li>百度SEO</li><li>微信公众号</li><li>小红书</li><li>知乎</li><li>抖音</li><li>AI搜索优化</li></ul>
+<p>---</p>
+<p># 一、目录结构</p>
+<div class="codeblock"><pre><code>cn-search-matrix-engine/
+├── skill.md
+├── config.yaml
+├── memory/
+│   ├── keyword_memory.md
+│   ├── platform_memory.md
+│   ├── authority_memory.md
+│   └── content_memory.md
+├── prompts/
+│   ├── core_cluster.md
+│   ├── baidu_seo.md
+│   ├── wechat_cluster.md
+│   ├── xiaohongshu_cluster.md
+│   ├── zhihu_cluster.md
+│   ├── douyin_cluster.md
+│   ├── ai_search_cluster.md
+│   ├── longtail.md
+│   ├── authority_map.md
+│   ├── internal_link.md
+│   └── content_calendar.md
+├── templates/
+│   ├── cluster_output.md
+│   ├── platform_output.md
+│   ├── ai_output.md
+│   ├── calendar_output.md
+│   └── authority_output.md
+└── outputs/</code></pre></div>
+<p>---</p>
+<p># 二、skill.md</p>
+<div class="codeblock"><pre><code>---
+name: CNSearchMatrixEngine
+description: 中文全域主题簇系统，自动生成百度SEO、微信、小红书、知乎、抖音、AI搜索内容矩阵
+author: Gervas
+version: 5.0
+category: SEO
+tags:
+  - 百度SEO
+  - 微信SEO
+  - 小红书SEO
+  - 抖音SEO
+  - AI搜索优化
+  - GEO
+  - 内容矩阵
+  - Topic Cluster
+model:
+  - claude
+  - gpt
+  - gemini
+capabilities:
+  - baidu-seo
+  - wechat-search
+  - xiaohongshu-seo
+  - zhihu-traffic
+  - douyin-topics
+  - ai-search-optimization
+  - chinese-topic-cluster
+  - longtail-keywords
+  - authority-building
+  - content-calendar
+---
+
+# CN Search Matrix Engine
+
+## 技能目标
+
+围绕一个中文核心主题：
+
+自动生成：
+
+- 百度SEO主题簇
+- 微信公众号内容矩阵
+- 小红书种草矩阵
+- 知乎问答矩阵
+- 抖音口播矩阵
+- AI搜索问题矩阵
+- 长尾关键词
+- 内链结构
+- 权威地图
+- 内容发布日历
+
+最终形成：
+
+# 中文全域流量系统
+
+---
+
+# 输入格式
+
+用户输入：
+</code></pre></div>
+<p>核心主题： 行业： 目标用户： 目标地区： 竞争对手： 内容目标： 平台重点：</p>
+<div class="codeblock"><pre><code>
+示例：
+</code></pre></div>
+<p>核心主题：铝瓶包装 行业：包装制造 目标用户：饮料品牌商 目标地区：中国 竞争对手：奥瑞金 内容目标：获取百度和AI搜索流量 平台重点：百度、知乎、公众号</p>
+<div class="codeblock"><pre><code>
+---
+
+# 执行流程
+
+## STEP 1：主题拆解
+
+识别：
+
+- 核心词
+- 行业词
+- 商业词
+- 采购词
+- 地域词
+- AI搜索词
+- 微信搜索词
+
+输出：
+
+- 搜索意图
+- 用户阶段
+- 商业价值
+
+---
+
+## STEP 2：百度SEO主题簇
+
+生成：
+
+- 支柱页面
+- SEO栏目
+- Cluster Topic
+- 长尾词
+- FAQ
+- 百度精选摘要结构
+
+要求：
+
+- 适合百度收录
+- 适合中文搜索
+- 支持AI引用
+
+---
+
+## STEP 3：平台主题簇
+
+自动拆分：
+
+### 微信公众号
+
+- 深度行业文章
+- 趋势分析
+- 观点型内容
+
+### 小红书
+
+- 场景化种草
+- 情绪标题
+- 爆款标题
+
+### 知乎
+
+- 专业问答
+- 对比内容
+- 行业解释
+
+### 抖音
+
+- 冲突型标题
+- 口播选题
+- 工厂揭秘
+
+---
+
+## STEP 4：AI搜索矩阵
+
+生成：
+
+- 豆包问题
+- Kimi问题
+- 元宝问题
+- DeepSeek问题
+- 百度AI问题
+
+要求：
+
+- 中文自然口语
+- 用户真实提问
+- 对话式问题
+
+---
+
+## STEP 5：建立权威结构
+
+生成：
+
+- 内容层级
+- 权重流向
+- 内链结构
+- AI引用节点
+
+---
+
+## STEP 6：内容发布日历
+
+自动规划：
+
+- 30天
+- 60天
+- 90天
+
+包括：
+
+- 发布时间
+- 发布平台
+- 内容形式
+- 引流路径
+
+---
+
+# 输出要求
+
+必须输出：
+
+# 1. 核心主题分析
+
+# 2. 百度SEO主题簇
+
+# 3. 微信内容矩阵
+
+# 4. 小红书矩阵
+
+# 5. 知乎问题矩阵
+
+# 6. 抖音选题矩阵
+
+# 7. AI搜索问题矩阵
+
+# 8. 长尾关键词
+
+# 9. 权威地图
+
+# 10. 内链结构
+
+# 11. 内容发布日历
+
+输出格式必须为Markdown。
+
+禁止：
+
+- 空泛建议
+- 无平台区分
+- 无商业价值
+- 无用户阶段
+- 无搜索意图</code></pre></div>
+<p>---</p>
+<p># 三、config.yaml</p>
+<div class="codeblock"><pre><code>system:
+  language: zh-CN
+  output_format: markdown
+  creativity: high
+  reasoning: deep
+  temperature: 0.85
+
+seo:
+  enable_baidu_seo: true
+  enable_longtail_keywords: true
+  enable_internal_linking: true
+  enable_search_intent: true
+
+platform:
+  enable_wechat: true
+  enable_xiaohongshu: true
+  enable_zhihu: true
+  enable_douyin: true
+
+geo:
+  enable_ai_search: true
+  enable_deepseek_queries: true
+  enable_kimi_queries: true
+  enable_doubao_queries: true
+  enable_yuanbao_queries: true
+
+content:
+  enable_calendar: true
+  enable_authority_map: true
+  enable_priority_score: true
+
+quality_control:
+  avoid_generic_topics: true
+  avoid_keyword_stuffing: true
+  require_business_value: true</code></pre></div>
+<p>---</p>
+<p># 四、core_cluster.md</p>
+<div class="codeblock"><pre><code># 中文主题簇生成规则
+
+围绕核心主题：
+
+1. 建立Pillar Page
+2. 生成10-50个Topic Cluster
+3. 每个Cluster必须：
+   - 有搜索价值
+   - 有商业价值
+   - 有AI搜索价值
+   - 有平台传播价值
+
+---
+
+# 搜索意图
+
+- 信息型
+- 商业型
+- 采购型
+- 对比型
+- GEO对话型
+
+---
+
+# 用户阶段
+
+- 认知阶段
+- 调研阶段
+- 对比阶段
+- 决策阶段
+- 采购阶段</code></pre></div>
+<p>---</p>
+<p># 五、baidu_seo.md</p>
+<div class="codeblock"><pre><code># 百度SEO规则
+
+生成：
+
+- 百度SEO栏目
+- 支柱页面
+- Cluster Topic
+- FAQ结构
+- 百度精选摘要结构
+
+要求：
+
+- 中文自然表达
+- 适合百度收录
+- 支持长尾词
+- 支持AI摘要
+
+重点：
+
+- 标题前30字
+- H结构
+- FAQ
+- 地域词
+- 商业词</code></pre></div>
+<p>---</p>
+<p># 六、wechat_cluster.md</p>
+<div class="codeblock"><pre><code># 微信公众号主题簇
+
+生成：
+
+- 行业深度文章
+- 趋势分析
+- 观点型内容
+- 企业案例
+- 行业洞察
+
+标题要求：
+
+- 有观点
+- 有行业感
+- 有传播性</code></pre></div>
+<p>---</p>
+<p># 七、xiaohongshu_cluster.md</p>
+<div class="codeblock"><pre><code># 小红书主题簇
+
+生成：
+
+- 种草内容
+- 场景化内容
+- 颜值内容
+- 爆款标题
+
+标题风格：
+
+- 情绪化
+- 反差感
+- 种草感
+- 高级感</code></pre></div>
+<p>---</p>
+<p># 八、zhihu_cluster.md</p>
+<div class="codeblock"><pre><code># 知乎问题矩阵
+
+生成：
+
+- 专业问答
+- 行业解释
+- 对比内容
+- 采购问题
+
+问题要求：
+
+- 真实用户会搜索
+- 有讨论空间
+- 有专业度</code></pre></div>
+<p>---</p>
+<p># 九、douyin_cluster.md</p>
+<div class="codeblock"><pre><code># 抖音选题矩阵
+
+生成：
+
+- 工厂揭秘
+- 行业内幕
+- 冲突观点
+- 口播选题
+
+要求：
+
+- 前3秒吸引
+- 有冲突
+- 有反差
+- 有传播性</code></pre></div>
+<p>---</p>
+<p># 十、ai_search_cluster.md</p>
+<div class="codeblock"><pre><code># AI搜索问题矩阵
+
+生成：
+
+- 豆包问题
+- DeepSeek问题
+- 元宝问题
+- Kimi问题
+
+问题风格：
+
+- 中文口语
+- 对话式
+- 真实提问
+- 用户视角
+
+包括：
+
+- 为什么
+- 怎么选
+- 哪家好
+- 是否靠谱
+- 如何比较</code></pre></div>
+<p>---</p>
+<p># 十一、longtail.md</p>
+<div class="codeblock"><pre><code># 中文长尾关键词规则
+
+必须生成：
+
+## 行业词
+
+## 商业词
+
+## 采购词
+
+## 地域词
+
+## AI搜索词
+
+## 微信搜索词
+
+## 问题词
+
+---
+
+# 示例
+
+铝瓶厂家
+铝瓶OEM
+食品级铝瓶
+广东铝瓶工厂
+铝瓶靠谱吗</code></pre></div>
+<p>---</p>
+<p># 十二、authority_map.md</p>
+<div class="codeblock"><pre><code># 权威地图规则
+
+建立：
+
+Pillar
+  ↓
+Cluster
+  ↓
+FAQ
+  ↓
+AI引用
+  ↓
+转化页面
+
+---
+
+高商业价值页面：
+
+- 获得更多内链
+- 获得更多更新频率
+- 获得更多平台分发</code></pre></div>
+<p>---</p>
+<p># 十三、internal_link.md</p>
+<div class="codeblock"><pre><code># 内链规则
+
+Pillar：
+
+- 指向所有Cluster
+
+Cluster：
+
+- 回链Pillar
+- 横向互链
+
+商业页：
+
+- 获得更多流量导入</code></pre></div>
+<p>---</p>
+<p># 十四、content_calendar.md</p>
+<div class="codeblock"><pre><code># 中文内容发布系统
+
+发布顺序：
+
+1. 官网Pillar
+2. 百度SEO文章
+3. 微信深度文章
+4. 知乎问答
+5. 小红书种草
+6. 抖音视频
+
+---
+
+更新策略：
+
+- 7天更新
+- FAQ增量
+- AI问题扩展
+- 热点融合</code></pre></div>
+<p>---</p>
+<p># 十五、cluster_output.md</p>
+<div class="codeblock"><pre><code># 百度SEO主题簇
+
+| Topic | 搜索意图 | 商业价值 | AI价值 | 优先级 |
+|---|---|---|---|---|</code></pre></div>
+<p>---</p>
+<p># 十六、platform_output.md</p>
+<div class="codeblock"><pre><code># 平台内容矩阵
+
+| 平台 | 内容主题 | 内容形式 | 目标 |
+|---|---|---|---|</code></pre></div>
+<p>---</p>
+<p># 十七、ai_output.md</p>
+<div class="codeblock"><pre><code># AI搜索问题矩阵
+
+## 豆包风格
+
+## Kimi风格
+
+## 元宝风格
+
+## DeepSeek风格</code></pre></div>
+<p>---</p>
+<p># 十八、calendar_output.md</p>
+<div class="codeblock"><pre><code># 内容发布日历
+
+| Day | 平台 | 内容 | 目标 |
+|---|---|---|---|</code></pre></div>
+<p>---</p>
+<p># 十九、authority_output.md</p>
+<div class="codeblock"><pre><code># 权威结构图
+
+Pillar
+├── 行业词
+├── FAQ
+├── 商业词
+├── 采购词
+├── AI问题
+└── 转化页面</code></pre></div>
+<p>---</p>
+<p># 二十、推荐下一步升级（V6）</p>
+<p>建议未来增加：</p>
+<h3 class="sub-h">1. 百度SERP分析</h3>
+<p>自动分析：</p>
+<ul class="md-ul"><li>百度前10</li><li>知乎</li><li>百家号</li><li>小红书</li></ul>
+<p>---</p>
+<h3 class="sub-h">2. 自动爆文生成</h3>
+<p>主题簇生成后：</p>
+<p>自动生成：</p>
+<ul class="md-ul"><li>标题</li><li>大纲</li><li>正文</li><li>FAQ</li><li>AI摘要</li></ul>
+<p>---</p>
+<h3 class="sub-h">3. 自动平台改写</h3>
+<p>同一个主题：</p>
+<p>自动改写：</p>
+<ul class="md-ul"><li>微信版</li><li>小红书版</li><li>知乎版</li><li>抖音版</li></ul>
+<p>---</p>
+<h3 class="sub-h">4. 自动形成企业内容中台</h3>
+<p>最终形成：</p>
+<p># 企业内容工厂系统</p>
+<p>支持：</p>
+<ul class="md-ul"><li>SEO</li><li>GEO</li><li>AI搜索</li><li>全域分发</li><li>私域沉淀</li></ul></div>
+    </section>
+    <section id="s4" class="st4">
+      <div class="sec-h"><span class="idx st4">Q4</span><h2>提供V6</h2><span class="hint">第 4 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>提供V6</p></div>
+      <div class="qa-a"><p># 中文全域搜索矩阵系统 V6   （CN Search Matrix Engine V6）</p>
+<blockquote class="md-quote">面向：  - 百度SEO - AI搜索（豆包/Kimi/DeepSeek/元宝） - 微信公众号 - 小红书 - 知乎 - 抖音 - 企业官网 - 百家号 - B2B获客  的完整企业级内容工厂系统。</blockquote>
+<p>---</p>
+<p># 一、V6 核心升级（重点）</p>
+<p>V5 还是：</p>
+<p># “主题簇生成器”</p>
+<p>而 V6：</p>
+<p># 已经是完整的：</p>
+<p># 中文 AI SEO 内容中台</p>
+<p>新增核心能力：</p>
+<div class="tblwrap"><table><thead><tr><th>模块</th><th>V5</th><th>V6</th></tr></thead><tbody><tr><td>主题簇</td><td>✓</td><td>✓</td></tr><tr><td>百度SEO</td><td>✓</td><td>✓</td></tr><tr><td>AI搜索</td><td>✓</td><td>✓</td></tr><tr><td>平台矩阵</td><td>✓</td><td>✓</td></tr><tr><td>SERP分析</td><td>×</td><td>✓</td></tr><tr><td>竞品分析</td><td>×</td><td>✓</td></tr><tr><td>自动爆文生成</td><td>×</td><td>✓</td></tr><tr><td>多平台改写</td><td>×</td><td>✓</td></tr><tr><td>内容去AI味</td><td>×</td><td>✓</td></tr><tr><td>用户画像</td><td>×</td><td>✓</td></tr><tr><td>转化路径</td><td>×</td><td>✓</td></tr><tr><td>内容评分系统</td><td>×</td><td>✓</td></tr><tr><td>权威度系统</td><td>×</td><td>✓</td></tr><tr><td>AI引用优化</td><td>×</td><td>✓</td></tr><tr><td>企业知识库</td><td>×</td><td>✓</td></tr><tr><td>自动更新策略</td><td>×</td><td>✓</td></tr></tbody></table></div>
+<p>---</p>
+<p># 二、V6目录结构（企业级）</p>
+<div class="codeblock"><pre><code>cn-search-matrix-engine-v6/
+├── skill.md
+├── config.yaml
+├── memory/
+│   ├── keyword_memory.md
+│   ├── competitor_memory.md
+│   ├── authority_memory.md
+│   ├── platform_memory.md
+│   ├── user_persona.md
+│   ├── ai_search_memory.md
+│   └── content_memory.md
+├── prompts/
+│   ├── 01_core_cluster.md
+│   ├── 02_baidu_seo.md
+│   ├── 03_wechat.md
+│   ├── 04_xiaohongshu.md
+│   ├── 05_zhihu.md
+│   ├── 06_douyin.md
+│   ├── 07_ai_search.md
+│   ├── 08_serp_analysis.md
+│   ├── 09_competitor_analysis.md
+│   ├── 10_content_generation.md
+│   ├── 11_deaify.md
+│   ├── 12_internal_link.md
+│   ├── 13_authority_map.md
+│   ├── 14_conversion_path.md
+│   ├── 15_content_scoring.md
+│   ├── 16_content_calendar.md
+│   ├── 17_auto_update.md
+│   └── 18_knowledge_base.md
+├── templates/
+│   ├── seo_cluster.md
+│   ├── platform_matrix.md
+│   ├── ai_questions.md
+│   ├── content_plan.md
+│   ├── authority_map.md
+│   ├── conversion_map.md
+│   ├── content_score.md
+│   └── serp_report.md
+└── outputs/</code></pre></div>
+<p>---</p>
+<p># 三、V6 skill.md（核心）</p>
+<div class="codeblock"><pre><code>---
+name: CNSearchMatrixEngineV6
+description: 中文AI搜索时代的企业级全域内容工厂系统
+author: Gervas
+version: 6.0
+category: SEO
+tags:
+  - 百度SEO
+  - GEO
+  - AI搜索
+  - 企业内容工厂
+  - 小红书SEO
+  - 知乎SEO
+  - 抖音SEO
+  - Topic Cluster
+  - AI SEO
+  - Content Engine
+model:
+  - claude
+  - gpt
+  - gemini
+capabilities:
+  - baidu-seo
+  - ai-search-optimization
+  - chinese-topic-cluster
+  - serp-analysis
+  - competitor-analysis
+  - platform-rewriting
+  - authority-building
+  - auto-content-generation
+  - deaify
+  - conversion-optimization
+  - enterprise-knowledge-base
+---
+
+# CN Search Matrix Engine V6
+
+## 技能定位
+
+本系统不是单纯SEO工具。
+
+而是：
+
+# 中文AI搜索时代的企业内容中台
+
+目标：
+
+围绕核心主题：
+
+自动形成：
+
+- SEO流量
+- AI搜索流量
+- 社媒流量
+- 私域流量
+- B2B获客流量
+
+---
+
+# 输入格式
+
+用户输入：
+</code></pre></div>
+<p>核心主题： 行业： 目标用户： 目标地区： 竞争对手： 内容目标： 平台重点： 内容风格： 转化目标：</p>
+<div class="codeblock"><pre><code>
+---
+
+# 系统执行流程
+
+## STEP 1：行业分析
+
+分析：
+
+- 行业竞争
+- 搜索需求
+- 用户阶段
+- 商业价值
+- AI搜索趋势
+
+---
+
+## STEP 2：SERP分析
+
+自动分析：
+
+- 百度前10
+- 知乎
+- 百家号
+- 小红书
+- 微信文章
+- AI搜索摘要
+
+提取：
+
+- 高权重结构
+- 标题规律
+- FAQ规律
+- AI引用规律
+
+---
+
+## STEP 3：建立主题簇
+
+自动生成：
+
+- Pillar
+- Cluster
+- FAQ
+- AI问题
+- 平台话题
+
+---
+
+## STEP 4：平台矩阵
+
+自动改写：
+
+### 百度SEO版
+
+### 微信版
+
+### 小红书版
+
+### 知乎版
+
+### 抖音版
+
+### AI搜索版
+
+---
+
+## STEP 5：AI搜索优化
+
+自动生成：
+
+- AI摘要块
+- TL;DR
+- 实体定义
+- FAQ结构
+- 对话式回答
+
+适配：
+
+- 豆包
+- Kimi
+- 元宝
+- DeepSeek
+- 百度AI
+
+---
+
+## STEP 6：转化路径
+
+自动建立：
+
+流量页
+↓
+对比页
+↓
+案例页
+↓
+采购页
+↓
+咨询页
+
+---
+
+## STEP 7：内容评分
+
+评分维度：
+
+- SEO价值
+- AI引用概率
+- 商业价值
+- 平台传播性
+- 转化能力
+
+---
+
+## STEP 8：自动更新
+
+自动识别：
+
+- 老化内容
+- AI搜索新问题
+- 热点变化
+- SERP变化
+
+并生成更新建议。
+
+---
+
+# 输出要求
+
+必须输出：
+
+# 1. 行业分析
+
+# 2. SERP分析
+
+# 3. 百度SEO主题簇
+
+# 4. 微信矩阵
+
+# 5. 小红书矩阵
+
+# 6. 知乎矩阵
+
+# 7. 抖音矩阵
+
+# 8. AI搜索矩阵
+
+# 9. 长尾关键词
+
+# 10. 权威地图
+
+# 11. 转化路径
+
+# 12. 内容评分
+
+# 13. 更新策略
+
+# 14. 内容发布计划</code></pre></div>
+<p>---</p>
+<p># 四、config.yaml（V6）</p>
+<div class="codeblock"><pre><code>system:
+  language: zh-CN
+  output_format: markdown
+  reasoning: deep
+  creativity: high
+  temperature: 0.9
+
+seo:
+  enable_baidu_seo: true
+  enable_longtail_keywords: true
+  enable_internal_linking: true
+  enable_featured_snippet: true
+
+geo:
+  enable_ai_search: true
+  enable_entity_definition: true
+  enable_ai_summary_block: true
+  enable_tldr: true
+
+platform:
+  enable_wechat: true
+  enable_xiaohongshu: true
+  enable_zhihu: true
+  enable_douyin: true
+  enable_baijiahao: true
+
+content:
+  enable_auto_rewriting: true
+  enable_deaify: true
+  enable_content_scoring: true
+  enable_conversion_path: true
+
+analysis:
+  enable_serp_analysis: true
+  enable_competitor_analysis: true
+  enable_trend_analysis: true</code></pre></div>
+<p>---</p>
+<p># 五、SERP分析模块（重点）</p>
+<h3 class="sub-h">08_serp_analysis.md</h3>
+<div class="codeblock"><pre><code># 百度SERP分析系统
+
+自动分析：
+
+- 百度前10
+- 知乎排名
+- 百家号
+- 微信文章
+- 小红书内容
+
+提取：
+
+- 标题结构
+- H标签规律
+- FAQ规律
+- AI摘要规律
+- 高CTR标题
+
+输出：
+
+- SERP机会点
+- 内容缺口
+- AI引用机会</code></pre></div>
+<p>---</p>
+<p># 六、竞品分析模块</p>
+<h3 class="sub-h">09_competitor_analysis.md</h3>
+<div class="codeblock"><pre><code># 竞品内容分析
+
+分析：
+
+- 竞品主题结构
+- 高流量页面
+- FAQ
+- AI搜索曝光
+- 小红书策略
+- 知乎策略
+
+输出：
+
+- 可超越点
+- 内容缺口
+- 流量缺口</code></pre></div>
+<p>---</p>
+<p># 七、自动爆文生成（重点）</p>
+<h3 class="sub-h">10_content_generation.md</h3>
+<div class="codeblock"><pre><code># 自动内容生成系统
+
+生成：
+
+- 标题
+- 大纲
+- 正文
+- FAQ
+- AI摘要
+- TLDR
+- CTA
+
+支持：
+
+- 百度SEO版
+- 微信版
+- 小红书版
+- 知乎版
+- 抖音口播版</code></pre></div>
+<p>---</p>
+<p># 八、去AI味系统（核心）</p>
+<h3 class="sub-h">11_deaify.md</h3>
+<div class="codeblock"><pre><code># 去AI味规则
+
+禁止：
+
+- AI腔
+- 套话
+- 机械结构
+- 重复句式
+
+增强：
+
+- 中文自然表达
+- 行业口语
+- 情绪感
+- 真人经验感
+- 社交平台语感
+
+不同平台：
+
+- 微信：行业深度
+- 小红书：生活化
+- 知乎：专业感
+- 抖音：口播感</code></pre></div>
+<p>---</p>
+<p># 九、转化路径系统（重点）</p>
+<h3 class="sub-h">14_conversion_path.md</h3>
+<div class="codeblock"><pre><code># 转化路径设计
+
+建立：
+
+搜索流量
+↓
+问题页
+↓
+对比页
+↓
+案例页
+↓
+采购页
+↓
+咨询页
+
+---
+
+每个页面：
+
+- 必须有CTA
+- 必须有内链
+- 必须有转化入口</code></pre></div>
+<p>---</p>
+<p># 十、内容评分系统</p>
+<h3 class="sub-h">15_content_scoring.md</h3>
+<div class="codeblock"><pre><code># 内容评分模型
+
+评分：
+
+| 维度 | 分值 |
+|---|---|
+| SEO价值 | 20 |
+| AI引用概率 | 20 |
+| 商业价值 | 20 |
+| 平台传播性 | 20 |
+| 转化能力 | 20 |
+
+---
+
+80分以上：
+
+- 优先发布
+- 重点更新
+- 多平台分发</code></pre></div>
+<p>---</p>
+<p># 十一、自动更新系统</p>
+<h3 class="sub-h">17_auto_update.md</h3>
+<div class="codeblock"><pre><code># 自动更新策略
+
+自动检测：
+
+- SERP变化
+- AI问题变化
+- 热点变化
+- 用户搜索变化
+
+更新：
+
+- FAQ
+- AI摘要
+- 数据
+- 案例
+- 对比内容</code></pre></div>
+<p>---</p>
+<p># 十二、企业知识库系统</p>
+<h3 class="sub-h">18_knowledge_base.md</h3>
+<div class="codeblock"><pre><code># 企业知识库系统
+
+自动沉淀：
+
+- FAQ
+- 行业定义
+- 产品定义
+- 工艺知识
+- AI引用块
+
+最终形成：
+
+# 企业知识中台
+
+支持：
+
+- SEO
+- AI搜索
+- 销售培训
+- 客服系统</code></pre></div>
+<p>---</p>
+<p># 十三、V6 真正核心（最重要）</p>
+<p>V6 的本质：</p>
+<p>不是：</p>
+<p># “做SEO”</p>
+<p>而是：</p>
+<p># “控制中文AI搜索里的行业认知”</p>
+<p>因为未来流量入口：</p>
+<p>正在从：</p>
+<ul class="md-ul"><li>百度搜索</li></ul>
+<p>变成：</p>
+<ul class="md-ul"><li>AI问答</li></ul>
+<p>所以：</p>
+<p>V6核心目标：</p>
+<p># 让企业成为 AI 默认引用源。</p>
+<p>这是下一代SEO。</p></div>
+    </section>
+    <section id="s5" class="st5">
+      <div class="sec-h"><span class="idx st5">Q5</span><h2>请提供V6的详细使用方法</h2><span class="hint">第 5 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>请提供V6的详细使用方法</p></div>
+      <div class="qa-a"><p># 中文全域搜索矩阵系统 V6 使用手册   （CN Search Matrix Engine V6）</p>
+<p>这套 Skill 的本质不是“生成几个关键词”。</p>
+<p>而是：</p>
+<p># 搭建企业级内容流量系统</p>
+<p>最终目标：</p>
+<div class="codeblock"><pre><code>搜索流量
+↓
+AI搜索曝光
+↓
+平台传播
+↓
+品牌认知
+↓
+询盘转化
+↓
+私域沉淀</code></pre></div>
+<p>适用于：</p>
+<ul class="md-ul"><li>企业官网</li><li>工厂外贸站</li><li>百度SEO</li><li>AI搜索</li><li>微信公众号</li><li>小红书</li><li>知乎</li><li>抖音</li><li>百家号</li><li>B2B获客</li></ul>
+<p>---</p>
+<p># 一、V6 的标准工作流（最重要）</p>
+<p>V6 的完整使用流程：</p>
+<div class="codeblock"><pre><code>STEP 1：输入行业主题
+STEP 2：生成主题簇
+STEP 3：生成平台矩阵
+STEP 4：生成AI搜索矩阵
+STEP 5：生成内容计划
+STEP 6：批量生成文章
+STEP 7：平台改写
+STEP 8：发布
+STEP 9：更新迭代</code></pre></div>
+<p>真正的核心：</p>
+<p># “持续内容生产”</p>
+<p>而不是一次性生成。</p>
+<p>---</p>
+<p># 二、最标准的使用方式（推荐）</p>
+<h3 class="sub-h">第一阶段：建立行业主主题</h3>
+<p>输入：</p>
+<div class="codeblock"><pre><code>核心主题：铝瓶包装
+行业：包装制造
+目标用户：饮料品牌商
+目标地区：中国
+竞争对手：奥瑞金
+内容目标：百度SEO + AI搜索曝光
+平台重点：百度、知乎、公众号
+内容风格：专业、行业权威
+转化目标：询盘</code></pre></div>
+<p>系统会输出：</p>
+<div class="codeblock"><pre><code>1. 行业分析
+2. 百度主题簇
+3. AI搜索问题矩阵
+4. 平台内容矩阵
+5. 内容日历
+6. 转化结构</code></pre></div>
+<p>这是：</p>
+<p># “总规划层”</p>
+<p>相当于企业内容战略。</p>
+<p>---</p>
+<p># 三、第二阶段：生成百度SEO结构</p>
+<h3 class="sub-h">使用方式</h3>
+<p>输入：</p>
+<div class="codeblock"><pre><code>基于“铝瓶包装”主题簇，
+生成百度SEO结构。</code></pre></div>
+<p>系统输出：</p>
+<div class="codeblock"><pre><code>Pillar Page
+Cluster Topic
+FAQ
+长尾词
+栏目结构
+内链结构</code></pre></div>
+<p>---</p>
+<p># 四、百度SEO正确玩法（重点）</p>
+<p>V6 会自动建立：</p>
+<div class="codeblock"><pre><code>首页
+↓
+行业页
+↓
+支柱页
+↓
+主题簇
+↓
+FAQ
+↓
+转化页</code></pre></div>
+<p>例如：</p>
+<div class="codeblock"><pre><code>/aluminum-bottle/
+/aluminum-bottle/manufacturer/
+/aluminum-bottle/oem/
+/aluminum-bottle/food-grade/
+/aluminum-bottle/faq/</code></pre></div>
+<p>这是：</p>
+<p># 百度最喜欢的结构。</p>
+<p>---</p>
+<p># 五、第三阶段：生成平台矩阵（核心）</p>
+<p>这是 V6 最强功能。</p>
+<p>因为：</p>
+<p># 国内流量不只来自百度。</p>
+<p>输入：</p>
+<div class="codeblock"><pre><code>围绕“铝瓶包装”，
+生成：
+- 微信公众号矩阵
+- 小红书矩阵
+- 知乎矩阵
+- 抖音矩阵</code></pre></div>
+<p>系统会自动输出：</p>
+<p>---</p>
+<h3 class="sub-h">微信版</h3>
+<p>适合：</p>
+<ul class="md-ul"><li>行业深度</li><li>企业权威</li><li>私域</li></ul>
+<p>例如：</p>
+<div class="codeblock"><pre><code>为什么越来越多饮料品牌开始用铝瓶？</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">小红书版</h3>
+<p>适合：</p>
+<ul class="md-ul"><li>种草</li><li>高级感</li><li>场景感</li></ul>
+<p>例如：</p>
+<div class="codeblock"><pre><code>这个饮料包装也太高级了……</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">知乎版</h3>
+<p>适合：</p>
+<ul class="md-ul"><li>专业问答</li><li>信任建立</li></ul>
+<p>例如：</p>
+<div class="codeblock"><pre><code>铝瓶真的比塑料瓶环保吗？</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">抖音版</h3>
+<p>适合：</p>
+<ul class="md-ul"><li>曝光</li><li>冲突</li><li>工厂揭秘</li></ul>
+<p>例如：</p>
+<div class="codeblock"><pre><code>为什么高端饮料都开始抛弃塑料瓶？</code></pre></div>
+<p>---</p>
+<p># 六、第四阶段：AI搜索优化（重点）</p>
+<p>这是 V6 真正核心。</p>
+<p>未来流量：</p>
+<div class="codeblock"><pre><code>百度搜索 ↓
+AI搜索 ↑</code></pre></div>
+<p>所以：</p>
+<p>输入：</p>
+<div class="codeblock"><pre><code>围绕“铝瓶包装”
+生成AI搜索问题矩阵</code></pre></div>
+<p>系统会生成：</p>
+<p>---</p>
+<h3 class="sub-h">豆包风格</h3>
+<div class="codeblock"><pre><code>铝瓶包装适合饮料行业吗？</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">Kimi风格</h3>
+<div class="codeblock"><pre><code>铝瓶和PET瓶的优缺点对比</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">DeepSeek风格</h3>
+<div class="codeblock"><pre><code>国内有哪些靠谱的铝瓶厂家？</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">元宝风格</h3>
+<div class="codeblock"><pre><code>为什么高端饮料越来越喜欢铝瓶？</code></pre></div>
+<p>---</p>
+<p># 七、AI搜索真正玩法（重要）</p>
+<p>V6 会自动生成：</p>
+<h3 class="sub-h">AI摘要块</h3>
+<p>例如：</p>
+<div class="codeblock"><pre><code>铝瓶是一种高阻隔、高回收率的包装形式，
+广泛应用于饮料、功能饮品、
+咖啡、啤酒等行业。</code></pre></div>
+<p>这是：</p>
+<p># AI最容易引用的结构。</p>
+<p>---</p>
+<p># 八、第五阶段：自动生成文章（重点）</p>
+<p>输入：</p>
+<div class="codeblock"><pre><code>基于以下主题：
+“为什么越来越多品牌开始用铝瓶”
+生成：
+
+- 百度SEO版
+- 微信版
+- 小红书版
+- 知乎版
+- 抖音口播版</code></pre></div>
+<p>系统会：</p>
+<p># 自动多平台改写。</p>
+<p>---</p>
+<p># 九、平台改写逻辑（核心）</p>
+<h3 class="sub-h">百度版</h3>
+<p>特点：</p>
+<ul class="md-ul"><li>SEO结构</li><li>H标签</li><li>FAQ</li><li>长尾词</li></ul>
+<p>---</p>
+<h3 class="sub-h">微信版</h3>
+<p>特点：</p>
+<ul class="md-ul"><li>深度</li><li>行业洞察</li><li>观点型</li></ul>
+<p>---</p>
+<h3 class="sub-h">小红书版</h3>
+<p>特点：</p>
+<ul class="md-ul"><li>情绪感</li><li>场景感</li><li>高级感</li></ul>
+<p>---</p>
+<h3 class="sub-h">知乎版</h3>
+<p>特点：</p>
+<ul class="md-ul"><li>专业解释</li><li>对比</li><li>数据</li></ul>
+<p>---</p>
+<h3 class="sub-h">抖音版</h3>
+<p>特点：</p>
+<ul class="md-ul"><li>前3秒吸引</li><li>冲突</li><li>口播节奏</li></ul>
+<p>---</p>
+<p># 十、第六阶段：去AI味（非常重要）</p>
+<p>输入：</p>
+<div class="codeblock"><pre><code>对以上内容进行：
+- 去AI味
+- 中文化
+- 平台语感优化</code></pre></div>
+<p>系统会自动：</p>
+<p>---</p>
+<h3 class="sub-h">删除：</h3>
+<ul class="md-ul"><li>AI套话</li><li>机械结构</li><li>空洞总结</li></ul>
+<p>---</p>
+<h3 class="sub-h">增强：</h3>
+<ul class="md-ul"><li>真人表达</li><li>行业口语</li><li>情绪感</li><li>社交平台感</li></ul>
+<p>---</p>
+<p># 十一、第七阶段：建立转化路径（核心）</p>
+<p>V6 不是只做流量。</p>
+<p>而是：</p>
+<p># 流量 → 询盘</p>
+<p>输入：</p>
+<div class="codeblock"><pre><code>为“铝瓶包装”建立转化路径</code></pre></div>
+<p>系统输出：</p>
+<div class="codeblock"><pre><code>SEO文章
+↓
+对比文章
+↓
+行业案例
+↓
+工厂介绍
+↓
+OEM页
+↓
+询盘页</code></pre></div>
+<p>---</p>
+<p># 十二、第八阶段：建立内容日历</p>
+<p>输入：</p>
+<div class="codeblock"><pre><code>生成90天内容发布计划</code></pre></div>
+<p>系统输出：</p>
+<div class="tblwrap"><table><thead><tr><th>Day</th><th>平台</th><th>内容</th><th>目标</th></tr></thead><tbody><tr><td>1</td><td>官网</td><td>Pillar</td><td>权威</td></tr><tr><td>2</td><td>微信</td><td>深度文章</td><td>私域</td></tr><tr><td>3</td><td>知乎</td><td>问答</td><td>信任</td></tr><tr><td>4</td><td>小红书</td><td>种草</td><td>曝光</td></tr><tr><td>5</td><td>抖音</td><td>视频</td><td>流量</td></tr></tbody></table></div>
+<p>---</p>
+<p># 十三、企业真正正确玩法（重点）</p>
+<p>很多企业错误：</p>
+<div class="codeblock"><pre><code>只做官网SEO</code></pre></div>
+<p>而 V6 正确玩法：</p>
+<div class="codeblock"><pre><code>官网
++ 微信
++ 知乎
++ 小红书
++ 抖音
++ AI搜索</code></pre></div>
+<p>形成：</p>
+<p># “全域搜索覆盖”</p>
+<p>---</p>
+<p># 十四、最推荐的企业执行方式（重点）</p>
+<h3 class="sub-h">第一阶段（1个月）</h3>
+<p>建立：</p>
+<div class="codeblock"><pre><code>行业Pillar
++ 30篇SEO文章</code></pre></div>
+<p>目标：</p>
+<div class="codeblock"><pre><code>百度收录</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">第二阶段（2个月）</h3>
+<p>建立：</p>
+<div class="codeblock"><pre><code>知乎矩阵
+微信公众号</code></pre></div>
+<p>目标：</p>
+<div class="codeblock"><pre><code>行业权威</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">第三阶段（3个月）</h3>
+<p>建立：</p>
+<div class="codeblock"><pre><code>小红书
+抖音</code></pre></div>
+<p>目标：</p>
+<div class="codeblock"><pre><code>品牌曝光</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">第四阶段（长期）</h3>
+<p>重点：</p>
+<div class="codeblock"><pre><code>AI搜索优化</code></pre></div>
+<p>目标：</p>
+<div class="codeblock"><pre><code>让AI引用你</code></pre></div>
+<p>---</p>
+<p># 十五、V6 最核心理念（真正重点）</p>
+<p>V6 真正做的不是：</p>
+<p># “SEO”</p>
+<p>而是：</p>
+<p># “行业认知控制”</p>
+<p>未来：</p>
+<p>谁会被 AI 大量引用，</p>
+<p>谁就会：</p>
+<div class="codeblock"><pre><code>获得流量
+获得品牌权威
+获得询盘</code></pre></div>
+<p>所以：</p>
+<p>V6 的真正目标：</p>
+<p># 成为 AI 搜索里的行业标准答案。</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>主题簇技能设计 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：主题簇技能设计（2026-05-25）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1", "s2", "s3", "s4", "s5"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

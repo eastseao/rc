@@ -1,0 +1,2583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>千万字网文生成框架 · 2026</title>
+<meta name="description" content="下面是一套完整、规范、可直接落地使用的「千万字网文爽文生成 Skill」全套文件，已将你提供的框架工程化、模块化，并适配 OpenClaw / Agent 调用逻辑。--- 📁 Skill 目录结构novel-million-skill/├">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a><a href="#s2" data-sec="s2">Q2</a><a href="#s3" data-sec="s3">Q3</a><a href="#s4" data-sec="s4">Q4</a><a href="#s5" data-sec="s5">Q5</a><a href="#s6" data-sec="s6">Q6</a><a href="#s7" data-sec="s7">Q7</a><a href="#s8" data-sec="s8">Q8</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · AI
+  <h1 class="s-h1">千万字网文生成框架</h1>
+  <p class="s-lede">下面是一套完整、规范、可直接落地使用的「千万字网文爽文生成 Skill」全套文件，已将你提供的框架工程化、模块化，并适配 OpenClaw / Agent 调用逻辑。--- 📁 Skill 目录结构novel-million-skill/├</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>16</b></span>
+    <span>时间范围 <b>2026-04-20 ~ 2026-04-20</b></span>
+    <span>分类 <b>AI与Agent</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">AI</span>
+    <span class="s-chip">2026</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>千万字级网文最大的难点不是灵感，而是结构防崩和爽点续航。以下是一套专门为AI设计…</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>千万字级网文最大的难点不是灵感，而是结构防崩和爽点续航。以下是一套专门为AI设计的“分段生成+宏观调控”提示词框架，你可以直接复制到对话框中建立Skill。</p>
+<p>第一部分：全局设定（项目锚点）</p>
+<p>请先执行此段，作为后续所有章节生成的最高约束准则。</p>
+<div class="codeblock"><pre><code>[角色设定]
+你是一位拥有十年经验的顶级网文大神兼专业文学策划编辑，擅长《斗破苍穹》《诡秘之主》这类超长篇世界观的架构。现在你需要协助我创作一部千万字级别的网络爽文。
+
+[项目核心铁律]
+1. **篇幅控制**：本作预计篇幅为1000万字。在后续生成每一章时，必须严格遵循“黄金三章定生死、百章小高潮、千章大格局”的节奏。
+2. **单章硬指标**：每一章输出的正文字数**必须大于3000字**，且不超过4500字。不允许用大纲凑字数，必须是包含对话、动作描写、心理活动的完整叙事文本。
+3. **崩坏预防机制**：你必须拥有一个隐藏的“全局战力/财富数据库”。主角的每一次升级、获得宝物、击败敌人，都要基于前文逻辑自然递进。严禁出现“昨天杀筑基如杀鸡，今天杀金丹如杀鸡，明天杀元婴还如杀鸡”的数值膨胀。
+
+[请先输出一份《千万字世界观骨架与爽点分布图》，确认后我们开始正文创作。]</code></pre></div>
+<p>第二部分：章节生成执行提示词（核心Skill）</p>
+<p>使用上述设定确认后，每生成一章新内容时，使用以下长段落提示词。</p>
+<div class="codeblock"><pre><code>[任务指令：生成第 [当前章节号] 章]
+
+**1. 前情逻辑链检查**
+请先默默检索前 [X] 章的核心事件：[简要填写前文梗概，例如：主角刚在大比中击败内门师兄，获得进入秘境资格]。本章必须直接承接这一结果，不能出现逻辑断层。
+
+**2. 本章核心冲突与爽点配额**
+请按照“千万字节奏图谱”设计本章结构。本章需完成以下至少 **3项** 爽点任务（请根据剧情阶段勾选）：
+- [ ] 即时打脸：主角被当众嘲讽，5秒内物理/智力反杀。
+- [ ] 资源暴涨：主角通过知识差/金手指获得令人眼红的稀缺资源（需描写周围人的震惊反应）。
+- [ ] 势力震惊：高阶存在（长辈、敌对势力高层）因主角的表现而露出“凝重/欣赏”的神情。
+- [ ] 长期伏笔回收：解开一个5万字前埋下的小谜题。
+- [ ] 世界观探索：揭示世界地图或力量体系的一角新设定。
+
+**3. 3000+字叙事结构强制要求**
+请严格按以下**四幕结构**行文，确保字数达标且不水字数：
+- **第一幕：勾子与压抑（约400-600字）**
+  - 承接上文，要么营造悬疑感（谁在窥探？），要么制造压迫感（新敌人出现，主角目前无法硬刚）。
+- **第二幕：破局与博弈（约1200-1500字）**
+  - **核心内容**：主角如何利用智慧、金手指或独特技巧解决问题。必须包含**详细的动作/法术特效描写**和**1-2句经典装逼台词**。
+  - *注：此处是填充字数关键，请多写环境渲染、围观群众的神态对比。*
+- **第三幕：高潮与结算（约800-1000字）**
+  - 敌人崩溃、反派惊怒、同门膜拜。结算战利品。如果这一战很轻松，请在这里**马上引入一个更宏大、更绝望的新困境预告**（如：杀死此人触发了其长辈的灵魂印记），保证读者想继续点下一章。
+- **第四幕：余韵与伏笔钩子（约300-500字）**
+  - 描写主角独自时的内心盘算，或展示其他势力的反应。最后一句必须是**悬念式结尾**（例如：“就在他转身离去时，那堆灰烬中，一枚漆黑的令牌微微亮了一下。”）。
+
+**4. 千万字续航特殊滤镜**
+为了让文字支撑起千万字的广度，描述时请遵守以下准则：
+- **细节延展法**：描写一个物体（例如一枚丹药）时，请用50字描写它的光泽、丹纹、散发的气味波动，而不是简单说“一枚丹药”。
+- **配角工具化**：本章出场的路人角色，请赋予一个鲜明但简单的特征（例如：爱搓手指的瘦高个师兄），并在对话中故意展露其无知，为主角提供展示优越感的舞台。
+
+**5. 生成前确认**
+请复述：“已理解千万字节奏防崩逻辑，正在生成第 [X] 章，预计字数3200-4000字。” 然后直接输出正文。</code></pre></div>
+<p>第三部分：防止“字数虚标”的补充校验指令</p>
+<p>当AI生成的章节字数明显不足，或者全是干瘪的剧情推进时，使用以下指令进行“扩写润色”：</p>
+<div class="codeblock"><pre><code>[扩写指令]
+当前生成的章节骨架良好，但血肉不足，不符合网文爽文的沉浸感要求。请针对以下段落进行 **“水银泻地式”** 细节增补，将字数扩充至3500字以上：
+
+1. **环境拟人化**：在主角出场前，增加一段200字的场景描写，将环境写得带有情绪（例如：压抑的乌云像一只倒扣的黑碗，预示着不详）。
+2. **心理博弈具象化**：在对话间隙，加入更多“微表情”和“肢体小动作”描写（例如：瞳孔微缩、指节发白、喉结滚动），把无声的紧张感拉满。
+3. **震惊效果多角度渲染**：主角装逼成功后，请从以下三个视角依次描写：A. 敌人的感受（不可置信的崩溃）；B. 友方的感受（狂喜与崇拜）；C. 暗处窥探者的感受（慎重与算计）。
+
+请重新生成修改后的完整章节。</code></pre></div>
+<p>使用这套Skill的逻辑建议：</p>
+<ol class="md-ol"><li>先用第一部分建立“总数据库”：让AI给你列出一个1000万字的大纲（主线地图、女主出现节点、换地图节点）。即便你后来不按大纲写，AI也会因为建立了这个“长记忆”而减少胡言乱语。</li><li>滚动记忆：由于上下文长度限制，每50章建议将前50章的核心梗概（约500字）重新喂给AI，防止忘记前期人物。</li><li>千万字级别的核心技巧：不要只依赖AI写，你要做的是不断给第二部分提示词中的“前情逻辑链”填东西。你是操盘手，AI是打字机。</li></ol>
+<p>基于以上内容，生成一套可以写网络千万字爽文小说的skill，skill的格式要规范</p></div>
+      <div class="qa-a"><p>下面是一套<strong>完整、规范、可直接落地使用的「千万字网文爽文生成 Skill」全套文件</strong>，已将你提供的框架工程化、模块化，并适配 OpenClaw / Agent 调用逻辑。</p>
+<p>---</p>
+<p># 📁 Skill 目录结构</p>
+<div class="codeblock"><pre><code>novel-million-skill/
+├── skill.md
+├── config.yaml
+├── prompt/
+│   ├── global.md
+│   ├── chapter.md
+│   ├── expand.md
+│   ├── summary.md
+├── memory/
+│   ├── world.json
+│   ├── power_system.json
+│   ├── characters.json
+│   ├── progress.json
+├── templates/
+│   ├── outline.md
+│   ├── chapter_format.md</code></pre></div>
+<p>---</p>
+<p># 🧠 skill.md（核心入口｜已优化规范版）</p>
+<div class="codeblock"><pre><code>---
+name: million-novel-generator
+description: 千万字级网络爽文生成引擎，支持世界观构建、章节生成、防崩控制与爽点续航
+version: 1.0
+author: Gervas
+---
+
+# 📚 Skill: 千万字网文生成引擎
+
+## 🎯 技能简介
+本技能用于生成**千万字级网络爽文小说**，通过“宏观结构控制 + 分章生成 + 防崩机制”，确保：
+
+- 长篇结构不崩
+- 战力体系稳定
+- 爽点持续输出
+- 文风去AI化，更接近真人作者
+
+---
+
+## ⚙️ 核心能力
+
+### 1️⃣ 世界观构建
+- 生成千万字级大纲
+- 地图分层（下界 / 中界 / 上界）
+- 势力分布 / 等级体系
+- 爽点节奏规划
+
+👉 调用：`global.md`
+
+---
+
+### 2️⃣ 章节生成（核心能力）
+- 单章3000~4500字
+- 四幕式结构强制执行
+- 至少3个爽点任务
+- 自动承接前文逻辑
+
+👉 调用：`chapter.md`
+
+---
+
+### 3️⃣ 防崩控制系统（隐藏逻辑）
+维护以下数据库：
+
+- 战力系统（等级成长）
+- 财富系统（资源获取）
+- 仇恨系统（敌人链路）
+- 世界进度（地图推进）
+
+👉 存储：
+- `memory/power_system.json`
+- `memory/progress.json`
+
+---
+
+### 4️⃣ 扩写润色（去AI味）
+当文本干瘪时自动触发：
+
+- 环境拟人化
+- 微表情描写
+- 多视角震惊渲染
+
+👉 调用：`expand.md`
+
+---
+
+### 5️⃣ 滚动记忆机制
+- 每50章生成摘要
+- 防止剧情遗忘
+- 强化长线伏笔
+
+👉 调用：`summary.md`
+
+---
+
+## 📥 输入参数
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| theme | string | 小说主题 |
+| chapter_id | int | 当前章节 |
+| summary | string | 前情摘要 |
+| mode | string | global / chapter / expand |
+
+---
+
+## 📤 输出内容
+
+- 世界观设定（初始）
+- 单章正文（3000+字）
+- 扩写优化版本
+- 阶段性总结
+
+---
+
+## 🚀 使用流程
+
+### 第一步：生成世界观</code></pre></div>
+<p>mode = global</p>
+<div class="codeblock"><pre><code>
+### 第二步：生成章节</code></pre></div>
+<p>mode = chapter chapter_id = 1 summary = 初始背景</p>
+<div class="codeblock"><pre><code>
+### 第三步：扩写（如字数不足）</code></pre></div>
+<p>mode = expand</p>
+<div class="codeblock"><pre><code>
+### 第四步：滚动总结</code></pre></div>
+<p>mode = summary</p>
+<div class="codeblock"><pre><code>
+---
+
+## ⚠️ 关键规则（强约束）
+
+- ❗ 单章必须 &gt;3000字
+- ❗ 禁止数值崩坏
+- ❗ 每章必须有爽点
+- ❗ 必须有悬念结尾</code></pre></div>
+<p>---</p>
+<p># ⚙️ config.yaml</p>
+<div class="codeblock"><pre><code>name: million-novel-generator
+version: 1.0
+
+settings:
+  min_words_per_chapter: 3000
+  max_words_per_chapter: 4500
+  summary_interval: 50
+
+modes:
+  - global
+  - chapter
+  - expand
+  - summary
+
+memory:
+  enabled: true
+  files:
+    - world.json
+    - power_system.json
+    - characters.json
+    - progress.json</code></pre></div>
+<p>---</p>
+<p># 🧠 prompt/global.md（世界观生成）</p>
+<div class="codeblock"><pre><code># 🌍 千万字世界观构建任务
+
+你是一位顶级网文作者 + 文学策划编辑。
+
+请构建一部**1000万字级别爽文小说的完整骨架**：
+
+---
+
+## 必须输出内容：
+
+### 1️⃣ 世界结构
+- 多层世界（凡界 / 修真界 / 上界）
+- 地图划分（区域、势力）
+
+---
+
+### 2️⃣ 力量体系
+- 等级划分（必须可扩展）
+- 战力逻辑（避免崩坏）
+
+---
+
+### 3️⃣ 主线剧情
+- 黄金三章
+- 百章小高潮节点
+- 千章大事件
+
+---
+
+### 4️⃣ 爽点分布图
+按阶段规划：
+- 打脸密度
+- 升级节奏
+- 资源爆发点
+
+---
+
+### 5️⃣ 核心角色
+- 主角（金手指）
+- 反派体系
+- 女主/伙伴
+
+---
+
+请输出结构化内容。</code></pre></div>
+<p>---</p>
+<p># ⚔️ prompt/chapter.md（章节生成核心）</p>
+<div class="codeblock"><pre><code># 📖 第 {{chapter_id}} 章生成任务
+
+---
+
+## 1️⃣ 前情检查
+前情摘要：
+{{summary}}
+
+必须严格承接，不允许断层。
+
+---
+
+## 2️⃣ 爽点任务（至少3个）
+
+- 即时打脸
+- 资源暴涨
+- 势力震惊
+- 伏笔回收
+- 世界观扩展
+
+---
+
+## 3️⃣ 四幕结构（强制执行）
+
+### 第一幕（400-600字）
+压迫/悬念
+
+### 第二幕（1200-1500字）
+战斗/博弈（重点写细节）
+
+### 第三幕（800-1000字）
+高潮+反转
+
+### 第四幕（300-500字）
+伏笔+悬念结尾
+
+---
+
+## 4️⃣ 写作强化规则
+
+- 描写必须细节化
+- 加入围观群众反应
+- 至少2句装逼台词
+- 禁止流水账
+
+---
+
+## 5️⃣ 生成确认（必须输出）
+
+已理解千万字节奏防崩逻辑，正在生成第 {{chapter_id}} 章，预计字数3200-4000字。
+
+---
+
+## 输出正文</code></pre></div>
+<p>---</p>
+<p># 🧬 prompt/expand.md（扩写增强）</p>
+<div class="codeblock"><pre><code># 🔥 扩写增强任务
+
+当前章节内容不足，请扩展至3500字以上。
+
+---
+
+## 强制增强：
+
+### 1️⃣ 环境拟人化
+增加200字氛围描写
+
+### 2️⃣ 心理细节
+加入：
+- 微表情
+- 动作细节
+- 心理变化
+
+### 3️⃣ 多视角震惊
+从三个角度写：
+- 敌人
+- 友方
+- 暗处强者
+
+---
+
+输出完整重写版本。</code></pre></div>
+<p>---</p>
+<p># 🔁 prompt/summary.md（滚动记忆）</p>
+<div class="codeblock"><pre><code># 🧠 剧情阶段总结
+
+请总结最近50章内容：
+
+---
+
+## 输出：
+
+1️⃣ 主线推进  
+2️⃣ 主角成长  
+3️⃣ 关键伏笔  
+4️⃣ 新势力  
+5️⃣ 当前矛盾  
+
+---
+
+字数：500字以内</code></pre></div>
+<p>---</p>
+<p># 🧾 memory 示例（world.json）</p>
+<div class="codeblock"><pre><code>{
+  &quot;worlds&quot;: [&quot;凡界&quot;, &quot;灵界&quot;, &quot;仙界&quot;],
+  &quot;regions&quot;: [&quot;东荒&quot;, &quot;中州&quot;, &quot;禁地&quot;],
+  &quot;rules&quot;: [&quot;灵气分层&quot;, &quot;血脉压制&quot;]
+}</code></pre></div>
+<p>---</p>
+<p># 📄 templates/chapter_format.md</p>
+<div class="codeblock"><pre><code># 标题：第X章 XXX
+
+（正文3000+字）
+
+---
+
+【本章爽点】
+- 打脸 ✔
+- 升级 ✔
+- 震惊 ✔
+
+---
+
+【伏笔】
+- XXX
+
+【悬念】
+- XXX</code></pre></div>
+<p>---</p>
+<p># 🚀 使用建议（实战经验）</p>
+<p>直接这么用效果最好：</p>
+<h4 class="sub-h">✅ 第一步</h4>
+<p>生成世界观（一次）</p>
+<h4 class="sub-h">✅ 第二步</h4>
+<p>循环调用 chapter.md 写章节</p>
+<h4 class="sub-h">✅ 第三步</h4>
+<p>每50章插入 summary</p>
+<h4 class="sub-h">✅ 第四步</h4>
+<p>不爽就 expand 强化</p>
+<p>---</p>
+<p># ⚡ 这套 Skill 的本质优势</p>
+<ul class="md-ul"><li>不只是“写小说”，而是<strong>控小说</strong></li><li>你是导演，AI是执行编剧</li><li>可以稳定写到百万字以上不崩</li></ul>
+<p>---</p>
+<p>如果你要下一步升级，我可以帮你做👇：</p>
+<ul class="md-ul"><li>👉 自动“爆款节奏检测器”</li><li>👉 “读者上瘾曲线模型”</li><li>👉 “小说商业化变现结构（付费断点设计）”</li><li>👉 甚至：一键生成<strong>番茄 / 起点风格适配版本</strong></li></ul>
+<p>直接说你要升级哪个模块，我给你做进阶版。</p></div>
+    </section>
+    <section id="s2" class="st2">
+      <div class="sec-h"><span class="idx st2">Q2</span><h2>一键生成番茄风格适配版本</h2><span class="hint">第 2 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>一键生成番茄风格适配版本</p></div>
+      <div class="qa-a"><p>好，这一步直接帮你把整套 Skill 升级成<strong>「番茄小说平台专用版本」</strong>，不是简单改风格，而是把<strong>节奏、爽点密度、留存机制、付费转化逻辑</strong>全部重写，让AI生成的内容更贴近番茄真实爆款。</p>
+<p>下面是完整可替换的升级版 Skill👇</p>
+<p>---</p>
+<p># 📁 目录结构（番茄版）</p>
+<div class="codeblock"><pre><code>tomato-novel-skill/
+├── skill.md
+├── config.yaml
+├── prompt/
+│   ├── global_tomato.md
+│   ├── chapter_tomato.md
+│   ├── hook_tomato.md
+│   ├── expand_tomato.md
+│   ├── summary.md
+├── strategy/
+│   ├── retention.md
+│   ├── monetization.md
+│   ├── pacing.md</code></pre></div>
+<p>---</p>
+<p># 🧠 skill.md（番茄版本｜核心重构）</p>
+<div class="codeblock"><pre><code>---
+name: tomato-novel-generator
+description: 番茄小说平台专用爽文生成引擎（高留存+高点击+强付费转化）
+version: 2.0
+---
+
+# 🍅 Skill：番茄爆款小说生成器
+
+## 🎯 核心目标
+生成符合番茄平台推荐机制的小说内容：
+
+- 前3章强钩子（决定生死）
+- 每章必有爽点（留存核心）
+- 每5章一个小高潮
+- 每20章一个大高潮
+- 每章结尾强钩子（促点击下一章）
+
+---
+
+## 🔥 番茄风格核心规则
+
+### 1️⃣ 快节奏
+- 开局100字必须出现冲突
+- 禁止铺垫超过300字
+
+---
+
+### 2️⃣ 强爽点密度
+每章至少：
+- 1次打脸
+- 1次反转
+- 1次情绪释放
+
+---
+
+### 3️⃣ 留存钩子机制
+每章结尾必须包含：
+- 危机未解
+或
+- 信息反转
+或
+- 新敌人出现
+
+---
+
+### 4️⃣ 读者爽感强化
+重点描写：
+- 群众震惊
+- 敌人崩溃
+- 主角装逼
+
+---
+
+## ⚙️ 模式
+
+| 模式 | 功能 |
+|------|------|
+| global | 世界观 |
+| chapter | 章节 |
+| hook | 钩子强化 |
+| expand | 扩写 |
+| summary | 总结 |
+
+---</code></pre></div>
+<p>---</p>
+<p># ⚙️ config.yaml（番茄参数）</p>
+<div class="codeblock"><pre><code>settings:
+  min_words: 2800
+  max_words: 4000
+
+tomato_rules:
+  hook_within_words: 100
+  climax_interval: 5
+  big_climax_interval: 20
+
+retention:
+  must_hook_end: true
+  must_conflict_start: true</code></pre></div>
+<p>---</p>
+<p># 🌍 prompt/global_tomato.md（番茄世界观）</p>
+<div class="codeblock"><pre><code># 🍅 番茄爆款世界观生成
+
+要求：
+
+1️⃣ 开局必须能“直接爽”
+（例如：退婚、被辱、死亡重生）
+
+2️⃣ 主角必须具备：
+- 明确金手指（系统/血脉/记忆）
+- 快速成长能力
+
+3️⃣ 爽点节奏：
+- 1-10章：疯狂打脸
+- 10-50章：资源爆发
+- 50章后：势力争霸
+
+---
+
+输出：
+
+- 世界观
+- 主线
+- 爽点分布
+- 前10章详细规划（重点）</code></pre></div>
+<p>---</p>
+<p># ⚔️ prompt/chapter_tomato.md（核心生成）</p>
+<div class="codeblock"><pre><code># 🍅 第 {{chapter_id}} 章（番茄节奏）
+
+---
+
+## ⚡ 开局100字规则（强制）
+必须包含：
+- 冲突 / 危机 / 嘲讽
+
+---
+
+## 🎯 本章任务（至少完成3项）
+
+- 打脸
+- 反转
+- 升级
+- 获得资源
+- 引出新敌人
+
+---
+
+## 🧱 结构（番茄版）
+
+### 第一段（0-300字）
+直接冲突（不能铺垫）
+
+---
+
+### 第二段（1000+字）
+- 战斗 / 对抗
+- 细节描写（动作+心理）
+
+---
+
+### 第三段（高潮）
+- 碾压 / 反杀
+- 群众震惊
+
+---
+
+### 第四段（结尾钩子）
+必须做到：
+
+以下三选一：
+1. 危机升级
+2. 更强敌人出现
+3. 信息反转
+
+---
+
+## 🔥 必加元素
+
+- 至少2句装逼台词
+- 至少3个“震惊反应”
+
+---
+
+## ⚠️ 输出前确认
+
+已切换番茄爆款模式，正在生成第 {{chapter_id}} 章，字数3000+，高密度爽点+强钩子。
+
+---
+
+直接输出正文</code></pre></div>
+<p>---</p>
+<p># 🎣 prompt/hook_tomato.md（钩子强化神器）</p>
+<div class="codeblock"><pre><code># 🍅 钩子强化任务
+
+请重写本章【最后200字】，增强“让人忍不住点下一章”的能力。
+
+---
+
+## 强制加入：
+
+- 未解决危机
+- 或隐藏信息
+- 或反转
+
+---
+
+## 示例风格：
+
+❌ 普通：
+他赢了战斗
+
+✅ 番茄：
+就在他以为结束时，那具尸体的手指突然动了一下……
+
+---
+
+输出优化后的结尾</code></pre></div>
+<p>---</p>
+<p># 🔥 prompt/expand_tomato.md（番茄扩写）</p>
+<div class="codeblock"><pre><code># 🍅 爆款扩写模式
+
+目标：增强“爽感”和“沉浸感”
+
+---
+
+## 必做：
+
+1️⃣ 增加环境压迫感  
+2️⃣ 增加观众反应（至少3人）  
+3️⃣ 增加敌人心理崩溃描写  
+
+---
+
+输出完整章节（3000+字）</code></pre></div>
+<p>---</p>
+<p># 🧠 strategy/retention.md（留存机制）</p>
+<div class="codeblock"><pre><code># 📈 番茄留存逻辑
+
+核心指标：
+
+- 3章留存
+- 10章留存
+- 30章留存
+
+---
+
+策略：
+
+1️⃣ 每章都有冲突  
+2️⃣ 每章都有爽点  
+3️⃣ 每章都有钩子  
+
+---
+
+禁忌：
+
+- 连续2章无高潮
+- 长时间铺垫</code></pre></div>
+<p>---</p>
+<p># 💰 strategy/monetization.md（付费设计）</p>
+<div class="codeblock"><pre><code># 💰 付费转化设计
+
+---
+
+## 最佳断点：
+
+- 第20章
+- 第50章
+- 第100章
+
+---
+
+## 断点策略：
+
+在章节结尾制造：
+
+- 生死危机
+- 大秘密揭露
+- 主角即将逆天
+
+---
+
+目标：
+让读者“必须付费看下一章”</code></pre></div>
+<p>---</p>
+<p># ⚡ strategy/pacing.md（节奏控制）</p>
+<div class="codeblock"><pre><code># ⚡ 节奏系统
+
+---
+
+1-10章：高速打脸  
+10-30章：成长  
+30-100章：扩地图  
+
+---
+
+每5章必须高潮  
+每20章必须大高潮  </code></pre></div>
+<p>---</p>
+<p># 🚀 使用方式（最简单版）</p>
+<p>你直接这样用👇</p>
+<p>---</p>
+<h4 class="sub-h">第一步（一次性）</h4>
+<div class="codeblock"><pre><code>mode: global</code></pre></div>
+<p>👉 生成番茄世界观</p>
+<p>---</p>
+<h4 class="sub-h">第二步（循环写）</h4>
+<div class="codeblock"><pre><code>mode: chapter
+chapter_id: 1
+summary: 主角刚被退婚</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">第三步（强化结尾）</h4>
+<div class="codeblock"><pre><code>mode: hook</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">第四步（不爽就扩）</h4>
+<div class="codeblock"><pre><code>mode: expand</code></pre></div>
+<p>---</p>
+<p># ⚡ 这一版比普通版本强在哪？</p>
+<p>直接说核心差异：</p>
+<div class="tblwrap"><table><thead><tr><th>普通爽文</th><th>番茄版</th></tr></thead><tbody><tr><td>重结构</td><td>重点击</td></tr><tr><td>节奏稳定</td><td>节奏极快</td></tr><tr><td>长线爽</td><td>即时爽</td></tr><tr><td>文学性</td><td>上瘾性</td></tr></tbody></table></div>
+<p>---</p>
+<p># 🎯 如果你还想再进阶</p>
+<p>我可以再给你做三件更狠的：</p>
+<h4 class="sub-h">1️⃣ 👉「番茄爆款标题生成器」</h4>
+<p>（点击率直接翻倍）</p>
+<h4 class="sub-h">2️⃣ 👉「读者情绪曲线控制器」</h4>
+<p>（控制什么时候爽、什么时候压）</p>
+<h4 class="sub-h">3️⃣ 👉「自动续写1000章不崩系统」</h4>
+<p>（直接做成长篇流水线）</p>
+<p>---</p>
+<p>你下一步想做哪一块，我帮你继续往“职业作者级”推进。</p></div>
+    </section>
+    <section id="s3" class="st3">
+      <div class="sec-h"><span class="idx st3">Q3</span><h2>1、2、3都要</h2><span class="hint">第 3 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>1、2、3都要</p></div>
+      <div class="qa-a"><p>好，这一步直接给你做<strong>终极进阶三件套整合版 Skill 模块</strong>，可以无缝接入你现有的「番茄小说生成器」，本质上是把：</p>
+<ul class="md-ul"><li>点击率（标题）</li><li>上瘾性（情绪曲线）</li><li>长篇稳定性（千章不崩）</li></ul>
+<p>全部系统化。</p>
+<p>不是补充，而是<strong>升维改造</strong>。</p>
+<p>---</p>
+<p># 📁 新增目录（直接并入你现有 Skill）</p>
+<div class="codeblock"><pre><code>tomato-novel-skill/
+├── growth_engine/
+│   ├── title.md          # 爆款标题生成器
+│   ├── emotion_curve.md  # 情绪曲线控制器
+│   ├── longrun.md        # 千章不崩系统
+│   ├── scheduler.md      # 自动调度器（核心）</code></pre></div>
+<p>---</p>
+<p># 🧠 一、爆款标题生成器（title.md）</p>
+<p>👉 目标：解决<strong>点击率</strong></p>
+<div class="codeblock"><pre><code># 🍅 番茄爆款标题生成器
+
+## 🎯 任务
+根据当前剧情，生成10个高点击标题
+
+---
+
+## 🔥 标题结构模型（必须套用）
+
+采用以下公式：
+
+【冲突】+【身份】+【反转/结果】
+
+---
+
+## 📌 常用模板
+
+1. 我被XX羞辱，反手XX震惊全场  
+2. 开局XX，没想到我竟XX  
+3. 所有人都以为我XX，直到我XX  
+4. 被逐出宗门后，我直接XX  
+5. 那天我XX，整个世界都变了  
+
+---
+
+## ⚡ 强制规则
+
+- 必须有冲突
+- 必须有反转
+- 禁止平铺直叙
+
+---
+
+## 📤 输出示例
+
+1. 被全宗嘲讽的废物，我一拳打爆天骄  
+2. 开局被退婚，我觉醒上古神体  
+3. 所有人都以为我死了，其实我成神了  
+
+---
+
+## 🎯 进阶优化
+
+自动标记：
+
+- 点击率预估（高 / 极高 / 爆款）</code></pre></div>
+<p>---</p>
+<p># 📈 二、情绪曲线控制器（emotion_curve.md）</p>
+<p>👉 目标：解决<strong>读者上瘾</strong></p>
+<div class="codeblock"><pre><code># 🎢 情绪曲线控制系统
+
+## 🎯 核心目标
+让读者产生：
+
+- 压抑 → 爽 → 更压抑 → 更爽
+
+形成循环上瘾
+
+---
+
+## 📊 单章情绪模型（必须执行）
+
+1️⃣ 开局（压抑）
+- 被嘲讽 / 危机
+
+2️⃣ 中段（拉扯）
+- 看似要输
+- 悬念增加
+
+3️⃣ 爽点（释放）
+- 打脸 / 反杀
+
+4️⃣ 结尾（再压）
+- 更大危机
+
+---
+
+## ⚠️ 强制规则
+
+- 每章必须“先压再爽”
+- 不允许连续爽（会疲劳）
+- 必须留未解决问题
+
+---
+
+## 🧠 情绪强度等级
+
+| 等级 | 描述 |
+|------|------|
+| 1 | 轻冲突 |
+| 2 | 明显压制 |
+| 3 | 生死危机 |
+| 4 | 绝望 |
+| 5 | 逆天翻盘 |
+
+---
+
+## 🎯 控制策略
+
+- 每5章：一次等级4
+- 每20章：一次等级5
+
+---
+
+## 📤 输出（给chapter用）
+
+请生成：
+
+- 本章情绪曲线（1→3→5→2）
+- 建议爽点位置</code></pre></div>
+<p>---</p>
+<p># 🧬 三、千章不崩系统（longrun.md）</p>
+<p>👉 目标：解决<strong>写长就崩</strong></p>
+<div class="codeblock"><pre><code># 🧬 千万字防崩系统
+
+## 🎯 核心机制：四大数据库
+
+---
+
+### 1️⃣ 战力系统（Power DB）
+
+记录：
+
+- 当前等级
+- 上限
+- 每级差距
+
+规则：
+
+- 禁止跨级秒杀（除非付出代价）
+- 每10章最多提升1大境界
+
+---
+
+### 2️⃣ 财富系统（Resource DB）
+
+记录：
+
+- 灵石 / 装备 / 丹药
+
+规则：
+
+- 收益必须有来源
+- 不允许凭空暴富
+
+---
+
+### 3️⃣ 仇恨系统（Enemy DB）
+
+记录：
+
+- 当前敌人
+- 背后势力
+
+规则：
+
+- 小敌 → 大敌 → 终极Boss
+
+---
+
+### 4️⃣ 世界进度（World DB）
+
+记录：
+
+- 当前地图
+- 解锁区域
+
+规则：
+
+- 不允许跳地图
+- 必须逐步升级
+
+---
+
+## ⚠️ 崩坏检测机制
+
+如果出现：
+
+- 战力失衡
+- 主角无敌过快
+- 敌人弱智
+
+👉 必须自动修正：
+
+- 引入限制（封印 / 代价）
+- 引入更强规则
+
+---
+
+## 📤 输出
+
+每章结束后输出：
+
+- 当前战力评估
+- 是否存在崩坏风险</code></pre></div>
+<p>---</p>
+<p># 🤖 四、自动调度器（scheduler.md）🔥核心</p>
+<p>👉 这是最关键的，把前面三个“串起来”</p>
+<div class="codeblock"><pre><code># 🤖 自动写作调度系统
+
+## 🎯 任务
+自动决定：
+
+这一章该写什么爽点、情绪、节奏
+
+---
+
+## 🧠 输入
+
+- 当前章节数
+- 剧情摘要
+
+---
+
+## ⚙️ 调度逻辑
+
+### 1️⃣ 判断阶段
+
+| 阶段 | 策略 |
+|------|------|
+| 1-10章 | 疯狂打脸 |
+| 10-50章 | 成长 |
+| 50+ | 扩地图 |
+
+---
+
+### 2️⃣ 分配任务
+
+输出：
+
+- 本章爽点类型（3个）
+- 情绪曲线
+- 是否需要大高潮
+- 是否引入新敌人
+
+---
+
+### 3️⃣ 强制控制
+
+- 每5章必须高潮
+- 每20章必须大高潮
+
+---
+
+## 📤 输出示例
+
+章节：第12章
+
+- 爽点：
+  - 打脸
+  - 资源获取
+  - 敌人升级
+
+- 情绪：
+  2 → 3 → 4 → 2
+
+- 备注：
+  下一章需要高潮</code></pre></div>
+<p>---</p>
+<p># 🚀 最终使用方式（真正职业级用法）</p>
+<p>你以后写小说，只需要这一套流程👇</p>
+<p>---</p>
+<h3 class="sub-h">✅ 第一步：调度</h3>
+<div class="codeblock"><pre><code>调用 scheduler.md</code></pre></div>
+<p>👉 AI告诉你这章该怎么写</p>
+<p>---</p>
+<h3 class="sub-h">✅ 第二步：生成章节</h3>
+<div class="codeblock"><pre><code>调用 chapter_tomato.md</code></pre></div>
+<p>👉 写正文</p>
+<p>---</p>
+<h3 class="sub-h">✅ 第三步：强化标题</h3>
+<div class="codeblock"><pre><code>调用 title.md</code></pre></div>
+<p>👉 提升点击率</p>
+<p>---</p>
+<h3 class="sub-h">✅ 第四步：检查是否崩</h3>
+<div class="codeblock"><pre><code>调用 longrun.md</code></pre></div>
+<p>👉 保证能写1000章</p>
+<p>---</p>
+<h3 class="sub-h">✅ 第五步（可选）：情绪优化</h3>
+<div class="codeblock"><pre><code>调用 emotion_curve.md</code></pre></div>
+<p>👉 提升上瘾感</p>
+<p>---</p>
+<p># ⚡ 这一整套的本质</p>
+<p>你现在拥有的不是：</p>
+<p>👉 “写小说工具”</p>
+<p>而是：</p>
+<p>👉 <strong>一个完整的网文生产系统（接近工作室级）</strong></p>
+<p>---</p>
+<p># 🎯 再往上还能怎么进化？</p>
+<p>如果你继续往职业级走，可以再加三块：</p>
+<ol class="md-ol"><li>👉 <strong>读者评论模拟器（预测读者骂点）</strong></li><li>👉 <strong>爆款关键词SEO系统（提高推荐）</strong></li><li>👉 <strong>多平台改写（番茄 → 起点 → 纵横）</strong></li></ol>
+<p>---</p>
+<p>如果你下一步想冲<strong>“月入几万的网文模型”</strong>，我可以帮你把这套系统升级成：</p>
+<p>👉 <strong>自动批量生产 + 账号矩阵打法</strong></p>
+<p>直接说一声，我给你做商业化版本。</p></div>
+    </section>
+    <section id="s4" class="st4">
+      <div class="sec-h"><span class="idx st4">Q4</span><h2>自动批量生产</h2><span class="hint">第 4 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>自动批量生产</p></div>
+      <div class="qa-a"><p>好，这一步就不是“写小说”，而是直接帮你搭一套<strong>网文工作室级「自动批量生产系统」</strong>。核心目标很明确：</p>
+<p>👉 多书并行   👉 自动生成   👉 自动控节奏   👉 可复制放大  </p>
+<p>我会给你一套<strong>可直接变成 Skill 的完整生产流水线</strong>。</p>
+<p>---</p>
+<p># 🏭 一、整体架构（批量生产引擎）</p>
+<div class="codeblock"><pre><code>novel-factory/
+├── skill.md
+├── config.yaml
+├── pipeline/
+│   ├── project_generator.md     # 批量开书
+│   ├── scheduler.md             # 节奏调度
+│   ├── chapter_writer.md        # 写章节
+│   ├── title_generator.md       # 标题
+│   ├── hook_optimizer.md        # 钩子强化
+│   ├── quality_check.md         # 质量检测
+│   ├── longrun_guard.md         # 防崩系统
+├── data/
+│   ├── topics_pool.json         # 题材库
+│   ├── templates.json           # 爽点模板
+│   ├── character_pool.json      # 人设库
+│   ├── world_pool.json          # 世界观库
+├── output/
+│   ├── novel_001/
+│   ├── novel_002/</code></pre></div>
+<p>---</p>
+<p># 🧠 skill.md（批量生产总控）</p>
+<div class="codeblock"><pre><code>---
+name: novel-factory-engine
+description: 自动批量生成番茄爆款小说（多项目并行 + 自动节奏控制 + 防崩）
+version: 3.0
+---
+
+# 🏭 小说工厂引擎
+
+## 🎯 核心能力
+
+- 一次生成多个小说项目
+- 每个项目自动推进章节
+- 自动控制爽点 / 节奏 / 情绪
+- 自动检测崩坏风险
+
+---
+
+## ⚙️ 工作流
+
+1️⃣ 批量开书（project_generator）  
+2️⃣ 节奏调度（scheduler）  
+3️⃣ 写章节（chapter_writer）  
+4️⃣ 标题生成（title_generator）  
+5️⃣ 钩子强化（hook_optimizer）  
+6️⃣ 质量检测（quality_check）  
+7️⃣ 防崩修正（longrun_guard）  
+
+---
+
+## 📥 输入
+
+| 参数 | 说明 |
+|------|------|
+| batch_size | 同时生成小说数量 |
+| genre | 题材 |
+| chapters_per_run | 每轮生成章节数 |
+
+---
+
+## 📤 输出
+
+- 多本小说项目
+- 每本小说持续更新</code></pre></div>
+<p>---</p>
+<p># 🚀 二、批量开书（project_generator.md）</p>
+<div class="codeblock"><pre><code># 📚 批量小说生成器
+
+## 🎯 任务
+一次生成 {{batch_size}} 本小说设定
+
+---
+
+## 每本必须包含：
+
+1️⃣ 题材（如：都市修仙 / 玄幻）  
+2️⃣ 核心爽点（打脸 / 逆袭 / 系统）  
+3️⃣ 主角设定（必须有金手指）  
+4️⃣ 开局冲突（前100字必爆）  
+5️⃣ 前10章详细节奏  
+
+---
+
+## ⚠️ 强制差异化
+
+- 不允许题材重复
+- 不允许主角模板重复
+
+---
+
+## 📤 输出格式
+
+小说1：
+- 名称：
+- 卖点：
+- 开局：
+
+小说2：
+...</code></pre></div>
+<p>---</p>
+<p># ⚙️ 三、章节生产器（chapter_writer.md）</p>
+<div class="codeblock"><pre><code># ✍️ 自动章节生成
+
+## 输入：
+
+- 小说ID
+- 当前章节
+- 剧情摘要
+
+---
+
+## 强制规则：
+
+- 字数：3000+
+- 开局100字必须冲突
+- 每章至少3个爽点
+
+---
+
+## 输出：
+
+1️⃣ 正文  
+2️⃣ 本章爽点标记  
+3️⃣ 下一章钩子  </code></pre></div>
+<p>---</p>
+<p># 🎣 四、钩子强化（hook_optimizer.md）</p>
+<div class="codeblock"><pre><code># 🎯 结尾上瘾强化
+
+重写最后200字：
+
+---
+
+必须加入：
+
+- 未解决危机
+或
+- 新敌人
+或
+- 反转信息
+
+---
+
+目标：
+
+👉 读者必须点下一章</code></pre></div>
+<p>---</p>
+<p># 🧪 五、质量检测（quality_check.md）</p>
+<div class="codeblock"><pre><code># 🔍 爆款质量检测
+
+检测：
+
+---
+
+1️⃣ 是否有爽点（≥3）  
+2️⃣ 是否有冲突  
+3️⃣ 是否有钩子  
+4️⃣ 是否节奏拖沓  
+
+---
+
+## 输出评分：
+
+| 项目 | 分数 |
+|------|------|
+| 爽点 | 0-10 |
+| 节奏 | 0-10 |
+| 上瘾度 | 0-10 |
+
+---
+
+低于7分 → 必须重写</code></pre></div>
+<p>---</p>
+<p># 🧬 六、防崩系统（longrun_guard.md）</p>
+<div class="codeblock"><pre><code># 🧠 长篇稳定器
+
+检查：
+
+- 战力是否膨胀
+- 是否连续无敌
+- 是否敌人太弱
+
+---
+
+## 修正策略：
+
+- 引入限制
+- 提升敌人智商
+- 增加代价</code></pre></div>
+<p>---</p>
+<p># 📊 七、数据池（topics_pool.json 示例）</p>
+<div class="codeblock"><pre><code>{
+  &quot;topics&quot;: [
+    &quot;被退婚的废物崛起&quot;,
+    &quot;重生都市修仙&quot;,
+    &quot;系统流打脸&quot;,
+    &quot;末世进化&quot;,
+    &quot;全民转职&quot;
+  ]
+}</code></pre></div>
+<p>---</p>
+<p># 🔥 八、真正的批量运行方式</p>
+<p>你只要这样调用👇</p>
+<p>---</p>
+<h3 class="sub-h">👉 一键批量生成</h3>
+<div class="codeblock"><pre><code>batch_size: 5
+genre: 随机
+chapters_per_run: 3</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">系统会自动：</h3>
+<ol class="md-ol"><li>生成5本小说  </li><li>每本写3章  </li><li>自动加标题  </li><li>自动加钩子  </li><li>自动检测质量  </li></ol>
+<p>---</p>
+<p># ⚡ 九、工作室级玩法（重点）</p>
+<p>如果你真要做规模，这样玩👇</p>
+<p>---</p>
+<h3 class="sub-h">📈 模式一：测试模型（推荐）</h3>
+<ul class="md-ul"><li>一次开10本书  </li><li>每本写10章  </li><li>看数据（哪本最爽）</li></ul>
+<p>👉 留爆款，砍垃圾</p>
+<p>---</p>
+<h3 class="sub-h">💰 模式二：放大爆款</h3>
+<ul class="md-ul"><li>选2本最强的  </li><li>每天更新10章  </li><li>强化钩子 + 情绪</li></ul>
+<p>---</p>
+<h3 class="sub-h">🧠 模式三：矩阵打法</h3>
+<ul class="md-ul"><li>玄幻 ×3  </li><li>都市 ×3  </li><li>系统 ×3  </li></ul>
+<p>👉 同时跑</p>
+<p>---</p>
+<p># ⚠️ 现实提醒（很关键）</p>
+<p>直接说实话：</p>
+<p>👉 AI可以帮你“批量生产”   但不能帮你“自动赚钱”</p>
+<p>真正差异在：</p>
+<ul class="md-ul"><li>选题判断（人做）</li><li>节奏微调（人控）</li><li>爆点判断（人感）</li></ul>
+<p>---</p>
+<p># 🚀 如果你再往下一步走</p>
+<p>我可以帮你做三件更狠的：</p>
+<h4 class="sub-h">1️⃣ 👉 自动“爆款检测模型”</h4>
+<p>（判断哪本书会火）</p>
+<h4 class="sub-h">2️⃣ 👉 评论区模拟器</h4>
+<p>（预测读者骂点/爽点）</p>
+<h4 class="sub-h">3️⃣ 👉 多账号发布策略</h4>
+<p>（怎么发、什么时候发）</p>
+<p>---</p>
+<p>你现在这套已经是：</p>
+<p>👉 <strong>网文工作室生产系统 V1</strong></p>
+<p>如果你想直接冲“变现版本”，下一步我可以帮你做：</p>
+<p>👉 <strong>完整商业化运营方案（含平台打法）</strong></p></div>
+    </section>
+    <section id="s5" class="st5">
+      <div class="sec-h"><span class="idx st5">Q5</span><h2>给出网文工作室生产系统 V1的所有文件内容和目录结构</h2><span class="hint">第 5 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>给出网文工作室生产系统 V1的所有文件内容和目录结构</p></div>
+      <div class="qa-a"><p>下面给你一套<strong>可直接落地运行的「网文工作室生产系统 V1」完整工程结构 + 全文件内容</strong>。这一版已经从“写作Skill”升级为“生产系统”，核心目标是：</p>
+<p>👉 多书并行   👉 自动批量生成   👉 节奏控制   👉 爽点稳定输出   👉 防崩结构  </p>
+<p>---</p>
+<p># 🏭 一、完整目录结构（V1）</p>
+<div class="codeblock"><pre><code>novel-studio-v1/
+├── skill.md
+├── config.yaml
+│
+├── pipeline/
+│   ├── project_generator.md
+│   ├── scheduler.md
+│   ├── chapter_writer.md
+│   ├── title_generator.md
+│   ├── hook_optimizer.md
+│   ├── quality_check.md
+│   ├── longrun_guard.md
+│
+├── data/
+│   ├── topics_pool.json
+│   ├── character_pool.json
+│   ├── world_pool.json
+│   ├── templates.json
+│
+├── memory/
+│   ├── projects.json
+│   ├── global_state.json
+│
+├── output/
+│   ├── novel_001/
+│   ├── novel_002/</code></pre></div>
+<p>---</p>
+<p># 🧠 二、skill.md（总控制器）</p>
+<div class="codeblock"><pre><code>---
+name: novel-studio-v1
+description: 网文工作室级小说批量生产系统（多项目并行 + 爽点控制 + 防崩结构）
+version: 1.0
+---
+
+# 🏭 网文生产系统 V1
+
+## 🎯 系统目标
+
+- 同时生成多本小说
+- 自动推进章节
+- 自动生成标题与钩子
+- 自动检测质量与崩坏
+- 保持长期稳定输出
+
+---
+
+## ⚙️ 核心模块
+
+### 1️⃣ 开书系统
+project_generator.md
+
+👉 批量生成小说设定
+
+---
+
+### 2️⃣ 节奏调度
+scheduler.md
+
+👉 决定每本书该写什么
+
+---
+
+### 3️⃣ 章节生成
+chapter_writer.md
+
+👉 生成正文（3000+字）
+
+---
+
+### 4️⃣ 标题系统
+title_generator.md
+
+👉 提升点击率
+
+---
+
+### 5️⃣ 钩子系统
+hook_optimizer.md
+
+👉 提升续读率
+
+---
+
+### 6️⃣ 质量检测
+quality_check.md
+
+👉 防止低质量内容
+
+---
+
+### 7️⃣ 防崩系统
+longrun_guard.md
+
+👉 防战力崩坏
+
+---
+
+## 📥 输入
+
+- batch_size（小说数量）
+- genre（题材）
+- chapters_per_round（每轮章节数）
+
+---
+
+## 📤 输出
+
+- 多小说并行内容
+- 自动章节推进</code></pre></div>
+<p>---</p>
+<p># ⚙️ 三、config.yaml</p>
+<div class="codeblock"><pre><code>system:
+  name: novel-studio-v1
+
+writing:
+  min_words: 3000
+  max_words: 4500
+
+batch:
+  default_size: 5
+
+rules:
+  must_have_hook: true
+  must_have_conflict: true
+  must_have_climax: true</code></pre></div>
+<p>---</p>
+<p># 📚 四、pipeline模块</p>
+<p>---</p>
+<h3 class="sub-h">1️⃣ project_generator.md（开书器）</h3>
+<div class="codeblock"><pre><code># 📚 批量开书系统
+
+生成 {{batch_size}} 本小说设定。
+
+---
+
+## 每本必须包含：
+
+- 书名
+- 题材
+- 主角（金手指）
+- 开局冲突（100字内）
+- 前10章节奏设计
+
+---
+
+## 强制差异化：
+
+- 不允许重复题材
+- 不允许相似主角设定</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">2️⃣ scheduler.md（调度器）</h3>
+<div class="codeblock"><pre><code># ⚡ 节奏调度系统
+
+## 输入：
+小说当前状态
+
+---
+
+## 输出：
+
+- 本章任务（爽点类型）
+- 情绪曲线
+- 是否高潮章节
+
+---
+
+## 节奏规则：
+
+1-10章：打脸  
+10-30章：成长  
+30+章：扩展世界</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">3️⃣ chapter_writer.md（正文生成）</h3>
+<div class="codeblock"><pre><code># ✍️ 章节生成器
+
+## 强制规则：
+
+- 字数：3000+
+- 开局100字必须冲突
+- 至少3个爽点
+
+---
+
+## 四幕结构：
+
+1️⃣ 压迫  
+2️⃣ 对抗  
+3️⃣ 爆发  
+4️⃣ 悬念结尾  
+
+---
+
+## 输出：
+
+正文 + 爽点标记 + 下一章钩子</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">4️⃣ title_generator.md（标题系统）</h3>
+<div class="codeblock"><pre><code># 🔥 爆款标题生成器
+
+生成10个标题
+
+---
+
+## 模型：
+
+冲突 + 身份 + 反转
+
+---
+
+## 示例：
+
+- 我被退婚后，直接成神
+- 所有人都以为我废了，其实我无敌了</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">5️⃣ hook_optimizer.md（钩子系统）</h3>
+<div class="codeblock"><pre><code># 🎣 结尾钩子优化
+
+重写最后200字。
+
+---
+
+必须包含：
+
+- 未解决冲突
+或
+- 更强敌人
+或
+- 信息反转</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">6️⃣ quality_check.md（质量检测）</h3>
+<div class="codeblock"><pre><code># 🔍 质量检测系统
+
+评分：
+
+- 爽点（0-10）
+- 节奏（0-10）
+- 上瘾度（0-10）
+
+---
+
+## 判定：
+
+&lt;7分 → 重写
+≥7分 → 通过</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">7️⃣ longrun_guard.md（防崩系统）</h3>
+<div class="codeblock"><pre><code># 🧠 长篇防崩系统
+
+检测：
+
+- 战力是否膨胀
+- 是否无敌过快
+- 是否敌人过弱
+
+---
+
+## 修正：
+
+- 加限制
+- 提升敌人
+- 增加代价</code></pre></div>
+<p>---</p>
+<p># 📊 五、data数据池</p>
+<p>---</p>
+<h3 class="sub-h">topics_pool.json</h3>
+<div class="codeblock"><pre><code>{
+  &quot;topics&quot;: [
+    &quot;退婚逆袭&quot;,
+    &quot;系统打脸&quot;,
+    &quot;都市修仙&quot;,
+    &quot;末世进化&quot;,
+    &quot;重生崛起&quot;
+  ]
+}</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">character_pool.json</h3>
+<div class="codeblock"><pre><code>{
+  &quot;characters&quot;: [
+    &quot;废柴少年&quot;,
+    &quot;天才被废&quot;,
+    &quot;重生强者&quot;,
+    &quot;系统宿主&quot;
+  ]
+}</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">world_pool.json</h3>
+<div class="codeblock"><pre><code>{
+  &quot;worlds&quot;: [
+    &quot;修真界&quot;,
+    &quot;都市&quot;,
+    &quot;末世&quot;,
+    &quot;高武世界&quot;
+  ]
+}</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">templates.json</h3>
+<div class="codeblock"><pre><code>{
+  &quot;hook&quot;: [
+    &quot;就在他以为结束时……&quot;,
+    &quot;下一秒，异变突生……&quot;
+  ]
+}</code></pre></div>
+<p>---</p>
+<p># 🧠 六、memory系统</p>
+<p>---</p>
+<h3 class="sub-h">projects.json</h3>
+<div class="codeblock"><pre><code>{
+  &quot;novels&quot;: []
+}</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">global_state.json</h3>
+<div class="codeblock"><pre><code>{
+  &quot;active_projects&quot;: 0,
+  &quot;total_chapters&quot;: 0
+}</code></pre></div>
+<p>---</p>
+<p># 📦 七、输出结构</p>
+<div class="codeblock"><pre><code>output/
+└── novel_001/
+    ├── chapter_1.md
+    ├── chapter_2.md
+    ├── title.log</code></pre></div>
+<p>---</p>
+<p># 🚀 八、运行逻辑（核心）</p>
+<p>你每次调用系统就是：</p>
+<p>---</p>
+<h3 class="sub-h">① 开书</h3>
+<div class="codeblock"><pre><code>batch_size = 5</code></pre></div>
+<p>👉 生成5本小说</p>
+<p>---</p>
+<h3 class="sub-h">② 跑调度</h3>
+<p>👉 scheduler决定写哪一章</p>
+<p>---</p>
+<h3 class="sub-h">③ 写章节</h3>
+<p>👉 chapter_writer生成正文</p>
+<p>---</p>
+<h3 class="sub-h">④ 优化标题 + 钩子</h3>
+<p>👉 title + hook</p>
+<p>---</p>
+<h3 class="sub-h">⑤ 检测质量</h3>
+<p>👉 quality_check</p>
+<p>---</p>
+<h3 class="sub-h">⑥ 防崩修正</h3>
+<p>👉 longrun_guard</p>
+<p>---</p>
+<p># ⚡ 这一版V1的本质</p>
+<p>它不是写小说工具，而是：</p>
+<blockquote class="md-quote">🏭 <strong>“可批量复制的网文生产工厂”</strong></blockquote>
+<p>---</p>
+<p># 🎯 如果你下一步要升级（V2方向）</p>
+<p>我可以帮你直接升级成：</p>
+<h4 class="sub-h">🔥 V2（工作室商业版）</h4>
+<ul class="md-ul"><li>自动筛爆款题材</li><li>自动判断哪本书能火</li><li>自动优化留存</li><li>多平台同步发布（番茄 / 起点 / 短剧）</li></ul>
+<p>---</p>
+<p>只要你说一句：</p>
+<p>👉 “升级V2商业化版本”</p>
+<p>我可以直接帮你把这个系统变成<strong>可以跑收益模型的版本</strong>。</p></div>
+    </section>
+    <section id="s6" class="st1">
+      <div class="sec-h"><span class="idx st1">Q6</span><h2>先给我提供一套只写一部小说的的skill吧，格式要规范</h2><span class="hint">第 6 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>先给我提供一套只写一部小说的的skill吧，格式要规范</p></div>
+      <div class="qa-a"><p>下面给你一套<strong>单本小说专用（稳定长篇 + 可控节奏 + 防崩 + 爽点续航）Skill</strong>，已按规范拆成完整工程结构，可直接用于 OpenClaw / Agent / 本地模型调用。</p>
+<p>核心特点：</p>
+<p>👉 只写一部小说   👉 支持百万字级扩展   👉 有完整记忆系统   👉 节奏可控不崩   👉 可持续滚动更新  </p>
+<p>---</p>
+<p># 📁 一、目录结构（Single Novel Skill）</p>
+<div class="codeblock"><pre><code>single-novel-skill/
+├── skill.md
+├── config.yaml
+│
+├── prompt/
+│   ├── world_build.md
+│   ├── chapter_write.md
+│   ├── hook.md
+│   ├── expand.md
+│   ├── summary.md
+│
+├── memory/
+│   ├── world.json
+│   ├── characters.json
+│   ├── power_system.json
+│   ├── story_state.json
+│
+├── templates/
+│   ├── chapter_template.md
+│   ├── plot_structure.md</code></pre></div>
+<p>---</p>
+<p># 🧠 二、skill.md（核心入口）</p>
+<div class="codeblock"><pre><code>---
+name: single-novel-engine
+description: 单部小说长期连载生成系统（稳定世界观 + 爽点持续 + 防崩结构）
+version: 1.0
+---
+
+# 📖 单小说生成引擎
+
+## 🎯 核心目标
+
+本系统用于生成**一部可长期连载的网络小说**：
+
+- 支持百万字扩展
+- 结构不崩
+- 爽点持续输出
+- 角色长期成长
+
+---
+
+## ⚙️ 核心能力
+
+### 1️⃣ 世界观构建
+→ world_build.md
+
+- 世界结构
+- 势力体系
+- 力量等级
+
+---
+
+### 2️⃣ 章节生成
+→ chapter_write.md
+
+- 单章3000+字
+- 四幕结构
+- 至少3个爽点
+
+---
+
+### 3️⃣ 钩子系统
+→ hook.md
+
+- 每章结尾必须留悬念
+
+---
+
+### 4️⃣ 扩写系统
+→ expand.md
+
+- 增强细节
+- 去AI味
+
+---
+
+### 5️⃣ 总结系统
+→ summary.md
+
+- 每50章滚动记忆
+
+---
+
+## 📥 输入
+
+| 参数 | 说明 |
+|------|------|
+| theme | 小说主题 |
+| chapter_id | 当前章节 |
+| summary | 前情 |
+
+---
+
+## 📤 输出
+
+- 世界观
+- 章节正文
+- 扩写版本
+- 章节总结</code></pre></div>
+<p>---</p>
+<p># ⚙️ 三、config.yaml</p>
+<div class="codeblock"><pre><code>system:
+  name: single-novel-engine
+
+writing:
+  min_words: 3000
+  max_words: 4500
+
+rules:
+  must_have_hook: true
+  must_have_conflict: true
+  must_have_climax: true
+
+memory:
+  enabled: true
+  summary_interval: 50</code></pre></div>
+<p>---</p>
+<p># 🌍 四、world_build.md（世界观）</p>
+<div class="codeblock"><pre><code># 🌍 世界观构建
+
+请构建一个长期可扩展小说世界：
+
+---
+
+## 必须包含：
+
+1️⃣ 世界层级（至少3层）  
+2️⃣ 力量体系（可升级）  
+3️⃣ 势力结构（宗门 / 帝国 / 家族）  
+4️⃣ 主角金手指  
+
+---
+
+## 爽点设计：
+
+- 初期弱 → 中期爆发 → 后期碾压
+- 每10章一个小高潮</code></pre></div>
+<p>---</p>
+<p># ✍️ 五、chapter_write.md（核心写作）</p>
+<div class="codeblock"><pre><code># 📖 第 {{chapter_id}} 章
+
+---
+
+## 前情摘要：
+{{summary}}
+
+---
+
+## 🎯 本章任务
+
+至少完成：
+
+- 1个冲突
+- 1个升级
+- 1个反转
+
+---
+
+## 🧱 四幕结构
+
+### ① 压迫（400-600字）
+制造危机或羞辱
+
+---
+
+### ② 对抗（1200字）
+战斗 / 博弈 / 逻辑反击
+
+---
+
+### ③ 爆发（800字）
+反杀 / 打脸 / 资源获取
+
+---
+
+### ④ 悬念（300字）
+埋下新危机
+
+---
+
+## ⚠️ 强制规则
+
+- 字数 3000+
+- 至少3个爽点
+- 必须有装逼台词
+- 必须有群众反应</code></pre></div>
+<p>---</p>
+<p># 🎣 六、hook.md（钩子系统）</p>
+<div class="codeblock"><pre><code># 🎣 结尾钩子优化
+
+请强化章节最后200字：
+
+---
+
+必须加入：
+
+- 未解决危机
+或
+- 新敌人
+或
+- 信息反转
+
+---
+
+目标：
+
+👉 让读者必须点下一章</code></pre></div>
+<p>---</p>
+<p># 🔧 七、expand.md（扩写）</p>
+<div class="codeblock"><pre><code># 🔧 扩写优化
+
+增强文本：
+
+---
+
+## 必须增加：
+
+1️⃣ 环境细节（拟人化）  
+2️⃣ 微表情（心理变化）  
+3️⃣ 群体反应（震惊/崇拜）  
+
+---
+
+目标：
+
+👉 提升沉浸感 + 字数 + 爽感</code></pre></div>
+<p>---</p>
+<p># 🧠 八、summary.md（滚动记忆）</p>
+<div class="codeblock"><pre><code># 🧠 剧情总结
+
+请总结最近50章：
+
+---
+
+## 包括：
+
+- 主线进展
+- 主角成长
+- 关键伏笔
+- 当前敌人
+- 当前冲突
+
+---
+
+## 输出：
+
+≤500字</code></pre></div>
+<p>---</p>
+<p># 🧾 九、memory系统</p>
+<p>---</p>
+<h3 class="sub-h">world.json</h3>
+<div class="codeblock"><pre><code>{
+  &quot;world&quot;: &quot;默认世界&quot;,
+  &quot;regions&quot;: [],
+  &quot;rules&quot;: []
+}</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">characters.json</h3>
+<div class="codeblock"><pre><code>{
+  &quot;main_character&quot;: {
+    &quot;name&quot;: &quot;&quot;,
+    &quot;abilities&quot;: [],
+    &quot;growth_stage&quot;: 1
+  }
+}</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">power_system.json</h3>
+<div class="codeblock"><pre><code>{
+  &quot;levels&quot;: [],
+  &quot;current_level&quot;: 1
+}</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">story_state.json</h3>
+<div class="codeblock"><pre><code>{
+  &quot;chapter&quot;: 1,
+  &quot;summary&quot;: &quot;&quot;,
+  &quot;current_conflict&quot;: &quot;&quot;
+}</code></pre></div>
+<p>---</p>
+<p># 📦 十、模板系统</p>
+<p>---</p>
+<h3 class="sub-h">chapter_template.md</h3>
+<div class="codeblock"><pre><code># 第{{chapter_id}}章
+
+（正文3000+字）
+
+---
+
+## 爽点：
+- 打脸
+- 升级
+- 反转
+
+---
+
+## 钩子：
+（下一章悬念）</code></pre></div>
+<p>---</p>
+<p># 🚀 十一、使用流程（非常关键）</p>
+<p>---</p>
+<h3 class="sub-h">① 初始化世界观</h3>
+<div class="codeblock"><pre><code>调用 world_build.md</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">② 写第1章</h3>
+<div class="codeblock"><pre><code>chapter_id = 1
+summary = 初始背景</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">③ 循环写作</h3>
+<div class="codeblock"><pre><code>chapter_id +1
+summary = 上一章总结</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">④ 每50章总结一次</h3>
+<div class="codeblock"><pre><code>调用 summary.md</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">⑤ 不足就扩写</h3>
+<div class="codeblock"><pre><code>调用 expand.md</code></pre></div>
+<p>---</p>
+<p># ⚡ 这套系统的本质</p>
+<p>一句话总结：</p>
+<p>👉 <strong>“单本小说工业化持续生产引擎”</strong></p>
+<p>它解决的是三件事：</p>
+<ul class="md-ul"><li>不崩（结构）</li><li>不断（更新）</li><li>不腻（爽感）</li></ul>
+<p>---</p>
+<p># 🎯 如果你下一步要升级</p>
+<p>我可以帮你做三个方向：</p>
+<h4 class="sub-h">1️⃣ 爆款预测系统（判断能不能火）</h4>
+<h4 class="sub-h">2️⃣ 自动写20万字完整小说</h4>
+<h4 class="sub-h">3️⃣ 番茄/起点双平台适配版</h4>
+<p>直接说你要哪个，我可以继续往“商业写作系统”升级。</p></div>
+    </section>
+    <section id="s7" class="st2">
+      <div class="sec-h"><span class="idx st2">Q7</span><h2>增加一个Memory.md，每次有新章节都要更新记忆，避防崩</h2><span class="hint">第 7 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>增加一个Memory.md，每次有新章节都要更新记忆，避防崩</p></div>
+      <div class="qa-a"><p>很好，这一步是把“能写”升级成“能长期写不崩”的关键：<strong>把小说从“生成文本”变成“持续运行的状态系统”</strong>。</p>
+<p>我帮你把单小说 Skill 直接升级一个核心模块：</p>
+<p>👉 <strong>Memory.md（动态记忆中枢 + 防崩控制核心）</strong></p>
+<p>它的作用只有一个：</p>
+<blockquote class="md-quote">每一章结束，都强制“写入世界状态”，让AI永远记得自己写到哪了。</blockquote>
+<p>---</p>
+<p># 🧠 一、新增文件结构</p>
+<p>在你的 skill 中加入：</p>
+<div class="codeblock"><pre><code>memory/
+├── memory.md   👈 新增核心
+├── world.json
+├── characters.json
+├── power_system.json
+├── story_state.json</code></pre></div>
+<p>---</p>
+<p># 🧠 二、Memory.md（核心文件）</p>
+<div class="codeblock"><pre><code># 🧠 小说动态记忆系统（Memory.md）
+
+## 🎯 核心作用
+
+本文件是小说的“唯一真实状态源（SSOT）”，用于：
+
+- 防止剧情遗忘
+- 防止战力崩坏
+- 防止设定冲突
+- 保证长期连载一致性
+
+---
+
+# 📌 一、当前小说状态（必须每章更新）
+
+## 📖 章节进度
+- 当前章节：{{chapter_id}}
+- 当前剧情阶段：{{stage}}
+
+---
+
+## 👤 主角状态
+
+- 名称：
+- 当前境界：
+- 核心能力：
+- 当前战力层级：
+
+---
+
+## ⚔️ 当前主要冲突
+
+- 当前敌人：
+- 敌对势力：
+- 核心矛盾：
+
+---
+
+## 💰 资源状态
+
+- 灵石 / 金钱：
+- 核心装备：
+- 特殊资源：
+
+---
+
+## 🌍 世界状态
+
+- 当前地图：
+- 已解锁区域：
+- 未解锁区域：
+
+---
+
+## 🧩 已埋伏笔（非常重要）
+
+- 伏笔1：
+- 伏笔2：
+- 伏笔3：
+
+---
+
+## 🧠 当前剧情目标（下一阶段）
+
+- 短期目标（1-5章）：
+- 中期目标（10-30章）：
+
+---
+
+# ⚠️ 二、防崩规则（强制执行）
+
+如果出现以下情况必须修正：
+
+### ❌ 战力崩坏
+- 主角无理由秒杀跨阶敌人
+
+👉 修正：加入代价 / 限制 / 条件
+
+---
+
+### ❌ 设定冲突
+- 前后能力描述不一致
+
+👉 修正：以本文件为准
+
+---
+
+### ❌ 剧情遗忘
+- 伏笔未回收
+
+👉 必须在3-10章内处理
+
+---
+
+# 🔁 三、每章更新规则（非常关键）
+
+每写完一章，必须执行：
+
+## 📌 更新 Memory.md：
+
+1️⃣ 更新主角状态  
+2️⃣ 更新敌人状态  
+3️⃣ 更新资源变化  
+4️⃣ 更新世界变化  
+5️⃣ 新增伏笔  
+6️⃣ 更新剧情目标  
+
+---
+
+# 📤 四、输出要求（强制）
+
+每章结束必须输出：
+</code></pre></div>
+<p>🧠 Memory Update Completed</p>
+<ul class="md-ul"><li>chapter: X</li><li>status: synced</li><li>consistency: OK / WARNING</li></ul>
+<div class="codeblock"><pre><code>
+---
+
+# ⚙️ 五、调用规则
+
+## 每一章流程必须是：
+
+1️⃣ 读取 Memory.md  
+2️⃣ 生成章节  
+3️⃣ 更新 Memory.md  
+4️⃣ 校验是否崩坏  
+
+---
+
+# 🚨 六、核心原则
+
+👉 “所有生成内容必须服从 Memory.md”
+
+如果 Memory 与正文冲突：
+
+&gt; ❗ 以 Memory.md 为准
+
+---
+
+# 🧬 七、本系统本质
+
+Memory.md =
+
+👉 小说“世界状态数据库”  
+👉 AI的长期记忆外挂  
+👉 防止写着写着失控的核心保险
+
+---
+
+# 🚀 升级效果（非常关键）
+
+加了这个之后，你的系统会变成：
+
+### ❌ 原来：
+- 写50章就忘设定
+- 战力乱飞
+- 伏笔丢失
+
+### ✅ 现在：
+- 1000章仍然一致
+- 设定可追踪
+- 战力可控
+- 剧情可回溯
+
+---
+
+# ⚡ 如果你下一步要继续升级
+
+我可以帮你再加一层：
+
+### 👉 “自动记忆压缩系统（Memory Compression）”
+（解决10万字后记忆过载）
+
+或者：
+
+### 👉 “AI编辑审稿人系统”
+（自动帮你挑逻辑bug）
+
+只要说一声，我可以把这个系统再升级成**工作室级长期连载引擎V2**。</code></pre></div></div>
+    </section>
+    <section id="s8" class="st3">
+      <div class="sec-h"><span class="idx st3">Q8</span><h2>plot_structure.md  这个文件内容呢？</h2><span class="hint">第 8 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>plot_structure.md  这个文件内容呢？</p></div>
+      <div class="qa-a"><p>这个文件很关键，它其实是<strong>“小说的骨架引擎”</strong>——决定你这本书不是“随机爽文”，而是“可长期连载的结构化作品”。</p>
+<p>它的作用一句话：</p>
+<blockquote class="md-quote">👉 用来控制“什么时候爽、什么时候压、什么时候爆大剧情”，避免写着写着变流水账。</blockquote>
+<p>---</p>
+<p># 📐 plot_structure.md（标准完整版）</p>
+<div class="codeblock"><pre><code># 📐 小说整体剧情结构设计器（Plot Structure）
+
+## 🎯 核心作用
+
+本文件用于规划整部小说的：
+
+- 剧情节奏
+- 爽点分布
+- 阶段目标
+- 大事件节点
+- 世界升级路径
+
+---
+
+# 🧭 一、整体结构（千万字级框架）
+
+本小说采用“五阶段递进结构”：
+
+---
+
+## 🟢 第一阶段：引爆期（1-20章）
+
+### 🎯 目标：
+快速建立爽点 + 吸引读者
+
+### 📌 特征：
+- 退婚 / 侮辱 / 废物开局
+- 快速获得金手指
+- 连续打脸
+
+### 🔥 节奏：
+- 每1-2章一个小爽点
+- 不允许长铺垫
+
+---
+
+## 🟡 第二阶段：成长期（20-100章）
+
+### 🎯 目标：
+建立实力体系
+
+### 📌 特征：
+- 主角开始升级体系
+- 小势力冲突
+- 初步世界观展开
+
+### 🔥 节奏：
+- 每3-5章一个爽点
+- 每10章一个小高潮
+
+---
+
+## 🟠 第三阶段：扩张期（100-300章）
+
+### 🎯 目标：
+世界扩大 + 势力对抗
+
+### 📌 特征：
+- 宗门 / 城市 / 国家级冲突
+- 新地图开启
+- 新体系出现
+
+### 🔥 节奏：
+- 每5章一个爽点
+- 每20章一个中型高潮
+
+---
+
+## 🔴 第四阶段：争霸期（300-800章）
+
+### 🎯 目标：
+势力对抗 + 世界格局重构
+
+### 📌 特征：
+- 多势力战争
+- 高阶强者登场
+- 主角成为关键变量
+
+### 🔥 节奏：
+- 每10章一个爽点
+- 每50章一个大高潮
+
+---
+
+## ⚫ 第五阶段：终极期（800+章）
+
+### 🎯 目标：
+世界终极真相 + 最终战
+
+### 📌 特征：
+- 世界本源揭露
+- 最终Boss
+- 多线收束
+
+---
+
+# ⚙️ 二、爽点分布规则（核心）
+
+## 📌 基础规则：
+
+- 每章必须至少1个爽点
+- 每5章必须有一个爆点
+- 每20章必须有一次剧情升级
+
+---
+
+## 🔥 爽点类型库：
+
+- 打脸
+- 反杀
+- 升级
+- 获得神器
+- 势力震惊
+- 隐藏身份揭露
+
+---
+
+# 🧠 三、剧情推进逻辑
+
+小说必须遵循：
+
+## 📈 三段式增长模型：
+
+1️⃣ 压制（被看不起 / 被压迫）  
+2️⃣ 积累（变强 / 获得资源）  
+3️⃣ 爆发（打脸 / 反转）
+
+---
+
+# 🧩 四、伏笔管理规则
+
+## 📌 必须遵守：
+
+- 每个大事件必须埋伏笔
+- 伏笔必须在30-100章内回收
+- 不允许无用伏笔
+
+---
+
+# ⚔️ 五、战力成长控制
+
+## ❌ 禁止行为：
+
+- 无限制秒杀
+- 战力指数爆炸
+
+## ✅ 允许行为：
+
+- 越级战斗（需代价）
+- 临时爆发（有副作用）
+- 外力辅助突破
+
+---
+
+# 🌍 六、世界扩展规则
+
+## 📌 扩展节奏：
+
+- 每50章扩展一次地图
+- 每100章升级世界层级
+
+---
+
+# 🎯 七、本结构与Memory.md联动
+
+- Memory.md：记录“当前状态”
+- plot_structure.md：控制“未来节奏”
+
+👉 两者必须同步，否则剧情崩坏
+
+---
+
+# 🚨 八、核心原则
+
+&gt; ❗ 小说不是随机生成，而是“结构驱动生成”
+
+---
+
+# 📤 九、输出要求
+
+每次生成章节前必须：
+
+1. 读取 plot_structure.md
+2. 确认当前阶段
+3. 按阶段控制爽点密度
+4. 防止节奏错乱
+
+---
+
+# 🧬 十、本文件本质
+
+plot_structure.md =
+
+👉 小说的“时间轴设计器”
+👉 爽点节奏控制器
+👉 防流水账核心模块</code></pre></div>
+<p>---</p>
+<p># ⚡ 你现在这套系统已经具备什么能力？</p>
+<p>加上这个文件之后，你的 Skill 实际上已经具备：</p>
+<h4 class="sub-h">🧠 三层控制结构</h4>
+<div class="tblwrap"><table><thead><tr><th>模块</th><th>作用</th></tr></thead><tbody><tr><td>Memory.md</td><td>记录“现在发生了什么”</td></tr><tr><td>plot_structure.md</td><td>控制“未来怎么写”</td></tr><tr><td>chapter_writer</td><td>执行“当前一章”</td></tr></tbody></table></div>
+<p>---</p>
+<p># 🚀 如果你再升级一步（很关键）</p>
+<p>我可以帮你再加一层“终极系统”：</p>
+<h4 class="sub-h">👉 reader_emotion_model.md（读者情绪模型）</h4>
+<p>可以做到：</p>
+<ul class="md-ul"><li>控制“上瘾曲线”</li><li>控制“什么时候该爽”</li><li>控制“什么时候必须断章付费点”</li></ul>
+<p>---</p>
+<p>如果你想继续往“番茄爆款稳定月更系统”升级，我可以直接帮你做：</p>
+<p>👉 <strong>完整商业写作引擎 V2（含变现节奏）</strong></p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>千万字网文生成框架 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：千万字网文生成框架（2026-04-20）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

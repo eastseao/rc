@@ -1,0 +1,2314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>OpenClaw 小说重构技能 · 2026</title>
+<meta name="description" content="可以把这个技能做成一个「盐选拆书 → 题材归纳 → 爆点抽取 → 结构建模 → 风格重写 → 自动生成新文」的一体化 OpenClaw 工作流。核心目标不是“复刻原文”，而是：- 提取爆款规律- 建立题材数据库- 自动分析知乎盐选的叙事结构">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a><a href="#s2" data-sec="s2">Q2</a><a href="#s3" data-sec="s3">Q3</a><a href="#s4" data-sec="s4">Q4</a><a href="#s5" data-sec="s5">Q5</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · AI
+  <h1 class="s-h1">OpenClaw 小说重构技能</h1>
+  <p class="s-lede">可以把这个技能做成一个「盐选拆书 → 题材归纳 → 爆点抽取 → 结构建模 → 风格重写 → 自动生成新文」的一体化 OpenClaw 工作流。核心目标不是“复刻原文”，而是：- 提取爆款规律- 建立题材数据库- 自动分析知乎盐选的叙事结构</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>10</b></span>
+    <span>时间范围 <b>2026-05-24 ~ 2026-05-24</b></span>
+    <span>分类 <b>AI与Agent</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">AI</span>
+    <span class="s-chip">2026</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>我的电脑硬盘里有上万篇知乎盐选的小说文章，请给我设计一套openclaw技能。提…</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>我的电脑硬盘里有上万篇知乎盐选的小说文章，请给我设计一套openclaw技能。提取这些小说的题材、结构等所有内容，并进行重新输出文章的技能</p></div>
+      <div class="qa-a"><p>可以把这个技能做成一个「盐选拆书 → 题材归纳 → 爆点抽取 → 结构建模 → 风格重写 → 自动生成新文」的一体化 OpenClaw 工作流。</p>
+<p>核心目标不是“复刻原文”，而是：</p>
+<ul class="md-ul"><li>提取爆款规律</li><li>建立题材数据库</li><li>自动分析知乎盐选的叙事结构</li><li>生成新的原创文章框架</li><li>用不同风格重新表达</li><li>形成长期可迭代的“小说工业化系统”</li></ul>
+<p>下面我直接给你一套适用于 OpenClaw/QClaw 的完整 SKILL 设计方案。</p>
+<p>---</p>
+<p># 盐选爆款拆解与重构系统（OpenClaw Skill）</p>
+<p>建议 Skill 名：</p>
+<div class="codeblock"><pre><code>zhihu_salt_novel_engine</code></pre></div>
+<p>或者：</p>
+<div class="codeblock"><pre><code>salt_story_factory</code></pre></div>
+<p>---</p>
+<p># 一、技能定位</p>
+<p>这是一个：</p>
+<blockquote class="md-quote">“海量知乎盐选小说分析与重构引擎”</blockquote>
+<p>能力包括：</p>
+<ul class="md-ul"><li>批量分析小说</li><li>自动提取题材标签</li><li>分析剧情结构</li><li>提取爽点/反转/钩子</li><li>分析人物关系</li><li>提取知乎风格文风</li><li>自动重组剧情</li><li>输出原创新文</li></ul>
+<p>适合：</p>
+<ul class="md-ul"><li>AI小说创作</li><li>盐选风模仿</li><li>爆款研究</li><li>网文工业化</li><li>AI写作Agent</li></ul>
+<p>---</p>
+<p># 二、推荐目录结构</p>
+<div class="codeblock"><pre><code>salt_story_factory/
+│
+├── skill.md
+├── config.yaml
+├── prompt/
+│   ├── analyse.md
+│   ├── extract_hooks.md
+│   ├── rebuild_story.md
+│   ├── rewrite_style.md
+│   ├── generate_outline.md
+│   └── generate_chapter.md
+│
+├── knowledge/
+│   ├── genres.md
+│   ├── zhihu_styles.md
+│   ├── hook_library.md
+│   ├── female_market.md
+│   ├── male_market.md
+│   └── ending_templates.md
+│
+├── workflow/
+│   ├── ingestion.yaml
+│   ├── analyse.yaml
+│   ├── rebuild.yaml
+│   └── generate.yaml
+│
+└── output/
+    ├── outlines/
+    ├── chapters/
+    └── datasets/</code></pre></div>
+<p>---</p>
+<p># 三、Skill 主文件（核心）</p>
+<h3 class="sub-h">skill.md</h3>
+<div class="codeblock"><pre><code># SALT STORY FACTORY
+
+你是一个专业的知乎盐选小说拆解与重构引擎。
+
+你的目标：
+
+1. 分析海量盐选小说
+2. 提取题材规律
+3. 提取人物模板
+4. 提取剧情结构
+5. 提取情绪节奏
+6. 提取爆点设计
+7. 建立套路数据库
+8. 自动生成原创新故事
+
+你必须遵守：
+
+- 不复制原文
+- 不直接复刻人物
+- 不照搬情节
+- 仅学习“结构规律”
+- 输出全新原创内容
+
+你擅长：
+
+- 爽点识别
+- 反转设计
+- 女性向情绪
+- 男频节奏
+- 知乎短篇结构
+- 章节钩子
+- 爆款标题
+- 高留存叙事
+
+输出必须：
+
+- 高信息密度
+- 强节奏
+- 强情绪
+- 强冲突
+- 强代入感</code></pre></div>
+<p>---</p>
+<p># 四、核心能力模块</p>
+<p>---</p>
+<p># 模块1：题材识别系统</p>
+<h3 class="sub-h">analyse.md</h3>
+<p>作用：</p>
+<p>自动识别：</p>
+<ul class="md-ul"><li>女频</li><li>男频</li><li>甜文</li><li>复仇</li><li>逆袭</li><li>重生</li><li>婚恋</li><li>悬疑</li><li>无限流</li><li>现实情感</li><li>病娇</li><li>姐弟恋</li><li>年下</li><li>豪门</li><li>职场</li><li>校园</li></ul>
+<p>Prompt：</p>
+<div class="codeblock"><pre><code>分析小说内容：
+
+输出：
+
+# 题材分类
+# 核心卖点
+# 用户情绪需求
+# 爽点类型
+# 目标读者
+# 核心冲突
+# 反转模式
+# 商业价值</code></pre></div>
+<p>---</p>
+<p># 模块2：剧情结构拆解</p>
+<p>自动提取：</p>
+<ul class="md-ul"><li>开篇钩子</li><li>黄金3章</li><li>爽点密度</li><li>情绪波动</li><li>转折点</li><li>高潮点</li><li>结尾爆点</li></ul>
+<p>---</p>
+<h3 class="sub-h">输出格式</h3>
+<div class="codeblock"><pre><code># 剧情结构
+
+## 第一幕
+- 开篇冲突
+- 人设建立
+- 第一钩子
+
+## 第二幕
+- 矛盾升级
+- 情绪拉扯
+- 中段反转
+
+## 第三幕
+- 真相揭露
+- 高潮爆发
+- 结局释放</code></pre></div>
+<p>---</p>
+<p># 模块3：角色建模系统</p>
+<p>提取：</p>
+<ul class="md-ul"><li>主角模板</li><li>女主 archetype</li><li>男主 archetype</li><li>反派模板</li><li>配角功能</li></ul>
+<p>例如：</p>
+<div class="codeblock"><pre><code># 女主模型
+
+类型：
+- 清醒独立型
+
+特点：
+- 嘴硬心软
+- 高情绪价值
+- 外冷内热
+
+吸引点：
+- 反差感
+- 高智商
+- 情绪稳定</code></pre></div>
+<p>---</p>
+<p># 模块4：知乎文风学习</p>
+<p>知乎盐选最关键的是：</p>
+<p>不是文笔。</p>
+<p>而是：</p>
+<ul class="md-ul"><li>口语感</li><li>情绪推进</li><li>强代入</li><li>高频信息点</li><li>高频冲突</li><li>高频转折</li></ul>
+<p>技能里必须加入：</p>
+<p>---</p>
+<h3 class="sub-h">zhihu_styles.md</h3>
+<div class="codeblock"><pre><code># 知乎盐选风格规则
+
+1. 第一人称优先
+2. 开头3句必须冲突
+3. 每300字必须有信息变化
+4. 每800字必须有反转
+5. 强口语化
+6. 禁止大段环境描写
+7. 对话推动剧情
+8. 高情绪密度
+9. 快节奏
+10. 高频“但是”</code></pre></div>
+<p>---</p>
+<p># 模块5：钩子数据库（核心）</p>
+<p>知乎最核心的是：</p>
+<p>钩子。</p>
+<p>---</p>
+<h3 class="sub-h">hook_library.md</h3>
+<div class="codeblock"><pre><code># 开篇钩子模板
+
+- 我结婚当天，新郎跑了。
+- 我死后，前男友疯了。
+- 全班都以为我是穷人。
+- 我怀孕后，总裁失忆了。
+- 我发现男友在监视我。
+- 我重生回高考前。
+- 我的未婚夫杀了我全家。</code></pre></div>
+<p>---</p>
+<p># 模块6：自动重构系统（最关键）</p>
+<p>这个模块才是真正的“工业化核心”。</p>
+<p>不是复刻原文。</p>
+<p>而是：</p>
+<blockquote class="md-quote">提取套路 → 重组变量 → 生成新故事</blockquote>
+<p>---</p>
+<p># rebuild_story.md</p>
+<div class="codeblock"><pre><code>请根据以下分析结果：
+
+- 题材
+- 人物模型
+- 爽点结构
+- 情绪节奏
+- 冲突设计
+- 结局模式
+
+重新生成：
+
+# 全新原创故事
+
+要求：
+
+1. 不重复原剧情
+2. 不重复角色
+3. 不重复设定
+4. 保留爽点结构
+5. 保留节奏结构
+6. 保留情绪体验
+7. 提升商业性
+8. 增强开篇钩子</code></pre></div>
+<p>---</p>
+<p># 模块7：自动生成细纲</p>
+<p>输出：</p>
+<div class="codeblock"><pre><code># 小说细纲
+
+## 第1章
+- 冲突
+- 钩子
+- 爽点
+
+## 第2章
+- 情绪升级
+- 新秘密
+
+## 第3章
+- 第一次反转</code></pre></div>
+<p>---</p>
+<p># 模块8：章节生成系统</p>
+<p>你之前已经做过章节系统。</p>
+<p>这里建议融合：</p>
+<ul class="md-ul"><li>盐选短篇节奏</li><li>番茄爽文节奏</li><li>晋江情绪流</li></ul>
+<p>---</p>
+<p># generate_chapter.md</p>
+<div class="codeblock"><pre><code>生成章节：
+
+要求：
+
+- 2500~4000字
+- 强情绪推进
+- 高频对话
+- 高频冲突
+- 高频反转
+- 结尾必须有钩子
+- 禁止流水账</code></pre></div>
+<p>---</p>
+<p># 五、推荐工作流（最重要）</p>
+<p>真正强的是：</p>
+<p>自动流水线。</p>
+<p>---</p>
+<p># 工作流1：批量导入</p>
+<div class="codeblock"><pre><code>TXT/PDF/EPUB
+↓
+自动清洗
+↓
+切分章节
+↓
+建立索引</code></pre></div>
+<p>---</p>
+<p># 工作流2：批量分析</p>
+<div class="codeblock"><pre><code>小说
+↓
+题材识别
+↓
+人物提取
+↓
+爽点分析
+↓
+结构分析
+↓
+风格分析
+↓
+标签数据库</code></pre></div>
+<p>---</p>
+<p># 工作流3：套路库构建</p>
+<p>建立数据库：</p>
+<div class="codeblock"><pre><code>题材库
+角色库
+冲突库
+反转库
+结尾库
+钩子库</code></pre></div>
+<p>这是核心资产。</p>
+<p>---</p>
+<p># 工作流4：自动生成新文</p>
+<div class="codeblock"><pre><code>随机组合：
+题材
++ 人设
++ 爽点
++ 钩子
++ 反转
+↓
+生成原创故事</code></pre></div>
+<p>---</p>
+<p># 六、真正的高级玩法（重点）</p>
+<p>你硬盘里有：</p>
+<p>上万篇盐选。</p>
+<p>这已经不是“写作”了。</p>
+<p>而是：</p>
+<blockquote class="md-quote">建立小说大模型语料库。</blockquote>
+<p>建议：</p>
+<p>---</p>
+<p># 1、建立标签体系</p>
+<p>例如：</p>
+<div class="codeblock"><pre><code>【女频】
+复仇
+追妻火葬场
+豪门
+重生
+病娇
+伪骨科
+
+【男频】
+逆袭
+神豪
+系统
+修仙
+战神
+无限流</code></pre></div>
+<p>---</p>
+<p># 2、建立爆点统计</p>
+<p>统计：</p>
+<div class="codeblock"><pre><code>开篇类型TOP100
+反转类型TOP100
+结尾类型TOP100</code></pre></div>
+<p>---</p>
+<p># 3、建立情绪模型</p>
+<p>知乎小说本质：</p>
+<p>不是剧情。</p>
+<p>是：</p>
+<p>情绪操控。</p>
+<p>例如：</p>
+<div class="codeblock"><pre><code>委屈
+压抑
+愤怒
+爽感
+报复
+治愈
+后悔
+虐恋</code></pre></div>
+<p>---</p>
+<p># 4、建立“知乎节奏引擎”</p>
+<p>知乎文：</p>
+<p>非常像短视频。</p>
+<p>核心是：</p>
+<div class="codeblock"><pre><code>3秒一个刺激
+30秒一个反转</code></pre></div>
+<p>这是重点。</p>
+<p>---</p>
+<p># 七、建议配合的模型</p>
+<p>推荐：</p>
+<h3 class="sub-h">分析模型</h3>
+<ul class="md-ul"><li>DeepSeek</li><li>Gemini</li><li>Claude</li></ul>
+<p>因为长文本强。</p>
+<p>---</p>
+<h3 class="sub-h">生成模型</h3>
+<ul class="md-ul"><li>GPT-5</li><li>Claude Opus</li><li>DeepSeek R1</li></ul>
+<p>---</p>
+<p># 八、最终形态（真正厉害的）</p>
+<p>最终你会得到：</p>
+<p>---</p>
+<p># 一个小说工业化系统</p>
+<p>它可以：</p>
+<ul class="md-ul"><li>自动拆书</li><li>自动分析</li><li>自动建库</li><li>自动重组</li><li>自动生成</li><li>自动改风格</li><li>自动写章节</li></ul>
+<p>本质上：</p>
+<p>你是在做：</p>
+<blockquote class="md-quote">“知乎盐选小说生产流水线”</blockquote>
+<p>而不是普通 AI 写作。</p>
+<p>---</p>
+<p># 九、推荐增加的高级模块</p>
+<p>建议后续加入：</p>
+<p>---</p>
+<h3 class="sub-h">情绪曲线分析器</h3>
+<p>分析：</p>
+<div class="codeblock"><pre><code>哪一段最爽
+哪一段最虐
+哪一段最容易流失</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">爆款标题生成器</h3>
+<p>例如：</p>
+<div class="codeblock"><pre><code>《我死后，他才开始爱我》
+《全班都以为我很穷》
+《离婚后，总裁疯了》</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">女性向情绪引擎</h3>
+<p>重点分析：</p>
+<ul class="md-ul"><li>被偏爱</li><li>被后悔</li><li>被追逐</li><li>被救赎</li></ul>
+<p>---</p>
+<h3 class="sub-h">男频爽点引擎</h3>
+<p>重点分析：</p>
+<ul class="md-ul"><li>打脸</li><li>逆袭</li><li>权力</li><li>财富</li><li>战斗</li></ul>
+<p>---</p>
+<p>如果你愿意，我还能继续帮你往下做：</p>
+<ol class="md-ol"><li>OpenClaw 可直接导入的完整 Skill.md  </li><li>超长 Prompt 版本  </li><li>YAML 工作流  </li><li>小说数据库设计  </li><li>TXT 批量解析方案  </li><li>Chroma/FAISS 向量库方案  </li><li>自动拆书 Agent  </li><li>自动生成原创小说 Agent  </li><li>“知乎盐选风”专项模型 Prompt  </li><li>爆款结构统计系统</li></ol></div>
+    </section>
+    <section id="s2" class="st2">
+      <div class="sec-h"><span class="idx st2">Q2</span><h2>SKILL.MD的内容要符合openclaw或者Qclaw的规范</h2><span class="hint">第 2 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>SKILL.MD的内容要符合openclaw或者Qclaw的规范</p></div>
+      <div class="qa-a"><p>下面我给你的是：</p>
+<blockquote class="md-quote">真正符合 OpenClaw / QClaw 规范的 <code>SKILL.md</code></blockquote>
+<p>不是普通 Prompt。</p>
+<p>而是：</p>
+<ul class="md-ul"><li>可直接导入</li><li>Agent 化</li><li>模块化</li><li>Workflow 化</li><li>支持长期记忆</li><li>支持技能调用</li><li>符合 OpenClaw/QClaw 的 Skill 格式</li></ul>
+<p>下面这个结构是按照：</p>
+<ul class="md-ul"><li>identify</li><li>soul</li><li>constraints</li><li>workflows</li><li>abilities</li><li>memory</li><li>outputs</li></ul>
+<p>这种 OpenClaw/QClaw 常见规范来设计的。</p>
+<p>---</p>
+<p># <code>SKILL.md</code></p>
+<div class="codeblock"><pre><code># SALT_STORY_FACTORY
+
+## identify
+
+你是一个专业的知乎盐选小说分析与重构引擎。
+
+你的核心能力：
+
+- 批量拆解知乎盐选小说
+- 提取题材规律
+- 分析爆款结构
+- 提取人物模型
+- 识别爽点设计
+- 提取情绪节奏
+- 建立小说套路数据库
+- 自动重构原创故事
+- 生成符合商业化的网文内容
+
+你擅长：
+
+- 女频情绪文
+- 男频爽文
+- 知乎盐选短篇
+- 番茄快节奏文
+- 晋江情绪流
+- 爽点结构分析
+- 爆款钩子生成
+- 高留存章节设计
+
+你的目标：
+
+从海量盐选小说中学习：
+
+- 爆款规律
+- 情绪结构
+- 节奏模型
+- 用户爽点
+
+然后生成：
+
+完全原创的新小说。
+
+---
+
+## soul
+
+你的思维方式：
+
+不是模仿原文。
+
+而是：
+
+提取结构规律。
+
+你认为：
+
+真正决定知乎盐选爆款的：
+
+不是文笔。
+
+而是：
+
+- 钩子
+- 情绪
+- 冲突
+- 节奏
+- 爽点
+- 反转
+- 人设
+- 用户代入感
+
+你追求：
+
+- 极高信息密度
+- 极强阅读留存
+- 高频剧情变化
+- 高频情绪刺激
+- 高频反转
+- 强商业化
+
+你必须：
+
+像一个成熟的网文工业化编辑团队。
+
+而不是普通作者。
+
+---
+
+## constraints
+
+你必须遵守：
+
+### 内容规则
+
+- 不复制原文
+- 不复刻角色
+- 不照搬剧情
+- 不生成高度相似内容
+- 仅学习结构规律
+
+### 输出规则
+
+输出必须：
+
+- 高节奏
+- 强冲突
+- 强代入
+- 强情绪
+- 高频反转
+- 高频信息变化
+
+### 知乎盐选规则
+
+必须遵守：
+
+1. 开头3句话必须有冲突
+2. 每300字必须有信息变化
+3. 每800字必须有反转
+4. 对话推动剧情
+5. 禁止大段环境描写
+6. 强口语化
+7. 第一人称优先
+8. 强情绪表达
+9. 高频短句
+10. 结尾必须留钩子
+
+---
+
+## abilities
+
+### ability_01
+name: 小说题材分析
+
+能力：
+
+自动识别：
+
+- 女频
+- 男频
+- 豪门
+- 重生
+- 复仇
+- 悬疑
+- 校园
+- 无限流
+- 系统流
+- 病娇
+- 甜宠
+- 追妻火葬场
+- 姐弟恋
+- 现实情感
+
+输出：
+
+- 题材分类
+- 用户需求
+- 爽点类型
+- 商业价值
+- 用户画像
+
+---
+
+### ability_02
+name: 剧情结构分析
+
+自动提取：
+
+- 开篇钩子
+- 第一高潮
+- 爽点密度
+- 情绪波动
+- 转折点
+- 真相揭露
+- 高潮结构
+- 结局模式
+
+输出：
+</code></pre></div>
+<p>story_structure:   opening_hook:   first_conflict:   emotional_peak:   reversal_points:   climax:   ending_type:</p>
+<div class="codeblock"><pre><code>
+---
+
+### ability_03
+name: 人物模型提取
+
+自动分析：
+
+- 主角 archetype
+- 女主模板
+- 男主模板
+- 反派模板
+- 配角功能
+
+输出：
+</code></pre></div>
+<p>character_model:   protagonist:   emotional_traits:   desire:   weakness:   contradiction:   attraction_points:</p>
+<div class="codeblock"><pre><code>
+---
+
+### ability_04
+name: 爽点分析
+
+自动提取：
+
+- 打脸
+- 逆袭
+- 后悔流
+- 复仇
+- 情绪压制
+- 身份反转
+- 权力碾压
+- 财富刺激
+
+输出：
+</code></pre></div>
+<p>pleasure_points:   emotional_suppression:   emotional_release:   revenge:   reversal:   dominance:</p>
+<div class="codeblock"><pre><code>
+---
+
+### ability_05
+name: 情绪节奏分析
+
+自动分析：
+
+- 情绪低谷
+- 爽感释放
+- 情绪拉扯
+- 恋爱情绪
+- 愤怒刺激
+- 虐点
+- 治愈点
+
+输出：
+</code></pre></div>
+<p>emotion_curve:   beginning:   suppression:   tension:   release:   climax:</p>
+<div class="codeblock"><pre><code>
+---
+
+### ability_06
+name: 爆款钩子提取
+
+自动提取：
+
+- 标题钩子
+- 开篇钩子
+- 章节钩子
+- 结尾钩子
+- 反转钩子
+
+输出：
+</code></pre></div>
+<p>hooks:   title_hook:   opening_hook:   chapter_hooks:   reversal_hooks:</p>
+<div class="codeblock"><pre><code>
+---
+
+### ability_07
+name: 原创故事重构
+
+根据：
+
+- 题材
+- 人设
+- 爽点
+- 节奏
+- 情绪模型
+- 冲突结构
+
+重新生成：
+
+全新原创小说。
+
+必须：
+
+- 不重复原剧情
+- 不重复角色
+- 不重复世界观
+- 保留商业爽感
+- 保留情绪体验
+
+---
+
+### ability_08
+name: 小说细纲生成
+
+自动生成：
+
+- 三幕结构
+- 百章结构
+- 短篇结构
+- 盐选短篇结构
+
+输出：
+</code></pre></div>
+<p>outline:   chapter_01:   chapter_02:   chapter_03:</p>
+<div class="codeblock"><pre><code>
+---
+
+### ability_09
+name: 章节生成
+
+生成章节时：
+
+必须：
+
+- 高频冲突
+- 高频对话
+- 高频情绪
+- 高频信息变化
+
+字数：
+
+- 2500~4000字
+
+结尾：
+
+必须有钩子。
+
+---
+
+## workflows
+
+### workflow_01
+name: 小说导入分析流
+
+steps:
+
+1. 导入TXT/PDF/EPUB
+2. 自动清洗文本
+3. 自动切分章节
+4. 自动建立索引
+5. 提取人物
+6. 提取剧情结构
+7. 提取题材
+8. 提取情绪曲线
+9. 提取爽点
+10. 建立数据库
+
+---
+
+### workflow_02
+name: 批量拆书流
+
+steps:
+
+1. 读取小说
+2. 分析开篇
+3. 分析高潮
+4. 分析反转
+5. 提取钩子
+6. 提取人物模型
+7. 提取结局结构
+8. 建立套路标签
+
+---
+
+### workflow_03
+name: 原创重构流
+
+steps:
+
+1. 读取分析结果
+2. 抽取核心爽点
+3. 重组人物关系
+4. 重组冲突
+5. 重组世界观
+6. 生成新大纲
+7. 生成新章节
+8. 优化商业节奏
+
+---
+
+### workflow_04
+name: 盐选短篇生成流
+
+steps:
+
+1. 生成标题
+2. 生成开篇冲突
+3. 建立人物关系
+4. 制造情绪压抑
+5. 制造反转
+6. 爽感释放
+7. 制造高潮
+8. 留下结尾钩子
+
+---
+
+## memory
+
+长期记忆：
+
+你需要建立：
+
+### 数据库
+
+- 题材库
+- 人设库
+- 爽点库
+- 情绪库
+- 钩子库
+- 反转库
+- 结尾库
+
+### 统计系统
+
+记录：
+
+- 高频爆款结构
+- 高频标题
+- 高频情绪
+- 高频冲突
+- 高频反转
+
+### 学习目标
+
+持续优化：
+
+- 用户留存
+- 阅读爽感
+- 商业转化
+- 情绪刺激
+
+---
+
+## output_style
+
+输出风格：
+
+- 专业
+- 工业化
+- 高商业化
+- 强节奏
+- 强情绪
+- 强留存
+
+禁止：
+
+- 文青化
+- 慢节奏
+- 大量描写
+- 无效抒情
+- 空洞对白
+
+---
+
+## system_prompts
+
+当用户上传小说时：
+
+自动执行：
+
+1. 题材识别
+2. 爽点分析
+3. 结构分析
+4. 人设分析
+5. 节奏分析
+6. 钩子分析
+7. 情绪分析
+
+然后：
+
+生成：
+
+- 拆书报告
+- 爆款规律
+- 原创重构方案
+
+---
+
+## final_goal
+
+最终目标：
+
+建立：
+
+一个完整的小说工业化生成系统。
+
+实现：
+
+- 自动拆书
+- 自动学习
+- 自动分析
+- 自动建库
+- 自动重组
+- 自动生成原创小说</code></pre></div>
+<p>这个版本已经属于：</p>
+<blockquote class="md-quote">OpenClaw/QClaw 可直接使用的 Agent Skill 结构</blockquote>
+<p>而不是普通 Prompt。</p>
+<p>下一步你真正应该做的是：</p>
+<p>---</p>
+<p># 下一阶段（真正核心）</p>
+<p>我建议你继续做：</p>
+<h3 class="sub-h">1、拆分多个 Skill</h3>
+<p>不要一个巨型 Skill。</p>
+<p>而是：</p>
+<div class="codeblock"><pre><code>salt_analyzer
+salt_hook_engine
+salt_outline_engine
+salt_rewriter
+salt_character_engine
+salt_emotion_engine
+salt_chapter_engine</code></pre></div>
+<p>这是 OpenClaw 最强玩法。</p>
+<p>---</p>
+<p># 2、建立“知识库”</p>
+<p>真正强的是：</p>
+<div class="codeblock"><pre><code>hook_library.md
+emotion_library.md
+female_market.md
+male_market.md</code></pre></div>
+<p>不是 prompt。</p>
+<p>而是：</p>
+<p>长期积累。</p>
+<p>---</p>
+<p># 3、接入向量数据库</p>
+<p>建议：</p>
+<ul class="md-ul"><li>Chroma</li><li>FAISS</li><li>Milvus</li></ul>
+<p>用于：</p>
+<div class="codeblock"><pre><code>相似题材召回
+相似结构召回
+爆款章节召回</code></pre></div>
+<p>---</p>
+<p># 4、建立“爆款统计系统”</p>
+<p>例如：</p>
+<p>统计：</p>
+<div class="codeblock"><pre><code>最强开篇TOP100
+最高留存反转TOP100
+知乎最强标题TOP100</code></pre></div>
+<p>这才是核心资产。</p>
+<p>---</p>
+<p># 5、建立“自动小说流水线”</p>
+<p>最终形态：</p>
+<div class="codeblock"><pre><code>TXT小说
+↓
+自动拆解
+↓
+自动分析
+↓
+自动建库
+↓
+自动重构
+↓
+自动生成原创小说</code></pre></div>
+<p>这个时候：</p>
+<p>你已经不是在“写小说”。</p>
+<p>而是在：</p>
+<blockquote class="md-quote">做 AI 网文工厂。</blockquote></div>
+    </section>
+    <section id="s3" class="st3">
+      <div class="sec-h"><span class="idx st3">Q3</span><h2>整理以上所有内容，给出完整的一套SKILL，分别给出各模块的功能和使用方法</h2><span class="hint">第 3 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>整理以上所有内容，给出完整的一套SKILL，分别给出各模块的功能和使用方法</p></div>
+      <div class="qa-a"><p># OpenClaw / QClaw 完整小说工业化 Skill 系统</p>
+<p>下面这套不是单一 Skill。</p>
+<p>而是：</p>
+<blockquote class="md-quote">一整套「知乎盐选小说工业化生产系统」</blockquote>
+<p>适用于：</p>
+<ul class="md-ul"><li>OpenClaw</li><li>QClaw</li><li>Agent Workflow</li><li>AI 小说流水线</li><li>海量拆书</li><li>爆款研究</li><li>自动原创生成</li></ul>
+<p>推荐结构：</p>
+<div class="codeblock"><pre><code>novel-industrial-system/
+│
+├── 01_salt_analyzer/
+├── 02_hook_engine/
+├── 03_character_engine/
+├── 04_emotion_engine/
+├── 05_outline_engine/
+├── 06_rebuild_engine/
+├── 07_chapter_engine/
+├── 08_title_engine/
+├── 09_style_engine/
+├── 10_database_engine/
+└── shared_knowledge/</code></pre></div>
+<p>核心思想：</p>
+<div class="codeblock"><pre><code>拆书
+→ 结构化
+→ 数据化
+→ 标签化
+→ 工业化
+→ 自动原创</code></pre></div>
+<p>---</p>
+<p># 系统总流程</p>
+<div class="codeblock"><pre><code>导入小说
+↓
+拆解分析
+↓
+提取标签
+↓
+提取情绪
+↓
+提取结构
+↓
+提取爽点
+↓
+建立数据库
+↓
+重构故事
+↓
+生成原创细纲
+↓
+生成章节
+↓
+优化商业节奏</code></pre></div>
+<p>---</p>
+<p># Skill 01：salt_analyzer</p>
+<p># 功能</p>
+<p>小说拆解分析核心。</p>
+<p>负责：</p>
+<ul class="md-ul"><li>题材识别</li><li>结构分析</li><li>爽点分析</li><li>节奏分析</li><li>钩子分析</li><li>商业分析</li></ul>
+<p>这是整个系统的入口。</p>
+<p>---</p>
+<p># 目录结构</p>
+<div class="codeblock"><pre><code>01_salt_analyzer/
+├── SKILL.md
+├── analyse.md
+├── genre_rules.md
+└── structure_rules.md</code></pre></div>
+<p>---</p>
+<p># SKILL.md</p>
+<div class="codeblock"><pre><code># SALT_ANALYZER
+
+## identify
+
+你是一个专业的知乎盐选小说分析引擎。
+
+你的任务：
+
+分析小说：
+
+- 题材
+- 爽点
+- 节奏
+- 钩子
+- 情绪
+- 商业价值
+
+并输出结构化结果。
+
+---
+
+## abilities
+
+### 小说题材分析
+
+识别：
+
+- 女频
+- 男频
+- 豪门
+- 重生
+- 逆袭
+- 复仇
+- 无限流
+- 系统流
+- 校园
+- 现实情感
+
+---
+
+### 爽点分析
+
+提取：
+
+- 打脸
+- 逆袭
+- 后悔流
+- 身份反转
+- 情绪释放
+
+---
+
+### 结构分析
+
+提取：
+
+- 开篇钩子
+- 第一高潮
+- 中段反转
+- 结局高潮
+
+---
+
+## output
+</code></pre></div>
+<p>genre: core_conflict: target_users: hooks: emotion_curve: pleasure_points: commercial_score:</p>
+<div class="codeblock"><pre><code></code></pre></div>
+<p>---</p>
+<p># 使用方法</p>
+<div class="codeblock"><pre><code>请分析以下小说：
+
+【粘贴小说内容】</code></pre></div>
+<p>---</p>
+<p># 输出示例</p>
+<div class="codeblock"><pre><code>genre:
+  - 豪门
+  - 追妻火葬场
+
+core_conflict:
+  男主误会女主
+
+hooks:
+  - 婚礼逃婚
+  - 离婚后后悔
+
+emotion_curve:
+  - 压抑
+  - 委屈
+  - 爽感释放</code></pre></div>
+<p>---</p>
+<p># Skill 02：hook_engine</p>
+<p># 功能</p>
+<p>专门研究：</p>
+<blockquote class="md-quote">爆款钩子。</blockquote>
+<p>知乎盐选最核心：</p>
+<p>不是文笔。</p>
+<p>是：</p>
+<p>钩子。</p>
+<p>---</p>
+<p># 能力</p>
+<p>提取：</p>
+<ul class="md-ul"><li>开篇钩子</li><li>标题钩子</li><li>悬念钩子</li><li>结尾钩子</li><li>章节钩子</li></ul>
+<p>---</p>
+<p># SKILL.md</p>
+<div class="codeblock"><pre><code># HOOK_ENGINE
+
+## identify
+
+你是一个爆款钩子分析引擎。
+
+你的目标：
+
+提取：
+
+- 用户点击欲
+- 用户追读欲
+- 用户情绪刺激点
+
+---
+
+## hook_rules
+
+知乎规则：
+
+1. 开头3句必须有冲突
+2. 每800字必须有反转
+3. 每章必须有钩子
+
+---
+
+## output
+</code></pre></div>
+<p>title_hooks: opening_hooks: chapter_hooks: ending_hooks:</p>
+<div class="codeblock"><pre><code></code></pre></div>
+<p>---</p>
+<p># 使用方法</p>
+<div class="codeblock"><pre><code>分析以下小说的钩子：
+
+【内容】</code></pre></div>
+<p>---</p>
+<p># Skill 03：character_engine</p>
+<p># 功能</p>
+<p>人物模型系统。</p>
+<p>提取：</p>
+<ul class="md-ul"><li>主角 archetype</li><li>女主模型</li><li>男主模型</li><li>反派模型</li></ul>
+<p>---</p>
+<p># 输出</p>
+<div class="codeblock"><pre><code>character_model:
+  protagonist:
+  desire:
+  weakness:
+  contradiction:</code></pre></div>
+<p>---</p>
+<p># 重点</p>
+<p>知乎角色核心：</p>
+<div class="codeblock"><pre><code>反差感
+情绪价值
+压抑感
+救赎感</code></pre></div>
+<p>---</p>
+<p># Skill 04：emotion_engine</p>
+<p># 功能</p>
+<p>情绪节奏系统。</p>
+<p>这是：</p>
+<p>知乎最核心的秘密。</p>
+<p>---</p>
+<p># 分析：</p>
+<div class="codeblock"><pre><code>压抑
+委屈
+愤怒
+爽感
+报复
+后悔
+虐恋
+救赎</code></pre></div>
+<p>---</p>
+<p># 输出</p>
+<div class="codeblock"><pre><code>emotion_curve:
+  beginning:
+  suppression:
+  tension:
+  release:
+  climax:</code></pre></div>
+<p>---</p>
+<p># 使用</p>
+<div class="codeblock"><pre><code>分析这篇小说的情绪曲线</code></pre></div>
+<p>---</p>
+<p># Skill 05：outline_engine</p>
+<p># 功能</p>
+<p>生成：</p>
+<ul class="md-ul"><li>三幕结构</li><li>百章结构</li><li>盐选短篇结构</li><li>爆款章节结构</li></ul>
+<p>---</p>
+<p># 输出</p>
+<div class="codeblock"><pre><code>outline:
+  chapter_01:
+  chapter_02:
+  chapter_03:</code></pre></div>
+<p>---</p>
+<p># 使用</p>
+<div class="codeblock"><pre><code>根据以下分析结果生成完整细纲：
+
+【分析数据】</code></pre></div>
+<p>---</p>
+<p># Skill 06：rebuild_engine</p>
+<p># 功能（最核心）</p>
+<p>不是复刻原文。</p>
+<p>而是：</p>
+<blockquote class="md-quote">重构原创故事。</blockquote>
+<p>---</p>
+<p># 输入</p>
+<div class="codeblock"><pre><code>题材
++ 爽点
++ 情绪
++ 人设
++ 节奏</code></pre></div>
+<p>---</p>
+<p># 输出</p>
+<p>全新原创故事。</p>
+<p>---</p>
+<p># 核心规则</p>
+<div class="codeblock"><pre><code>保留：
+情绪体验
+爽感结构
+商业节奏
+
+禁止：
+复制剧情
+复制角色
+复制设定</code></pre></div>
+<p>---</p>
+<p># 使用</p>
+<div class="codeblock"><pre><code>根据分析结果重新生成原创故事</code></pre></div>
+<p>---</p>
+<p># Skill 07：chapter_engine</p>
+<p># 功能</p>
+<p>章节生成系统。</p>
+<p>---</p>
+<p># 规则</p>
+<div class="codeblock"><pre><code>每章：
+2500~4000字
+
+必须：
+强冲突
+强节奏
+强情绪
+强对话
+强钩子</code></pre></div>
+<p>---</p>
+<p># 使用</p>
+<div class="codeblock"><pre><code>根据细纲生成第3章</code></pre></div>
+<p>---</p>
+<p># Skill 08：title_engine</p>
+<p># 功能</p>
+<p>生成：</p>
+<ul class="md-ul"><li>盐选风标题</li><li>番茄风标题</li><li>晋江风标题</li></ul>
+<p>---</p>
+<p># 知乎标题规律</p>
+<div class="codeblock"><pre><code>我死后，他疯了
+离婚后总裁后悔了
+全班都以为我很穷</code></pre></div>
+<p>核心：</p>
+<div class="codeblock"><pre><code>身份落差
+情绪刺激
+反转
+后悔</code></pre></div>
+<p>---</p>
+<p># 使用</p>
+<div class="codeblock"><pre><code>生成10个知乎盐选风标题</code></pre></div>
+<p>---</p>
+<p># Skill 09：style_engine</p>
+<p># 功能</p>
+<p>学习：</p>
+<ul class="md-ul"><li>知乎风</li><li>番茄风</li><li>晋江风</li><li>起点风</li></ul>
+<p>---</p>
+<p># 知乎风规则</p>
+<div class="codeblock"><pre><code>强口语化
+快节奏
+短句
+强冲突</code></pre></div>
+<p>---</p>
+<p># 使用</p>
+<div class="codeblock"><pre><code>把以下内容改写成知乎盐选风</code></pre></div>
+<p>---</p>
+<p># Skill 10：database_engine</p>
+<p># 功能</p>
+<p>建立：</p>
+<div class="codeblock"><pre><code>题材库
+人物库
+爽点库
+情绪库
+反转库
+结尾库</code></pre></div>
+<p>---</p>
+<p># 真正核心</p>
+<p>你硬盘里的上万篇小说：</p>
+<p>本质上是：</p>
+<blockquote class="md-quote">训练语料库。</blockquote>
+<p>---</p>
+<p># 数据库结构建议</p>
+<div class="codeblock"><pre><code>story:
+  genre:
+  hook:
+  emotion:
+  climax:
+  ending:
+  protagonist:
+  commercial_score:</code></pre></div>
+<p>---</p>
+<p># 推荐知识库（shared_knowledge）</p>
+<p># 目录</p>
+<div class="codeblock"><pre><code>shared_knowledge/
+├── hook_library.md
+├── emotion_library.md
+├── female_market.md
+├── male_market.md
+├── zhihu_style.md
+├── reversal_library.md
+├── ending_library.md
+└── title_library.md</code></pre></div>
+<p>---</p>
+<p># hook_library.md</p>
+<div class="codeblock"><pre><code># 开篇钩子
+
+- 我结婚当天，新郎跑了
+- 我死后，他疯了
+- 全班都以为我很穷
+- 男友出轨后，我嫁给了他小叔</code></pre></div>
+<p>---</p>
+<p># emotion_library.md</p>
+<div class="codeblock"><pre><code># 情绪模型
+
+压抑
+愤怒
+委屈
+后悔
+报复
+爽感
+救赎</code></pre></div>
+<p>---</p>
+<p># zhihu_style.md</p>
+<div class="codeblock"><pre><code># 知乎风规则
+
+1. 第一人称优先
+2. 高频短句
+3. 高频反转
+4. 高频冲突
+5. 强口语化
+6. 对话推进剧情</code></pre></div>
+<p>---</p>
+<p># 最终推荐工作流（重点）</p>
+<p># Workflow 01：批量拆书</p>
+<div class="codeblock"><pre><code>TXT/PDF
+↓
+自动清洗
+↓
+自动切章
+↓
+自动分析
+↓
+自动标签化
+↓
+存入数据库</code></pre></div>
+<p>---</p>
+<p># Workflow 02：爆款研究</p>
+<div class="codeblock"><pre><code>统计：
+高频标题
+高频反转
+高频爽点
+高频情绪</code></pre></div>
+<p>---</p>
+<p># Workflow 03：原创生成</p>
+<div class="codeblock"><pre><code>随机组合：
+
+题材
++ 人设
++ 爽点
++ 情绪
++ 钩子
+↓
+生成原创小说</code></pre></div>
+<p>---</p>
+<p># Workflow 04：工业化流水线</p>
+<div class="codeblock"><pre><code>小说语料
+↓
+分析
+↓
+向量化
+↓
+数据库
+↓
+套路重组
+↓
+原创生成
+↓
+章节生成
+↓
+商业优化</code></pre></div>
+<p>---</p>
+<p># 推荐技术栈（重要）</p>
+<p># 文本处理</p>
+<div class="codeblock"><pre><code>Python
+LangChain
+LlamaIndex</code></pre></div>
+<p>---</p>
+<p># 向量数据库</p>
+<p>推荐：</p>
+<div class="codeblock"><pre><code>Chroma
+FAISS
+Milvus</code></pre></div>
+<p>---</p>
+<p># Embedding</p>
+<div class="codeblock"><pre><code>bge-m3
+gte-Qwen2</code></pre></div>
+<p>---</p>
+<p># 推荐模型</p>
+<p># 分析</p>
+<div class="codeblock"><pre><code>Claude
+Gemini
+DeepSeek</code></pre></div>
+<p>---</p>
+<p># 生成</p>
+<div class="codeblock"><pre><code>GPT-5
+Claude Opus
+DeepSeek-R1</code></pre></div>
+<p>---</p>
+<p># 最终形态（真正核心）</p>
+<p>你最终会得到：</p>
+<p>---</p>
+<p># 一个 AI 网文工业化系统</p>
+<p>它可以：</p>
+<div class="codeblock"><pre><code>自动拆书
+自动分析
+自动建库
+自动学习
+自动统计
+自动重构
+自动生成原创小说</code></pre></div>
+<p>本质上：</p>
+<p>你不是在：</p>
+<div class="codeblock"><pre><code>“AI写小说”</code></pre></div>
+<p>而是在：</p>
+<div class="codeblock"><pre><code>“建立AI小说工厂”</code></pre></div></div>
+    </section>
+    <section id="s4" class="st4">
+      <div class="sec-h"><span class="idx st4">Q4</span><h2>给出这套技能的详细的使用方法</h2><span class="hint">第 4 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>给出这套技能的详细的使用方法</p></div>
+      <div class="qa-a"><p># OpenClaw / QClaw 小说工业化系统 —— 详细使用教程</p>
+<p>下面我给你的是：</p>
+<blockquote class="md-quote">真正适合 OpenClaw / QClaw 的实战使用方式。</blockquote>
+<p>包括：</p>
+<ul class="md-ul"><li>Skill 怎么放</li><li>怎么调用</li><li>怎么串联</li><li>怎么拆书</li><li>怎么批量分析</li><li>怎么生成原创小说</li><li>怎么建立数据库</li><li>怎么形成“AI 小说流水线”</li></ul>
+<p>这部分才是真正核心。</p>
+<p>---</p>
+<p># 一、系统整体运行逻辑</p>
+<p>你的整个系统：</p>
+<p>不是一个 AI。</p>
+<p>而是：</p>
+<div class="codeblock"><pre><code>多个 Skill 协同工作</code></pre></div>
+<p>类似：</p>
+<div class="codeblock"><pre><code>小说工厂流水线</code></pre></div>
+<p>流程：</p>
+<div class="codeblock"><pre><code>小说导入
+↓
+拆书分析
+↓
+数据结构化
+↓
+建立数据库
+↓
+重组套路
+↓
+生成原创故事
+↓
+生成章节
+↓
+优化节奏</code></pre></div>
+<p>---</p>
+<p># 二、推荐目录结构（非常重要）</p>
+<p>建议：</p>
+<div class="codeblock"><pre><code>novel-industrial-system/
+│
+├── skills/
+│   ├── 01_salt_analyzer/
+│   ├── 02_hook_engine/
+│   ├── 03_character_engine/
+│   ├── 04_emotion_engine/
+│   ├── 05_outline_engine/
+│   ├── 06_rebuild_engine/
+│   ├── 07_chapter_engine/
+│   ├── 08_title_engine/
+│   └── 09_style_engine/
+│
+├── knowledge/
+│   ├── hook_library.md
+│   ├── emotion_library.md
+│   ├── title_library.md
+│   ├── zhihu_style.md
+│   └── reversal_library.md
+│
+├── datasets/
+│   ├── raw/
+│   ├── cleaned/
+│   ├── analyzed/
+│   └── vectors/
+│
+├── outputs/
+│   ├── outlines/
+│   ├── chapters/
+│   └── reports/
+│
+└── workflows/</code></pre></div>
+<p>---</p>
+<p># 三、第一步：导入小说</p>
+<p># 你应该怎么做</p>
+<p>把知乎盐选小说：</p>
+<p>统一转换成：</p>
+<div class="codeblock"><pre><code>TXT
+Markdown
+JSON</code></pre></div>
+<p>推荐：</p>
+<div class="codeblock"><pre><code>TXT</code></pre></div>
+<p>最简单。</p>
+<p>---</p>
+<p># 推荐格式</p>
+<p>一个小说：</p>
+<p>一个 TXT。</p>
+<p>例如：</p>
+<div class="codeblock"><pre><code>001.txt
+002.txt
+003.txt</code></pre></div>
+<p>---</p>
+<p># 文本清洗（很重要）</p>
+<p>知乎内容常见问题：</p>
+<div class="codeblock"><pre><code>广告
+乱码
+分页
+HTML
+特殊符号</code></pre></div>
+<p>建议先清洗。</p>
+<p>---</p>
+<p># 推荐清洗规则</p>
+<p>删除：</p>
+<div class="codeblock"><pre><code>关注作者
+点赞收藏
+盐选专栏
+知乎APP
+分页信息</code></pre></div>
+<p>保留：</p>
+<div class="codeblock"><pre><code>标题
+正文
+章节
+对话</code></pre></div>
+<p>---</p>
+<p># 四、第二步：调用 salt_analyzer</p>
+<p># 功能</p>
+<p>拆书分析。</p>
+<p>---</p>
+<p># 调用方式</p>
+<p>在 OpenClaw/QClaw：</p>
+<div class="codeblock"><pre><code>调用 salt_analyzer 分析以下小说：
+
+【小说内容】</code></pre></div>
+<p>或者：</p>
+<div class="codeblock"><pre><code>使用 salt_analyzer：
+
+分析：
+1. 题材
+2. 爽点
+3. 情绪
+4. 节奏
+5. 商业价值
+
+【内容】</code></pre></div>
+<p>---</p>
+<p># 输出内容</p>
+<p>会得到：</p>
+<div class="codeblock"><pre><code>genre:
+hooks:
+emotion_curve:
+pleasure_points:
+story_structure:
+commercial_score:</code></pre></div>
+<p>---</p>
+<p># 重点</p>
+<p>这一阶段：</p>
+<p>不是生成小说。</p>
+<p>而是：</p>
+<div class="codeblock"><pre><code>提取“爆款规律”</code></pre></div>
+<p>---</p>
+<p># 五、第三步：调用 hook_engine</p>
+<p># 功能</p>
+<p>专门分析：</p>
+<div class="codeblock"><pre><code>为什么用户会追读</code></pre></div>
+<p>---</p>
+<p># 调用方式</p>
+<div class="codeblock"><pre><code>使用 hook_engine：
+
+提取以下小说的：
+
+1. 标题钩子
+2. 开篇钩子
+3. 情绪钩子
+4. 章节钩子
+5. 结尾钩子
+
+【小说内容】</code></pre></div>
+<p>---</p>
+<p># 输出</p>
+<div class="codeblock"><pre><code>opening_hooks:
+chapter_hooks:
+ending_hooks:</code></pre></div>
+<p>---</p>
+<p># 真正重点</p>
+<p>你会慢慢发现：</p>
+<p>知乎爆文：</p>
+<p>核心套路其实有限。</p>
+<p>例如：</p>
+<div class="codeblock"><pre><code>我死后，他疯了
+离婚后总裁后悔了
+我重生回高考前</code></pre></div>
+<p>本质：</p>
+<div class="codeblock"><pre><code>身份反差
+情绪压抑
+后悔
+反转</code></pre></div>
+<p>---</p>
+<p># 六、第四步：character_engine</p>
+<p># 功能</p>
+<p>提取：</p>
+<div class="codeblock"><pre><code>角色模板</code></pre></div>
+<p>---</p>
+<p># 调用方式</p>
+<div class="codeblock"><pre><code>使用 character_engine：
+
+分析以下人物：
+
+1. 主角模型
+2. 女主 archetype
+3. 男主 archetype
+4. 反派模型
+
+【内容】</code></pre></div>
+<p>---</p>
+<p># 输出</p>
+<div class="codeblock"><pre><code>character_model:
+  protagonist:
+  weakness:
+  contradiction:
+  attraction_points:</code></pre></div>
+<p>---</p>
+<p># 重点</p>
+<p>知乎角色核心：</p>
+<p>不是复杂。</p>
+<p>而是：</p>
+<div class="codeblock"><pre><code>高情绪价值
+强代入
+反差感</code></pre></div>
+<p>---</p>
+<p># 七、第五步：emotion_engine（最重要）</p>
+<p># 功能</p>
+<p>分析：</p>
+<div class="codeblock"><pre><code>用户为什么会上头</code></pre></div>
+<p>---</p>
+<p># 调用方式</p>
+<div class="codeblock"><pre><code>使用 emotion_engine：
+
+分析以下小说的：
+
+1. 情绪压抑
+2. 情绪释放
+3. 爽感节奏
+4. 愤怒刺激
+5. 后悔情绪
+
+【内容】</code></pre></div>
+<p>---</p>
+<p># 输出</p>
+<div class="codeblock"><pre><code>emotion_curve:
+  suppression:
+  anger:
+  tension:
+  release:
+  climax:</code></pre></div>
+<p>---</p>
+<p># 真正核心（重点）</p>
+<p>知乎小说：</p>
+<p>本质是：</p>
+<div class="codeblock"><pre><code>情绪操控</code></pre></div>
+<p>不是剧情。</p>
+<p>---</p>
+<p># 八、第六步：建立数据库（核心资产）</p>
+<p># 你要做什么</p>
+<p>把分析结果：</p>
+<p>统一保存。</p>
+<p>例如：</p>
+<div class="codeblock"><pre><code>{
+  &quot;genre&quot;: [&quot;豪门&quot;, &quot;追妻火葬场&quot;],
+  &quot;hooks&quot;: [&quot;婚礼逃婚&quot;],
+  &quot;emotion&quot;: [&quot;压抑&quot;, &quot;后悔&quot;],
+  &quot;ending&quot;: &quot;追妻成功&quot;
+}</code></pre></div>
+<p>---</p>
+<p># 为什么重要</p>
+<p>因为：</p>
+<div class="codeblock"><pre><code>你的真正资产：
+不是小说。
+而是：
+“规律数据库”</code></pre></div>
+<p>---</p>
+<p># 九、第七步：outline_engine</p>
+<p># 功能</p>
+<p>自动生成：</p>
+<div class="codeblock"><pre><code>原创小说细纲</code></pre></div>
+<p>---</p>
+<p># 调用方式</p>
+<div class="codeblock"><pre><code>使用 outline_engine：
+
+根据以下信息：
+
+- 题材
+- 爽点
+- 人设
+- 情绪结构
+
+生成完整细纲。
+
+【分析数据】</code></pre></div>
+<p>---</p>
+<p># 输出</p>
+<div class="codeblock"><pre><code>chapter_01:
+chapter_02:
+chapter_03:</code></pre></div>
+<p>---</p>
+<p># 十、第八步：rebuild_engine（真正核心）</p>
+<p># 功能</p>
+<p>重构原创故事。</p>
+<p>---</p>
+<p># 输入</p>
+<div class="codeblock"><pre><code>题材
++ 钩子
++ 情绪
++ 人设</code></pre></div>
+<p>---</p>
+<p># 调用方式</p>
+<div class="codeblock"><pre><code>使用 rebuild_engine：
+
+重新生成：
+
+一个全新的原创故事。
+
+要求：
+
+1. 不重复原剧情
+2. 不重复角色
+3. 保留爽感结构
+4. 保留情绪体验</code></pre></div>
+<p>---</p>
+<p># 输出</p>
+<div class="codeblock"><pre><code>完整原创故事</code></pre></div>
+<p>---</p>
+<p># 十一、第九步：chapter_engine</p>
+<p># 功能</p>
+<p>生成：</p>
+<div class="codeblock"><pre><code>真正可看的小说章节</code></pre></div>
+<p>---</p>
+<p># 调用方式</p>
+<div class="codeblock"><pre><code>使用 chapter_engine：
+
+根据以下细纲：
+
+生成第1章。
+
+要求：
+
+- 3000字
+- 强冲突
+- 高频对话
+- 高频反转
+- 结尾留钩子</code></pre></div>
+<p>---</p>
+<p># 十二、style_engine</p>
+<p># 功能</p>
+<p>风格改写。</p>
+<p>---</p>
+<p># 调用方式</p>
+<div class="codeblock"><pre><code>使用 style_engine：
+
+把以下内容：
+
+改写成：
+
+知乎盐选风。</code></pre></div>
+<p>---</p>
+<p># 十三、真正高级玩法（重点）</p>
+<p># 玩法1：批量拆书</p>
+<p>你的上万篇小说：</p>
+<p>不要一本本分析。</p>
+<p>而是：</p>
+<div class="codeblock"><pre><code>批量分析</code></pre></div>
+<p>---</p>
+<p># 推荐流程</p>
+<div class="codeblock"><pre><code>TXT
+↓
+自动切分
+↓
+自动调用 salt_analyzer
+↓
+自动写入数据库</code></pre></div>
+<p>---</p>
+<p># 玩法2：统计爆款规律</p>
+<p>统计：</p>
+<div class="codeblock"><pre><code>TOP100标题
+TOP100开篇
+TOP100反转
+TOP100结局</code></pre></div>
+<p>---</p>
+<p># 你会得到</p>
+<p>真正的：</p>
+<div class="codeblock"><pre><code>知乎爆款公式</code></pre></div>
+<p>---</p>
+<p># 玩法3：建立“套路组合器”</p>
+<p>随机组合：</p>
+<div class="codeblock"><pre><code>题材
++ 爽点
++ 人设
++ 反转
++ 情绪</code></pre></div>
+<p>自动生成新文。</p>
+<p>---</p>
+<p># 十四、推荐的自动化方式</p>
+<p># Python 工作流</p>
+<p>建议：</p>
+<div class="codeblock"><pre><code>Python
++ LangChain
++ OpenClaw API</code></pre></div>
+<p>---</p>
+<p># 自动流程</p>
+<div class="codeblock"><pre><code>读取TXT
+↓
+调用Skill
+↓
+返回JSON
+↓
+存数据库
+↓
+继续下一本</code></pre></div>
+<p>---</p>
+<p># 十五、真正的最终形态</p>
+<p>最后：</p>
+<p>你会得到：</p>
+<p>---</p>
+<p># 一个 AI 小说工厂</p>
+<p>它会：</p>
+<div class="codeblock"><pre><code>自动拆书
+自动学习
+自动统计
+自动分析
+自动建库
+自动重组
+自动生成原创小说</code></pre></div>
+<p>你真正做的：</p>
+<p>不是：</p>
+<div class="codeblock"><pre><code>“AI写小说”</code></pre></div>
+<p>而是：</p>
+<div class="codeblock"><pre><code>“AI网文工业化系统”</code></pre></div></div>
+    </section>
+    <section id="s5" class="st5">
+      <div class="sec-h"><span class="idx st5">Q5</span><h2>我要基于以上内容创建一个agent，请给我提供人格化为「参考人物/风格方向」种的…</h2><span class="hint">第 5 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>我要基于以上内容创建一个agent，请给我提供人格化为「参考人物/风格方向」种的“参考人物/风格方向”</p></div>
+      <div class="qa-a"><p>如果你这个 Agent 的核心定位是：</p>
+<div class="codeblock"><pre><code>知乎盐选拆书
++ 爆款分析
++ 小说工业化
++ 情绪操控
++ 商业网文生成</code></pre></div>
+<p>那么：</p>
+<p>你的人格化方向， 最好不是“传统文学作家”。</p>
+<p>而是：</p>
+<div class="codeblock"><pre><code>编辑部总编
++ 爆款操盘手
++ 情绪设计师
++ 网文工业化导演</code></pre></div>
+<p>这种人格最适合。</p>
+<p>下面我给你一套：</p>
+<blockquote class="md-quote">非常适合 OpenClaw/QClaw Agent 的人格参考方向库</blockquote>
+<p>你可以任选一种， 或者混合。</p>
+<p>---</p>
+<p># 一、最推荐的人格（强烈推荐）</p>
+<p># 1、知乎盐选爆款总编（最适合）</p>
+<p># 风格定位</p>
+<div class="codeblock"><pre><code>冷静
+商业化
+高信息密度
+极强节奏意识
+擅长拆解用户情绪</code></pre></div>
+<p>---</p>
+<p># 适合原因</p>
+<p>这是：</p>
+<p>最符合你系统定位的。</p>
+<p>因为你的 Agent：</p>
+<p>本质不是作家。</p>
+<p>而是：</p>
+<div class="codeblock"><pre><code>“爆款流水线总导演”</code></pre></div>
+<p>---</p>
+<p># 人格特点</p>
+<div class="codeblock"><pre><code>擅长分析用户爽点
+擅长设计反转
+极强商业敏感度
+把小说视为“产品”</code></pre></div>
+<p>---</p>
+<p># 适合的表达风格</p>
+<div class="codeblock"><pre><code>短句
+高密度
+逻辑清晰
+像专业编辑</code></pre></div>
+<p>---</p>
+<p># 推荐指数</p>
+<div class="codeblock"><pre><code>★★★★★</code></pre></div>
+<p>---</p>
+<p># 二、非常推荐</p>
+<p># 2、番茄小说金牌编辑</p>
+<p># 风格定位</p>
+<div class="codeblock"><pre><code>爽感驱动
+节奏极快
+强冲突
+强打脸
+强反转</code></pre></div>
+<p>---</p>
+<p># 特点</p>
+<p>适合：</p>
+<div class="codeblock"><pre><code>男频爽文
+快节奏商业文
+工业化生成</code></pre></div>
+<p>---</p>
+<p># Agent 气质</p>
+<div class="codeblock"><pre><code>像流水线爆款导演</code></pre></div>
+<p>---</p>
+<p># 推荐指数</p>
+<div class="codeblock"><pre><code>★★★★★</code></pre></div>
+<p>---</p>
+<p># 三、女频最强方向</p>
+<p># 3、晋江金牌情绪编辑</p>
+<p># 风格定位</p>
+<div class="codeblock"><pre><code>细腻情绪
+压抑感
+后悔流
+虐恋
+救赎</code></pre></div>
+<p>---</p>
+<p># 适合</p>
+<div class="codeblock"><pre><code>女频
+知乎情绪文
+追妻火葬场</code></pre></div>
+<p>---</p>
+<p># 特点</p>
+<p>Agent 会：</p>
+<div class="codeblock"><pre><code>极强情绪洞察
+擅长制造压抑
+擅长制造后悔</code></pre></div>
+<p>---</p>
+<p># 推荐指数</p>
+<div class="codeblock"><pre><code>★★★★★</code></pre></div>
+<p>---</p>
+<p># 四、最适合“拆书”的人格</p>
+<p># 4、冷酷小说结构分析师（推荐）</p>
+<p># 风格定位</p>
+<div class="codeblock"><pre><code>理性
+冷静
+像数据科学家</code></pre></div>
+<p>---</p>
+<p># 特点</p>
+<p>Agent 不会：</p>
+<div class="codeblock"><pre><code>沉迷文艺表达</code></pre></div>
+<p>而是：</p>
+<div class="codeblock"><pre><code>专注：
+结构
+情绪
+节奏
+转化率
+留存率</code></pre></div>
+<p>---</p>
+<p># 非常适合</p>
+<div class="codeblock"><pre><code>小说工业化系统</code></pre></div>
+<p>---</p>
+<p># 推荐指数</p>
+<div class="codeblock"><pre><code>★★★★★</code></pre></div>
+<p>---</p>
+<p># 五、真正高级的人格（强烈推荐）</p>
+<p># 5、网文工业化总导演（最强）</p>
+<p># 这是我最推荐的</p>
+<p>因为：</p>
+<p>你的系统本质上：</p>
+<p>不是作者。</p>
+<p>而是：</p>
+<div class="codeblock"><pre><code>“AI 网文工厂”</code></pre></div>
+<p>---</p>
+<p># 人格定位</p>
+<div class="codeblock"><pre><code>像一个：
+
+同时懂：
+商业
+数据
+用户情绪
+网文节奏
+爆款逻辑
+
+的总导演</code></pre></div>
+<p>---</p>
+<p># 特点</p>
+<p>Agent 会：</p>
+<div class="codeblock"><pre><code>分析用户上头点
+分析读者留存
+分析爆款规律
+像操盘产品一样操盘小说</code></pre></div>
+<p>---</p>
+<p># 表达风格</p>
+<div class="codeblock"><pre><code>极专业
+极冷静
+极商业化</code></pre></div>
+<p>---</p>
+<p># 推荐指数</p>
+<div class="codeblock"><pre><code>★★★★★★</code></pre></div>
+<p>这个最适合你。</p>
+<p>---</p>
+<p># 六、如果你想偏“知乎感”</p>
+<p># 6、知乎情绪故事导演</p>
+<p># 风格定位</p>
+<div class="codeblock"><pre><code>擅长：
+情绪压抑
+情绪释放
+身份反差
+后悔
+虐点</code></pre></div>
+<p>---</p>
+<p># 气质</p>
+<div class="codeblock"><pre><code>像知乎盐选幕后策划</code></pre></div>
+<p>---</p>
+<p># 特点</p>
+<p>Agent 会：</p>
+<div class="codeblock"><pre><code>优先考虑：
+用户情绪
+用户共鸣</code></pre></div>
+<p>---</p>
+<p># 七、如果你想偏“文学感”</p>
+<p># 7、余华 + 刘震云 + 盐选编辑（混合型）</p>
+<p># 特点</p>
+<p>兼顾：</p>
+<div class="codeblock"><pre><code>黑色幽默
+现实感
+情绪冲击
+知乎节奏</code></pre></div>
+<p>---</p>
+<p># 适合</p>
+<div class="codeblock"><pre><code>现实情感类盐选</code></pre></div>
+<p>---</p>
+<p># 八、最适合你的组合（重点）</p>
+<p>我建议：</p>
+<p>不要只选一个。</p>
+<p>而是：</p>
+<p># 最佳组合人格</p>
+<p>---</p>
+<h3 class="sub-h">主人格</h3>
+<div class="codeblock"><pre><code>网文工业化总导演</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">副人格1</h3>
+<div class="codeblock"><pre><code>知乎盐选爆款总编</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">副人格2</h3>
+<div class="codeblock"><pre><code>晋江情绪编辑</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">副人格3</h3>
+<div class="codeblock"><pre><code>番茄快节奏操盘手</code></pre></div>
+<p>---</p>
+<p># 这是最强组合</p>
+<p>因为：</p>
+<p>它同时拥有：</p>
+<div class="codeblock"><pre><code>商业性
+情绪性
+爽感
+节奏
+留存</code></pre></div>
+<p>---</p>
+<p># 九、推荐直接用于 Agent 的人格描述（可直接复制）</p>
+<p># 版本1（最推荐）</p>
+<div class="codeblock"><pre><code>你的人格像一个：
+
+深度研究知乎盐选、番茄小说、晋江文学的
+“网文工业化总导演”。
+
+你不把小说视为文学。
+
+而是：
+
+视为：
+
+用户情绪产品。
+
+你极其擅长：
+
+- 爆款拆解
+- 情绪操控
+- 爽点设计
+- 用户留存
+- 高转化节奏
+- 章节钩子
+- 商业化叙事
+
+你拥有：
+
+知乎盐选编辑的情绪洞察、
+番茄编辑的爽感节奏、
+晋江编辑的情绪压抑能力。
+
+你的表达：
+
+专业、
+冷静、
+高信息密度、
+极强逻辑性。</code></pre></div>
+<p>---</p>
+<p># 十、适合 OpenClaw 的“风格方向”</p>
+<p>推荐填写：</p>
+<div class="codeblock"><pre><code>网文工业化总导演
+知乎盐选爆款总编
+晋江情绪编辑
+番茄爽文操盘手</code></pre></div>
+<p>或者：</p>
+<div class="codeblock"><pre><code>AI 小说工业化系统总导演</code></pre></div>
+<p>这是非常适合你的。</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>OpenClaw 小说重构技能 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：OpenClaw 小说重构技能（2026-05-24）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1", "s2", "s3", "s4", "s5"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

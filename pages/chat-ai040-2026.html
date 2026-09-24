@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>主题簇生成技能设计 · 2026</title>
+<meta name="description" content="下面给你一套符合 OpenClaw 规范的「主题簇生成技能（Topic Cluster Generator）」完整 SKILL，已经按标准结构拆分好，可直接用于仓库部署。--- 📦 项目结构topic-cluster-generator/├">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a><a href="#s2" data-sec="s2">Q2</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · AI
+  <h1 class="s-h1">主题簇生成技能设计</h1>
+  <p class="s-lede">下面给你一套符合 OpenClaw 规范的「主题簇生成技能（Topic Cluster Generator）」完整 SKILL，已经按标准结构拆分好，可直接用于仓库部署。--- 📦 项目结构topic-cluster-generator/├</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>4</b></span>
+    <span>时间范围 <b>2026-04-27 ~ 2026-04-27</b></span>
+    <span>分类 <b>AI与Agent</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">AI</span>
+    <span class="s-chip">2026</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>设计一套主题簇生成技能SKILL，SKILL格式规范要符合openclaw标准</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>设计一套主题簇生成技能SKILL，SKILL格式规范要符合openclaw标准</p></div>
+      <div class="qa-a"><p>下面给你一套<strong>符合 OpenClaw 规范的「主题簇生成技能（Topic Cluster Generator）」完整 SKILL</strong>，已经按标准结构拆分好，可直接用于仓库部署。</p>
+<p>---</p>
+<p># 📦 项目结构</p>
+<div class="codeblock"><pre><code>topic-cluster-generator/
+├── skill.md
+├── config.yaml
+├── prompt/
+│   ├── intent_parse.md
+│   ├── seed_expand.md
+│   ├── cluster_build.md
+│   ├── seo_optimize.md
+│   ├── output_format.md
+├── templates/
+│   ├── cluster_table.md
+│   ├── mindmap.md
+│   ├── content_plan.md
+├── memory/
+│   └── Memory.md</code></pre></div>
+<p>---</p>
+<p># 🧠 skill.md</p>
+<div class="codeblock"><pre><code>---
+name: TopicClusterGenerator
+description: 基于核心主题自动生成SEO友好的主题簇（Topic Clusters），用于内容规划、流量增长和知识体系构建
+version: 1.0.0
+author: Gervas System Lab
+tags:
+  - SEO
+  - 内容营销
+  - 主题建模
+  - 知识体系
+  - 信息架构
+input_schema:
+  core_topic:
+    type: string
+    description: 核心主题（如：枸杞、食品供应链、前端性能优化）
+  target:
+    type: string
+    description: 目标（SEO / 知识体系 / 内容变现）
+  depth:
+    type: integer
+    description: 主题展开深度（1-5）
+  audience:
+    type: string
+    description: 目标人群（如：小白 / 专业人士 / 采购经理）
+output_schema:
+  clusters:
+    type: list
+    description: 主题簇列表
+  content_plan:
+    type: markdown
+    description: 内容规划
+  structure_map:
+    type: markdown
+    description: 结构图（类脑图）
+---
+
+# 🧩 SKILL: Topic Cluster Generator
+
+## 🎯 技能目标
+围绕一个核心主题，自动生成结构化主题簇（Topic Clusters），用于：
+
+- SEO流量布局
+- 内容矩阵搭建
+- 知识体系构建
+- 商业转化路径设计
+
+---
+
+## ⚙️ 工作流程
+
+### Step 1：意图解析
+调用：`prompt/intent_parse.md`
+
+- 判断主题类型（产品 / 行业 / 技术 / 认知）
+- 判断用户目标（流量 / 转化 / 品牌）
+
+---
+
+### Step 2：种子扩展
+调用：`prompt/seed_expand.md`
+
+生成：
+
+- 核心关键词
+- 同义词
+- 长尾词
+- 用户问题
+
+---
+
+### Step 3：主题簇构建
+调用：`prompt/cluster_build.md`
+
+构建结构：
+
+- Pillar Page（核心支柱）
+- Cluster Topics（子主题）
+- Supporting Content（支撑内容）
+
+---
+
+### Step 4：SEO优化
+调用：`prompt/seo_optimize.md`
+
+输出：
+
+- 搜索意图分类
+- 关键词密度建议
+- 内容机会点
+
+---
+
+### Step 5：结构输出
+调用：`prompt/output_format.md`
+
+生成：
+
+- 表格结构
+- 内容规划
+- 类脑图结构
+
+---
+
+## 🧠 Memory机制
+
+路径：`memory/Memory.md`
+
+记录：
+
+- 已生成主题
+- 已覆盖关键词
+- 内容空白点
+
+避免：
+
+- 重复主题
+- 关键词冲突</code></pre></div>
+<p>---</p>
+<p># ⚙️ config.yaml</p>
+<div class="codeblock"><pre><code>version: 1.0
+
+model:
+  temperature: 0.7
+  top_p: 0.9
+
+limits:
+  max_clusters: 10
+  max_subtopics: 15
+
+strategy:
+  clustering_method: semantic + intent
+  keyword_source:
+    - search_engine
+    - community
+    - ecommerce
+    - qa_platform
+
+seo:
+  include_long_tail: true
+  include_questions: true
+  include_commercial_intent: true
+
+output:
+  format: markdown
+  include_table: true
+  include_mindmap: true</code></pre></div>
+<p>---</p>
+<p># 🧩 prompt/intent_parse.md</p>
+<div class="codeblock"><pre><code># 任务：解析用户主题意图
+
+输入：
+{{core_topic}}
+
+输出：
+
+1. 主题类型：
+- 产品型 / 信息型 / 技术型 / 行业型
+
+2. 用户意图：
+- 搜索型 / 学习型 / 购买型 / 比较型
+
+3. 内容方向建议：
+- 流量导向 / 转化导向 / 品牌导向</code></pre></div>
+<p>---</p>
+<p># 🌱 prompt/seed_expand.md</p>
+<div class="codeblock"><pre><code># 任务：扩展关键词种子
+
+围绕核心主题：
+
+{{core_topic}}
+
+生成：
+
+1. 核心关键词（5-10）
+2. 长尾关键词（20+）
+3. 用户问题（10+）
+4. 相关场景（5+）
+
+要求：
+- 贴近真实搜索行为
+- 包含商业意图词</code></pre></div>
+<p>---</p>
+<p># 🧱 prompt/cluster_build.md</p>
+<div class="codeblock"><pre><code># 任务：构建主题簇
+
+基于关键词，生成：
+
+## 1. Pillar Page
+- 核心主题页面
+
+## 2. Cluster Topics
+每个包含：
+- 子主题名称
+- 目标关键词
+- 搜索意图
+
+## 3. Supporting Content
+- 具体文章标题
+- 解决的问题
+
+要求：
+- 结构清晰
+- 避免重复
+- 覆盖不同搜索阶段</code></pre></div>
+<p>---</p>
+<p># 🔍 prompt/seo_optimize.md</p>
+<div class="codeblock"><pre><code># 任务：SEO优化
+
+对主题簇进行：
+
+1. 搜索意图分类：
+- Informational
+- Transactional
+- Navigational
+
+2. 关键词策略：
+- 主关键词
+- 次关键词
+- 长尾关键词
+
+3. 内容机会：
+- 低竞争词
+- 高转化词</code></pre></div>
+<p>---</p>
+<p># 🧾 prompt/output_format.md</p>
+<div class="codeblock"><pre><code># 输出格式
+
+## 一、主题簇表格
+
+| Pillar | Cluster | Keyword | Intent |
+|--------|--------|--------|--------|
+
+---
+
+## 二、内容规划
+
+- 每周更新节奏
+- 内容优先级
+- 爆款切入点
+
+---
+
+## 三、结构图（类脑图）
+
+使用缩进结构：
+
+- 核心主题
+  - 子主题
+    - 文章标题</code></pre></div>
+<p>---</p>
+<p># 📊 templates/cluster_table.md</p>
+<div class="codeblock"><pre><code>| 核心主题 | 子主题 | 关键词 | 搜索意图 |
+|----------|--------|--------|----------|</code></pre></div>
+<p>---</p>
+<p># 🧠 templates/mindmap.md</p>
+<div class="codeblock"><pre><code>- {{core_topic}}
+  - Cluster 1
+    - Article 1
+    - Article 2
+  - Cluster 2</code></pre></div>
+<p>---</p>
+<p># 📅 templates/content_plan.md</p>
+<div class="codeblock"><pre><code>## 内容发布计划
+
+Week 1：
+- 主题：
+
+Week 2：
+- 主题：
+
+目标：
+- SEO增长
+- 转化提升</code></pre></div>
+<p>---</p>
+<p># 🧠 memory/Memory.md</p>
+<div class="codeblock"><pre><code># Topic Cluster Memory
+
+## 已生成主题
+-
+
+## 已覆盖关键词
+-
+
+## 内容空白
+-
+
+## 优化建议
+-</code></pre></div>
+<p>---</p>
+<p># 🚀 能力总结</p>
+<p>这套 SKILL 的核心能力：</p>
+<ul class="md-ul"><li>自动生成 SEO 主题矩阵</li><li>构建内容护城河（Topic Cluster）</li><li>支持：</li></ul>
+<p>  - 网站   - 公众号   - 小红书 / 抖音内容体系</p>
+<ul class="md-ul"><li>可直接接入你之前的：</li></ul>
+<p>  - 爆款文章生成技能   - 去AI味技能   - 自动连载系统</p>
+<p>---</p>
+<p>如果你要升级，我可以帮你直接做👇：</p>
+<p>👉 V2：接入真实搜索数据（百度/Google/1688）   👉 V3：自动生成100篇选题库   👉 V4：直接输出“可发布文章草稿”  </p>
+<p>你下一步想做哪一层？</p></div>
+    </section>
+    <section id="s2" class="st2">
+      <div class="sec-h"><span class="idx st2">Q2</span><h2>V4：直接输出“可发布文章草稿”</h2><span class="hint">第 2 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>V4：直接输出“可发布文章草稿”</p></div>
+      <div class="qa-a"><p>好，这一版我直接给你做成<strong>可落地的 V4 工业级版本</strong>：不仅生成主题簇，还能<strong>批量输出“可直接发布”的文章草稿</strong>，并且已经内置“去AI味 + 爆款结构 + SEO优化”。</p>
+<p>下面是<strong>符合 OpenClaw 规范的完整 SKILL V4</strong> 👇</p>
+<p>---</p>
+<p># 📦 项目结构（V4增强版）</p>
+<div class="codeblock"><pre><code>topic-cluster-generator-v4/
+├── skill.md
+├── config.yaml
+├── prompt/
+│   ├── intent_parse.md
+│   ├── seed_expand.md
+│   ├── cluster_build.md
+│   ├── seo_optimize.md
+│   ├── draft_generate.md      # ⭐新增：文章生成核心
+│   ├── deai.md                # ⭐去AI味
+│   ├── explode.md             # ⭐爆款增强
+│   ├── style_adapt.md         # ⭐平台适配
+│   ├── output_format.md
+├── templates/
+│   ├── article.md             # ⭐文章模板
+│   ├── cluster_table.md
+│   ├── content_plan.md
+├── memory/
+│   └── Memory.md</code></pre></div>
+<p>---</p>
+<p># 🧠 skill.md（V4核心）</p>
+<div class="codeblock"><pre><code>---
+name: TopicClusterGenerator
+description: 生成主题簇并自动输出可直接发布的高质量文章草稿（SEO+爆款+去AI味）
+version: 4.0.0
+author: Gervas System Lab
+tags:
+  - SEO
+  - 内容生成
+  - 爆款文章
+  - 自动写作
+  - 内容矩阵
+input_schema:
+  core_topic:
+    type: string
+  target:
+    type: string
+  depth:
+    type: integer
+  audience:
+    type: string
+  platform:
+    type: string
+    description: 发布平台（公众号 / 小红书 / 知乎 / 网站）
+  article_count:
+    type: integer
+    description: 生成文章数量
+output_schema:
+  clusters:
+    type: list
+  articles:
+    type: list
+    description: 可直接发布的文章
+---
+
+# 🧩 SKILL: Topic Cluster Generator V4
+
+## 🎯 核心能力（V4）
+
+在 V3 基础上升级：
+
+✅ 自动生成主题簇  
+✅ 自动生成选题  
+✅ **批量生成完整文章（可发布）**  
+✅ 去AI味（拟人化表达）  
+✅ 爆款结构优化  
+✅ 多平台适配  
+
+---
+
+## ⚙️ 工作流
+
+### 1️⃣ 意图解析
+`intent_parse.md`
+
+---
+
+### 2️⃣ 关键词扩展
+`seed_expand.md`
+
+---
+
+### 3️⃣ 主题簇构建
+`cluster_build.md`
+
+---
+
+### 4️⃣ SEO优化
+`seo_optimize.md`
+
+---
+
+### 5️⃣ ✍️ 文章生成（核心）
+`draft_generate.md`
+
+对每个子主题生成：
+
+- 标题（3个备选）
+- 开头（强钩子）
+- 正文结构
+- 结尾（引导互动）
+
+---
+
+### 6️⃣ 🧠 去AI味
+`deai.md`
+
+处理：
+
+- 去模板化
+- 加入口语化
+- 增加人类情绪
+
+---
+
+### 7️⃣ 🔥 爆款增强
+`explode.md`
+
+优化：
+
+- 标题点击率
+- 情绪张力
+- 反常识点
+
+---
+
+### 8️⃣ 📱 平台适配
+`style_adapt.md`
+
+适配：
+
+- 公众号：深度+逻辑
+- 小红书：短句+种草
+- 知乎：专业+结构
+- 网站：SEO优先
+
+---
+
+### 9️⃣ 输出
+`output_format.md`
+
+---
+
+## 🧠 Memory机制
+
+记录：
+
+- 已生成文章
+- 已用标题
+- 避免重复内容</code></pre></div>
+<p>---</p>
+<p># ⚙️ config.yaml（V4）</p>
+<div class="codeblock"><pre><code>version: 4.0
+
+generation:
+  article_length: 1200-2000
+  paragraph_style: mixed
+  tone: natural
+
+content:
+  hook_strength: high
+  storytelling: true
+  emotion_level: medium
+
+seo:
+  keyword_density: 1-2%
+  include_h2_h3: true
+
+explode:
+  enable: true
+  curiosity_gap: true
+  emotional_trigger: true
+
+deai:
+  enable: true
+  remove_patterns: true
+  humanize: true
+
+platform:
+  wechat:
+    style: 深度+故事
+  xiaohongshu:
+    style: 短句+情绪
+  zhihu:
+    style: 专业+结构</code></pre></div>
+<p>---</p>
+<p># ✍️ prompt/draft_generate.md（核心引擎）</p>
+<div class="codeblock"><pre><code># 任务：生成完整文章草稿
+
+输入：
+- 子主题
+- 关键词
+- 目标人群
+- 平台
+
+输出一篇完整文章：
+
+## 1. 标题（3个）
+要求：
+- 有吸引力
+- 包含关键词
+- 有点击欲
+
+---
+
+## 2. 开头（Hook）
+- 提问 / 反常识 / 场景
+- 3秒抓人
+
+---
+
+## 3. 正文
+
+结构：
+
+### H2 小标题
+内容要：
+- 有信息密度
+- 有案例
+- 有逻辑
+
+---
+
+## 4. 结尾
+
+- 总结
+- 引导互动
+- CTA（评论 / 收藏）
+
+---
+
+要求：
+- 不要模板化
+- 像真人写的</code></pre></div>
+<p>---</p>
+<p># 🧠 prompt/deai.md（去AI味）</p>
+<div class="codeblock"><pre><code># 去AI味处理
+
+处理以下问题：
+
+- 删除“首先/其次/最后”
+- 避免教科书语气
+- 增加口语表达
+- 插入自然停顿
+- 加入轻微情绪
+
+目标：
+让读者感觉是“人写的”</code></pre></div>
+<p>---</p>
+<p># 🔥 prompt/explode.md（爆款增强）</p>
+<div class="codeblock"><pre><code># 爆款优化
+
+增强：
+
+1. 标题：
+- 加入冲突
+- 制造悬念
+
+2. 内容：
+- 加入反常识点
+- 增加情绪波动
+
+3. 结构：
+- 前3段必须抓人</code></pre></div>
+<p>---</p>
+<p># 📱 prompt/style_adapt.md</p>
+<div class="codeblock"><pre><code># 平台适配
+
+根据 platform 调整：
+
+公众号：
+- 深度内容
+- 段落适中
+
+小红书：
+- 短句
+- 强情绪
+- 多断句
+
+知乎：
+- 逻辑清晰
+- 专业表达
+
+网站：
+- SEO优先
+- 关键词自然分布</code></pre></div>
+<p>---</p>
+<p># 📝 templates/article.md</p>
+<div class="codeblock"><pre><code># {{title}}
+
+{{hook}}
+
+---
+
+## {{section1}}
+
+内容
+
+## {{section2}}
+
+内容
+
+---
+
+## 总结
+
+{{summary}}
+
+👉 欢迎评论交流</code></pre></div>
+<p>---</p>
+<p># 📤 prompt/output_format.md</p>
+<div class="codeblock"><pre><code># 输出结构
+
+## 一、主题簇
+
+## 二、文章列表
+
+每篇文章包含：
+
+- 标题（3个）
+- 正文
+- 关键词
+- 适用平台
+
+---
+
+## 三、发布建议
+
+- 发布时间
+- 频率</code></pre></div>
+<p>---</p>
+<p># 🧠 memory/Memory.md</p>
+<div class="codeblock"><pre><code># Memory
+
+## 已生成文章
+-
+
+## 标题池
+-
+
+## 内容覆盖
+-
+
+## 未覆盖机会点
+-</code></pre></div>
+<p>---</p>
+<p># 🚀 这套 V4 实际效果</p>
+<p>你输入：</p>
+<div class="codeblock"><pre><code>core_topic: 枸杞菊花决明子饮
+target: SEO+带货
+depth: 3
+audience: 养生人群
+platform: 公众号
+article_count: 5</code></pre></div>
+<p>👉 输出：</p>
+<ul class="md-ul"><li>1套完整主题矩阵</li><li>5篇<strong>可直接发布文章</strong></li><li>每篇：</li></ul>
+<p>  - 爆款标题   - 完整正文   - 已去AI味   - 已SEO优化</p>
+<p>---</p>
+<p># 🔥 可以再往上升级（下一步）</p>
+<p>如果你要继续进化，我可以帮你做：</p>
+<h4 class="sub-h">V5（商业级）</h4>
+<ul class="md-ul"><li>接入真实搜索数据（百度/抖音）</li><li>自动判断“能不能爆”</li></ul>
+<h4 class="sub-h">V6（自动赚钱）</h4>
+<ul class="md-ul"><li>自动插入带货结构</li><li>自动生成商品话术</li><li>转化率优化</li></ul>
+<h4 class="sub-h">V7（内容工厂）</h4>
+<ul class="md-ul"><li>日更100篇</li><li>自动排期发布</li><li>多账号矩阵</li></ul>
+<p>---</p>
+<p>你要不要我直接帮你把这个：</p>
+<p>👉 <strong>接入你之前的 SupplierHunter（原料调研）做成“选品+内容一体化系统”</strong>  </p>
+<p>那就不只是写文章了，是直接变成“赚钱系统”。</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>主题簇生成技能设计 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：主题簇生成技能设计（2026-04-27）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1", "s2"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

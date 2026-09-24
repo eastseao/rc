@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Agent 功能与应用 · 2026</title>
+<meta name="description" content="现在的 AI Agent（智能代理）已经不只是“聊天机器人”了，它更像一个： 会思考、会执行、会调用工具、会长期记忆、还能自动工作的小型数字员工。如果你已经在接触 OpenClaw / QClaw / 技能（Skill）体系，其实已经进入">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · AI
+  <h1 class="s-h1">Agent 功能与应用</h1>
+  <p class="s-lede">现在的 AI Agent（智能代理）已经不只是“聊天机器人”了，它更像一个： 会思考、会执行、会调用工具、会长期记忆、还能自动工作的小型数字员工。如果你已经在接触 OpenClaw / QClaw / 技能（Skill）体系，其实已经进入</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>2</b></span>
+    <span>时间范围 <b>2026-05-28 ~ 2026-05-28</b></span>
+    <span>分类 <b>AI与Agent</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">AI</span>
+    <span class="s-chip">2026</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>可以利用agent做哪些事情</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>可以利用agent做哪些事情</p></div>
+      <div class="qa-a"><p>现在的 AI Agent（智能代理）已经不只是“聊天机器人”了，它更像一个：</p>
+<blockquote class="md-quote">会思考、会执行、会调用工具、会长期记忆、还能自动工作的小型数字员工。</blockquote>
+<p>如果你已经在接触 OpenClaw / QClaw / 技能（Skill）体系，其实已经进入 Agent 化工作流了。</p>
+<p>Agent 能做的事情，可以按下面几个层级理解：</p>
+<p>---</p>
+<p># 一、最基础：替代“单次提问”</p>
+<p>普通 AI：</p>
+<ul class="md-ul"><li>你问一句</li><li>它答一句</li><li>没有持续目标</li></ul>
+<p>Agent：</p>
+<ul class="md-ul"><li>能理解目标</li><li>自动拆任务</li><li>连续执行</li><li>自我检查</li><li>调用工具</li><li>长期记忆</li></ul>
+<p>比如：</p>
+<p>普通AI：</p>
+<blockquote class="md-quote">“帮我写一篇文章”</blockquote>
+<p>Agent：</p>
+<blockquote class="md-quote">自动找热点 → 分析爆款 → 出标题 → 写正文 → 去AI味 → 排版 → 配图 → 发布</blockquote>
+<p>这已经是“小型内容员工”。</p>
+<p>---</p>
+<p># 二、Agent 最适合的 10 大方向</p>
+<p>---</p>
+<p># 1. 内容生产 Agent（目前最成熟）</p>
+<p>这是现在最容易落地、最赚钱的一类。</p>
+<h3 class="sub-h">可以做：</h3>
+<h4 class="sub-h">公众号矩阵</h4>
+<ul class="md-ul"><li>热点抓取</li><li>10w+分析</li><li>自动改写</li><li>标题优化</li><li>去AI味</li><li>配图</li><li>SEO/GEO优化</li></ul>
+<p>你之前做的：</p>
+<ul class="md-ul"><li>爆款公众号技能</li><li>主题簇技能</li><li>DeAI 技能</li></ul>
+<p>本质上都属于：</p>
+<blockquote class="md-quote">Content Agent System（内容生产系统）</blockquote>
+<p>---</p>
+<h3 class="sub-h">小说 Agent</h3>
+<p>你已经接近专业级了。</p>
+<p>可以实现：</p>
+<h4 class="sub-h">长篇网文流水线</h4>
+<ul class="md-ul"><li>世界观</li><li>人设</li><li>章节细纲</li><li>长期记忆</li><li>自动伏笔回收</li><li>风格控制</li><li>批量生成</li></ul>
+<p>进一步甚至可以：</p>
+<h4 class="sub-h">工作室模式</h4>
+<ul class="md-ul"><li>一个Agent管设定</li><li>一个Agent写剧情</li><li>一个Agent专门写暧昧</li><li>一个Agent专门写打斗</li><li>一个Agent负责去AI味</li></ul>
+<p>这就是：</p>
+<blockquote class="md-quote">Multi-Agent Novel Studio</blockquote>
+<p>---</p>
+<p># 2. SEO / GEO 推广 Agent</p>
+<p>这是未来 2 年非常大的方向。</p>
+<p>你之前提到的：</p>
+<ul class="md-ul"><li>铝瓶铝罐企业 GEO 推广</li><li>企业 SEO</li></ul>
+<p>其实特别适合 Agent 化。</p>
+<p>---</p>
+<h3 class="sub-h">Agent 能自动做：</h3>
+<h4 class="sub-h">SEO</h4>
+<ul class="md-ul"><li>找关键词</li><li>分析竞争对手</li><li>生成主题簇</li><li>自动写文章</li><li>自动内链</li><li>自动外链</li><li>Schema优化</li></ul>
+<p>---</p>
+<h4 class="sub-h">GEO（AI搜索优化）</h4>
+<p>未来 Perplexity / ChatGPT / Gemini 都会引用内容。</p>
+<p>Agent 可以：</p>
+<ul class="md-ul"><li>自动生成 AI 易引用内容</li><li>自动建立知识库</li><li>自动构建问答</li><li>自动做品牌提及</li><li>自动生成行业百科</li></ul>
+<p>这比传统 SEO 更强。</p>
+<p>---</p>
+<p># 3. 采购 Agent（非常适合你）</p>
+<p>你本身是食品行业采购。</p>
+<p>这个方向其实极强。</p>
+<p>---</p>
+<h3 class="sub-h">可以做：</h3>
+<h4 class="sub-h">原料调研</h4>
+<ul class="md-ul"><li>全网找供应商</li><li>1688分析</li><li>工厂筛选</li><li>价格带分析</li><li>行业报告</li><li>原料百科</li><li>竞品分析</li></ul>
+<p>---</p>
+<h3 class="sub-h">高阶玩法</h3>
+<h4 class="sub-h">供应商猎人 Agent</h4>
+<p>自动：</p>
+<ul class="md-ul"><li>找厂家</li><li>验证资质</li><li>分析规模</li><li>判断真假工厂</li><li>生成比价表</li><li>输出采购建议</li></ul>
+<p>甚至：</p>
+<h4 class="sub-h">全球采购 Agent</h4>
+<ul class="md-ul"><li>Alibaba</li><li>Made-in-China</li><li>环球资源</li><li>海关数据</li><li>LinkedIn</li><li>企业官网</li></ul>
+<p>统一分析。</p>
+<p>这类 Agent 在 B2B 行业非常值钱。</p>
+<p>---</p>
+<p># 4. 知识库 Agent</p>
+<p>这是本地 AI 的核心方向之一。</p>
+<p>---</p>
+<h3 class="sub-h">可以做：</h3>
+<h4 class="sub-h">私人知识库</h4>
+<ul class="md-ul"><li>自动整理文件</li><li>自动标签</li><li>自动总结</li><li>自动建立关联</li></ul>
+<p>---</p>
+<h3 class="sub-h">比如：</h3>
+<p>你丢进去：</p>
+<ul class="md-ul"><li>PDF</li><li>Word</li><li>Markdown</li><li>小说</li><li>行业报告</li></ul>
+<p>Agent 自动：</p>
+<ul class="md-ul"><li>分类</li><li>建立索引</li><li>生成知识图谱</li><li>提供问答</li></ul>
+<p>---</p>
+<h3 class="sub-h">企业玩法</h3>
+<h4 class="sub-h">企业 SOP Agent</h4>
+<p>员工直接问：</p>
+<blockquote class="md-quote">“客户投诉流程是什么？”</blockquote>
+<p>Agent：</p>
+<ul class="md-ul"><li>从知识库查</li><li>自动总结</li><li>给流程</li></ul>
+<p>这已经接近数字员工。</p>
+<p>---</p>
+<p># 5. 自动办公 Agent</p>
+<p>非常实用。</p>
+<p>---</p>
+<h3 class="sub-h">可以自动：</h3>
+<h4 class="sub-h">Excel</h4>
+<ul class="md-ul"><li>数据整理</li><li>清洗</li><li>对账</li><li>分析</li></ul>
+<h4 class="sub-h">Word</h4>
+<ul class="md-ul"><li>自动写报告</li><li>自动会议纪要</li></ul>
+<h4 class="sub-h">邮件</h4>
+<ul class="md-ul"><li>自动回复</li><li>自动分类</li></ul>
+<h4 class="sub-h">PPT</h4>
+<ul class="md-ul"><li>自动生成方案</li></ul>
+<p>---</p>
+<h3 class="sub-h">高阶玩法</h3>
+<p>Agent 自动：</p>
+<ul class="md-ul"><li>收邮件</li><li>判断优先级</li><li>写回复</li><li>创建待办</li><li>通知团队</li></ul>
+<p>已经接近 AI 秘书。</p>
+<p>---</p>
+<p># 6. 电商 Agent</p>
+<p>很容易商业化。</p>
+<p>---</p>
+<h3 class="sub-h">能做：</h3>
+<h4 class="sub-h">商品研究</h4>
+<ul class="md-ul"><li>淘宝</li><li>拼多多</li><li>亚马逊</li><li>小红书</li></ul>
+<p>自动分析：</p>
+<ul class="md-ul"><li>爆款</li><li>评论痛点</li><li>用户需求</li></ul>
+<p>---</p>
+<h3 class="sub-h">自动化：</h3>
+<ul class="md-ul"><li>生成标题</li><li>商品详情页</li><li>SEO词</li><li>广告文案</li><li>短视频脚本</li></ul>
+<p>---</p>
+<p># 7. 自媒体矩阵 Agent</p>
+<p>这个很猛。</p>
+<p>---</p>
+<h3 class="sub-h">Agent 自动：</h3>
+<h4 class="sub-h">抖音</h4>
+<ul class="md-ul"><li>热点分析</li><li>脚本</li><li>标题</li><li>评论区运营</li></ul>
+<h4 class="sub-h">小红书</h4>
+<ul class="md-ul"><li>爆文分析</li><li>种草文</li><li>配图提示词</li></ul>
+<h4 class="sub-h">B站</h4>
+<ul class="md-ul"><li>视频大纲</li><li>分镜</li><li>封面</li></ul>
+<p>---</p>
+<h3 class="sub-h">未来方向：</h3>
+<h4 class="sub-h">AI矩阵工作室</h4>
+<p>一个人控制：</p>
+<ul class="md-ul"><li>50公众号</li><li>100小红书号</li><li>20网站</li></ul>
+<p>已经有人在做。</p>
+<p>---</p>
+<p># 8. AI 绘图 / 视频 Agent</p>
+<p>你最近其实已经在做了。</p>
+<p>---</p>
+<h3 class="sub-h">能自动：</h3>
+<h4 class="sub-h">绘图</h4>
+<ul class="md-ul"><li>提示词优化</li><li>风格统一</li><li>多图一致性</li></ul>
+<h4 class="sub-h">视频</h4>
+<ul class="md-ul"><li>分镜</li><li>镜头语言</li><li>配音</li><li>字幕</li><li>封面</li></ul>
+<p>---</p>
+<h3 class="sub-h">高阶：</h3>
+<h4 class="sub-h">AI短剧工厂</h4>
+<p>自动：</p>
+<ul class="md-ul"><li>写剧本</li><li>生成镜头</li><li>生视频</li><li>配音</li><li>剪辑</li></ul>
+<p>---</p>
+<p># 9. 游戏 / RPG Agent</p>
+<p>特别适合长期对话。</p>
+<p>---</p>
+<h3 class="sub-h">比如：</h3>
+<h4 class="sub-h">AI 地牢</h4>
+<ul class="md-ul"><li>长期记忆</li><li>NPC关系</li><li>世界演化</li></ul>
+<p>---</p>
+<h3 class="sub-h">更高级：</h3>
+<h4 class="sub-h">AI恋爱陪伴</h4>
+<h4 class="sub-h">AI虚拟角色</h4>
+<h4 class="sub-h">AI桌游主持人</h4>
+<p>Agent 非常适合。</p>
+<p>---</p>
+<p># 10. 本地电脑控制 Agent（未来核心）</p>
+<p>这个非常关键。</p>
+<p>---</p>
+<h3 class="sub-h">Agent 可以：</h3>
+<h4 class="sub-h">操作电脑</h4>
+<ul class="md-ul"><li>打开软件</li><li>自动点击</li><li>自动填写</li><li>自动搜索</li><li>自动整理文件</li></ul>
+<p>---</p>
+<h3 class="sub-h">最终形态：</h3>
+<h4 class="sub-h">AI 操作系统</h4>
+<p>你说：</p>
+<blockquote class="md-quote">“帮我整理今天采购数据并发邮件”</blockquote>
+<p>Agent 自动：</p>
+<ul class="md-ul"><li>打开Excel</li><li>分析数据</li><li>生成报告</li><li>发邮件</li></ul>
+<p>这已经接近 Jarvis。</p>
+<p>---</p>
+<p># 三、Agent 最强大的地方：不是“回答”，而是“工作流”</p>
+<p>真正强大的不是：</p>
+<blockquote class="md-quote">“它会聊天”</blockquote>
+<p>而是：</p>
+<blockquote class="md-quote">“它能持续执行完整流程”</blockquote>
+<p>这就是：</p>
+<ul class="md-ul"><li>Workflow</li><li>Multi-Agent</li><li>Autonomous Agent</li></ul>
+<p>---</p>
+<p># 四、目前最值得做的 Agent 方向（2026）</p>
+<p>如果结合现在 AI 行业趋势：</p>
+<h3 class="sub-h">最值得投入：</h3>
+<h4 class="sub-h">1. 企业 GEO Agent</h4>
+<p>AI搜索时代刚开始。</p>
+<p>---</p>
+<h4 class="sub-h">2. 本地知识库 Agent</h4>
+<p>长期需求。</p>
+<p>---</p>
+<h4 class="sub-h">3. 内容矩阵 Agent</h4>
+<p>变现最快。</p>
+<p>---</p>
+<h4 class="sub-h">4. 行业垂直 Agent</h4>
+<p>尤其：</p>
+<ul class="md-ul"><li>法律</li><li>医疗</li><li>采购</li><li>外贸</li><li>教育</li></ul>
+<p>---</p>
+<h4 class="sub-h">5. AI办公 Agent</h4>
+<p>未来会大量进入企业。</p>
+<p>---</p>
+<p># 五、你现在其实已经适合做的路线</p>
+<p>结合你目前：</p>
+<ul class="md-ul"><li>会折腾 OpenClaw/QClaw</li><li>在做 Skill</li><li>有采购行业经验</li><li>对 SEO/GEO 有兴趣</li><li>在研究小说生产系统</li></ul>
+<p>你其实最适合的是：</p>
+<p>---</p>
+<h3 class="sub-h">路线1：行业垂直 Agent</h3>
+<p>比如：</p>
+<h4 class="sub-h">食品采购智能系统</h4>
+<p>这是很有壁垒的。</p>
+<p>---</p>
+<h3 class="sub-h">路线2：内容生产 Agent 工作室</h3>
+<p>你已经具备基础。</p>
+<p>---</p>
+<h3 class="sub-h">路线3：企业 GEO Agent</h3>
+<p>未来增长空间最大。</p>
+<p>---</p>
+<p># 六、真正高级的玩法：Agent 公司化</p>
+<p>未来很多“小公司”可能是：</p>
+<ul class="md-ul"><li>1个人</li><li>20个Agent</li><li>自动化工作流</li></ul>
+<p>比如：</p>
+<div class="tblwrap"><table><thead><tr><th>Agent</th><th>职责</th></tr></thead><tbody><tr><td>CEO Agent</td><td>拆解目标</td></tr><tr><td>SEO Agent</td><td>获取流量</td></tr><tr><td>Writer Agent</td><td>写文章</td></tr><tr><td>Design Agent</td><td>出图</td></tr><tr><td>Research Agent</td><td>找资料</td></tr><tr><td>Sales Agent</td><td>跟进客户</td></tr></tbody></table></div>
+<p>这就是：</p>
+<blockquote class="md-quote">AI Native Company（AI原生公司）</blockquote>
+<p>未来会越来越多。</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>Agent 功能与应用 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：Agent 功能与应用（2026-05-28）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

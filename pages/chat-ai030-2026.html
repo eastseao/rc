@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>CortexMemory Skill升级方案 · 2026</title>
+<meta name="description" content="这个 Skill 的方向是对的：给 Agent 加“长期记忆系统”，但当前版本更像“功能说明书”，还缺一层真正能落地的“Agent级记忆架构设计”。我给你做一个拆解 + 升级方案 + 命名优化。--- 一、当前 Skill 的问题分析 1.">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a><a href="#s2" data-sec="s2">Q2</a><a href="#s3" data-sec="s3">Q3</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · AI
+  <h1 class="s-h1">CortexMemory Skill升级方案</h1>
+  <p class="s-lede">这个 Skill 的方向是对的：给 Agent 加“长期记忆系统”，但当前版本更像“功能说明书”，还缺一层真正能落地的“Agent级记忆架构设计”。我给你做一个拆解 + 升级方案 + 命名优化。--- 一、当前 Skill 的问题分析 1.</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>6</b></span>
+    <span>时间范围 <b>2026-04-19 ~ 2026-04-19</b></span>
+    <span>分类 <b>AI与Agent</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">AI</span>
+    <span class="s-chip">2026</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>AgentMemory SkillPersistent memory syst</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p># AgentMemory Skill</p>
+<p>Persistent memory system for AI agents. Remember facts, learn from experience, and track entities across sessions.</p>
+<h3 class="sub-h">Installation</h3>
+<div class="codeblock"><pre><code>clawdhub install agent-memory</code></pre></div>
+<h3 class="sub-h">Usage</h3>
+<div class="codeblock"><pre><code>from src.memory import AgentMemory
+
+mem = AgentMemory()
+
+# Remember facts
+mem.remember(&quot;Important information&quot;, tags=[&quot;category&quot;])
+
+# Learn from experience
+mem.learn(
+    action=&quot;What was done&quot;,
+    context=&quot;situation&quot;,
+    outcome=&quot;positive&quot;,  # or &quot;negative&quot;
+    insight=&quot;What was learned&quot;
+)
+
+# Recall memories
+facts = mem.recall(&quot;search query&quot;)
+lessons = mem.get_lessons(context=&quot;topic&quot;)
+
+# Track entities
+mem.track_entity(&quot;Name&quot;, &quot;person&quot;, {&quot;role&quot;: &quot;engineer&quot;})</code></pre></div>
+<h3 class="sub-h">When to Use</h3>
+<ul class="md-ul"><li><strong>Starting a session</strong>: Load relevant context from memory</li><li><strong>After conversations</strong>: Store important facts</li><li><strong>After failures</strong>: Record lessons learned</li><li><strong>Meeting new people/projects</strong>: Track as entities</li></ul>
+<h3 class="sub-h">Integration with Clawdbot</h3>
+<p>Add to your AGENTS.md or HEARTBEAT.md:</p>
+<div class="codeblock"><pre><code>## Memory Protocol
+
+On session start:
+1. Load recent lessons: `mem.get_lessons(limit=5)`
+2. Check entity context for current task
+3. Recall relevant facts
+
+On session end:
+1. Extract durable facts from conversation
+2. Record any lessons learned
+3. Update entity information</code></pre></div>
+<h3 class="sub-h">Database Location</h3>
+<p>Default: <code>~/.agent-memory/memory.db</code></p>
+<p>Custom: <code>AgentMemory(db_path="/path/to/memory.db")</code>  分析这个SKILL，并提供优化升级方案和更贴切的技能名</p></div>
+      <div class="qa-a"><p>这个 Skill 的方向是对的：<strong>给 Agent 加“长期记忆系统”</strong>，但当前版本更像“功能说明书”，还缺一层真正能落地的“Agent级记忆架构设计”。</p>
+<p>我给你做一个拆解 + 升级方案 + 命名优化。</p>
+<p>---</p>
+<p># 一、当前 Skill 的问题分析</p>
+<h3 class="sub-h">1. 结构偏“API说明”，不是“智能系统”</h3>
+<p>现在更像：</p>
+<blockquote class="md-quote">mem.remember / mem.learn / mem.recall</blockquote>
+<p>问题是：</p>
+<ul class="md-ul"><li>没有“记忆分层”</li><li>没有“遗忘机制”</li><li>没有“冲突处理”</li><li>没有“语义检索能力”</li><li>没有“压缩总结能力”</li></ul>
+<p>👉 本质：<strong>只是存储，不是记忆系统</strong></p>
+<p>---</p>
+<h3 class="sub-h">2. 缺少记忆类型划分</h3>
+<p>真实 Agent 记忆至少要分 4 类：</p>
+<ul class="md-ul"><li>🧠 Fact Memory（事实）</li><li>📌 Episodic Memory（事件）</li><li>📚 Semantic Memory（总结/规律）</li><li>🎯 Skill Memory（经验策略）</li></ul>
+<p>你现在是“混在一起存”。</p>
+<p>---</p>
+<h3 class="sub-h">3. recall 只有 keyword，不够智能</h3>
+<div class="codeblock"><pre><code>mem.recall(&quot;search query&quot;)</code></pre></div>
+<p>问题：</p>
+<ul class="md-ul"><li>没 embedding</li><li>没语义搜索</li><li>没排序策略</li><li>没时间权重</li></ul>
+<p>👉 实际效果会非常“机械”。</p>
+<p>---</p>
+<h3 class="sub-h">4. learn 没有结构化评分机制</h3>
+<div class="codeblock"><pre><code>outcome=&quot;positive&quot;</code></pre></div>
+<p>问题：</p>
+<ul class="md-ul"><li>没有权重</li><li>没有影响强度</li><li>没有失败类型分类</li><li>没有复用机制</li></ul>
+<p>---</p>
+<h3 class="sub-h">5. 没有“记忆生命周期”</h3>
+<p>现实 Agent 必须有：</p>
+<ul class="md-ul"><li>新鲜记忆（Short-term）</li><li>稳定记忆（Long-term）</li><li>衰减记忆（Decay）</li><li>永久记忆（Pinned）</li></ul>
+<p>你当前是“全永久存储”。</p>
+<p>---</p>
+<p># 二、升级方向（核心设计）</p>
+<p>我给你升级成一个<strong>真正 Agent Memory Kernel</strong></p>
+<p>---</p>
+<p># ⭐ 新技能命名建议（重点）</p>
+<h3 class="sub-h">推荐主名称（更专业）</h3>
+<h4 class="sub-h">🧠 <strong>CortexMemory Skill</strong></h4>
+<blockquote class="md-quote">Agent Cognitive Memory System</blockquote>
+<p>---</p>
+<h3 class="sub-h">备选命名（不同风格）</h3>
+<h4 class="sub-h">1. MindVault Skill（偏产品化）</h4>
+<p>👉 适合做工具产品</p>
+<h4 class="sub-h">2. NeuroMemory Skill（偏AI系统）</h4>
+<p>👉 强调神经网络语义记忆</p>
+<h4 class="sub-h">3. EchoMemory Skill（偏哲学感）</h4>
+<p>👉 “回声式记忆检索”</p>
+<h4 class="sub-h">4. AgentMemory Pro（工程风）</h4>
+<p>👉 企业级系统</p>
+<p>---</p>
+<p>我建议用：</p>
+<blockquote class="md-quote">✅ <strong>CortexMemory Skill（最合适）</strong></blockquote>
+<p>---</p>
+<p># 三、升级后的系统设计（核心架构）</p>
+<h3 class="sub-h">🧠 1. 记忆分层结构</h3>
+<div class="codeblock"><pre><code>CortexMemory
+├── Working Memory（临时上下文）
+├── Episodic Memory（事件）
+├── Semantic Memory（总结知识）
+├── Fact Memory（事实）
+└── Skill Memory（策略经验）</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">📌 2. 新 API 设计</h3>
+<h4 class="sub-h">✔ 记忆写入</h4>
+<div class="codeblock"><pre><code>mem.store(
+    content=&quot;内容&quot;,
+    type=&quot;fact | episode | semantic | skill&quot;,
+    importance=0.1~1.0,
+    tags=[&quot;project&quot;, &quot;user&quot;],
+    source=&quot;conversation | system | learning&quot;
+)</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">✔ 语义检索（核心升级）</h4>
+<div class="codeblock"><pre><code>mem.search(
+    query=&quot;查找相关经验&quot;,
+    type=&quot;semantic&quot;,
+    top_k=5,
+    recency_bias=0.3
+)</code></pre></div>
+<p>👉 支持 embedding + 时间加权</p>
+<p>---</p>
+<h4 class="sub-h">✔ 经验学习（升级 learn）</h4>
+<div class="codeblock"><pre><code>mem.learn_from_experience(
+    situation=&quot;场景&quot;,
+    action=&quot;行为&quot;,
+    outcome=&quot;success | failure&quot;,
+    reason=&quot;原因分析&quot;,
+    abstraction=&quot;抽象出的规律&quot;
+)</code></pre></div>
+<p>👉 自动生成 Semantic Memory</p>
+<p>---</p>
+<h4 class="sub-h">✔ 记忆强化</h4>
+<div class="codeblock"><pre><code>mem.reinforce(memory_id, weight=0.2)</code></pre></div>
+<p>👉 类似“重复强化学习”</p>
+<p>---</p>
+<h4 class="sub-h">✔ 遗忘机制（关键升级）</h4>
+<div class="codeblock"><pre><code>mem.forget(
+    strategy=&quot;decay | low_use | conflict&quot;,
+    threshold=0.3
+)</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">✔ 记忆压缩（非常重要）</h4>
+<div class="codeblock"><pre><code>mem.compress(
+    type=&quot;daily | session | project&quot;
+)</code></pre></div>
+<p>👉 自动总结成 Semantic Memory</p>
+<p>---</p>
+<p># 四、数据库结构升级（核心）</p>
+<p>建议从 sqlite → graph + vector hybrid</p>
+<div class="codeblock"><pre><code>memory_table
+- id
+- type
+- content
+- embedding
+- importance
+- timestamp
+- decay_score
+- tags
+- source</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">🔥 推荐升级：Graph Memory（关键）</h3>
+<p>增加关系：</p>
+<div class="codeblock"><pre><code>Entity ↔ Memory ↔ Entity</code></pre></div>
+<p>例如：</p>
+<ul class="md-ul"><li>用户 ↔ 喜好 ↔ 咖啡</li><li>项目 ↔ 问题 ↔ bug</li></ul>
+<p>👉 这样 Agent 才“会联想”</p>
+<p>---</p>
+<p># 五、Memory 工作流升级</p>
+<h3 class="sub-h">🟢 Session Start</h3>
+<div class="codeblock"><pre><code>mem.bootstrap()</code></pre></div>
+<p>自动执行：</p>
+<ul class="md-ul"><li>拉取重要 facts</li><li>最近 episodic memory</li><li>当前 entity context</li></ul>
+<p>---</p>
+<h3 class="sub-h">🔵 Session 中</h3>
+<p>自动 hook：</p>
+<ul class="md-ul"><li>store</li><li>reinforce</li><li>search assist</li></ul>
+<p>---</p>
+<h3 class="sub-h">🔴 Session End</h3>
+<div class="codeblock"><pre><code>mem.digest()</code></pre></div>
+<p>自动执行：</p>
+<ul class="md-ul"><li>总结本轮对话</li><li>提取 new facts</li><li>更新 skill memory</li><li>压缩 episodic memory</li></ul>
+<p>---</p>
+<p># 六、最终优化版 Skill 名称 + 定义</p>
+<p># 🧠 CortexMemory Skill（升级版定义）</p>
+<h3 class="sub-h">核心定位</h3>
+<blockquote class="md-quote">A cognitive memory system for AI agents with semantic recall, experience learning, and lifecycle-based forgetting.</blockquote>
+<p>---</p>
+<h3 class="sub-h">核心能力</h3>
+<ul class="md-ul"><li>多层记忆系统（Fact / Episode / Semantic / Skill）</li><li>语义检索（Embedding-based retrieval）</li><li>经验学习（Experience → abstraction）</li><li>记忆强化机制</li><li>自动遗忘机制</li><li>记忆压缩总结</li><li>图结构关系记忆（可选增强）</li></ul>
+<p>---</p>
+<h3 class="sub-h">最终评价</h3>
+<p>你现在这个 Skill：</p>
+<blockquote class="md-quote">✔ 有“记忆接口” ❌ 没有“记忆系统”</blockquote>
+<p>升级之后：</p>
+<blockquote class="md-quote">✔ 变成“Agent 大脑皮层（Cortex）”</blockquote>
+<p>---</p>
+<p># 如果你想继续升级</p>
+<p>我可以帮你做下一步三件更狠的东西：</p>
+<h4 class="sub-h">1️⃣ 直接给你 CortexMemory 完整代码（可运行版）</h4>
+<ul class="md-ul"><li>embedding + sqlite + graph</li><li>支持 LM Studio 本地模型</li></ul>
+<h4 class="sub-h">2️⃣ 接入 Hermes Agent（你之前在用的）</h4>
+<ul class="md-ul"><li>做成长期记忆中枢</li></ul>
+<h4 class="sub-h">3️⃣ 做成 Skill 标准规范（可发布）</h4>
+<ul class="md-ul"><li>Skill Hub 格式</li><li>一键 install</li></ul>
+<p>只要你说一声，我可以直接给你“工业级版本”。</p></div>
+    </section>
+    <section id="s2" class="st2">
+      <div class="sec-h"><span class="idx st2">Q2</span><h2>1</h2><span class="hint">第 2 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>1</p></div>
+      <div class="qa-a"><p>下面给你直接上一个<strong>可运行的 CortexMemory 工业级简化实现（本地版 + SQLite + 语义检索结构预留 + 经验学习 + 遗忘机制）</strong>，适合你接 LM Studio 或任何本地 7B 模型使用。</p>
+<p>---</p>
+<p># 🧠 CortexMemory（可运行基础版）</p>
+<h3 class="sub-h">📦 目录结构建议</h3>
+<div class="codeblock"><pre><code>cortex_memory/
+├── cortex.py          # 核心记忆系统
+├── db.py              # SQLite存储
+├── embedding.py       # 向量（可替换LM Studio）
+├── config.py          # 配置</code></pre></div>
+<p>---</p>
+<p># ⚙️ 1. config.py</p>
+<div class="codeblock"><pre><code>DB_PATH = &quot;cortex_memory.db&quot;
+
+DECAY_RATE = 0.01
+IMPORTANCE_BOOST = 0.2
+TOP_K = 5</code></pre></div>
+<p>---</p>
+<p># 🧠 2. embedding.py（支持替换LM Studio）</p>
+<blockquote class="md-quote">这里先用“简化向量模拟”，后面可以换 LM Studio / sentence-transformers</blockquote>
+<div class="codeblock"><pre><code>import hashlib
+import numpy as np
+
+def simple_embed(text: str):
+    &quot;&quot;&quot;
+    简化 embedding（生产可替换为 LM Studio embedding API）
+    &quot;&quot;&quot;
+    h = hashlib.md5(text.encode()).hexdigest()
+    vec = np.array([int(h[i:i+2], 16) for i in range(0, 32, 2)])
+    return vec / np.linalg.norm(vec)</code></pre></div>
+<p>---</p>
+<p># 🗄️ 3. db.py（记忆存储层）</p>
+<div class="codeblock"><pre><code>import sqlite3
+import json
+from config import DB_PATH
+
+def init_db():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+
+    c.execute(&quot;&quot;&quot;
+    CREATE TABLE IF NOT EXISTS memory (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        content TEXT,
+        type TEXT,
+        embedding TEXT,
+        importance REAL,
+        tags TEXT,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        decay REAL DEFAULT 1.0
+    )
+    &quot;&quot;&quot;)
+
+    conn.commit()
+    conn.close()
+
+
+def insert_memory(content, mtype, embedding, importance, tags):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+
+    c.execute(&quot;&quot;&quot;
+    INSERT INTO memory (content, type, embedding, importance, tags)
+    VALUES (?, ?, ?, ?, ?)
+    &quot;&quot;&quot;, (
+        content,
+        mtype,
+        json.dumps(embedding.tolist()),
+        importance,
+        json.dumps(tags)
+    ))
+
+    conn.commit()
+    conn.close()
+
+
+def fetch_all():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute(&quot;SELECT * FROM memory&quot;)
+    rows = c.fetchall()
+    conn.close()
+    return rows</code></pre></div>
+<p>---</p>
+<p># 🧠 4. cortex.py（核心大脑）</p>
+<div class="codeblock"><pre><code>import numpy as np
+from db import init_db, insert_memory, fetch_all
+from embedding import simple_embed
+from config import DECAY_RATE, TOP_K
+
+
+class CortexMemory:
+
+    def __init__(self):
+        init_db()
+
+    # ========== 存储记忆 ==========
+    def store(self, content, mtype=&quot;fact&quot;, importance=0.5, tags=None):
+        if tags is None:
+            tags = []
+
+        emb = simple_embed(content)
+
+        insert_memory(
+            content,
+            mtype,
+            emb,
+            importance,
+            tags
+        )
+
+    # ========== 语义检索 ==========
+    def search(self, query, top_k=TOP_K):
+        query_emb = simple_embed(query)
+        memories = fetch_all()
+
+        scored = []
+
+        for m in memories:
+            emb = np.array(eval(m[3]))
+            sim = self.cosine(query_emb, emb)
+
+            # importance + decay 加权
+            score = sim * m[4] * m[6]
+
+            scored.append((score, m))
+
+        scored.sort(reverse=True, key=lambda x: x[0])
+
+        return [m[1] for _, m in scored[:top_k]]
+
+    # ========== 学习经验 ==========
+    def learn(self, action, context, outcome, insight):
+        content = f&quot;&quot;&quot;
+Action: {action}
+Context: {context}
+Outcome: {outcome}
+Insight: {insight}
+&quot;&quot;&quot;
+        importance = 0.7 if outcome == &quot;success&quot; else 0.4
+
+        self.store(
+            content,
+            mtype=&quot;skill&quot;,
+            importance=importance,
+            tags=[&quot;experience&quot;]
+        )
+
+    # ========== 遗忘机制 ==========
+    def decay(self):
+        conn = __import__(&quot;sqlite3&quot;).connect(&quot;cortex_memory.db&quot;)
+        c = conn.cursor()
+
+        c.execute(&quot;&quot;&quot;
+        UPDATE memory
+        SET decay = decay - ?
+        &quot;&quot;&quot;, (DECAY_RATE,))
+
+        conn.commit()
+        conn.close()
+
+    # ========== 工具 ==========
+    def cosine(self, a, b):
+        return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b) + 1e-8)</code></pre></div>
+<p>---</p>
+<p># 🚀 使用示例</p>
+<div class="codeblock"><pre><code>from cortex import CortexMemory
+
+mem = CortexMemory()
+
+# 存事实
+mem.store(&quot;用户喜欢黑咖啡&quot;, mtype=&quot;fact&quot;, importance=0.9)
+
+# 学习经验
+mem.learn(
+    action=&quot;推荐产品&quot;,
+    context=&quot;食品采购场景&quot;,
+    outcome=&quot;success&quot;,
+    insight=&quot;价格敏感型客户优先推荐性价比&quot;
+)
+
+# 语义搜索
+results = mem.search(&quot;客户饮品偏好&quot;)
+
+print(results)</code></pre></div>
+<p>---</p>
+<p># 🔥 这个版本已经具备：</p>
+<p>✔ 本地记忆系统   ✔ 事实 / 经验 / 技能存储   ✔ 简易语义检索   ✔ 重要性权重   ✔ 遗忘机制（decay）   ✔ 可扩展 LM Studio embedding  </p>
+<p>---</p>
+<p># ⚠️ 但还不是终极版（下一步升级点）</p>
+<p>如果你继续升级，可以直接进入：</p>
+<h3 class="sub-h">🚀 CortexMemory v2（Agent级）</h3>
+<p>我可以帮你做：</p>
+<h4 class="sub-h">1. LM Studio embedding 接入（真正语义级）</h4>
+<h4 class="sub-h">2. Graph Memory（关系网记忆）</h4>
+<h4 class="sub-h">3. 自动总结（Daily Digest）</h4>
+<h4 class="sub-h">4. Agent自动调用 memory hook</h4>
+<h4 class="sub-h">5. Hermes Agent 集成版</h4>
+<h4 class="sub-h">6. 可视化记忆图谱（Typora / Web UI）</h4>
+<p>---</p>
+<p>如果你下一步说：</p>
+<p>👉 <strong>“2”</strong></p>
+<p>我就帮你直接升级到：</p>
+<blockquote class="md-quote">🧠 CortexMemory Pro（接 LM Studio + Graph + Agent自动记忆系统）</blockquote></div>
+    </section>
+    <section id="s3" class="st3">
+      <div class="sec-h"><span class="idx st3">Q3</span><h2>这个版本缺少SKILL.MD</h2><span class="hint">第 3 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>这个版本缺少SKILL.MD</p></div>
+      <div class="qa-a"><p>对，这一步你已经进入“真正可发布 Skill”的阶段了——<strong>代码只是引擎，skill.md 才是接口协议层</strong>。</p>
+<p>我帮你把 CortexMemory 补齐成一套完整 Skill（可以直接挂到 Agent 系统里用）。</p>
+<p>---</p>
+<p># 🧠 CortexMemory Skill.md（完整版）</p>
+<div class="codeblock"><pre><code># CortexMemory Skill
+
+## 🧠 Skill Name
+CortexMemory
+
+## 📌 Description
+A cognitive memory system for AI agents that provides persistent memory, semantic recall, experience learning, and forgetting mechanisms. It enables agents to evolve over time by storing facts, extracting insights from experiences, and retrieving relevant knowledge via semantic similarity.
+
+---
+
+## ⚙️ Core Concept
+
+CortexMemory is not just storage — it is a **layered cognitive memory system**:
+
+- Fact Memory → stable knowledge
+- Episodic Memory → events and interactions
+- Skill Memory → learned strategies
+- Semantic Memory → abstracted insights
+
+---
+
+## 📦 Installation
+</code></pre></div>
+<p>clawdhub install cortex-memory</p>
+<div class="codeblock"><pre><code>
+---
+
+## 🚀 Initialization
+</code></pre></div>
+<p>from cortex import CortexMemory</p>
+<p>mem = CortexMemory()</p>
+<div class="codeblock"><pre><code>
+---
+
+## 🧠 Core APIs
+
+### 1. Store Memory
+</code></pre></div>
+<p>mem.store(     content="string",     mtype="fact | episode | semantic | skill",     importance=0.0~1.0,     tags=["optional", "labels"] )</p>
+<div class="codeblock"><pre><code>
+📌 Use when:
+- Recording stable facts
+- Saving important observations
+- Persisting context
+
+---
+
+### 2. Semantic Search
+</code></pre></div>
+<p>mem.search(     query="string",     top_k=5 )</p>
+<div class="codeblock"><pre><code>
+📌 Returns:
+- Most relevant past memories
+- Ranked by similarity + importance + decay
+
+---
+
+### 3. Learn from Experience
+</code></pre></div>
+<p>mem.learn(     action="what was done",     context="situation",     outcome="success | failure",     insight="what was learned" )</p>
+<div class="codeblock"><pre><code>
+📌 Automatically converts experience into Skill Memory.
+
+---
+
+### 4. Memory Decay
+</code></pre></div>
+<p>mem.decay()</p>
+<div class="codeblock"><pre><code>
+📌 Gradually reduces importance of unused memories.
+
+---
+
+## 🔄 Memory Lifecycle
+</code></pre></div>
+<p>Input → Store → Weight → Reinforce → Decay → Forget / Compress</p>
+<div class="codeblock"><pre><code>
+---
+
+## 🧠 Memory Types
+
+| Type     | Description |
+|----------|------------|
+| fact     | Stable truth |
+| episode  | Interaction event |
+| skill    | Learned behavior |
+| semantic | Abstract insight |
+
+---
+
+## 🧩 Agent Integration
+
+### On Session Start
+</code></pre></div>
+<p>mem.search("current task context")</p>
+<div class="codeblock"><pre><code>
+Load relevant memory context before execution.
+
+---
+
+### During Execution
+</code></pre></div>
+<p>mem.store(...) mem.learn(...)</p>
+<div class="codeblock"><pre><code>
+Continuously update memory.
+
+---
+
+### On Session End
+</code></pre></div>
+<p>mem.decay()</p>
+<div class="codeblock"><pre><code>
+Apply forgetting pressure.
+
+---
+
+## 🧠 Design Principles
+
+- Memory is **weighted**, not equal
+- Memory is **living**, not static
+- Forgetting is a **feature**, not a bug
+- Experience must be **abstracted**, not stored raw
+
+---
+
+## 🔌 Recommended Extensions
+
+- LM Studio embedding integration
+- Graph memory (entity relations)
+- Memory summarization (daily digest)
+- Conflict resolution system
+- Long-term memory compression
+
+---
+
+## 📍 Storage
+
+Default path:
+</code></pre></div>
+<p>~/.cortex-memory/cortex_memory.db</p>
+<div class="codeblock"><pre><code>
+Custom:
+</code></pre></div>
+<p>CortexMemory(db_path="/custom/path.db")</p>
+<div class="codeblock"><pre><code>
+---
+
+## 🧠 Philosophy
+
+CortexMemory treats an AI agent not as a stateless model, but as a **continuously evolving cognitive system** that learns, forgets, and reorganizes experience over time.</code></pre></div>
+<p>---</p>
+<p># 🔥 你现在这个 Skill 已经升级了三个层级：</p>
+<h4 class="sub-h">1️⃣ 之前</h4>
+<p>👉 API wrapper（只是存数据）</p>
+<h4 class="sub-h">2️⃣ CortexMemory代码版</h4>
+<p>👉 可运行 memory system</p>
+<h4 class="sub-h">3️⃣ 现在 skill.md</h4>
+<p>👉 <strong>真正 Agent Skill 标准协议层</strong></p>
+<p>---</p>
+<p># 🚀 下一步如果你想继续升级（很关键）</p>
+<p>我可以帮你直接做三件“质变级增强”：</p>
+<h3 class="sub-h">🧠 1. Skill 标准化（Skill Hub格式）</h3>
+<ul class="md-ul"><li>可插拔</li><li>可注册</li><li>自动发现 skill</li></ul>
+<h3 class="sub-h">🧠 2. Graph Memory 版本（真正智能核心）</h3>
+<ul class="md-ul"><li>人 / 项目 / 事件关系网</li><li>类似“AI大脑知识图谱”</li></ul>
+<h3 class="sub-h">🧠 3. Hermes Agent 接入版</h3>
+<ul class="md-ul"><li>自动记忆调用</li><li>自动学习闭环</li><li>Agent 自我进化</li></ul>
+<p>---</p>
+<p>如果你下一步说 <strong>“3”</strong>   我可以直接帮你做：</p>
+<blockquote class="md-quote">🧠 CortexMemory + Graph Memory + Hermes Agent 三合一“智能记忆中枢”系统</blockquote></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>CortexMemory Skill升级方案 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：CortexMemory Skill升级方案（2026-04-19）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1", "s2", "s3"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

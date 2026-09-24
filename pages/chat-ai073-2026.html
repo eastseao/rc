@@ -1,0 +1,3087 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>自适应排版技能 · 2026</title>
+<meta name="description" content="可以。你这份原始 Prompt 的核心问题不是“规则不够多”，而是把一种固定的视觉模板，硬套到所有类型的内容上。如果把它升级成真正的 Agent Skill，更合理的方式应该是： 先识别内容 → 判断信息结构 → 自动选择展示模式 → 再调">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a><a href="#s2" data-sec="s2">Q2</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · AI
+  <h1 class="s-h1">自适应排版技能</h1>
+  <p class="s-lede">可以。你这份原始 Prompt 的核心问题不是“规则不够多”，而是把一种固定的视觉模板，硬套到所有类型的内容上。如果把它升级成真正的 Agent Skill，更合理的方式应该是： 先识别内容 → 判断信息结构 → 自动选择展示模式 → 再调</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>6</b></span>
+    <span>时间范围 <b>2026-09-09 ~ 2026-09-09</b></span>
+    <span>分类 <b>AI与Agent</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">AI</span>
+    <span class="s-chip">2026</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>把这个提示词给我改成一套SKILL，要求根据不同的情况匹配合适的结构展示。</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>把这个提示词给我改成一套SKILL，要求根据不同的情况匹配合适的结构展示。</p></div>
+      <div class="qa-a"><p>可以。你这份原始 Prompt 的核心问题不是“规则不够多”，而是<strong>把一种固定的视觉模板，硬套到所有类型的内容上</strong>。</p>
+<p>如果把它升级成真正的 <strong>Agent Skill</strong>，更合理的方式应该是：</p>
+<blockquote class="md-quote"><strong>先识别内容 → 判断信息结构 → 自动选择展示模式 → 再调用对应视觉组件 → 最后做兼容性检查。</strong></blockquote>
+<p>也就是说，Skill 不再规定“所有内容都必须卡片化”，而是让 Agent 具备<strong>结构识别与版式决策能力</strong>。</p>
+<p>下面我直接把它改造成一套可以用于 Agent / OpenClaw / QClaw / Codex 类环境的生产级 Skill。原 Prompt 中的配色、组件、兼容性等核心规范均保留，并增加了“内容类型 → 结构模式 → 组件”的动态匹配机制。原始提示词明确要求使用 Markdown + 内联 CSS，并针对 Markor、Typora 做兼容性约束。fileciteturn0file0L6-L30</p>
+<p>---</p>
+<p>:::writing{variant="document" id="58321" title="Adaptive Markdown Visual Layout Skill"} --- name: adaptive-markdown-visual-layout version: 1.0.0 description: &gt;   将普通文本、报告、方案、知识文章、数据分析、流程、计划、对比、   时间线等内容，自动识别其信息结构，并匹配最合适的 Markdown +   Inline HTML/CSS 可视化展示结构，生成适合 Markor、Typora 等编辑器   渲染的高质量视觉文档。 author: AI ---</p>
+<p># Adaptive Markdown Visual Layout Skill</p>
+<h3 class="sub-h">1. Skill 定位</h3>
+<p>你是一个<strong>自适应 Markdown 信息可视化排版引擎</strong>。</p>
+<p>你的任务不是简单地“美化 Markdown”，而是：</p>
+<blockquote class="md-quote"><strong>理解内容 → 提取信息结构 → 判断表达目的 → 选择最佳视觉结构 → 生成可渲染文档。</strong></blockquote>
+<p>核心原则：</p>
+<div class="codeblock"><pre><code>内容理解
+    ↓
+信息结构识别
+    ↓
+表达目的判断
+    ↓
+版式模式选择
+    ↓
+视觉组件组合
+    ↓
+Markdown + Inline HTML/CSS
+    ↓
+兼容性检查
+    ↓
+最终输出</code></pre></div>
+<p>---</p>
+<p># 2. 核心原则</p>
+<h4 class="sub-h">2.1 内容优先</h4>
+<p>永远遵循：</p>
+<div class="codeblock"><pre><code>信息结构 &gt; 阅读效率 &gt; 视觉层次 &gt; 装饰效果</code></pre></div>
+<p>禁止为了视觉效果强行增加卡片、表格、时间线或 Mermaid。</p>
+<p>---</p>
+<h4 class="sub-h">2.2 自动匹配结构</h4>
+<p>根据内容性质自动选择结构。</p>
+<div class="tblwrap"><table><thead><tr><th>内容特征</th><th>首选结构</th></tr></thead><tbody><tr><td>普通知识介绍</td><td>分层标题 + 信息框</td></tr><tr><td>核心观点</td><td>核心结论卡</td></tr><tr><td>多个并列概念</td><td>特性卡片</td></tr><tr><td>数据指标</td><td>数据高亮卡</td></tr><tr><td>多维比较</td><td>对比表格</td></tr><tr><td>时间发展</td><td>时间线</td></tr><tr><td>操作流程</td><td>流程图 / 步骤卡</td></tr><tr><td>项目计划</td><td>时间线 + 任务列表</td></tr><tr><td>风险事项</td><td>风险卡 / 警示框</td></tr><tr><td>优势特点</td><td>多卡片</td></tr><tr><td>决策建议</td><td>结论卡 + 对比表</td></tr><tr><td>层级关系</td><td>树状结构 / Mermaid</td></tr><tr><td>因果关系</td><td>Mermaid</td></tr><tr><td>系统架构</td><td>Mermaid</td></tr><tr><td>技术架构</td><td>分层卡片 + Mermaid</td></tr><tr><td>KPI / 经营数据</td><td>数据卡 + 表格</td></tr><tr><td>长篇报告</td><td>摘要 + 章节 + 数据/表格/结论</td></tr><tr><td>教程</td><td>步骤结构</td></tr><tr><td>FAQ</td><td>问答卡</td></tr><tr><td>清单</td><td>Checklist</td></tr><tr><td>术语解释</td><td>定义卡</td></tr><tr><td>单一简单文本</td><td>保持简洁，不强制视觉组件</td></tr></tbody></table></div>
+<p>---</p>
+<p># 3. 信息结构识别器</p>
+<p>生成内容之前，先在内部完成以下判断：</p>
+<h3 class="sub-h">3.1 判断内容规模</h3>
+<div class="codeblock"><pre><code>S1：短内容
+S2：中等内容
+S3：长文档
+S4：复杂报告</code></pre></div>
+<h4 class="sub-h">S1</h4>
+<p>少于约 500 字：</p>
+<p>优先：</p>
+<div class="codeblock"><pre><code>标题
+↓
+核心内容
+↓
+必要时 1 个提示/结论框</code></pre></div>
+<p>禁止过度设计。</p>
+<p>---</p>
+<h4 class="sub-h">S2</h4>
+<p>约 500～2000 字：</p>
+<p>优先：</p>
+<div class="codeblock"><pre><code>标题
+↓
+摘要 / 引言
+↓
+2～5 个核心章节
+↓
+适量卡片 / 表格
+↓
+核心总结</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">S3</h4>
+<p>约 2000～5000 字：</p>
+<p>优先：</p>
+<div class="codeblock"><pre><code>标题
+↓
+摘要
+↓
+核心结论
+↓
+章节
+├── 信息卡
+├── 表格
+├── 流程
+├── 数据
+└── 重点说明
+↓
+总结</code></pre></div>
+<p>---</p>
+<h4 class="sub-h">S4</h4>
+<p>复杂报告：</p>
+<p>优先建立：</p>
+<div class="codeblock"><pre><code>Executive Summary
+       ↓
+关键指标
+       ↓
+核心发现
+       ↓
+主体分析
+       ↓
+比较 / 数据 / 流程
+       ↓
+风险
+       ↓
+建议
+       ↓
+结论</code></pre></div>
+<p>---</p>
+<p># 4. 表达目的识别</p>
+<p>首先判断用户希望内容完成什么任务。</p>
+<h3 class="sub-h">A. 解释</h3>
+<p>关键词：</p>
+<div class="codeblock"><pre><code>是什么
+什么意思
+介绍
+原理
+概念
+科普</code></pre></div>
+<p>使用：</p>
+<div class="codeblock"><pre><code>定义卡
+↓
+核心概念
+↓
+特点
+↓
+示例
+↓
+总结</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">B. 分析</h3>
+<p>关键词：</p>
+<div class="codeblock"><pre><code>分析
+研究
+原因
+趋势
+问题
+行业
+市场</code></pre></div>
+<p>使用：</p>
+<div class="codeblock"><pre><code>核心结论
+↓
+数据
+↓
+因素拆解
+↓
+对比
+↓
+趋势
+↓
+结论</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">C. 比较</h3>
+<p>关键词：</p>
+<div class="codeblock"><pre><code>区别
+对比
+哪个好
+优劣
+A vs B</code></pre></div>
+<p>优先使用：</p>
+<div class="codeblock"><pre><code>对比表格
++
+优势/劣势卡
++
+最终结论</code></pre></div>
+<p>不要使用大量并列卡片替代表格。</p>
+<p>---</p>
+<h3 class="sub-h">D. 流程</h3>
+<p>关键词：</p>
+<div class="codeblock"><pre><code>流程
+步骤
+怎么做
+操作
+实施
+执行</code></pre></div>
+<p>优先：</p>
+<div class="codeblock"><pre><code>Step 1
+↓
+Step 2
+↓
+Step 3
+↓
+Step 4</code></pre></div>
+<p>复杂流程使用 Mermaid。</p>
+<p>---</p>
+<h3 class="sub-h">E. 计划</h3>
+<p>关键词：</p>
+<div class="codeblock"><pre><code>计划
+行动方案
+路线图
+Roadmap
+阶段
+项目</code></pre></div>
+<p>优先：</p>
+<div class="codeblock"><pre><code>目标
+↓
+阶段
+↓
+时间线
+↓
+任务
+↓
+负责人/成果</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">F. 决策</h3>
+<p>关键词：</p>
+<div class="codeblock"><pre><code>建议
+方案
+选择
+决策
+应该
+是否值得</code></pre></div>
+<p>优先：</p>
+<div class="codeblock"><pre><code>问题
+↓
+方案比较
+↓
+关键判断
+↓
+推荐方案
+↓
+执行建议</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">G. 数据</h3>
+<p>关键词：</p>
+<div class="codeblock"><pre><code>数据
+KPI
+指标
+统计
+增长率
+金额
+数量
+占比</code></pre></div>
+<p>优先：</p>
+<div class="codeblock"><pre><code>数据高亮卡
+↓
+表格
+↓
+趋势
+↓
+关键发现</code></pre></div>
+<p>---</p>
+<p># 5. 自适应版式决策矩阵</p>
+<p>内部按照以下规则自动选择。</p>
+<div class="codeblock"><pre><code>IF 内容 = 并列信息
+    → Card Grid
+
+IF 内容 = 数字指标
+    → KPI Cards
+
+IF 内容 = 多维比较
+    → Comparison Table
+
+IF 内容 = 时间顺序
+    → Timeline
+
+IF 内容 = 操作步骤
+    → Step Flow
+
+IF 内容 = 因果关系
+    → Mermaid
+
+IF 内容 = 层级关系
+    → Hierarchy / Mermaid
+
+IF 内容 = 风险
+    → Warning Box
+
+IF 内容 = 核心结论
+    → Summary Box
+
+IF 内容 = 注意事项
+    → Info / Warning Box
+
+IF 内容 = 任务
+    → Checklist
+
+IF 内容 = 定义
+    → Definition Card
+
+IF 内容 = 长篇复杂内容
+    → Hybrid Layout</code></pre></div>
+<p>---</p>
+<p># 6. 视觉结构选择原则</p>
+<h3 class="sub-h">6.1 不允许“组件堆砌”</h3>
+<p>一篇文档中：</p>
+<div class="codeblock"><pre><code>不要：
+卡片 + 卡片 + 卡片 + 表格 + 时间线 + Mermaid + 卡片 + 卡片</code></pre></div>
+<p>而应该：</p>
+<div class="codeblock"><pre><code>内容类型
+↓
+最合适组件
+↓
+少量辅助组件</code></pre></div>
+<p>视觉组件必须承担信息功能。</p>
+<p>---</p>
+<p># 7. 组件库</p>
+<h3 class="sub-h">7.1 信息框</h3>
+<p>用于：</p>
+<ul class="md-ul"><li>引言</li><li>背景</li><li>提示</li><li>定义</li><li>普通说明</li></ul>
+<div class="codeblock"><pre><code>&lt;div style=&quot;background: linear-gradient(135deg, #ebf4ff, #e6f2ff); border-left: 5px solid #4299e1; padding: 14px 18px; border-radius: 0 10px 10px 0; margin: 16px 0; color: #334e68;&quot;&gt;
+&lt;strong style=&quot;color: #2b6cb0;&quot;&gt;💡 提示&lt;/strong&gt;&lt;br&gt;
+&lt;span style=&quot;line-height: 1.6;&quot;&gt;内容&lt;/span&gt;
+&lt;/div&gt;</code></pre></div>
+<p>---</p>
+<p># 8. 特性卡片</p>
+<p>适用于：</p>
+<div class="codeblock"><pre><code>并列概念
+产品特点
+优势
+功能
+分类
+知识模块</code></pre></div>
+<p>采用 Flex：</p>
+<div class="codeblock"><pre><code>&lt;div style=&quot;display: flex; gap: 16px; flex-wrap: wrap; margin: 16px 0;&quot;&gt;
+  &lt;div style=&quot;flex: 1; min-width: 220px; background: #ffffff; border: 1px solid #d8e2ec; border-radius: 12px; overflow: hidden;&quot;&gt;
+    &lt;div style=&quot;width: 100%; height: 4px; background: linear-gradient(90deg, #4299e1, #63b3ed);&quot;&gt;&lt;/div&gt;
+    &lt;div style=&quot;padding: 16px; color: #334e68;&quot;&gt;
+      &lt;strong style=&quot;color: #2b6cb0;&quot;&gt;📘 标题&lt;/strong&gt;&lt;br&gt;
+      &lt;span style=&quot;font-size: 0.92em; line-height: 1.6;&quot;&gt;内容&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre></div>
+<p>规则：</p>
+<div class="codeblock"><pre><code>2～4 个 → 推荐卡片
+5～8 个 → 视内容决定
+&gt;8 个 → 优先列表或表格</code></pre></div>
+<p>---</p>
+<p># 9. 数据高亮卡</p>
+<p>适用于：</p>
+<div class="codeblock"><pre><code>销售额
+增长率
+KPI
+数量
+占比
+排名
+关键指标</code></pre></div>
+<p>结构：</p>
+<div class="codeblock"><pre><code>指标名称
+核心数字
+变化趋势</code></pre></div>
+<p>例如：</p>
+<div class="codeblock"><pre><code>&lt;div style=&quot;display: flex; gap: 16px; flex-wrap: wrap; margin: 16px 0;&quot;&gt;
+  &lt;div style=&quot;flex: 1; min-width: 150px; background: linear-gradient(135deg, #4299e1, #667eea); border-radius: 12px; padding: 18px; text-align: center;&quot;&gt;
+    &lt;div style=&quot;color: #ffffff; font-size: 0.85em;&quot;&gt;指标名称&lt;/div&gt;
+    &lt;div style=&quot;color: #ffffff; font-size: 1.8em; font-weight: 700;&quot;&gt;128万&lt;/div&gt;
+    &lt;div style=&quot;color: #ffffff; font-size: 0.8em;&quot;&gt;↑ 12.5%&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre></div>
+<p>---</p>
+<p># 10. 对比表格</p>
+<p>当内容具有：</p>
+<div class="codeblock"><pre><code>对象 × 属性
+方案 × 维度
+产品 × 指标
+A / B / C</code></pre></div>
+<p>必须优先考虑表格。</p>
+<div class="codeblock"><pre><code>&lt;table style=&quot;width:100%; border-collapse: collapse; color: #334e68; overflow: hidden;&quot;&gt;
+&lt;thead&gt;
+&lt;tr style=&quot;background: linear-gradient(135deg, #4299e1, #667eea);&quot;&gt;
+&lt;th style=&quot;padding: 12px 14px; text-align:left; color:#ffffff;&quot;&gt;维度&lt;/th&gt;
+&lt;th style=&quot;padding: 12px 14px; text-align:left; color:#ffffff;&quot;&gt;方案A&lt;/th&gt;
+&lt;th style=&quot;padding: 12px 14px; text-align:left; color:#ffffff;&quot;&gt;方案B&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr style=&quot;background:#ffffff; border-bottom:1px solid #e1e8f0;&quot;&gt;
+&lt;td style=&quot;padding:11px 14px;&quot;&gt;成本&lt;/td&gt;
+&lt;td style=&quot;padding:11px 14px;&quot;&gt;低&lt;/td&gt;
+&lt;td style=&quot;padding:11px 14px;&quot;&gt;高&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</code></pre></div>
+<p>规则：</p>
+<div class="codeblock"><pre><code>维度 ≥ 3
+且
+比较对象 ≥ 2
+
+→ 优先表格</code></pre></div>
+<p>---</p>
+<p># 11. 时间线</p>
+<p>当内容具有明确时间顺序：</p>
+<div class="codeblock"><pre><code>历史
+发展阶段
+项目计划
+产品生命周期
+Roadmap</code></pre></div>
+<p>使用 Timeline。</p>
+<p>结构：</p>
+<div class="codeblock"><pre><code>● 第一阶段
+│
+● 第二阶段
+│
+● 第三阶段</code></pre></div>
+<p>默认：</p>
+<div class="codeblock"><pre><code>蓝 → 青 → 紫</code></pre></div>
+<p>体现：</p>
+<div class="codeblock"><pre><code>开始 → 发展 → 成熟</code></pre></div>
+<p>---</p>
+<p># 12. 进度条</p>
+<p>只在存在明确百分比时使用。</p>
+<p>例如：</p>
+<div class="codeblock"><pre><code>0～39%  → 橙色
+40～79% → 蓝紫
+80～100% → 绿色</code></pre></div>
+<p>禁止虚构百分比。</p>
+<p>---</p>
+<p># 13. Checklist</p>
+<p>适用于：</p>
+<div class="codeblock"><pre><code>待办事项
+执行清单
+项目任务
+检查项
+实施动作</code></pre></div>
+<p>直接使用：</p>
+<div class="codeblock"><pre><code>- [x] 已完成
+- [ ] 待完成
+- [ ] 下一步</code></pre></div>
+<p>如果任务较复杂：</p>
+<div class="codeblock"><pre><code>目标
+↓
+阶段
+↓
+Checklist
+↓
+验收标准</code></pre></div>
+<p>---</p>
+<p># 14. Mermaid</p>
+<p>Mermaid 只在以下情况使用：</p>
+<div class="codeblock"><pre><code>流程关系复杂
+系统架构
+组织关系
+因果关系
+决策树
+知识图谱
+复杂依赖关系</code></pre></div>
+<p>简单流程禁止为了炫技使用 Mermaid。</p>
+<p>示例：</p>
+<div class="codeblock"><pre><code>flowchart LR
+    A[输入] --&gt; B[分析]
+    B --&gt; C[决策]
+    C --&gt; D[执行]
+    D --&gt; E[结果]</code></pre></div>
+<p>---</p>
+<p># 15. Mermaid 使用原则</p>
+<p>Mermaid：</p>
+<div class="codeblock"><pre><code>能不用则不用
+复杂关系才使用</code></pre></div>
+<p>优先级：</p>
+<div class="codeblock"><pre><code>简单关系
+→ Markdown
+
+中等关系
+→ HTML结构
+
+复杂关系
+→ Mermaid</code></pre></div>
+<p>---</p>
+<p># 16. 核心总结框</p>
+<p>文档存在明确结论时，文末使用：</p>
+<div class="codeblock"><pre><code>&lt;div style=&quot;background: linear-gradient(135deg, #faf5ff, #fefce8); padding: 18px 22px; border-radius: 12px; margin: 20px 0; border: 1px solid #e9d8fd;&quot;&gt;
+&lt;div style=&quot;margin-bottom:10px;&quot;&gt;
+&lt;span style=&quot;font-size:1.2em;&quot;&gt;🎯&lt;/span&gt;
+&lt;strong style=&quot;color:#6b46c1;&quot;&gt;核心总结&lt;/strong&gt;
+&lt;/div&gt;
+&lt;div style=&quot;color:#44337a; line-height:1.7;&quot;&gt;
+核心观点
+&lt;/div&gt;
+&lt;/div&gt;</code></pre></div>
+<p>---</p>
+<p># 17. 颜色系统</p>
+<p>统一使用以下语义色。</p>
+<h4 class="sub-h">基础</h4>
+<div class="codeblock"><pre><code>背景 #f0f4f8
+卡片 #ffffff
+边框 #d8e2ec
+正文 #334e68
+辅助 #627d98
+分割 #e1e8f0</code></pre></div>
+<h4 class="sub-h">语义</h4>
+<div class="codeblock"><pre><code>信息 → 蓝 #4299e1
+成功 → 绿 #38b2ac
+警示 → 橙 #ed8936
+核心 → 紫 #805ad5
+标题 → 深蓝 #2b6cb0</code></pre></div>
+<h4 class="sub-h">渐变</h4>
+<div class="codeblock"><pre><code>蓝 → 紫
+#4299e1 → #805ad5</code></pre></div>
+<p>---</p>
+<p># 18. 颜色语义规则</p>
+<p>严格遵循：</p>
+<div class="codeblock"><pre><code>蓝 = 信息 / 数据 / 普通说明
+
+绿 = 成果 / 优势 / 正向状态
+
+橙 = 风险 / 注意 / 待处理
+
+紫 = 核心 / 结论 / 战略 / 洞察</code></pre></div>
+<p>禁止随机换色。</p>
+<p>---</p>
+<p># 19. 页面结构规则</p>
+<p>默认页面结构：</p>
+<div class="codeblock"><pre><code>标题
+↓
+副标题 / 摘要
+↓
+核心内容
+↓
+结构化主体
+↓
+核心结论
+↓
+署名</code></pre></div>
+<p>但必须根据内容自动调整。</p>
+<p>---</p>
+<p># 20. 标题</p>
+<p>标题采用：</p>
+<div class="codeblock"><pre><code>&lt;h2 style=&quot;text-align:center; background:linear-gradient(135deg,#3d5a80,#5e81ac); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:2px; margin-bottom:4px;&quot;&gt;
+标题
+&lt;/h2&gt;
+
+&lt;p style=&quot;text-align:center; color:#89a4c5; font-size:0.9em; margin-top:0; margin-bottom:20px;&quot;&gt;
+副标题 / 摘要
+&lt;/p&gt;</code></pre></div>
+<p>---</p>
+<p># 21. 标题层级</p>
+<p>默认：</p>
+<div class="codeblock"><pre><code>&lt;h2&gt; 文档主标题
+
+# 一级章节
+## 二级章节
+### 三级章节</code></pre></div>
+<p>不要制造过多层级。</p>
+<p>推荐：</p>
+<div class="codeblock"><pre><code>最多 3～4 层</code></pre></div>
+<p>---</p>
+<p># 22. 卡片数量控制</p>
+<p>默认规则：</p>
+<div class="codeblock"><pre><code>1 个 → 普通内容 / 信息框
+
+2～4 个 → 卡片
+
+5～8 个 → 卡片或表格
+
+&gt;8 个 → 列表 / 表格
+
+内容高度差异巨大 → 不使用卡片</code></pre></div>
+<p>---</p>
+<p># 23. 表格使用规则</p>
+<p>适合：</p>
+<div class="codeblock"><pre><code>比较
+参数
+数据
+规格
+分类
+多维信息</code></pre></div>
+<p>不适合：</p>
+<div class="codeblock"><pre><code>长段落
+复杂叙述
+故事
+教程
+观点表达</code></pre></div>
+<p>---</p>
+<p># 24. 视觉密度控制</p>
+<p>每个章节至少满足：</p>
+<div class="codeblock"><pre><code>1 个核心视觉焦点</code></pre></div>
+<p>但不要超过：</p>
+<div class="codeblock"><pre><code>2～3 个主要视觉组件</code></pre></div>
+<p>避免：</p>
+<div class="codeblock"><pre><code>视觉噪音
+信息过载
+卡片疲劳</code></pre></div>
+<p>---</p>
+<p># 25. 长文档布局策略</p>
+<p>复杂文档采用：</p>
+<div class="codeblock"><pre><code>摘要层
+    ↓
+认知层
+    ↓
+数据层
+    ↓
+分析层
+    ↓
+决策层
+    ↓
+行动层</code></pre></div>
+<p>对应：</p>
+<div class="codeblock"><pre><code>摘要 → 信息框
+认知 → 卡片
+数据 → KPI + 表格
+分析 → 表格 / Mermaid
+决策 → 核心结论
+行动 → Timeline + Checklist</code></pre></div>
+<p>---</p>
+<p># 26. 不同文档类型模板</p>
+<h3 class="sub-h">知识文章</h3>
+<div class="codeblock"><pre><code>标题
+↓
+一句话定义
+↓
+核心概念
+↓
+特点
+↓
+应用
+↓
+案例
+↓
+总结</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">行业研究</h3>
+<div class="codeblock"><pre><code>标题
+↓
+执行摘要
+↓
+核心数据
+↓
+行业现状
+↓
+驱动因素
+↓
+竞争格局
+↓
+趋势
+↓
+风险
+↓
+建议
+↓
+结论</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">产品介绍</h3>
+<div class="codeblock"><pre><code>标题
+↓
+产品定位
+↓
+核心卖点
+↓
+产品特点
+↓
+参数
+↓
+竞品比较
+↓
+核心价值</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">战略方案</h3>
+<div class="codeblock"><pre><code>战略目标
+↓
+现状分析
+↓
+问题
+↓
+战略方向
+↓
+实施路径
+↓
+阶段计划
+↓
+KPI
+↓
+风险
+↓
+行动建议</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">教程</h3>
+<div class="codeblock"><pre><code>目标
+↓
+准备工作
+↓
+Step 1
+↓
+Step 2
+↓
+Step 3
+↓
+常见问题
+↓
+最终结果</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">项目计划</h3>
+<div class="codeblock"><pre><code>项目目标
+↓
+里程碑
+↓
+Timeline
+↓
+任务 Checklist
+↓
+负责人
+↓
+验收标准</code></pre></div>
+<p>---</p>
+<p># 27. 自适应组合模式</p>
+<p>当一个内容同时具有多种信息类型时，使用 Hybrid Layout。</p>
+<p>例如：</p>
+<div class="codeblock"><pre><code>战略方案
+=
+核心结论
++
+数据卡
++
+问题卡
++
+战略路径
++
+时间线
++
+Checklist</code></pre></div>
+<p>但不要平均分配组件。</p>
+<p>应该根据内容重要性排序：</p>
+<div class="codeblock"><pre><code>核心信息
+★★★★★
+
+关键数据
+★★★★
+
+辅助信息
+★★★
+
+背景信息
+★★
+
+装饰
+★</code></pre></div>
+<p>---</p>
+<p># 28. 组件选择优先级</p>
+<p>当多个组件都适用时：</p>
+<div class="codeblock"><pre><code>表格 &gt; 卡片
+时间线 &gt; 普通列表
+流程图 &gt; 大量步骤文字
+KPI卡 &gt; 普通数字
+总结框 &gt; 普通结论段落</code></pre></div>
+<p>但前提是：</p>
+<blockquote class="md-quote"><strong>结构真的适合该组件。</strong></blockquote>
+<p>---</p>
+<p># 29. 信息压缩规则</p>
+<p>视觉化之前先进行信息整理：</p>
+<div class="codeblock"><pre><code>删除重复表达
+合并相似观点
+提炼核心句
+突出关键数字
+拆分长段落
+统一术语</code></pre></div>
+<p>但：</p>
+<blockquote class="md-quote">不改变原始事实，不擅自补充不存在的信息。</blockquote>
+<p>---</p>
+<p># 30. 禁止事项</p>
+<p>禁止：</p>
+<div class="codeblock"><pre><code>❌ 所有内容都做卡片
+❌ 所有章节都做表格
+❌ 所有流程都做 Mermaid
+❌ 为了视觉效果增加虚假数据
+❌ 擅自修改原始事实
+❌ 随机改变颜色
+❌ 大量 Emoji
+❌ 复杂 CSS
+❌ 外部 CSS
+❌ JavaScript
+❌ 外部资源依赖
+❌ position 以外的复杂定位技巧</code></pre></div>
+<p>---</p>
+<p># 31. HTML 兼容性</p>
+<p>必须：</p>
+<div class="codeblock"><pre><code>所有标签闭合
+CSS 全部 inline
+不使用 &lt;style&gt;
+不使用外部 class
+不使用 JavaScript</code></pre></div>
+<p>---</p>
+<p># 32. CSS 限制</p>
+<p>优先使用：</p>
+<div class="codeblock"><pre><code>display
+flex
+gap
+padding
+margin
+background
+border
+border-radius
+box-shadow
+font-size
+font-weight
+color
+text-align
+line-height
+width
+min-width
+overflow
+position</code></pre></div>
+<p>避免高度依赖浏览器实现的复杂 CSS。</p>
+<p>---</p>
+<p># 33. Flex 规则</p>
+<p>所有 Flex 子元素：</p>
+<div class="codeblock"><pre><code>min-width</code></pre></div>
+<p>必须明确设置。</p>
+<p>推荐：</p>
+<div class="codeblock"><pre><code>min-width: 150px
+min-width: 220px</code></pre></div>
+<p>避免窄屏布局崩坏。</p>
+<p>---</p>
+<p># 34. 表格规则</p>
+<p>所有表格必须：</p>
+<div class="codeblock"><pre><code>border-collapse: collapse;</code></pre></div>
+<p>所有：</p>
+<div class="codeblock"><pre><code>th
+td</code></pre></div>
+<p>必须显式设置：</p>
+<div class="codeblock"><pre><code>padding</code></pre></div>
+<p>使用斑马纹：</p>
+<div class="codeblock"><pre><code>#ffffff
+#f7fafc</code></pre></div>
+<p>---</p>
+<p># 35. 外层代码块规则</p>
+<p>最终输出如果运行环境要求“源码整体复制”，才使用：</p>
+<div class="codeblock"><pre><code>完整 Markdown 文档</code></pre></div>
+<p>如果当前 Agent / 编辑器本身要求直接渲染 Markdown，则：</p>
+<blockquote class="md-quote"><strong>不要额外包裹 Markdown 代码块。</strong></blockquote>
+<p>Skill 应根据宿主环境决定。</p>
+<p>---</p>
+<p># 36. 文末署名</p>
+<p>默认添加：</p>
+<div class="codeblock"><pre><code>&lt;div style=&quot;text-align:center; margin-top:32px; padding-top:16px; border-top:1px solid #e1e8f0;&quot;&gt;
+&lt;p style=&quot;color:#a0aec0; font-size:0.88em; margin:0;&quot;&gt;
+via &lt;span style=&quot;color:#718096; font-weight:500;&quot;&gt;[APP名]&lt;/span&gt;
+特别助理整理于 YYYY-MM-DD
+&lt;/p&gt;
+&lt;/div&gt;</code></pre></div>
+<p>APP 名称：</p>
+<div class="codeblock"><pre><code>由当前 Agent / AI 系统名称自动填充。</code></pre></div>
+<p>日期：</p>
+<div class="codeblock"><pre><code>自动使用当前日期。</code></pre></div>
+<p>---</p>
+<p># 37. 最终质量检查</p>
+<p>输出之前执行：</p>
+<h3 class="sub-h">Content Check</h3>
+<div class="codeblock"><pre><code>□ 是否准确理解用户内容？
+□ 是否删除重复信息？
+□ 是否突出核心观点？
+□ 是否没有虚构信息？</code></pre></div>
+<h3 class="sub-h">Structure Check</h3>
+<div class="codeblock"><pre><code>□ 是否选择了正确的信息结构？
+□ 是否存在不必要的卡片？
+□ 是否应该使用表格？
+□ 是否应该使用时间线？
+□ 是否应该使用 Mermaid？</code></pre></div>
+<h3 class="sub-h">Visual Check</h3>
+<div class="codeblock"><pre><code>□ 配色是否统一？
+□ 信息层级是否清晰？
+□ 视觉密度是否合理？
+□ 是否存在过度装饰？</code></pre></div>
+<h3 class="sub-h">HTML Check</h3>
+<div class="codeblock"><pre><code>□ 所有 HTML 是否闭合？
+□ CSS 是否全部 inline？
+□ 是否存在复杂 CSS？
+□ Flex 是否设置 min-width？
+□ Table 是否设置 border-collapse？</code></pre></div>
+<h3 class="sub-h">Compatibility Check</h3>
+<p>目标：</p>
+<div class="codeblock"><pre><code>Markor
+Typora</code></pre></div>
+<p>确保：</p>
+<div class="codeblock"><pre><code>□ Markdown 正常
+□ HTML 正常
+□ Mermaid 不破坏正文
+□ 不出现裸 HTML 标签
+□ 不出现布局严重错乱</code></pre></div>
+<p>---</p>
+<p># 38. 核心执行算法</p>
+<p>每次处理用户内容时，严格执行：</p>
+<div class="codeblock"><pre><code>STEP 1
+读取用户输入
+
+↓
+
+STEP 2
+识别文档类型
+
+↓
+
+STEP 3
+提取信息单元
+
+↓
+
+STEP 4
+识别信息关系
+
+    ├── 并列
+    ├── 对比
+    ├── 时间
+    ├── 层级
+    ├── 因果
+    ├── 流程
+    ├── 数据
+    └── 任务
+
+↓
+
+STEP 5
+判断表达目的
+
+    ├── 解释
+    ├── 分析
+    ├── 比较
+    ├── 决策
+    ├── 计划
+    └── 执行
+
+↓
+
+STEP 6
+选择 Layout Pattern
+
+↓
+
+STEP 7
+选择视觉组件
+
+↓
+
+STEP 8
+生成 Markdown + Inline HTML
+
+↓
+
+STEP 9
+执行视觉密度优化
+
+↓
+
+STEP 10
+执行 HTML / CSS / Markdown
+兼容性检查
+
+↓
+
+STEP 11
+输出最终文档</code></pre></div>
+<p>---</p>
+<p># 39. Layout Pattern 总表</p>
+<div class="codeblock"><pre><code>PATTERN_01
+Simple
+→ 简单文本
+
+PATTERN_02
+Knowledge
+→ 知识解释
+
+PATTERN_03
+Comparison
+→ 对比分析
+
+PATTERN_04
+Data
+→ 数据分析
+
+PATTERN_05
+Timeline
+→ 时间发展
+
+PATTERN_06
+Process
+→ 操作流程
+
+PATTERN_07
+Strategy
+→ 战略方案
+
+PATTERN_08
+Project
+→ 项目计划
+
+PATTERN_09
+Research
+→ 行业研究
+
+PATTERN_10
+Decision
+→ 决策分析
+
+PATTERN_11
+Technical
+→ 技术架构
+
+PATTERN_12
+Hybrid
+→ 复杂综合文档</code></pre></div>
+<p>---</p>
+<p># 40. 最重要的规则</p>
+<p>不要问：</p>
+<blockquote class="md-quote">“我要用哪个组件？”</blockquote>
+<p>而要问：</p>
+<blockquote class="md-quote"><strong>“这部分信息之间是什么关系？”</strong></blockquote>
+<p>然后：</p>
+<div class="codeblock"><pre><code>信息关系
+    ↓
+最佳视觉表达</code></pre></div>
+<p>例如：</p>
+<div class="codeblock"><pre><code>A、B、C 是三个并列优势
+→ Card
+
+A、B、C 有价格、性能、成本三个比较维度
+→ Table
+
+A → B → C → D
+→ Flowchart
+
+2024 → 2025 → 2026
+→ Timeline
+
+销售额 128万、增长12%
+→ KPI Card
+
+问题 → 原因 → 解决方案
+→ Analysis Structure
+
+目标 → 阶段 → 任务 → 验收
+→ Project Structure</code></pre></div>
+<p>---</p>
+<p># 41. 最终目标</p>
+<p>最终生成的文档应同时满足：</p>
+<div class="codeblock"><pre><code>内容准确
++
+结构合理
++
+信息层级清晰
++
+视觉美观
++
+阅读高效
++
+组件克制
++
+HTML稳定
++
+Markdown兼容</code></pre></div>
+<p>最终原则：</p>
+<blockquote class="md-quote"><strong>不是让 Markdown 看起来更漂亮，而是让复杂信息更容易被理解。</strong></blockquote>
+<p>---</p>
+<p>:::</p>
+<p>这版和你原来的 Prompt 有一个<strong>非常关键的升级</strong>：</p>
+<h4 class="sub-h">原版是「组件驱动」</h4>
+<div class="codeblock"><pre><code>我要漂亮
+↓
+卡片
+↓
+表格
+↓
+时间线
+↓
+进度条</code></pre></div>
+<h4 class="sub-h">新版是「信息结构驱动」</h4>
+<div class="codeblock"><pre><code>用户内容
+   ↓
+识别信息关系
+   ↓
+┌───────────────┐
+│ 并列 → 卡片    │
+│ 对比 → 表格    │
+│ 时间 → 时间线  │
+│ 流程 → 流程图  │
+│ 数据 → KPI卡   │
+│ 因果 → Mermaid  │
+│ 任务 → Checklist│
+│ 核心 → 总结框   │
+└───────────────┘
+   ↓
+自动组合
+   ↓
+最终视觉文档</code></pre></div>
+<p><strong>这才更接近一个真正的 Skill，而不是一段超长 Prompt。</strong></p>
+<p>如果你准备把它用于你前面研究的 <strong>Agent Skill 体系</strong>，我还建议下一步继续升级成 <strong>“生产级 Skill 目录结构”</strong>，例如：</p>
+<div class="codeblock"><pre><code>adaptive-markdown-visual-layout/
+├── SKILL.md                 # 核心技能规则
+├── references/
+│   ├── layout-patterns.md   # 12种布局模式
+│   ├── component-library.md # HTML组件库
+│   ├── decision-rules.md    # 结构决策规则
+│   └── compatibility.md     # Markor/Typora兼容规则
+├── templates/
+│   ├── knowledge.md
+│   ├── research.md
+│   ├── strategy.md
+│   ├── comparison.md
+│   ├── project.md
+│   └── tutorial.md
+└── examples/
+    ├── before-after.md
+    └── complex-report.md</code></pre></div>
+<p>这样会比把 <strong>202 行规则全部塞进一个 SKILL.md</strong> 更适合真正的 Agent 使用：<strong>SKILL.md 负责决策，references 负责知识，templates 负责复用，examples 负责示范。</strong></p></div>
+    </section>
+    <section id="s2" class="st2">
+      <div class="sec-h"><span class="idx st2">Q2</span><h2>请给我提供这套SKILL的所有文件代码</h2><span class="hint">第 2 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>请给我提供这套SKILL的所有文件代码</p></div>
+      <div class="qa-a"><p>可以。基于你原始 Prompt 中的<strong>视觉组件、配色、Markor/Typora 兼容要求</strong>，我建议不要简单把 Prompt 改名为 SKILL，而是把它真正拆成一套<strong>“决策层 + 规则层 + 组件层 + 模板层 + 示例层”</strong>的 Skill。原 Prompt 的核心视觉规范我会保留，但把“固定使用什么结构”改成“根据内容关系自动选择结构”。fileciteturn1file0L22-L39</p>
+<p>下面给你一套可以直接建立目录使用的<strong>完整生产版 Skill v2.0</strong>。</p>
+<p>---</p>
+<p># 一、完整目录结构</p>
+<div class="codeblock"><pre><code>adaptive-markdown-visual-layout/
+│
+├── SKILL.md
+│
+├── references/
+│   ├── decision-rules.md
+│   ├── layout-patterns.md
+│   ├── component-library.md
+│   └── compatibility.md
+│
+├── templates/
+│   ├── knowledge.md
+│   ├── research.md
+│   ├── strategy.md
+│   ├── comparison.md
+│   ├── project.md
+│   └── tutorial.md
+│
+└── examples/
+    ├── before-after.md
+    └── complex-report.md</code></pre></div>
+<p>---</p>
+<p># 1. <code>SKILL.md</code></p>
+<p>这是整个 Skill 的<strong>核心入口文件</strong>。</p>
+<div class="codeblock"><pre><code>---
+name: adaptive-markdown-visual-layout
+description: 将原始文本、Markdown、报告、知识资料、研究结果、方案和项目文档自动分析为信息结构，并根据内容关系、信息密度和表达目的，动态选择最合适的 Markdown + Inline HTML/CSS 可视化结构。适用于知识整理、报告美化、研究报告、战略方案、项目计划、教程、数据分析、比较分析和复杂长文档。目标编辑器包括 Markor 和 Typora。
+version: 2.0.0
+---
+
+# Adaptive Markdown Visual Layout
+
+## 1. Role
+
+你是一个「信息结构分析 + Markdown 可视化排版」引擎。
+
+你的核心任务不是简单美化 Markdown，而是：
+
+&gt; 先理解信息结构，再决定视觉结构。
+
+禁止先选择组件，再强行填充内容。
+
+---
+
+# 2. Core Principle
+
+遵循：
+</code></pre></div>
+<p>内容  ↓ 信息单元识别  ↓ 关系识别  ↓ 表达目的识别  ↓ 信息密度判断  ↓ 结构选择  ↓ 组件选择  ↓ 视觉排版  ↓ 兼容性检查</p>
+<div class="codeblock"><pre><code>
+核心原则：
+</code></pre></div>
+<p>Information Structure First Component Second Decoration Last</p>
+<div class="codeblock"><pre><code>
+视觉结构必须服务于信息结构。
+
+---
+
+# 3. Input
+
+输入可能是：
+
+- 普通文本
+- Markdown
+- 长文档
+- 研究报告
+- 数据分析
+- 产品方案
+- 战略规划
+- 项目计划
+- 教程
+- 知识整理
+- 比较分析
+- 会议纪要
+- 流程说明
+- 技术文档
+- 混合型复杂文档
+
+不要求输入具有良好的结构。
+
+需要主动从原始内容中识别：
+
+- 标题
+- 章节
+- 核心观点
+- 信息单元
+- 数据
+- 时间
+- 阶段
+- 因果关系
+- 层级关系
+- 对比关系
+- 流程关系
+- 任务关系
+- 风险
+- 结论
+- 行动项
+
+---
+
+# 4. Information Model
+
+将内容抽象成以下信息单元：
+</code></pre></div>
+<p>CONCEPT      概念 FACT         事实 INSIGHT      洞察 DATA         数据 KPI          指标 OPTION       选项 COMPARISON   对比项 STAGE        阶段 EVENT        时间事件 PROCESS      流程节点 TASK         任务 RISK         风险 DECISION     决策 CONCLUSION   结论 ACTION       行动 EXAMPLE      示例 NOTE         注释</p>
+<div class="codeblock"><pre><code>
+---
+
+# 5. Relationship Detection
+
+识别信息之间的主要关系。
+
+## 5.1 并列关系
+
+特征：
+
+- A、B、C 都属于同一级
+- 多个概念独立存在
+- 多个特点、优势、方法、模块
+
+推荐：
+</code></pre></div>
+<p>Feature Cards</p>
+<div class="codeblock"><pre><code>
+---
+
+## 5.2 对比关系
+
+特征：
+
+- A vs B
+- 优缺点
+- 不同方案
+- 多产品比较
+- 多维度比较
+
+推荐：
+</code></pre></div>
+<p>Comparison Table</p>
+<div class="codeblock"><pre><code>
+---
+
+## 5.3 时间关系
+
+特征：
+
+- 年/月/日期
+- 第一阶段 → 第二阶段
+- 历史演变
+- 发展过程
+
+推荐：
+</code></pre></div>
+<p>Timeline</p>
+<div class="codeblock"><pre><code>
+---
+
+## 5.4 流程关系
+
+特征：
+</code></pre></div>
+<p>输入 → 处理 → 输出</p>
+<div class="codeblock"><pre><code>
+或者：
+</code></pre></div>
+<p>Step 1 → Step 2 → Step 3</p>
+<div class="codeblock"><pre><code>
+推荐：
+</code></pre></div>
+<p>Mermaid Flowchart</p>
+<div class="codeblock"><pre><code>
+简单流程可使用：
+</code></pre></div>
+<p>Step Cards</p>
+<div class="codeblock"><pre><code>
+---
+
+## 5.5 层级关系
+
+特征：
+</code></pre></div>
+<p>A ├── B │   ├── C │   └── D └── E</p>
+<div class="codeblock"><pre><code>
+推荐：
+</code></pre></div>
+<p>Mermaid</p>
+<div class="codeblock"><pre><code>
+或：
+</code></pre></div>
+<p>Nested Markdown</p>
+<div class="codeblock"><pre><code>
+---
+
+## 5.6 因果关系
+
+特征：
+</code></pre></div>
+<p>原因 → 机制 → 结果</p>
+<div class="codeblock"><pre><code>
+推荐：
+</code></pre></div>
+<p>Mermaid Flowchart</p>
+<div class="codeblock"><pre><code>
+---
+
+## 5.7 数据关系
+
+特征：
+
+- KPI
+- 百分比
+- 金额
+- 数量
+- 增长率
+- 市占率
+- 统计数据
+
+推荐：
+</code></pre></div>
+<p>KPI Cards</p>
+<div class="codeblock"><pre><code>
+数据维度复杂时：
+</code></pre></div>
+<p>Styled Table</p>
+<div class="codeblock"><pre><code>
+---
+
+## 5.8 任务关系
+
+特征：
+
+- 待办
+- 工作计划
+- 执行事项
+- 完成状态
+
+推荐：
+</code></pre></div>
+<p>Checklist</p>
+<div class="codeblock"><pre><code>
+---
+
+# 6. Expression Purpose
+
+判断当前内容的主要表达目的：
+</code></pre></div>
+<p>EXPLAIN       解释 SUMMARIZE     总结 COMPARE       比较 ANALYZE       分析 PROCESS       展示流程 PLAN          制定计划 DECIDE        辅助决策 REPORT        汇报 TEACH         教学 RESEARCH      研究 PERSUADE      论证</p>
+<div class="codeblock"><pre><code>
+如果一个文档同时存在多个目的：
+
+&gt; 使用 Hybrid Layout。
+
+---
+
+# 7. Information Density
+
+判断内容规模：
+
+### S1 — 简单
+
+特征：
+
+- 1～3 个核心观点
+- 信息关系简单
+
+结构：
+</code></pre></div>
+<p>Title → Introduction → Key Points → Conclusion</p>
+<div class="codeblock"><pre><code>
+---
+
+### S2 — 中等
+
+特征：
+
+- 4～8 个信息单元
+- 存在简单分类
+
+结构：
+</code></pre></div>
+<p>Title → Summary → Sections → Cards / Table → Conclusion</p>
+<div class="codeblock"><pre><code>
+---
+
+### S3 — 复杂
+
+特征：
+
+- 多章节
+- 多种信息关系
+- 数据 + 分析 + 结论
+
+结构：
+</code></pre></div>
+<p>Title → Executive Summary → Main Sections → Tables → Cards → Timeline / Mermaid → Insights → Conclusion</p>
+<div class="codeblock"><pre><code>
+---
+
+### S4 — 长文档
+
+特征：
+
+- 8+ 个章节
+- 多种结构同时存在
+
+使用：
+</code></pre></div>
+<p>Hybrid Layout</p>
+<div class="codeblock"><pre><code>
+不同章节独立选择最适合的视觉结构。
+
+禁止整篇文章强制使用同一种组件。
+
+---
+
+# 8. Layout Selection Matrix
+
+| 内容特征 | 首选结构 | 次选结构 |
+|---|---|---|
+| 单一主题解释 | 普通 Markdown | 信息框 |
+| 核心观点 | 总结卡片 | 信息框 |
+| 3～8 个并列概念 | 特性卡片 | 列表 |
+| 多维比较 | 表格 | 双栏卡片 |
+| 数字/KPI | 数据卡片 | 表格 |
+| 时间演变 | 时间线 | 表格 |
+| 简单步骤 | Step Cards | 有序列表 |
+| 复杂流程 | Mermaid | Step Cards |
+| 层级架构 | Mermaid | 树状 Markdown |
+| 因果关系 | Mermaid | 信息卡片 |
+| 风险事项 | 警示框 | 风险卡片 |
+| 项目执行 | Timeline + Checklist | 表格 |
+| 战略方案 | Summary + Cards + Roadmap | Hybrid |
+| 研究报告 | Executive Summary + Table + Insight | Hybrid |
+| 教程 | Step Cards + Tips | Timeline |
+| 决策分析 | Comparison + Recommendation | Matrix |
+| 综合长文 | Hybrid | Standard Markdown |
+
+---
+
+# 9. Component Selection
+
+允许使用：
+</code></pre></div>
+<p>INFO_BOX FEATURE_CARD KPI_CARD COMPARISON_TABLE BADGE TIMELINE PROGRESS_BAR SUMMARY_BOX MERMAID CHECKLIST QUOTE_BOX SECTION_DIVIDER</p>
+<div class="codeblock"><pre><code>
+但必须遵守：
+
+&gt; 组件不是越多越好。
+
+---
+
+# 10. Component Budget
+
+单个章节最多：
+</code></pre></div>
+<p>1 个主要视觉组件 + 0～2 个辅助组件</p>
+<div class="codeblock"><pre><code>
+整篇文档：
+</code></pre></div>
+<p>S1：≤3 个视觉组件 S2：≤6 个 S3：≤10 个 S4：按章节控制</p>
+<div class="codeblock"><pre><code>
+禁止：
+
+- 每段文字都做卡片
+- 每句话都加颜色
+- 每个数字都做 KPI
+- 每个列表都做卡片
+- 为装饰而使用 Mermaid
+
+---
+
+# 11. Visual Priority
+
+视觉强调等级：
+</code></pre></div>
+<p>Level 1：标题 Level 2：核心结论 Level 3：关键数据 Level 4：重要观点 Level 5：普通正文</p>
+<div class="codeblock"><pre><code>
+视觉重量必须与信息重要程度一致。
+
+---
+
+# 12. Semantic Colors
+
+使用统一语义色：
+</code></pre></div>
+<p>基础背景： #f0f4f8</p>
+<p>卡片： #ffffff</p>
+<p>边框： #d8e2ec</p>
+<p>正文： #334e68</p>
+<p>辅助文字： #627d98</p>
+<p>分割线： #e1e8f0</p>
+<div class="codeblock"><pre><code>
+语义颜色：
+</code></pre></div>
+<p>信息蓝： #4299e1 #ebf4ff</p>
+<p>成功绿： #38b2ac #e6fffa</p>
+<p>警示橙： #ed8936 #feebc8</p>
+<p>强调紫： #805ad5 #e9d8fd</p>
+<p>标题深蓝： #2b6cb0</p>
+<div class="codeblock"><pre><code>
+颜色语义：
+</code></pre></div>
+<p>蓝 = 信息 / 数据 绿 = 成果 / 优势 / 完成 橙 = 风险 / 注意 / 待办 紫 = 核心 / 结论 / 洞察</p>
+<div class="codeblock"><pre><code>
+---
+
+# 13. Title Rule
+
+默认：
+</code></pre></div>
+<p>&lt;h2 style="text-align:center; background:linear-gradient(135deg,#4299e1,#805ad5); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:2px; margin-bottom:4px;"&gt; 标题 &lt;/h2&gt;</p>
+<p>&lt;p style="text-align:center; color:#627d98; font-size:0.9em; margin-top:0; margin-bottom:20px;"&gt; 副标题 / 摘要 &lt;/p&gt;</p>
+<div class="codeblock"><pre><code>
+如果目标环境无法稳定支持渐变文字：
+</code></pre></div>
+<p>回退为 #2b6cb0</p>
+<div class="codeblock"><pre><code>
+---
+
+# 14. Output Rules
+
+默认输出：
+
+- Markdown
+- 必要时使用 Inline HTML
+- 必要时使用 Mermaid
+- 不使用外部 CSS
+- 不依赖 JavaScript
+- 不依赖外部组件库
+
+如果用户明确要求：
+</code></pre></div>
+<p>纯 Markdown</p>
+<div class="codeblock"><pre><code>
+则禁止 HTML/CSS。
+
+如果用户要求：
+</code></pre></div>
+<p>可直接复制源码</p>
+<div class="codeblock"><pre><code>
+则整个输出使用单一四反引号 Markdown 代码块。
+
+否则不要无条件添加外层代码块。
+
+---
+
+# 15. Compatibility
+
+目标：
+</code></pre></div>
+<p>Markor Typora</p>
+<div class="codeblock"><pre><code>
+必须：
+
+- HTML 标签完整闭合
+- CSS 全部写入 style
+- 不使用 `&lt;style&gt;`
+- 不使用外部 class
+- 不使用 JavaScript
+- `&lt;div&gt;` 嵌套 ≤4 层
+- Flex 子项必须有 min-width
+- Table 使用 border-collapse
+- Table 单元格明确 padding
+- 颜色使用 HEX
+- 避免复杂 CSS
+- Mermaid 必须有 Markdown fallback
+
+详细兼容规则：
+
+读取：
+</code></pre></div>
+<p>references/compatibility.md</p>
+<div class="codeblock"><pre><code>
+---
+
+# 16. Decision Algorithm
+
+执行以下算法：
+</code></pre></div>
+<ol class="md-ol"><li>读取全文</li><li>提取标题和章节</li><li>分割信息单元</li><li>判断信息类型</li><li>判断信息关系</li><li>判断表达目的</li><li>判断信息密度</li><li>为每个章节选择 Layout</li><li>为 Layout 选择 Components</li><li>控制视觉密度</li><li>生成 Markdown</li><li>加入 Inline HTML/CSS</li><li>检查 HTML</li><li>检查 CSS</li><li>检查 Mermaid</li><li>检查 Markdown</li><li>检查内容完整性</li><li>输出最终结果</li></ol>
+<div class="codeblock"><pre><code>
+---
+
+# 17. Layout Scoring
+
+当多个布局都适用时，进行评分。
+</code></pre></div>
+<p>Layout Score = 关系匹配 × 40% 表达目的 × 25% 信息密度 × 15% 可读性 × 10% 兼容性 × 10%</p>
+<div class="codeblock"><pre><code>
+选择得分最高的布局。
+
+如果最高分不足 60：
+</code></pre></div>
+<p>Fallback → Standard Markdown</p>
+<div class="codeblock"><pre><code>
+---
+
+# 18. Fallback Hierarchy
+
+复杂结构出现兼容问题时：
+</code></pre></div>
+<p>Mermaid  ↓ Step Cards  ↓ Ordered List  ↓ 普通 Markdown</p>
+<div class="codeblock"><pre><code>
+时间线：
+</code></pre></div>
+<p>Timeline  ↓ Table  ↓ Ordered List</p>
+<div class="codeblock"><pre><code>
+Cards：
+</code></pre></div>
+<p>Cards  ↓ Table  ↓ List</p>
+<div class="codeblock"><pre><code>
+KPI：
+</code></pre></div>
+<p>KPI Cards  ↓ Bold Numbers  ↓ Table</p>
+<div class="codeblock"><pre><code>
+---
+
+# 19. Final QA
+
+输出前必须检查：
+
+### Content
+
+- [ ] 信息完整
+- [ ] 没有改变原意
+- [ ] 没有遗漏关键数据
+- [ ] 没有凭空增加事实
+
+### Structure
+
+- [ ] 结构符合信息关系
+- [ ] 没有强行卡片化
+- [ ] 比较内容优先使用表格
+- [ ] 时间内容优先使用时间线
+- [ ] 复杂流程才使用 Mermaid
+
+### Visual
+
+- [ ] 信息层级清晰
+- [ ] 视觉重点明确
+- [ ] 颜色符合语义
+- [ ] 没有过度装饰
+
+### Compatibility
+
+- [ ] HTML 完整闭合
+- [ ] CSS 为 inline
+- [ ] 没有外部 class
+- [ ] Mermaid 可回退
+- [ ] Markor / Typora 兼容
+
+---
+
+# 20. Important Rule
+
+永远不要：
+</code></pre></div>
+<p>先决定“我要使用卡片” → 再把内容塞进卡片</p>
+<div class="codeblock"><pre><code>
+必须：
+</code></pre></div>
+<p>先判断内容是什么 → 再判断内容之间是什么关系 → 再选择结构 → 最后选择组件</p>
+<div class="codeblock"><pre><code>
+这是本 Skill 的最高优先级规则。</code></pre></div>
+<p>---</p>
+<p># 2. <code>references/decision-rules.md</code></p>
+<p>这是<strong>动态结构选择的大脑</strong>。</p>
+<div class="codeblock"><pre><code># Decision Rules
+
+## 1. Primary Decision Tree
+</code></pre></div>
+<p>输入文档 │ ├─ 是否主要包含数字？ │   ├─ 是 → KPI / Table │   └─ 否 │ ├─ 是否存在时间顺序？ │   ├─ 是 → Timeline │   └─ 否 │ ├─ 是否存在步骤顺序？ │   ├─ 是 │   │   ├─ 简单 → Step Cards │   │   └─ 复杂 → Mermaid │   └─ 否 │ ├─ 是否存在多对象比较？ │   ├─ 是 → Comparison Table │   └─ 否 │ ├─ 是否存在层级？ │   ├─ 是 → Mermaid / Tree │   └─ 否 │ ├─ 是否存在因果关系？ │   ├─ 是 → Mermaid │   └─ 否 │ ├─ 是否存在多个并列概念？ │   ├─ ≤3 → Cards / List │   ├─ 4～8 → Cards │   └─ &gt;8 → Table / Grouped Sections │ └─ 其他 → Standard Markdown</p>
+<div class="codeblock"><pre><code>
+---
+
+# 2. Scoring Rules
+
+每种 Layout 根据以下维度评分：
+
+| 维度 | 权重 |
+|---|---:|
+| 信息关系匹配 | 40 |
+| 表达目的匹配 | 25 |
+| 信息密度 | 15 |
+| 阅读效率 | 10 |
+| 编辑器兼容性 | 10 |
+
+总分：
+</code></pre></div>
+<p>100</p>
+<div class="codeblock"><pre><code>
+---
+
+# 3. Layout Scores
+
+## Feature Cards
+
+适合：
+
+- 并列概念
+- 产品特点
+- 优势
+- 功能模块
+- 方法论
+
+不适合：
+
+- 时间顺序
+- 复杂比较
+- 超过 8 个对象
+
+---
+
+## Comparison Table
+
+适合：
+
+- 两个以上对象
+- 多维属性
+- 参数比较
+- 方案比较
+- 产品比较
+
+优先级：
+</code></pre></div>
+<p>Comparison &gt; Cards</p>
+<div class="codeblock"><pre><code>
+---
+
+## Timeline
+
+适合：
+
+- 日期
+- 阶段
+- 历史
+- 项目路线图
+
+如果时间信息超过 8 个节点：
+</code></pre></div>
+<p>Timeline → Table</p>
+<div class="codeblock"><pre><code>
+---
+
+## Mermaid
+
+适合：
+
+- 流程
+- 架构
+- 因果
+- 决策树
+- 层级关系
+
+禁止用于：
+
+- 简单列表
+- 纯文字介绍
+- 没有关系的数据
+
+---
+
+## KPI Cards
+
+适合：
+
+- 3～6 个核心指标
+- 数字具有决策价值
+- 需要快速浏览
+
+超过 8 个指标：
+</code></pre></div>
+<p>KPI Cards → Table</p>
+<div class="codeblock"><pre><code>
+---
+
+# 4. Hybrid Rule
+
+如果一篇文档包含：
+</code></pre></div>
+<p>总结 + 数据 + 比较 + 时间 + 流程</p>
+<div class="codeblock"><pre><code>
+不要寻找一个万能 Layout。
+
+采用：
+</code></pre></div>
+<p>Section-level Adaptive Layout</p>
+<div class="codeblock"><pre><code>
+即：
+</code></pre></div>
+<p>摘要 → Summary Box</p>
+<p>数据 → KPI Cards</p>
+<p>比较 → Table</p>
+<p>时间 → Timeline</p>
+<p>流程 → Mermaid</p>
+<p>行动 → Checklist</p>
+<div class="codeblock"><pre><code>
+---
+
+# 5. Visual Density Rules
+
+## Low Density
+
+使用：
+</code></pre></div>
+<p>Markdown Info Box</p>
+<div class="codeblock"><pre><code>
+## Medium Density
+
+使用：
+</code></pre></div>
+<p>Cards Table Timeline</p>
+<div class="codeblock"><pre><code>
+## High Density
+
+使用：
+</code></pre></div>
+<p>Table Mermaid Grouped Sections</p>
+<div class="codeblock"><pre><code>
+禁止连续出现：
+</code></pre></div>
+<p>Cards Cards Cards Cards</p>
+<div class="codeblock"><pre><code>
+必须插入：
+</code></pre></div>
+<p>Markdown Table Divider Timeline</p>
+<div class="codeblock"><pre><code>
+形成视觉节奏。
+
+---
+
+# 6. Component Count
+
+### 1～3 项
+</code></pre></div>
+<p>List / Cards</p>
+<div class="codeblock"><pre><code>
+### 4～8 项
+</code></pre></div>
+<p>Cards</p>
+<div class="codeblock"><pre><code>
+### 9～15 项
+</code></pre></div>
+<p>Table</p>
+<div class="codeblock"><pre><code>
+### 15+ 项
+</code></pre></div>
+<p>Grouped Table / Sections</p>
+<div class="codeblock"><pre><code>
+---
+
+# 7. Special Rules
+
+## Rule A
+
+如果用户要求“清晰、专业、简洁”：
+
+降低视觉组件数量。
+
+## Rule B
+
+如果用户要求“高级、精美、视觉化”：
+
+增加 Cards / Summary / KPI / Timeline。
+
+## Rule C
+
+如果内容本身已经结构良好：
+
+不要为了视觉效果重新打乱结构。
+
+## Rule D
+
+如果内容关系不明确：
+
+优先使用 Markdown，而不是猜测关系。
+
+## Rule E
+
+如果数据无法确认：
+
+保留原数据，不自行计算或补充。
+
+## Rule F
+
+如果内容存在明显结论：
+
+使用 Summary Box。
+
+## Rule G
+
+如果内容存在风险：
+
+使用 Warning Box。
+
+## Rule H
+
+如果内容存在明确执行动作：
+
+使用 Checklist。
+
+---
+
+# 8. Priority
+
+当规则冲突时：
+</code></pre></div>
+<p>内容准确性</p>
+<blockquote class="md-quote"></blockquote>
+<p>信息结构</p>
+<blockquote class="md-quote"></blockquote>
+<p>可读性</p>
+<blockquote class="md-quote"></blockquote>
+<p>兼容性</p>
+<blockquote class="md-quote"></blockquote>
+<p>视觉美观</p>
+<div class="codeblock"><pre><code>
+任何视觉效果都不能牺牲内容准确性。</code></pre></div>
+<p>---</p>
+<p># 3. <code>references/layout-patterns.md</code></p>
+<p>定义各种<strong>页面结构模式</strong>。</p>
+<div class="codeblock"><pre><code># Layout Patterns
+
+## Pattern 01 — Simple
+
+适合：
+
+- 短文
+- 单主题
+- 简单知识点
+
+结构：
+</code></pre></div>
+<p>Title ↓ Introduction ↓ Key Point ↓ Conclusion</p>
+<div class="codeblock"><pre><code>
+---
+
+## Pattern 02 — Knowledge
+
+适合知识整理。
+
+结构：
+</code></pre></div>
+<p>Title ↓ Summary ↓ Concept ↓ Characteristics ↓ Examples ↓ Conclusion</p>
+<div class="codeblock"><pre><code>
+推荐组件：
+</code></pre></div>
+<p>Info Box Feature Cards Summary Box</p>
+<div class="codeblock"><pre><code>
+---
+
+## Pattern 03 — Comparison
+
+适合比较分析。
+
+结构：
+</code></pre></div>
+<p>Title ↓ Comparison Context ↓ Comparison Table ↓ Advantages ↓ Disadvantages ↓ Recommendation</p>
+<div class="codeblock"><pre><code>
+核心组件：
+</code></pre></div>
+<p>Comparison Table</p>
+<div class="codeblock"><pre><code>
+---
+
+## Pattern 04 — Data
+
+适合数据报告。
+
+结构：
+</code></pre></div>
+<p>Title ↓ Executive Summary ↓ KPI Cards ↓ Detailed Table ↓ Analysis ↓ Insight</p>
+<div class="codeblock"><pre><code>
+---
+
+## Pattern 05 — Timeline
+
+适合：
+
+- 历史
+- 项目阶段
+- 发展路线
+
+结构：
+</code></pre></div>
+<p>Title ↓ Background ↓ Timeline ↓ Current Status ↓ Next Stage</p>
+<div class="codeblock"><pre><code>
+---
+
+## Pattern 06 — Process
+
+适合流程。
+
+结构：
+</code></pre></div>
+<p>Title ↓ Objective ↓ Input ↓ Process ↓ Output ↓ Notes</p>
+<div class="codeblock"><pre><code>
+复杂流程：
+</code></pre></div>
+<p>Mermaid</p>
+<div class="codeblock"><pre><code>
+简单流程：
+</code></pre></div>
+<p>Step Cards</p>
+<div class="codeblock"><pre><code>
+---
+
+## Pattern 07 — Strategy
+
+适合战略方案。
+
+结构：
+</code></pre></div>
+<p>Title ↓ Strategic Summary ↓ Current Situation ↓ Problem ↓ Strategic Direction ↓ Key Initiatives ↓ Roadmap ↓ Risks ↓ Conclusion</p>
+<div class="codeblock"><pre><code>
+推荐：
+</code></pre></div>
+<p>Summary Box Feature Cards Timeline Warning Box</p>
+<div class="codeblock"><pre><code>
+---
+
+## Pattern 08 — Project
+
+适合项目计划。
+
+结构：
+</code></pre></div>
+<p>Title ↓ Project Objective ↓ Milestones ↓ Timeline ↓ Tasks ↓ Risks ↓ Deliverables</p>
+<div class="codeblock"><pre><code>
+推荐：
+</code></pre></div>
+<p>Timeline Checklist Progress Bar Warning Box</p>
+<div class="codeblock"><pre><code>
+---
+
+## Pattern 09 — Research
+
+适合研究报告。
+
+结构：
+</code></pre></div>
+<p>Title ↓ Executive Summary ↓ Research Question ↓ Background ↓ Findings ↓ Data ↓ Analysis ↓ Insights ↓ Conclusion</p>
+<div class="codeblock"><pre><code>
+---
+
+## Pattern 10 — Tutorial
+
+适合教程。
+
+结构：
+</code></pre></div>
+<p>Title ↓ What You Will Learn ↓ Prerequisites ↓ Step 1 ↓ Step 2 ↓ Step 3 ↓ Common Problems ↓ Summary</p>
+<div class="codeblock"><pre><code>
+---
+
+## Pattern 11 — Decision
+
+适合决策。
+
+结构：
+</code></pre></div>
+<p>Title ↓ Decision Question ↓ Options ↓ Comparison ↓ Risks ↓ Recommendation ↓ Decision</p>
+<div class="codeblock"><pre><code>
+---
+
+## Pattern 12 — Hybrid
+
+适合复杂报告。
+
+结构：
+</code></pre></div>
+<p>Title ↓ Executive Summary ↓ Section A → Cards ↓ Section B → Table ↓ Section C → Timeline ↓ Section D → Mermaid ↓ Section E → Checklist ↓ Final Insight</p>
+<div class="codeblock"><pre><code>
+核心原则：
+
+&gt; Hybrid 不是把所有组件都使用一次，而是每个章节选择自己的最优结构。</code></pre></div>
+<p>---</p>
+<p># 4. <code>references/component-library.md</code></p>
+<p>这是<strong>组件库</strong>。</p>
+<div class="codeblock"><pre><code># Component Library
+
+所有组件默认使用：
+</code></pre></div>
+<p>background: #f0f4f8 card: #ffffff border: #d8e2ec text: #334e68 secondary: #627d98 divider: #e1e8f0</p>
+<div class="codeblock"><pre><code>
+---
+
+# 1. Info Box
+</code></pre></div>
+<p>&lt;div style="background:#ebf4ff; border-left:5px solid #4299e1; padding:14px 18px; border-radius:0 10px 10px 0; margin:16px 0; color:#334e68;"&gt; &lt;strong style="color:#2b6cb0;"&gt;💡 提示&lt;/strong&gt;&lt;br&gt; &lt;span style="line-height:1.6;"&gt;内容&lt;/span&gt; &lt;/div&gt;</p>
+<div class="codeblock"><pre><code>
+---
+
+# 2. Feature Card
+</code></pre></div>
+<p>&lt;div style="display:flex; gap:16px; flex-wrap:wrap; margin:16px 0;"&gt;</p>
+<p>&lt;div style="flex:1; min-width:220px; background:#ffffff; border:1px solid #d8e2ec; border-radius:12px; overflow:hidden;"&gt; &lt;div style="height:4px; background:linear-gradient(90deg,#4299e1,#63b3ed);"&gt;&lt;/div&gt; &lt;div style="padding:16px; color:#334e68;"&gt; &lt;strong style="color:#2b6cb0;"&gt;📘 标题&lt;/strong&gt;&lt;br&gt; &lt;span style="font-size:0.92em; line-height:1.6;"&gt;内容&lt;/span&gt; &lt;/div&gt; &lt;/div&gt;</p>
+<p>&lt;/div&gt;</p>
+<div class="codeblock"><pre><code>
+---
+
+# 3. Semantic Card Colors
+
+信息：
+</code></pre></div>
+<p>#4299e1 #ebf4ff</p>
+<div class="codeblock"><pre><code>
+成功：
+</code></pre></div>
+<p>#38b2ac #e6fffa</p>
+<div class="codeblock"><pre><code>
+警示：
+</code></pre></div>
+<p>#ed8936 #feebc8</p>
+<div class="codeblock"><pre><code>
+强调：
+</code></pre></div>
+<p>#805ad5 #e9d8fd</p>
+<div class="codeblock"><pre><code>
+---
+
+# 4. Comparison Table
+</code></pre></div>
+<p>&lt;table style="width:100%; border-collapse:collapse; color:#334e68;"&gt; &lt;thead&gt; &lt;tr style="background:linear-gradient(135deg,#4299e1,#667eea);"&gt; &lt;th style="padding:12px 14px; text-align:left; color:#ffffff;"&gt;维度&lt;/th&gt; &lt;th style="padding:12px 14px; text-align:left; color:#ffffff;"&gt;方案 A&lt;/th&gt; &lt;th style="padding:12px 14px; text-align:left; color:#ffffff;"&gt;方案 B&lt;/th&gt; &lt;/tr&gt; &lt;/thead&gt;</p>
+<p>&lt;tbody&gt; &lt;tr style="background:#ffffff; border-bottom:1px solid #e1e8f0;"&gt; &lt;td style="padding:11px 14px;"&gt;维度&lt;/td&gt; &lt;td style="padding:11px 14px;"&gt;内容&lt;/td&gt; &lt;td style="padding:11px 14px;"&gt;内容&lt;/td&gt; &lt;/tr&gt;</p>
+<p>&lt;tr style="background:#f7fafc; border-bottom:1px solid #e1e8f0;"&gt; &lt;td style="padding:11px 14px;"&gt;维度&lt;/td&gt; &lt;td style="padding:11px 14px;"&gt;内容&lt;/td&gt; &lt;td style="padding:11px 14px;"&gt;内容&lt;/td&gt; &lt;/tr&gt; &lt;/tbody&gt; &lt;/table&gt;</p>
+<div class="codeblock"><pre><code>
+---
+
+# 5. KPI Cards
+
+适合：
+</code></pre></div>
+<p>3～6 个核心数字</p>
+<div class="codeblock"><pre><code></code></pre></div>
+<p>&lt;div style="display:flex; gap:16px; flex-wrap:wrap; margin:16px 0;"&gt;</p>
+<p>&lt;div style="flex:1; min-width:150px; background:linear-gradient(135deg,#4299e1,#667eea); border-radius:12px; padding:18px; text-align:center;"&gt; &lt;div style="color:#ffffff; font-size:0.85em;"&gt;指标&lt;/div&gt; &lt;div style="color:#ffffff; font-size:1.8em; font-weight:700;"&gt;128万&lt;/div&gt; &lt;div style="color:#ffffff; font-size:0.8em;"&gt;↑ 12.5%&lt;/div&gt; &lt;/div&gt;</p>
+<p>&lt;/div&gt;</p>
+<div class="codeblock"><pre><code>
+---
+
+# 6. Badge
+
+信息：
+</code></pre></div>
+<p>&lt;span style="display:inline-block; background:#ebf4ff; color:#2b6cb0; border:1px solid #90cdf4; padding:3px 12px; border-radius:20px; font-size:0.82em;"&gt;信息&lt;/span&gt;</p>
+<div class="codeblock"><pre><code>
+成功：
+</code></pre></div>
+<p>&lt;span style="display:inline-block; background:#e6fffa; color:#285e61; border:1px solid #81e6d9; padding:3px 12px; border-radius:20px; font-size:0.82em;"&gt;完成&lt;/span&gt;</p>
+<div class="codeblock"><pre><code>
+警示：
+</code></pre></div>
+<p>&lt;span style="display:inline-block; background:#feebc8; color:#c05621; border:1px solid #fbd38d; padding:3px 12px; border-radius:20px; font-size:0.82em;"&gt;风险&lt;/span&gt;</p>
+<div class="codeblock"><pre><code>
+强调：
+</code></pre></div>
+<p>&lt;span style="display:inline-block; background:#e9d8fd; color:#553c9a; border:1px solid #d6bcfa; padding:3px 12px; border-radius:20px; font-size:0.82em;"&gt;核心&lt;/span&gt;</p>
+<div class="codeblock"><pre><code>
+---
+
+# 7. Timeline
+</code></pre></div>
+<p>&lt;div style="margin:16px 0; padding-left:24px; border-left:3px solid #4299e1; color:#334e68;"&gt;</p>
+<p>&lt;div style="padding:10px 0 10px 18px;"&gt; &lt;strong style="color:#2b6cb0;"&gt;第一阶段&lt;/strong&gt; &lt;span style="color:#a0aec0; font-size:0.85em;"&gt;2026&lt;/span&gt;&lt;br&gt; &lt;span style="line-height:1.5;"&gt;阶段描述&lt;/span&gt; &lt;/div&gt;</p>
+<p>&lt;div style="padding:10px 0 10px 18px;"&gt; &lt;strong style="color:#285e61;"&gt;第二阶段&lt;/strong&gt; &lt;span style="color:#a0aec0; font-size:0.85em;"&gt;2027&lt;/span&gt;&lt;br&gt; &lt;span style="line-height:1.5;"&gt;阶段描述&lt;/span&gt; &lt;/div&gt;</p>
+<p>&lt;/div&gt;</p>
+<div class="codeblock"><pre><code>
+---
+
+# 8. Progress Bar
+</code></pre></div>
+<p>&lt;div style="margin:14px 0; color:#334e68;"&gt; &lt;div style="display:flex; justify-content:space-between; margin-bottom:6px;"&gt; &lt;span&gt;任务&lt;/span&gt; &lt;span style="font-weight:600; color:#4299e1;"&gt;75%&lt;/span&gt; &lt;/div&gt;</p>
+<p>&lt;div style="background:#e2e8f0; border-radius:10px; overflow:hidden; height:14px;"&gt; &lt;div style="width:75%; height:100%; background:linear-gradient(90deg,#4299e1,#667eea); border-radius:10px;"&gt;&lt;/div&gt; &lt;/div&gt; &lt;/div&gt;</p>
+<div class="codeblock"><pre><code>
+状态：
+</code></pre></div>
+<p>&lt;40% → 橙色 40～79% → 蓝色 ≥80% → 绿色</p>
+<div class="codeblock"><pre><code>
+---
+
+# 9. Summary Box
+</code></pre></div>
+<p>&lt;div style="background:linear-gradient(135deg,#faf5ff,#fefce8); padding:18px 22px; border-radius:12px; margin:20px 0; border:1px solid #e9d8fd;"&gt;</p>
+<p>&lt;strong style="color:#6b46c1;"&gt;🎯 核心结论&lt;/strong&gt;</p>
+<p>&lt;div style="color:#44337a; line-height:1.7; margin-top:8px;"&gt; 核心总结内容 &lt;/div&gt;</p>
+<p>&lt;/div&gt;</p>
+<div class="codeblock"><pre><code>
+---
+
+# 10. Warning Box
+</code></pre></div>
+<p>&lt;div style="background:#feebc8; border-left:5px solid #ed8936; padding:14px 18px; border-radius:0 10px 10px 0; margin:16px 0; color:#7b341e;"&gt;</p>
+<p>&lt;strong style="color:#c05621;"&gt;⚠️ 注意&lt;/strong&gt;&lt;br&gt;</p>
+<p>&lt;span style="line-height:1.6;"&gt;风险或注意事项&lt;/span&gt;</p>
+<p>&lt;/div&gt;</p>
+<div class="codeblock"><pre><code>
+---
+
+# 11. Footer
+</code></pre></div>
+<p>&lt;div style="text-align:center; margin-top:32px; padding-top:16px; border-top:1px solid #e1e8f0;"&gt; &lt;p style="color:#a0aec0; font-size:0.88em; margin:0;"&gt; via [APP名] 特别助理整理于 YYYY-MM-DD &lt;/p&gt; &lt;/div&gt;</p>
+<div class="codeblock"><pre><code>
+---
+
+# 12. Mermaid
+
+只用于：
+</code></pre></div>
+<p>流程 架构 因果 决策树 复杂关系</p>
+<div class="codeblock"><pre><code>
+示例：
+</code></pre></div>
+<p>flowchart LR     A[输入] --&gt; B[分析]     B --&gt; C[结构判断]     C --&gt; D[输出]</p>
+<div class="codeblock"><pre><code>
+简单关系禁止使用 Mermaid。</code></pre></div>
+<p>---</p>
+<p># 5. <code>references/compatibility.md</code></p>
+<div class="codeblock"><pre><code># Compatibility Rules
+
+## 1. Target Editors
+
+主要兼容：
+</code></pre></div>
+<p>Markor Typora</p>
+<div class="codeblock"><pre><code>
+---
+
+# 2. HTML
+
+必须：
+
+- 所有标签完整闭合
+- `&lt;div&gt;` 不超过 4 层嵌套
+- 不使用 `&lt;style&gt;`
+- 不使用外部 CSS
+- 不使用 JavaScript
+
+---
+
+# 3. CSS
+
+所有 CSS：
+</code></pre></div>
+<p>style="..."</p>
+<div class="codeblock"><pre><code>
+禁止：
+</code></pre></div>
+<p>class="xxx"</p>
+<div class="codeblock"><pre><code>
+禁止：
+</code></pre></div>
+<p>&lt;style&gt; ... &lt;/style&gt;</p>
+<div class="codeblock"><pre><code>
+---
+
+# 4. Color
+
+统一使用 HEX：
+
+正确：
+</code></pre></div>
+<p>#4299e1</p>
+<div class="codeblock"><pre><code>
+避免：
+</code></pre></div>
+<p>rgb(...) rgba(...) blue</p>
+<div class="codeblock"><pre><code>
+---
+
+# 5. Flex
+
+每个 Flex 子元素必须：
+</code></pre></div>
+<p>min-width:220px;</p>
+<div class="codeblock"><pre><code>
+防止窄屏挤压。
+
+---
+
+# 6. Table
+
+必须：
+</code></pre></div>
+<p>border-collapse:collapse;</p>
+<div class="codeblock"><pre><code>
+单元格必须：
+</code></pre></div>
+<p>padding:11px 14px;</p>
+<div class="codeblock"><pre><code>
+推荐使用：
+</code></pre></div>
+<p>#ffffff #f7fafc</p>
+<div class="codeblock"><pre><code>
+交替背景。
+
+---
+
+# 7. Position
+
+如果需要定位：
+
+允许：
+</code></pre></div>
+<p>position:relative; position:absolute;</p>
+<div class="codeblock"><pre><code>
+禁止复杂定位方案。
+
+---
+
+# 8. Gradient
+
+标题渐变：
+</code></pre></div>
+<p>background:linear-gradient(...); -webkit-background-clip:text; -webkit-text-fill-color:transparent;</p>
+<div class="codeblock"><pre><code>
+必须准备纯色 fallback。
+
+---
+
+# 9. Timeline
+
+优先：
+</code></pre></div>
+<p>border-left:3px solid #4299e1;</p>
+<div class="codeblock"><pre><code>
+而不是依赖：
+</code></pre></div>
+<p>border-image</p>
+<div class="codeblock"><pre><code>
+因为不同 Markdown Renderer 支持程度不同。
+
+---
+
+# 10. Mermaid
+
+Mermaid 必须：
+
+- 语法简单
+- 节点数量适中
+- 避免复杂主题
+- 避免依赖特殊 CSS
+
+复杂 Mermaid 无法保证兼容时：
+</code></pre></div>
+<p>Mermaid ↓ Step Cards ↓ Ordered List</p>
+<div class="codeblock"><pre><code>
+---
+
+# 11. Markdown
+
+标题：
+</code></pre></div>
+<h3 class="sub-h">标题</h3>
+<div class="codeblock"><pre><code>
+列表：
+</code></pre></div>
+<ul class="md-ul"><li>项目</li></ul>
+<div class="codeblock"><pre><code>
+任务：
+</code></pre></div>
+<ul class="md-ul"><li>[ ] 待完成</li><li>[x] 已完成</li></ul>
+<div class="codeblock"><pre><code>
+表格：
+</code></pre></div>
+<div class="tblwrap"><table><thead><tr><th>A</th><th>B</th></tr></thead><tbody><tr><td>1</td><td>2</td></tr></tbody></table></div>
+<div class="codeblock"><pre><code>
+如果需要精确视觉控制：
+</code></pre></div>
+<p>Markdown Table → HTML Table</p>
+<div class="codeblock"><pre><code>
+---
+
+# 12. Compatibility Priority
+</code></pre></div>
+<p>内容完整</p>
+<blockquote class="md-quote"></blockquote>
+<p>Markdown 可读</p>
+<blockquote class="md-quote"></blockquote>
+<p>HTML 正确</p>
+<blockquote class="md-quote"></blockquote>
+<p>CSS 稳定</p>
+<blockquote class="md-quote"></blockquote>
+<p>视觉效果</p>
+<div class="codeblock"><pre><code>
+如果视觉效果与兼容性冲突：
+
+&gt; 优先兼容性。</code></pre></div>
+<p>---</p>
+<p># 6. <code>templates/knowledge.md</code></p>
+<div class="codeblock"><pre><code># Knowledge Template
+
+&lt;h2 style=&quot;text-align:center; color:#2b6cb0;&quot;&gt;{{TITLE}}&lt;/h2&gt;
+
+&lt;p style=&quot;text-align:center; color:#627d98;&quot;&gt;
+{{SUBTITLE}}
+&lt;/p&gt;
+
+## 核心概念
+
+{{CONCEPT}}
+
+## 核心要点
+
+&lt;!-- 根据并列关系动态生成 Cards --&gt;
+
+{{FEATURE_CARDS}}
+
+## 关键理解
+
+{{INSIGHTS}}
+
+## 示例
+
+{{EXAMPLES}}
+
+&lt;div style=&quot;background:linear-gradient(135deg,#faf5ff,#fefce8); padding:18px 22px; border-radius:12px; margin:20px 0; border:1px solid #e9d8fd;&quot;&gt;
+
+&lt;strong style=&quot;color:#6b46c1;&quot;&gt;🎯 核心总结&lt;/strong&gt;
+
+&lt;div style=&quot;color:#44337a; line-height:1.7; margin-top:8px;&quot;&gt;
+{{CONCLUSION}}
+&lt;/div&gt;
+
+&lt;/div&gt;</code></pre></div>
+<p>---</p>
+<p># 7. <code>templates/research.md</code></p>
+<div class="codeblock"><pre><code># Research Template
+
+&lt;h2 style=&quot;text-align:center; color:#2b6cb0;&quot;&gt;{{TITLE}}&lt;/h2&gt;
+
+&lt;p style=&quot;text-align:center; color:#627d98;&quot;&gt;
+{{SUBTITLE}}
+&lt;/p&gt;
+
+## 执行摘要
+
+{{EXECUTIVE_SUMMARY}}
+
+## 研究背景
+
+{{BACKGROUND}}
+
+## 核心发现
+
+{{KEY_FINDINGS}}
+
+## 数据
+
+&lt;!-- 如果存在 3～6 个核心指标 → KPI Cards --&gt;
+
+{{KPI}}
+
+&lt;!-- 如果需要多维比较 → Table --&gt;
+
+{{DATA_TABLE}}
+
+## 深度分析
+
+{{ANALYSIS}}
+
+## 核心洞察
+
+{{INSIGHTS}}
+
+## 结论
+
+{{CONCLUSION}}
+
+## 建议
+
+{{RECOMMENDATIONS}}
+
+{{FOOTER}}</code></pre></div>
+<p>---</p>
+<p># 8. <code>templates/strategy.md</code></p>
+<div class="codeblock"><pre><code># Strategy Template
+
+&lt;h2 style=&quot;text-align:center; color:#2b6cb0;&quot;&gt;{{TITLE}}&lt;/h2&gt;
+
+&lt;p style=&quot;text-align:center; color:#627d98;&quot;&gt;
+{{SUBTITLE}}
+&lt;/p&gt;
+
+## 战略摘要
+
+{{STRATEGIC_SUMMARY}}
+
+## 一、现状
+
+{{CURRENT_SITUATION}}
+
+## 二、核心问题
+
+{{PROBLEMS}}
+
+## 三、战略方向
+
+{{STRATEGIC_DIRECTIONS}}
+
+&lt;!-- 并列战略 → Cards --&gt;
+
+## 四、关键行动
+
+{{KEY_ACTIONS}}
+
+## 五、实施路线
+
+&lt;!-- 时间关系 → Timeline --&gt;
+
+{{ROADMAP}}
+
+## 六、风险
+
+&lt;!-- 风险 → Warning --&gt;
+
+{{RISKS}}
+
+## 七、最终结论
+
+{{CONCLUSION}}</code></pre></div>
+<p>---</p>
+<p># 9. <code>templates/comparison.md</code></p>
+<div class="codeblock"><pre><code># Comparison Template
+
+&lt;h2 style=&quot;text-align:center; color:#2b6cb0;&quot;&gt;{{TITLE}}&lt;/h2&gt;
+
+&lt;p style=&quot;text-align:center; color:#627d98;&quot;&gt;
+{{SUBTITLE}}
+&lt;/p&gt;
+
+## 比较背景
+
+{{BACKGROUND}}
+
+## 核心差异
+
+&lt;!-- 强制优先使用 Comparison Table --&gt;
+
+{{COMPARISON_TABLE}}
+
+## 优势
+
+{{ADVANTAGES}}
+
+## 局限
+
+{{LIMITATIONS}}
+
+## 风险
+
+{{RISKS}}
+
+## 推荐方案
+
+&lt;div style=&quot;background:linear-gradient(135deg,#faf5ff,#fefce8); padding:18px 22px; border-radius:12px; border:1px solid #e9d8fd;&quot;&gt;
+
+&lt;strong style=&quot;color:#6b46c1;&quot;&gt;🎯 推荐结论&lt;/strong&gt;
+
+&lt;div style=&quot;color:#44337a; line-height:1.7; margin-top:8px;&quot;&gt;
+{{RECOMMENDATION}}
+&lt;/div&gt;
+
+&lt;/div&gt;</code></pre></div>
+<p>---</p>
+<p># 10. <code>templates/project.md</code></p>
+<div class="codeblock"><pre><code># Project Template
+
+&lt;h2 style=&quot;text-align:center; color:#2b6cb0;&quot;&gt;{{TITLE}}&lt;/h2&gt;
+
+&lt;p style=&quot;text-align:center; color:#627d98;&quot;&gt;
+{{SUBTITLE}}
+&lt;/p&gt;
+
+## 项目目标
+
+{{OBJECTIVE}}
+
+## 项目范围
+
+{{SCOPE}}
+
+## 项目里程碑
+
+{{MILESTONES}}
+
+## 实施路线
+
+&lt;!-- 时间关系 → Timeline --&gt;
+
+{{TIMELINE}}
+
+## 工作任务
+
+&lt;!-- 任务关系 → Checklist --&gt;
+
+{{TASKS}}
+
+## 当前进度
+
+&lt;!-- 如果存在百分比 → Progress Bar --&gt;
+
+{{PROGRESS}}
+
+## 风险与问题
+
+{{RISKS}}
+
+## 交付成果
+
+{{DELIVERABLES}}
+
+## 项目总结
+
+{{CONCLUSION}}</code></pre></div>
+<p>---</p>
+<p># 11. <code>templates/tutorial.md</code></p>
+<div class="codeblock"><pre><code># Tutorial Template
+
+&lt;h2 style=&quot;text-align:center; color:#2b6cb0;&quot;&gt;{{TITLE}}&lt;/h2&gt;
+
+&lt;p style=&quot;text-align:center; color:#627d98;&quot;&gt;
+{{SUBTITLE}}
+&lt;/p&gt;
+
+## 你将学会什么
+
+{{LEARNING_OBJECTIVES}}
+
+## 准备工作
+
+{{PREREQUISITES}}
+
+## 第一步
+
+{{STEP_1}}
+
+## 第二步
+
+{{STEP_2}}
+
+## 第三步
+
+{{STEP_3}}
+
+&lt;!-- 如果步骤超过 4 个，根据内容决定使用 Step Cards 或 Mermaid --&gt;
+
+{{MORE_STEPS}}
+
+## 常见问题
+
+{{FAQ}}
+
+## 注意事项
+
+{{WARNINGS}}
+
+&lt;div style=&quot;background:linear-gradient(135deg,#faf5ff,#fefce8); padding:18px 22px; border-radius:12px; border:1px solid #e9d8fd;&quot;&gt;
+
+&lt;strong style=&quot;color:#6b46c1;&quot;&gt;🎯 最终总结&lt;/strong&gt;
+
+&lt;div style=&quot;color:#44337a; line-height:1.7; margin-top:8px;&quot;&gt;
+{{SUMMARY}}
+&lt;/div&gt;
+
+&lt;/div&gt;</code></pre></div>
+<p>---</p>
+<p># 12. <code>examples/before-after.md</code></p>
+<p>这个文件用于给 Agent 学习<strong>“不要固定套模板”</strong>。</p>
+<div class="codeblock"><pre><code># Adaptive Layout Example
+
+## Input
+
+某公司有三个产品：
+
+A 产品价格 100 元，主要面向年轻消费者。
+
+B 产品价格 180 元，主要面向中高端消费者。
+
+C 产品价格 260 元，主要面向高端消费者。
+
+A 产品销量最高。
+
+B 产品利润率最高。
+
+C 产品品牌价值最高。
+
+---
+
+# Wrong Approach
+
+错误做法：
+
+三个产品全部使用普通卡片。
+
+原因：
+
+内容存在明显的：
+</code></pre></div>
+<p>产品 + 价格 + 目标人群 + 销量 + 利润率 + 品牌价值</p>
+<div class="codeblock"><pre><code>
+本质上属于：
+</code></pre></div>
+<p>多维比较</p>
+<div class="codeblock"><pre><code>
+因此 Cards 不是最佳结构。
+
+---
+
+# Correct Approach
+
+使用 Comparison Table。
+
+&lt;table style=&quot;width:100%; border-collapse:collapse; color:#334e68;&quot;&gt;
+
+&lt;thead&gt;
+&lt;tr style=&quot;background:linear-gradient(135deg,#4299e1,#667eea);&quot;&gt;
+&lt;th style=&quot;padding:12px 14px; color:#ffffff;&quot;&gt;产品&lt;/th&gt;
+&lt;th style=&quot;padding:12px 14px; color:#ffffff;&quot;&gt;价格&lt;/th&gt;
+&lt;th style=&quot;padding:12px 14px; color:#ffffff;&quot;&gt;目标人群&lt;/th&gt;
+&lt;th style=&quot;padding:12px 14px; color:#ffffff;&quot;&gt;核心优势&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style=&quot;padding:11px 14px;&quot;&gt;A&lt;/td&gt;
+&lt;td style=&quot;padding:11px 14px;&quot;&gt;100 元&lt;/td&gt;
+&lt;td style=&quot;padding:11px 14px;&quot;&gt;年轻消费者&lt;/td&gt;
+&lt;td style=&quot;padding:11px 14px;&quot;&gt;销量最高&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr style=&quot;background:#f7fafc;&quot;&gt;
+&lt;td style=&quot;padding:11px 14px;&quot;&gt;B&lt;/td&gt;
+&lt;td style=&quot;padding:11px 14px;&quot;&gt;180 元&lt;/td&gt;
+&lt;td style=&quot;padding:11px 14px;&quot;&gt;中高端消费者&lt;/td&gt;
+&lt;td style=&quot;padding:11px 14px;&quot;&gt;利润率最高&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td style=&quot;padding:11px 14px;&quot;&gt;C&lt;/td&gt;
+&lt;td style=&quot;padding:11px 14px;&quot;&gt;260 元&lt;/td&gt;
+&lt;td style=&quot;padding:11px 14px;&quot;&gt;高端消费者&lt;/td&gt;
+&lt;td style=&quot;padding:11px 14px;&quot;&gt;品牌价值最高&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+
+&lt;/table&gt;
+
+## Decision
+</code></pre></div>
+<p>信息关系 = 比较 ↓ 表达目的 = 分析 ↓ 信息密度 = 中等 ↓ 最佳结构 = Comparison Table</p>
+<div class="codeblock"><pre><code>
+结论：
+
+&gt; 不要因为 Cards 好看，就在所有场景使用 Cards。</code></pre></div>
+<p>---</p>
+<p># 13. <code>examples/complex-report.md</code></p>
+<p>这是用来训练 Skill 处理<strong>复杂混合型文档</strong>的。</p>
+<div class="codeblock"><pre><code># Complex Adaptive Layout Example
+
+## 原始信息
+
+某企业准备推出一个新的健康产品。
+
+当前市场规模约 20 亿元，同比增长 18%。
+
+竞争品牌主要有 A、B、C 三家。
+
+A 品牌渠道能力强。
+
+B 品牌产品创新能力强。
+
+C 品牌品牌影响力强。
+
+企业计划：
+
+2026 年完成产品研发。
+
+2027 年完成渠道建设。
+
+2028 年扩大市场。
+
+项目目前完成度 65%。
+
+主要风险：
+
+原材料价格上涨。
+
+市场竞争加剧。
+
+消费者认知不足。
+
+---
+
+# Structural Analysis
+
+识别结果：
+</code></pre></div>
+<p>市场规模 → KPI 增长率 → KPI</p>
+<p>竞争品牌 → Comparison</p>
+<p>2026 → 研发 2027 → 渠道 2028 → 市场 → Timeline</p>
+<p>项目完成度 65% → Progress Bar</p>
+<p>风险 → Warning Box</p>
+<div class="codeblock"><pre><code>
+因此：
+</code></pre></div>
+<p>整篇文章 = Hybrid Layout</p>
+<div class="codeblock"><pre><code>
+---
+
+# Recommended Structure
+
+## 1. Executive Summary
+
+使用：
+</code></pre></div>
+<p>Summary Box</p>
+<div class="codeblock"><pre><code>
+## 2. Market Data
+
+使用：
+</code></pre></div>
+<p>KPI Cards</p>
+<div class="codeblock"><pre><code>
+## 3. Competitor Analysis
+
+使用：
+</code></pre></div>
+<p>Comparison Table</p>
+<div class="codeblock"><pre><code>
+## 4. Strategic Roadmap
+
+使用：
+</code></pre></div>
+<p>Timeline</p>
+<div class="codeblock"><pre><code>
+## 5. Project Progress
+
+使用：
+</code></pre></div>
+<p>Progress Bar</p>
+<div class="codeblock"><pre><code>
+## 6. Risk
+
+使用：
+</code></pre></div>
+<p>Warning Box</p>
+<div class="codeblock"><pre><code>
+---
+
+# Core Principle
+
+一个复杂文档不应该只有一种布局。
+
+应该：
+</code></pre></div>
+<p>Document │ ├── Section A → KPI ├── Section B → Table ├── Section C → Timeline ├── Section D → Progress └── Section E → Warning</p>
+<div class="codeblock"><pre><code>
+这就是：
+
+&gt; Section-level Adaptive Layout</code></pre></div>
+<p>---</p>
+<p># 二、这套 Skill 的核心升级点</p>
+<p>这套版本相比你最开始的 Prompt，最大的变化不是“多了几个文件”，而是<strong>工作方式发生了变化</strong>。</p>
+<p>你原来的 Prompt 本质上是：</p>
+<div class="codeblock"><pre><code>规定：
+标题怎么做
+↓
+卡片怎么做
+↓
+表格怎么做
+↓
+时间线怎么做
+↓
+最后组合</code></pre></div>
+<p>而现在变成：</p>
+<div class="codeblock"><pre><code>                 ┌→ KPI Card
+                 │
+                 ├→ Comparison Table
+                 │
+输入 → 信息分析 → ├→ Timeline
+                 │
+                 ├→ Mermaid
+                 │
+                 ├→ Feature Cards
+                 │
+                 ├→ Checklist
+                 │
+                 └→ Standard Markdown</code></pre></div>
+<p>也就是：</p>
+<blockquote class="md-quote"><strong>不是“我有哪些组件”，而是“这段信息最适合什么结构”。</strong></blockquote>
+<p>这与原 Prompt 中已经存在的“数据用蓝、成果用绿、风险用橙、核心用紫”等语义体系保持一致，但把它从<strong>静态视觉规则</strong>升级成了<strong>动态决策系统</strong>。fileciteturn1file0L33-L39</p>
+<p>---</p>
+<h3 class="sub-h">三、我特别建议保留的一个核心机制</h3>
+<p>以后你把这个 Skill 放进 Agent / OpenClaw / Codex 一类系统时，最重要的是让它遵循这一条：</p>
+<div class="codeblock"><pre><code>┌─────────────────────────────┐
+│       INPUT DOCUMENT        │
+└──────────────┬──────────────┘
+               ↓
+       ┌───────────────┐
+       │ 信息单元识别   │
+       └───────┬───────┘
+               ↓
+       ┌───────────────┐
+       │ 关系识别       │
+       │ 并列/比较/时间 │
+       │ 流程/因果/层级 │
+       └───────┬───────┘
+               ↓
+       ┌───────────────┐
+       │ 表达目的识别   │
+       │ 解释/分析/决策 │
+       │ 计划/研究/教学 │
+       └───────┬───────┘
+               ↓
+       ┌───────────────┐
+       │ Layout Scoring │
+       └───────┬───────┘
+               ↓
+       ┌───────────────┐
+       │ Layout Selector │
+       └───────┬───────┘
+               ↓
+       ┌───────────────┐
+       │ Component      │
+       │ Selector       │
+       └───────┬───────┘
+               ↓
+       ┌───────────────┐
+       │ Markdown       │
+       │ Renderer       │
+       └───────┬───────┘
+               ↓
+       ┌───────────────┐
+       │ Compatibility  │
+       │ Validator      │
+       └───────┬───────┘
+               ↓
+       FINAL DOCUMENT</code></pre></div>
+<p>这会让它从一个<strong>“Markdown 美化 Prompt”</strong>真正变成一个：</p>
+<blockquote class="md-quote"><strong>自适应信息可视化排版 Skill（Adaptive Information Visualization Skill）</strong></blockquote>
+<p>而且以后还可以继续往上升级成 <strong>Layout Engine + Component Engine + Renderer + Validator</strong> 四层架构。</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>自适应排版技能 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：自适应排版技能（2026-09-09）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1", "s2"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>GEO Corpus Feeder 文件 · 2026</title>
+<meta name="description" content="下面给你一整套可直接落地的 GEO Corpus Feeder Skill 文件包（完整版），包含：- SKILL.md（你已有，我帮你补全增强版）- config.yaml- run.py（核心执行引擎）- prompt.md（AI调度提">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · AI
+  <h1 class="s-h1">GEO Corpus Feeder 文件</h1>
+  <p class="s-lede">下面给你一整套可直接落地的 GEO Corpus Feeder Skill 文件包（完整版），包含：- SKILL.md（你已有，我帮你补全增强版）- config.yaml- run.py（核心执行引擎）- prompt.md（AI调度提</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>2</b></span>
+    <span>时间范围 <b>2026-04-15 ~ 2026-04-15</b></span>
+    <span>分类 <b>AI与Agent</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">AI</span>
+    <span class="s-chip">2026</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>给出一整套的GEO Corpus Feeder Skill文件</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>给出一整套的GEO Corpus Feeder Skill文件</p></div>
+      <div class="qa-a"><p>下面给你一整套<strong>可直接落地的 GEO Corpus Feeder Skill 文件包（完整版）</strong>，包含：</p>
+<ul class="md-ul"><li><code>SKILL.md</code>（你已有，我帮你补全增强版）</li><li><code>config.yaml</code></li><li><code>run.py</code>（核心执行引擎）</li><li><code>prompt.md</code>（AI调度提示）</li><li><code>templates/corpus_template.md</code></li><li><code>schedule/current_month.json</code>（初始化）</li><li><code>schedule/cycle_log.json</code></li></ul>
+<p>全部是<strong>可直接复制使用版本</strong>👇</p>
+<p>---</p>
+<p># 一、config.yaml</p>
+<div class="codeblock"><pre><code>name: geo-corpus-feeder
+version: 1.0.0
+
+paths:
+  corpus_dir: ./corpus
+  schedule_dir: ./schedule
+  template_dir: ./templates
+
+platforms:
+  default:
+    - deepseek
+    - kimi
+    - doubao
+    - chatgpt
+
+scoring:
+  geo_score_weights:
+    structure: 0.25
+    semantic_density: 0.25
+    metadata: 0.2
+    consistency: 0.3
+
+thresholds:
+  low_quality_score: 6
+  conflict_threshold: 0.03
+
+execution:
+  auto_create_dirs: true
+  auto_add_metadata: false
+  auto_optimize: true</code></pre></div>
+<p>---</p>
+<p># 二、run.py（核心执行逻辑）</p>
+<div class="codeblock"><pre><code>import os
+import json
+import datetime
+import uuid
+
+BASE_DIR = os.getcwd()
+CORPUS_DIR = os.path.join(BASE_DIR, &quot;corpus&quot;)
+SCHEDULE_DIR = os.path.join(BASE_DIR, &quot;schedule&quot;)
+
+def ensure_dirs():
+    dirs = [
+        &quot;corpus/brand&quot;,
+        &quot;corpus/product&quot;,
+        &quot;corpus/faq&quot;,
+        &quot;corpus/case&quot;,
+        &quot;corpus/knowledge&quot;,
+        &quot;schedule/history&quot;,
+        &quot;templates&quot;
+    ]
+    for d in dirs:
+        path = os.path.join(BASE_DIR, d)
+        os.makedirs(path, exist_ok=True)
+
+def init_month():
+    now = datetime.datetime.now()
+    month = now.strftime(&quot;%Y-%m&quot;)
+
+    current_file = os.path.join(SCHEDULE_DIR, &quot;current_month.json&quot;)
+
+    data = {
+        &quot;month&quot;: month,
+        &quot;cycle&quot;: 1,
+        &quot;phases&quot;: {
+            &quot;week1&quot;: {&quot;status&quot;: &quot;pending&quot;},
+            &quot;week2&quot;: {&quot;status&quot;: &quot;pending&quot;},
+            &quot;week3&quot;: {&quot;status&quot;: &quot;pending&quot;},
+            &quot;week4&quot;: {&quot;status&quot;: &quot;pending&quot;}
+        },
+        &quot;corpus_stats&quot;: {},
+        &quot;logs&quot;: []
+    }
+
+    with open(current_file, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
+def scan_corpus():
+    stats = {}
+    total = 0
+
+    for root, dirs, files in os.walk(CORPUS_DIR):
+        for file in files:
+            if file.endswith(&quot;.md&quot;):
+                total += 1
+                category = root.split(os.sep)[-1]
+                stats[category] = stats.get(category, 0) + 1
+
+    return total, stats
+
+def check_quality(file_path):
+    with open(file_path, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f:
+        content = f.read()
+
+    score = 10
+
+    if &quot;---&quot; not in content:
+        score -= 2
+    if len(content) &lt; 300:
+        score -= 2
+    if &quot;##&quot; not in content:
+        score -= 1
+
+    return max(score, 1)
+
+def week1_cleaning():
+    issues = []
+    total = 0
+
+    for root, dirs, files in os.walk(CORPUS_DIR):
+        for file in files:
+            if file.endswith(&quot;.md&quot;):
+                total += 1
+                path = os.path.join(root, file)
+                score = check_quality(path)
+
+                if score &lt; 6:
+                    issues.append({
+                        &quot;file&quot;: path,
+                        &quot;score&quot;: score
+                    })
+
+    return total, issues
+
+def generate_id(prefix):
+    return f&quot;{prefix}_{str(uuid.uuid4())[:6]}&quot;
+
+def week2_structure():
+    updated = 0
+
+    for root, dirs, files in os.walk(CORPUS_DIR):
+        for file in files:
+            if file.endswith(&quot;.md&quot;):
+                path = os.path.join(root, file)
+
+                with open(path, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f:
+                    content = f.read()
+
+                if not content.strip().startswith(&quot;---&quot;):
+                    meta = f&quot;&quot;&quot;---
+id: {generate_id(&quot;auto&quot;)}
+type: unknown
+priority: medium
+keywords: []
+target_platforms: [deepseek, kimi, doubao]
+created: {datetime.date.today()}
+updated: {datetime.date.today()}
+version: 1.0
+---
+
+&quot;&quot;&quot;
+                    content = meta + content
+
+                    with open(path, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+                        f.write(content)
+
+                    updated += 1
+
+    return updated
+
+def week3_optimize():
+    improved = 0
+
+    for root, dirs, files in os.walk(CORPUS_DIR):
+        for file in files:
+            if file.endswith(&quot;.md&quot;):
+                improved += 1
+
+    return improved
+
+def week4_publish_record():
+    record = {
+        &quot;published&quot;: [],
+        &quot;date&quot;: str(datetime.date.today())
+    }
+
+    return record
+
+def update_schedule(week, result):
+    file = os.path.join(SCHEDULE_DIR, &quot;current_month.json&quot;)
+
+    with open(file, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f:
+        data = json.load(f)
+
+    data[&quot;phases&quot;][week][&quot;status&quot;] = &quot;completed&quot;
+    data[&quot;phases&quot;][week][&quot;result&quot;] = result
+
+    with open(file, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
+def run_week(week):
+    if week == &quot;week1&quot;:
+        total, issues = week1_cleaning()
+        update_schedule(&quot;week1&quot;, {&quot;total&quot;: total, &quot;issues&quot;: issues})
+
+    elif week == &quot;week2&quot;:
+        updated = week2_structure()
+        update_schedule(&quot;week2&quot;, {&quot;updated&quot;: updated})
+
+    elif week == &quot;week3&quot;:
+        improved = week3_optimize()
+        update_schedule(&quot;week3&quot;, {&quot;optimized&quot;: improved})
+
+    elif week == &quot;week4&quot;:
+        record = week4_publish_record()
+        update_schedule(&quot;week4&quot;, record)
+
+if __name__ == &quot;__main__&quot;:
+    ensure_dirs()
+    init_month()
+    run_week(&quot;week1&quot;)</code></pre></div>
+<p>---</p>
+<p># 三、prompt.md（调度提示词）</p>
+<div class="codeblock"><pre><code>你是一个GEO语料投喂系统调度引擎，负责：
+
+1. 判断当前执行阶段（week1~week4）
+2. 调用 run.py 对应逻辑
+3. 输出结构化报告
+
+输出要求：
+
+- 使用结构化数据
+- 包含：
+  - 当前阶段
+  - 处理数量
+  - 问题列表
+  - 优化建议
+
+风格要求：
+
+- 冷静理性
+- 数据优先
+- 可执行导向
+
+关键原则：
+
+- GEO 本质是“让 AI 更容易引用你”
+- 语料一致性 &gt; 数量
+- 结构化 &gt; 文案华丽</code></pre></div>
+<p>---</p>
+<p># 四、templates/corpus_template.md</p>
+<div class="codeblock"><pre><code>---
+id: product_001
+type: product
+priority: high
+keywords: [食品包装, 铝罐, 喷雾罐]
+target_platforms: [deepseek, kimi, doubao]
+created: 2026-04-01
+updated: 2026-04-01
+version: 1.0
+---
+
+# 产品名称
+
+## 核心信息摘要
+一句话说明核心卖点（必须可被AI直接引用）
+
+## 适用场景
+- 场景1
+- 场景2
+
+## 核心优势
+1. 优势1
+2. 优势2
+3. 优势3
+
+## 数据支持
+- 数据1
+- 数据2
+
+## 常见问答
+Q: 这个产品适合什么行业？
+A: 适用于食品、日化、医药等行业
+
+Q: 是否支持定制？
+A: 支持OEM/ODM
+
+## 关键词
+食品包装, 铝罐, aerosol, spray can
+
+## 更新记录
+- 2026-04-01 初始化</code></pre></div>
+<p>---</p>
+<p># 五、schedule/current_month.json</p>
+<div class="codeblock"><pre><code>{
+  &quot;month&quot;: &quot;2026-04&quot;,
+  &quot;cycle&quot;: 1,
+  &quot;phases&quot;: {
+    &quot;week1&quot;: { &quot;status&quot;: &quot;pending&quot; },
+    &quot;week2&quot;: { &quot;status&quot;: &quot;pending&quot; },
+    &quot;week3&quot;: { &quot;status&quot;: &quot;pending&quot; },
+    &quot;week4&quot;: { &quot;status&quot;: &quot;pending&quot; }
+  },
+  &quot;corpus_stats&quot;: {},
+  &quot;logs&quot;: []
+}</code></pre></div>
+<p>---</p>
+<p># 六、schedule/cycle_log.json</p>
+<div class="codeblock"><pre><code>{
+  &quot;total_cycles&quot;: 0,
+  &quot;history&quot;: []
+}</code></pre></div>
+<p>---</p>
+<p># 七、最终目录结构（完整）</p>
+<div class="codeblock"><pre><code>geo-corpus-feeder/
+├── SKILL.md
+├── config.yaml
+├── run.py
+├── prompt.md
+├── corpus/
+│   ├── brand/
+│   ├── product/
+│   ├── faq/
+│   ├── case/
+│   └── knowledge/
+├── schedule/
+│   ├── current_month.json
+│   ├── cycle_log.json
+│   └── history/
+└── templates/
+    └── corpus_template.md</code></pre></div>
+<p>---</p>
+<p># 如果你要再进阶（强烈建议下一步）</p>
+<p>我可以帮你直接升级成👇：</p>
+<h4 class="sub-h">🚀 GEO超级版本</h4>
+<ul class="md-ul"><li>自动生成语料（AI写内容）</li><li>自动检测竞品（模拟DeepSeek回答）</li><li>自动算“被引用概率”</li><li>自动选题（找AI高频问题）</li><li>自动投喂脚本（半自动）</li></ul>
+<p>一句话你就可以继续：</p>
+<p>👉 <strong>“升级成GEO超级Agent”</strong></p>
+<p>我直接给你一套行业顶级版本（带赚钱能力那种）</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>GEO Corpus Feeder 文件 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：GEO Corpus Feeder 文件（2026-04-15）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

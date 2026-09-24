@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>DeepDigest技能设计 · 2026</title>
+<meta name="description" content="你这套已经很接近“能用”，但问题是：它更像工具说明文档，还没真正进化成一个可调用、可扩展、可控输出质量的 Skill。我帮你直接升级成一套可落地 + 更产品化 + 去工具味的版本，并给一个更贴切的名字。--- ✅ 技能名称（重命名建议） 👉">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · AI
+  <h1 class="s-h1">DeepDigest技能设计</h1>
+  <p class="s-lede">你这套已经很接近“能用”，但问题是：它更像工具说明文档，还没真正进化成一个可调用、可扩展、可控输出质量的 Skill。我帮你直接升级成一套可落地 + 更产品化 + 去工具味的版本，并给一个更贴切的名字。--- ✅ 技能名称（重命名建议） 👉</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>2</b></span>
+    <span>时间范围 <b>2026-04-19 ~ 2026-04-19</b></span>
+    <span>分类 <b>AI与Agent</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">AI</span>
+    <span class="s-chip">2026</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>---name: summarizedescription: Summarize…</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>--- name: summarize description: Summarize URLs or files with the summarize CLI (web, PDFs, images, audio, YouTube). homepage: https://summarize.sh metadata: {"clawdbot":{"emoji":"🧾","requires":{"bins":["summarize"]},"install":[{"id":"brew","kind":"brew","formula":"steipete/tap/summarize","bins":["summarize"],"label":"Install summarize (brew)"}]}}</p>
+<p>---</p>
+<p># Summarize</p>
+<p>Fast CLI to summarize URLs, local files, and YouTube links.</p>
+<h3 class="sub-h">Quick start</h3>
+<div class="codeblock"><pre><code>summarize &quot;https://example.com&quot; --model google/gemini-3-flash-preview
+summarize &quot;/path/to/file.pdf&quot; --model google/gemini-3-flash-preview
+summarize &quot;https://youtu.be/dQw4w9WgXcQ&quot; --youtube auto</code></pre></div>
+<h3 class="sub-h">Model + keys</h3>
+<p>Set the API key for your chosen provider:</p>
+<ul class="md-ul"><li>OpenAI: <code>OPENAI_API_KEY</code></li><li>Anthropic: <code>ANTHROPIC_API_KEY</code></li><li>xAI: <code>XAI_API_KEY</code></li><li>Google: <code>GEMINI_API_KEY</code> (aliases: <code>GOOGLE_GENERATIVE_AI_API_KEY</code>, <code>GOOGLE_API_KEY</code>)</li></ul>
+<p>Default model is <code>google/gemini-3-flash-preview</code> if none is set.</p>
+<h3 class="sub-h">Useful flags</h3>
+<ul class="md-ul"><li><code>--length short|medium|long|xl|xxl|&lt;chars&gt;</code></li><li><code>--max-output-tokens &lt;count&gt;</code></li><li><code>--extract-only</code> (URLs only)</li><li><code>--json</code> (machine readable)</li><li><code>--firecrawl auto|off|always</code> (fallback extraction)</li><li><code>--youtube auto</code> (Apify fallback if <code>APIFY_API_TOKEN</code> set)</li></ul>
+<h3 class="sub-h">Config</h3>
+<p>Optional config file: <code>~/.summarize/config.json</code></p>
+<div class="codeblock"><pre><code>{ &quot;model&quot;: &quot;openai/gpt-5.2&quot; }</code></pre></div>
+<p>Optional services:</p>
+<ul class="md-ul"><li><code>FIRECRAWL_API_KEY</code> for blocked sites</li><li><code>APIFY_API_TOKEN</code> for YouTube fallback     基于这个技能，给我设计一套总结URL或文件（支持网页、PDF、图片、音频的SKILL，并给出更贴切的技能名称</li></ul></div>
+      <div class="qa-a"><p>你这套已经很接近“能用”，但问题是：它更像<strong>工具说明文档</strong>，还没真正进化成一个<strong>可调用、可扩展、可控输出质量的 Skill</strong>。</p>
+<p>我帮你直接升级成一套<strong>可落地 + 更产品化 + 去工具味</strong>的版本，并给一个更贴切的名字。</p>
+<p>---</p>
+<p># ✅ 技能名称（重命名建议）</p>
+<h4 class="sub-h">👉 <strong>DeepDigest（深度信息萃取器）</strong></h4>
+<p>比 “summarize” 更贴近实际用途：</p>
+<ul class="md-ul"><li>不只是“总结”，而是<strong>提炼 + 结构化 + 复用</strong></li><li>支持多模态 → “Digest”比“Summary”更高级</li><li>适合你后续做 Agent 扩展（调研 / 竞品 / 内容生产）</li></ul>
+<p>---</p>
+<p># 📦 Skill 结构（完整）</p>
+<div class="codeblock"><pre><code>deep-digest/
+├── skill.md
+├── prompt.md
+├── config.yaml
+├── run.py
+├── output_template.md
+├── cache.json</code></pre></div>
+<p>---</p>
+<p># 🧠 一、skill.md（入口定义）</p>
+<div class="codeblock"><pre><code>---
+name: deep_digest
+description: 深度解析URL或文件（网页 / PDF / 图片 / 音频 / YouTube），输出结构化、可复用的信息摘要
+version: 1.0
+author: Gervas
+---
+
+# DeepDigest · 深度信息萃取器
+
+一个面向信息工作者的多模态总结工具。
+
+不仅做摘要，还做：
+
+- 信息提纯
+- 结构重组
+- 关键洞察提炼
+- 可复用输出（适合报告 / 内容创作 / 决策）
+
+---
+
+## ✅ 支持输入
+
+- 🌐 网页 URL
+- 📄 PDF / 文档
+- 🖼 图片（OCR + 理解）
+- 🎧 音频（转录 + 总结）
+- 🎬 YouTube 视频
+
+---
+
+## 🎯 输出能力
+
+- 分层摘要（短 / 中 / 长）
+- 核心观点提取
+- 关键数据抓取
+- 逻辑结构重建
+- 行动建议（可选）
+
+---
+
+## 🚀 使用方式
+</code></pre></div>
+<p>deep_digest "&lt;URL或文件路径&gt;" --mode insight</p>
+<div class="codeblock"><pre><code>
+---
+
+## 🧩 模式说明
+
+| 模式 | 说明 |
+|------|------|
+| brief | 快速摘要 |
+| structured | 结构化总结 |
+| insight | 深度洞察 |
+| extract | 仅提取信息 |
+
+---
+
+## 🧠 适用场景
+
+- 市场调研
+- 竞品分析
+- 行业报告阅读
+- 内容二次创作
+- 视频速读</code></pre></div>
+<p>---</p>
+<p># ⚙️ 二、config.yaml（参数控制）</p>
+<div class="codeblock"><pre><code>model: google/gemini-3-flash-preview
+
+mode: insight
+
+length: medium
+
+output_format: markdown
+
+options:
+  include_quotes: true
+  include_data: true
+  include_actions: true
+  multilingual: auto</code></pre></div>
+<p>---</p>
+<p># 🧠 三、prompt.md（核心能力）</p>
+<p>👉 这是整个 Skill 最关键的部分（我帮你做了“去AI味 + 更像人类分析”的版本）</p>
+<div class="codeblock"><pre><code>你不是在“总结内容”，而是在做一次“信息提纯”。
+
+请基于输入内容，完成以下任务：
+
+---
+
+# 🧠 一、核心摘要（必须自然）
+
+用接近人类表达的方式说明：
+
+- 这段内容在讲什么
+- 核心结论是什么
+
+⚠️ 禁止套路：
+不要使用“本文主要讲述”“首先其次最后”等AI痕迹表达
+
+---
+
+# 🔍 二、关键信息提取
+
+提取最有价值的信息：
+
+- 数据
+- 观点
+- 结论
+- 方法
+
+---
+
+# 🧱 三、结构重建
+
+将原内容重构为更清晰结构：
+
+- 背景
+- 问题
+- 解决方案
+- 结果
+
+---
+
+# 💡 四、深度洞察（重点）
+
+结合常识 + 经验判断：
+
+- 内容真正想表达什么
+- 有没有隐藏信息
+- 有无偏见或局限
+
+---
+
+# ⚡ 五、可行动信息（可选）
+
+如果适合，给出：
+
+- 可执行建议
+- 可复用思路
+
+---
+
+# ✍️ 风格要求（关键）
+
+- 像人写的，而不是模型生成的
+- 允许有观点
+- 句子长短自然变化
+- 避免模板化结构</code></pre></div>
+<p>---</p>
+<p># ⚡ 四、run.py（执行逻辑）</p>
+<div class="codeblock"><pre><code>import subprocess
+import json
+
+def run(input_path, mode=&quot;insight&quot;, length=&quot;medium&quot;):
+    cmd = [
+        &quot;summarize&quot;,
+        input_path,
+        &quot;--length&quot;, length
+    ]
+
+    # YouTube 特殊处理
+    if &quot;youtube.com&quot; in input_path or &quot;youtu.be&quot; in input_path:
+        cmd.extend([&quot;--youtube&quot;, &quot;auto&quot;])
+
+    result = subprocess.run(cmd, capture_output=True, text=True)
+
+    if result.returncode != 0:
+        return {&quot;error&quot;: result.stderr}
+
+    return {
+        &quot;raw&quot;: result.stdout,
+        &quot;mode&quot;: mode
+    }</code></pre></div>
+<p>---</p>
+<p># 🧾 五、output_template.md（输出格式）</p>
+<div class="codeblock"><pre><code># 📌 内容摘要
+
+{summary}
+
+---
+
+# 🔍 关键信息
+
+{key_points}
+
+---
+
+# 🧱 结构梳理
+
+{structure}
+
+---
+
+# 💡 深度洞察
+
+{insights}
+
+---
+
+# ⚡ 可行动建议
+
+{actions}</code></pre></div>
+<p>---</p>
+<p># 🧠 六、cache.json（缓存）</p>
+<div class="codeblock"><pre><code>{
+  &quot;history&quot;: [],
+  &quot;last_input&quot;: &quot;&quot;,
+  &quot;last_output&quot;: &quot;&quot;
+}</code></pre></div>
+<p>---</p>
+<p># 🚀 这个版本比原版强在哪？</p>
+<p>直接说重点：</p>
+<h4 class="sub-h">1️⃣ 从“工具调用” → “认知处理”</h4>
+<p>原版只是 summarize CLI 包装   现在是：<strong>信息理解引擎</strong></p>
+<p>---</p>
+<h4 class="sub-h">2️⃣ 从“摘要” → “洞察”</h4>
+<p>增加：</p>
+<ul class="md-ul"><li>结构重建</li><li>隐含信息识别</li><li>行动建议</li></ul>
+<p>---</p>
+<h4 class="sub-h">3️⃣ 去AI味（核心升级）</h4>
+<ul class="md-ul"><li>去掉模板话术</li><li>允许“人类判断”</li><li>输出更像分析师，而不是机器人</li></ul>
+<p>---</p>
+<h4 class="sub-h">4️⃣ 可扩展（你后面能玩很大）</h4>
+<p>这个 Skill 可以直接升级为：</p>
+<ul class="md-ul"><li>市场调研 Agent（你已经在做）</li><li>竞品分析系统</li><li>内容洗稿引擎</li><li>知识库构建器</li></ul>
+<p>---</p>
+<p># 👉 如果你要再往上升级</p>
+<p>我可以帮你做下一步（更狠的版本）：</p>
+<ul class="md-ul"><li>🔥 自动生成行业报告版（接你“市场调研skill”）</li><li>🔥 自动写公众号 / 小红书</li><li>🔥 多文档对比总结（竞品分析神器）</li><li>🔥 成本 + 商业机会识别（适合你食品行业）</li></ul>
+<p>直接说一句：   👉 “进阶版” 或 “做成超级Agent”</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>DeepDigest技能设计 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：DeepDigest技能设计（2026-04-19）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>

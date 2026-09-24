@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Markdown 排版技能 · 2026</title>
+<meta name="description" content="这是一个非常实用的 Skill。很多人写小说、教程、知识库、学习笔记时，最终都会遇到一个问题： Markdown 内容已经写好了，但缺少专业出版级排版能力。所以这套 Skill 的定位应该是： BookFormatter ProMarkdo">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · AI
+  <h1 class="s-h1">Markdown 排版技能</h1>
+  <p class="s-lede">这是一个非常实用的 Skill。很多人写小说、教程、知识库、学习笔记时，最终都会遇到一个问题： Markdown 内容已经写好了，但缺少专业出版级排版能力。所以这套 Skill 的定位应该是： BookFormatter ProMarkdo</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>2</b></span>
+    <span>时间范围 <b>2026-05-30 ~ 2026-05-30</b></span>
+    <span>分类 <b>AI与Agent</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">AI</span>
+    <span class="s-chip">2026</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>设计一套把MD文件排版制作成PDF或者epub的排版SKILL</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>设计一套把MD文件排版制作成PDF或者epub的排版SKILL</p></div>
+      <div class="qa-a"><p>这是一个非常实用的 Skill。很多人写小说、教程、知识库、学习笔记时，最终都会遇到一个问题：</p>
+<blockquote class="md-quote">Markdown 内容已经写好了，但缺少专业出版级排版能力。</blockquote>
+<p>所以这套 Skill 的定位应该是：</p>
+<p># BookFormatter Pro</p>
+<p><strong>Markdown → PDF / EPUB 专业电子书排版引擎</strong></p>
+<p>适用于：</p>
+<ul class="md-ul"><li>小说</li><li>教程</li><li>技术文档</li><li>知识库</li><li>课程讲义</li><li>研究报告</li><li>企业白皮书</li></ul>
+<p>---</p>
+<p># Skill目录结构</p>
+<div class="codeblock"><pre><code>book-formatter-pro/
+
+├── skill.md
+├── config.yaml
+
+├── rules/
+│   ├── typography_rules.md
+│   ├── chapter_rules.md
+│   ├── ebook_rules.md
+│   ├── pdf_rules.md
+│   └── epub_rules.md
+
+├── templates/
+│   ├── novel_template.md
+│   ├── tutorial_template.md
+│   ├── report_template.md
+│   └── knowledgebase_template.md
+
+├── engines/
+│   ├── structure_engine.md
+│   ├── toc_engine.md
+│   ├── cover_engine.md
+│   ├── typesetting_engine.md
+│   ├── epub_engine.md
+│   └── pdf_engine.md
+
+├── prompts/
+│   ├── analyze_book.md
+│   ├── format_pdf.md
+│   ├── format_epub.md
+│   └── quality_check.md
+
+└── output/
+    ├── pdf_spec.md
+    └── epub_spec.md</code></pre></div>
+<p>---</p>
+<p># config.yaml</p>
+<div class="codeblock"><pre><code>name: BookFormatter Pro
+version: 1.0
+
+description: |
+  专业Markdown电子书排版系统
+
+author: YourName
+
+supported_formats:
+  - pdf
+  - epub
+
+book_types:
+  - novel
+  - tutorial
+  - report
+  - knowledge_base
+
+features:
+  - chapter_detection
+  - auto_toc
+  - cover_generation
+  - typography
+  - epub_export
+  - pdf_export</code></pre></div>
+<p>---</p>
+<p># skill.md</p>
+<div class="codeblock"><pre><code># BookFormatter Pro
+
+## Role
+
+你是一名专业电子书编辑和排版设计师。
+
+擅长：
+
+- Markdown结构解析
+- 小说排版
+- 教程排版
+- EPUB制作
+- PDF出版
+- Kindle适配
+- 微信读书适配
+
+## Workflow
+
+Step1:
+分析Markdown结构
+
+Step2:
+识别章节
+
+Step3:
+生成目录
+
+Step4:
+优化标题体系
+
+Step5:
+统一排版规范
+
+Step6:
+生成封面方案
+
+Step7:
+输出PDF规范
+
+Step8:
+输出EPUB规范
+
+Step9:
+进行出版级校验</code></pre></div>
+<p>---</p>
+<p># typography_rules.md</p>
+<h3 class="sub-h">字体规范</h3>
+<div class="codeblock"><pre><code># 中文正文
+
+推荐：
+
+思源宋体
+
+字号：
+
+12pt
+
+行距：
+
+1.5
+
+段前：
+
+0
+
+段后：
+
+0.5行
+
+首行缩进：
+
+2字符</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">标题规范</h3>
+<div class="codeblock"><pre><code># 一级标题
+
+字号：
+24pt
+
+居中
+
+分页开始
+
+# 二级标题
+
+18pt
+
+# 三级标题
+
+16pt</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">小说排版规范</h3>
+<div class="codeblock"><pre><code>章节名：
+
+第一章 xxx
+
+居中
+
+独立页
+
+正文：
+
+首行缩进
+
+段落留白
+
+对话不缩进
+
+场景切换：
+
+***</code></pre></div>
+<p>---</p>
+<p># chapter_rules.md</p>
+<h3 class="sub-h">自动识别章节</h3>
+<div class="codeblock"><pre><code>识别：
+
+# 第一章
+
+第一章
+
+Chapter 1
+
+CH001
+
+CH_001
+
+卷一
+
+序章
+
+终章
+
+番外</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">自动生成结构</h3>
+<div class="codeblock"><pre><code>卷一
+ ├ 第一章
+ ├ 第二章
+ ├ 第三章
+
+卷二
+ ├ 第一章
+ ├ 第二章</code></pre></div>
+<p>---</p>
+<p># toc_engine.md</p>
+<p>自动目录生成</p>
+<div class="codeblock"><pre><code># 目录
+
+序章
+
+第一卷
+
+第一章
+
+第二章
+
+第三章
+
+第二卷
+
+...
+
+终章
+
+番外</code></pre></div>
+<p>---</p>
+<p># cover_engine.md</p>
+<h3 class="sub-h">小说封面</h3>
+<p>生成：</p>
+<div class="codeblock"><pre><code>书名
+
+副标题
+
+作者名
+
+宣传语</code></pre></div>
+<p>输出：</p>
+<div class="codeblock"><pre><code>主标题
+
+副标题
+
+作者
+
+封面设计Prompt</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">教程封面</h3>
+<p>例如：</p>
+<div class="codeblock"><pre><code>AI Agent 系统性学习教程
+
+从0到实战构建智能体
+
+作者：XXX</code></pre></div>
+<p>---</p>
+<p># epub_rules.md</p>
+<h3 class="sub-h">EPUB规范</h3>
+<div class="codeblock"><pre><code>兼容：
+
+Apple Books
+
+Kindle
+
+微信读书
+
+多看阅读
+
+Calibre</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">元数据</h3>
+<div class="codeblock"><pre><code>title:
+author:
+language:
+publisher:
+date:
+cover:</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">章节切分</h3>
+<p>每章独立HTML</p>
+<div class="codeblock"><pre><code>chapter01.xhtml
+
+chapter02.xhtml
+
+chapter03.xhtml</code></pre></div>
+<p>---</p>
+<p># pdf_rules.md</p>
+<h3 class="sub-h">PDF规范</h3>
+<p>页面：</p>
+<div class="codeblock"><pre><code>paper: A5
+
+margin:
+  top: 20mm
+  bottom: 20mm
+  left: 18mm
+  right: 18mm</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">页眉页脚</h3>
+<div class="codeblock"><pre><code>页眉：
+书名
+
+页脚：
+页码</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">目录跳转</h3>
+<p>支持：</p>
+<p>✓ 书签</p>
+<p>✓ 超链接</p>
+<p>✓ 目录导航</p>
+<div class="codeblock"><pre><code>
+---
+
+# epub_engine.md
+
+生成EPUB时自动输出：
+</code></pre></div>
+<h3 class="sub-h">EPUB构建信息</h3>
+<p>书名：</p>
+<p>作者：</p>
+<p>章节数：</p>
+<p>目录：</p>
+<p>封面：</p>
+<p>适配平台：</p>
+<p>微信读书</p>
+<p>Kindle</p>
+<p>Apple Books</p>
+<div class="codeblock"><pre><code>
+---
+
+# pdf_engine.md
+
+生成PDF时自动输出：
+</code></pre></div>
+<h3 class="sub-h">PDF构建信息</h3>
+<p>纸张：</p>
+<p>A5</p>
+<p>页数：</p>
+<p>自动统计</p>
+<p>目录：</p>
+<p>自动生成</p>
+<p>书签：</p>
+<p>自动生成</p>
+<p>字体：</p>
+<p>思源宋体</p>
+<div class="codeblock"><pre><code>
+---
+
+# quality_check.md
+
+## 出版级检查
+
+检查：
+</code></pre></div>
+<p>✓ 标题层级</p>
+<p>✓ 重复章节</p>
+<p>✓ 缺失章节</p>
+<p>✓ 目录错误</p>
+<p>✓ 空白页</p>
+<p>✓ 图片失效</p>
+<p>✓ 编码错误</p>
+<p>✓ EPUB兼容性</p>
+<p>✓ Kindle兼容性</p>
+<p>✓ PDF书签</p>
+<div class="codeblock"><pre><code>
+---
+
+# 实际升级版（推荐）
+
+如果你主要用于小说和教程，我建议直接升级到：
+
+### BookFormatter Pro V2
+
+新增：
+</code></pre></div>
+<p>① 自动封面生成Prompt</p>
+<p>② Markdown合并</p>
+<p>③ CH章节自动排序</p>
+<p>④ 多文件自动组装</p>
+<p>⑤ EPUB生成</p>
+<p>⑥ PDF生成</p>
+<p>⑦ Kindle MOBI生成</p>
+<p>⑧ 微信读书适配</p>
+<p>⑨ Calibre导出脚本</p>
+<p>⑩ Pandoc自动构建命令</p>
+<div class="codeblock"><pre><code>
+这样你的工作流会变成：
+</code></pre></div>
+<p>1000个MD章节</p>
+<p>↓ BookFormatter Pro</p>
+<p>↓ 自动识别CH001~CH1000</p>
+<p>↓ 自动合并</p>
+<p>↓ 生成目录</p>
+<p>↓ 生成封面</p>
+<p>↓ 排版优化</p>
+<p>↓ 输出：</p>
+<p>PDF EPUB MOBI</p>
+<div class="codeblock"><pre><code>
+这套 Skill 特别适合你目前的场景（小说创作、AI教程、知识库整理、QClaw/OpenClaw 内容生产），基本可以直接作为“电子书出版 Agent”的核心技能。📚✨</code></pre></div></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>Markdown 排版技能 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：Markdown 排版技能（2026-05-30）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
