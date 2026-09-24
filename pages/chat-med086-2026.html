@@ -1,0 +1,2131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>如何洗稿重构 · 2026</title>
+<meta name="description" content="“洗稿”这个词本身就有点灰色地带，我得先把话说清楚：简单改词换句、拼接他人内容去当原创，是有版权风险甚至法律风险的，尤其是用于商业用途或发布平台时，很容易被判定为抄袭。但如果你是想做高质量改写 / 二次创作 / 内容重构，那是完全可以的，而">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a><a href="#s2" data-sec="s2">Q2</a><a href="#s3" data-sec="s3">Q3</a><a href="#s4" data-sec="s4">Q4</a><a href="#s5" data-sec="s5">Q5</a><a href="#s6" data-sec="s6">Q6</a><a href="#s7" data-sec="s7">Q7</a><a href="#s8" data-sec="s8">Q8</a><a href="#s9" data-sec="s9">Q9</a><a href="#s10" data-sec="s10">Q10</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · 写作
+  <h1 class="s-h1">如何洗稿重构</h1>
+  <p class="s-lede">“洗稿”这个词本身就有点灰色地带，我得先把话说清楚：简单改词换句、拼接他人内容去当原创，是有版权风险甚至法律风险的，尤其是用于商业用途或发布平台时，很容易被判定为抄袭。但如果你是想做高质量改写 / 二次创作 / 内容重构，那是完全可以的，而</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>20</b></span>
+    <span>时间范围 <b>2026-03-20 ~ 2026-03-20</b></span>
+    <span>分类 <b>写作与创作</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">写作</span>
+    <span class="s-chip">2026</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>怎么给文章洗稿</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>怎么给文章洗稿</p></div>
+      <div class="qa-a"><p>“洗稿”这个词本身就有点灰色地带，我得先把话说清楚：<strong>简单改词换句、拼接他人内容去当原创，是有版权风险甚至法律风险的</strong>，尤其是用于商业用途或发布平台时，很容易被判定为抄袭。</p>
+<p>但如果你是想做<strong>高质量改写 / 二次创作 / 内容重构</strong>，那是完全可以的，而且也是内容创作者的核心能力。关键是：<strong>不是“换皮”，而是“重构”。</strong></p>
+<p>我给你一套实用、可落地的方法，你可以直接用👇</p>
+<p>---</p>
+<p># 一、真正有效的“洗稿”逻辑（本质是重写）</p>
+<h3 class="sub-h">1️⃣ 先“拆”再写，而不是边看边改</h3>
+<p>错误做法：   👉 一边看原文一边改词（最容易重复）</p>
+<p>正确做法：   👉 读一遍 → 关掉原文 → 用自己的理解复述</p>
+<p>核心：   <strong>你写的是“理解”，不是“原句”</strong></p>
+<p>---</p>
+<h3 class="sub-h">2️⃣ 改结构（这是最关键的一步）</h3>
+<p>原文结构：</p>
+<blockquote class="md-quote">观点 → 解释 → 举例 → 总结  </blockquote>
+<p>你可以改成：</p>
+<blockquote class="md-quote">例子开头 → 提问 → 观点 → 延伸  </blockquote>
+<p>或者：</p>
+<blockquote class="md-quote">反常识开头 → 对比 → 结论  </blockquote>
+<p>📌 只要结构变了，文章基本就“脱胎换骨”了</p>
+<p>---</p>
+<h3 class="sub-h">3️⃣ 换表达层级（不是换词，是换“说法”）</h3>
+<p>举个例子：</p>
+<p>原句：</p>
+<blockquote class="md-quote">人只有在失去之后，才懂得珍惜。</blockquote>
+<p>低级改写（没用）：</p>
+<blockquote class="md-quote">人往往在失去以后，才会学会珍惜。</blockquote>
+<p>高级改写（有效）：</p>
+<blockquote class="md-quote">很多东西，不是你不在意，而是你以为它不会消失。</blockquote>
+<p>👉 核心是：<strong>同一个意思，用另一种思维方式表达</strong></p>
+<p>---</p>
+<h3 class="sub-h">4️⃣ 加入“你的变量”（让内容变成你的）</h3>
+<p>可以加：</p>
+<ul class="md-ul"><li>你的经验</li><li>行业案例（你做食品采购，这一点其实很有优势）</li><li>新的数据/观点</li><li>不同立场的分析</li></ul>
+<p>👉 一旦有“你自己的东西”，这就不再是洗稿，而是创作</p>
+<p>---</p>
+<h3 class="sub-h">5️⃣ 改“语气”和“人设”</h3>
+<p>同一内容可以写成：</p>
+<ul class="md-ul"><li>干货型（理性）</li><li>情绪型（共鸣）</li><li>吐槽型（犀利）</li><li>老板视角（决策）</li></ul>
+<p>👉 风格一变，读者感知完全不同</p>
+<p>---</p>
+<p># 二、一个可以直接套用的“洗稿模板”</p>
+<p>你以后可以照这个流程走👇</p>
+<h4 class="sub-h">Step 1：提炼原文核心（3句话）</h4>
+<ul class="md-ul"><li>讲了什么？</li><li>结论是什么？</li><li>为什么重要？</li></ul>
+<p>---</p>
+<h4 class="sub-h">Step 2：重建结构（选一种）</h4>
+<p>常用结构：</p>
+<ul class="md-ul"><li>【问题 → 分析 → 结论】</li><li>【故事 → 反转 → 观点】</li><li>【错误认知 → 打脸 → 正解】</li></ul>
+<p>---</p>
+<h4 class="sub-h">Step 3：重写（用你自己的表达）</h4>
+<p>规则：</p>
+<ul class="md-ul"><li>不看原文写</li><li>不用原句结构</li><li>尽量用口语化表达</li></ul>
+<p>---</p>
+<h4 class="sub-h">Step 4：加“个人化内容”</h4>
+<p>比如：</p>
+<ul class="md-ul"><li>“我之前在做XX项目时就踩过这个坑”</li><li>“在供应链里，这种情况特别常见”</li></ul>
+<p>---</p>
+<h4 class="sub-h">Step 5：优化开头（决定80%阅读量）</h4>
+<p>常见爆款开头：</p>
+<ul class="md-ul"><li>反常识：</li></ul>
+<p>  &gt; 很多人以为XXX，其实刚好相反  </p>
+<ul class="md-ul"><li>提问：</li></ul>
+<p>  &gt; 为什么你越努力，反而越焦虑？  </p>
+<ul class="md-ul"><li>直接结论：</li></ul>
+<p>  &gt; 大多数人失败，不是因为不努力  </p>
+<p>---</p>
+<p># 三、3种不同等级的改写方式</p>
+<h4 class="sub-h">🥉 初级（不建议）</h4>
+<ul class="md-ul"><li>同义词替换</li><li>改句式</li></ul>
+<p>👉 平台基本能识别</p>
+<p>---</p>
+<h4 class="sub-h">🥈 中级（可用）</h4>
+<ul class="md-ul"><li>结构调整</li><li>语气变化</li><li>部分原创</li></ul>
+<p>---</p>
+<h4 class="sub-h">🥇 高级（推荐）</h4>
+<ul class="md-ul"><li>观点重组</li><li>加新内容</li><li>完全重写表达</li></ul>
+<p>👉 本质已经是“你的文章”</p>
+<p>---</p>
+<p># 四、一个关键判断标准</p>
+<p>你可以用这句话自测：</p>
+<p>👉 <strong>如果把原文删掉，你还能不能完整写出来？</strong></p>
+<ul class="md-ul"><li>能 → 你在创作  </li><li>不能 → 你在抄  </li></ul>
+<p>---</p>
+<p># 五、如果你是做内容/自媒体，我给你一个更狠的建议</p>
+<p>别只想着“洗稿”，直接做这件事：</p>
+<p>👉 <strong>一篇内容 = 3篇内容融合</strong></p>
+<p>比如：</p>
+<ul class="md-ul"><li>1篇行业分析  </li><li>1篇情绪表达  </li><li>1个真实案例  </li></ul>
+<p>👉 混在一起写，天然原创，还更有深度</p>
+<p>---</p>
+<p>如果你愿意，你可以直接丢一篇文章给我，我可以帮你：</p>
+<ul class="md-ul"><li>👉 拆结构  </li><li>👉 重写一版（不同风格）  </li><li>👉 再给你做成“爆款版本”  </li></ul>
+<p>这样你很快就能掌握这套能力。</p></div>
+    </section>
+    <section id="s2" class="st2">
+      <div class="sec-h"><span class="idx st2">Q2</span><h2>告诉我用AI洗稿的步骤</h2><span class="hint">第 2 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>告诉我用AI洗稿的步骤</p></div>
+      <div class="qa-a"><p>先说清一个边界：   如果是用 AI 去“伪原创、规避检测、冒充原创”，这是有版权和平台风险的。   但如果你的目标是——<strong>用 AI 做高质量改写 / 重构 / 二次创作</strong>，那不仅合理，而且效率极高。</p>
+<p>我给你一套<strong>真正可用、而且安全的 AI 改写流程</strong>，本质不是“洗稿”，而是“AI辅助重写”👇</p>
+<p>---</p>
+<p># 一、AI改写的核心逻辑（不是一句话改写）</p>
+<p>👉 很多人用错AI的地方在于：   <strong>直接丢原文 → 让AI改写</strong></p>
+<p>结果：</p>
+<ul class="md-ul"><li>结构没变  </li><li>逻辑没变  </li><li>很容易重复  </li></ul>
+<p>✔ 正确方式是：   <strong>“拆 → 重构 → 重写”三步走</strong></p>
+<p>---</p>
+<p># 二、完整步骤（可以直接照做）</p>
+<h3 class="sub-h">✅ Step 1：让AI先“拆文章”（最关键）</h3>
+<p>👉 不要让AI直接改写，先让它分析：</p>
+<p>你可以用这个提示词👇</p>
+<div class="codeblock"><pre><code>请帮我拆解这篇文章：
+1. 核心观点是什么（3条以内）
+2. 文章结构（分步骤列出）
+3. 每一段在表达什么
+4. 作者的写作风格（理性/情绪/故事等）</code></pre></div>
+<p>👉 目的：   把“文章”变成“结构化信息”</p>
+<p>---</p>
+<h3 class="sub-h">✅ Step 2：让AI“重建结构”（这一步决定原创度）</h3>
+<p>再给AI这个指令👇</p>
+<div class="codeblock"><pre><code>在不参考原文表达的情况下，
+请用全新的结构重新组织这篇内容：
+
+要求：
+1. 换一种行文逻辑（比如问题开头/反常识开头）
+2. 调整段落顺序
+3. 可以增加或删减部分内容</code></pre></div>
+<p>👉 核心：   <strong>结构一变，文章就已经不是原来的了</strong></p>
+<p>---</p>
+<h3 class="sub-h">✅ Step 3：AI“重新写一版”（真正改写）</h3>
+<p>提示词👇</p>
+<div class="codeblock"><pre><code>请根据新的结构，重新写一篇文章：
+
+要求：
+1. 不使用原文句式
+2. 用更口语化/更有观点的表达
+3. 可以适当加入解释或延伸</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">✅ Step 4：加“人味”（这一步决定质量）</h3>
+<p>👉 这一点90%的人不会做</p>
+<p>你再让AI：</p>
+<div class="codeblock"><pre><code>请在文章中加入：
+1. 一个真实场景或案例
+2. 一点个人视角的表达
+3. 让内容更像人在说话，而不是机器总结</code></pre></div>
+<p>或者你自己加（更好）：</p>
+<ul class="md-ul"><li>行业经验（你做食品采购，这点非常加分）</li><li>实际案例</li><li>个人判断</li></ul>
+<p>---</p>
+<h3 class="sub-h">✅ Step 5：优化“开头+标题”（流量关键）</h3>
+<p>提示词👇</p>
+<div class="codeblock"><pre><code>请给这篇文章：
+1. 生成5个更吸引点击的标题
+2. 改写一个更有冲击力的开头（前3行抓人）</code></pre></div>
+<p>---</p>
+<p># 三、一套“懒人版一键流程”（适合日常用）</p>
+<p>如果你想更快，可以直接用👇</p>
+<div class="codeblock"><pre><code>请你完成以下任务：
+
+1. 提炼这篇文章的核心观点
+2. 用全新的结构重写（不要沿用原文逻辑）
+3. 用更有表达力、更口语化的方式写
+4. 增加一些解释或例子，让内容更丰富
+5. 最后给出3个标题
+
+注意：不要使用原文句子或相似表达</code></pre></div>
+<p>---</p>
+<p># 四、进阶玩法（做内容的人一定要用）</p>
+<h3 class="sub-h">🔥 方法1：多文章融合（最强）</h3>
+<p>👉 不要只用一篇</p>
+<p>操作：</p>
+<ul class="md-ul"><li>丢3篇同主题文章给AI  </li><li>让它“融合重写”</li></ul>
+<p>提示词：</p>
+<div class="codeblock"><pre><code>请综合这3篇文章的内容，
+提炼核心观点，并写一篇新的文章：
+
+要求：
+1. 不按任何一篇的结构
+2. 融合观点并重新组织逻辑
+3. 输出一篇完整原创文章</code></pre></div>
+<p>👉 这个方法：</p>
+<ul class="md-ul"><li>原创度极高  </li><li>内容更有深度  </li></ul>
+<p>---</p>
+<h3 class="sub-h">🔥 方法2：风格迁移（直接拉开差距）</h3>
+<p>比如你可以说：</p>
+<div class="codeblock"><pre><code>请用以下风格重写：
+- 更像在聊天
+- 有一点犀利点评
+- 有观点，而不是总结</code></pre></div>
+<p>或者指定：</p>
+<ul class="md-ul"><li>自媒体风  </li><li>老板思维  </li><li>行业分析  </li></ul>
+<p>---</p>
+<p># 五、一个很重要的判断标准</p>
+<p>你用AI写完后，问自己一句：</p>
+<p>👉 <strong>“这篇文章像不像一个人写的？”</strong></p>
+<ul class="md-ul"><li>如果像总结 → 不行  </li><li>如果像观点表达 → 可以  </li></ul>
+<p>---</p>
+<p># 六、帮你总结一句最核心的原则</p>
+<p>👉 <strong>低级洗稿：改“文字”</strong>   👉 <strong>高级改写：改“结构 + 观点 + 表达”</strong></p>
+<p>---</p>
+<p>如果你愿意，可以直接发一篇文章给我，我可以帮你做一遍完整流程：</p>
+<ul class="md-ul"><li>拆解 → 重构 → 重写（2种不同风格）  </li></ul>
+<p>你一看就会明白差距在哪。</p></div>
+    </section>
+    <section id="s3" class="st3">
+      <div class="sec-h"><span class="idx st3">Q3</span><h2>整理总结以上内容，给我生成一份AI洗稿的提示词</h2><span class="hint">第 3 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>整理总结以上内容，给我生成一份AI洗稿的提示词</p></div>
+      <div class="qa-a"><p>我帮你把刚才那一整套方法，压缩成<strong>可以直接复制使用的“AI洗稿提示词工具包”</strong>。   你以后基本只需要复制 + 粘贴 + 改一点点内容，就能稳定产出👇</p>
+<p>---</p>
+<p># 🚀 AI洗稿提示词（完整工具包）</p>
+<p>---</p>
+<h3 class="sub-h">🧩 一、标准五步法（推荐日常使用）</h3>
+<div class="codeblock"><pre><code>请你作为一名专业内容创作者，帮我对以下文章进行深度改写：
+
+【任务流程】
+
+Step 1：拆解文章
+- 提炼核心观点（不超过3条）
+- 分析文章结构（按逻辑步骤列出）
+- 总结每一段的主要内容
+
+Step 2：重构结构
+- 在不参考原文表达的前提下
+- 使用全新的行文逻辑（如：问题开头/反常识开头/故事开头）
+- 调整段落顺序，可以删减或补充内容
+
+Step 3：重新写作
+- 完全重写全文，不使用原句或相似表达
+- 用更口语化、更有观点的方式表达
+- 提升可读性和逻辑清晰度
+
+Step 4：增强内容
+- 增加1-2个案例或场景
+- 加入解释或延伸，让内容更丰富
+- 让文章更像人写的，而不是总结
+
+Step 5：优化结果
+- 提供5个吸引点击的标题
+- 优化开头3行，让读者有阅读欲望
+
+【要求】
+- 不得使用原文句式或结构
+- 保持核心意思不变，但表达必须全新
+- 输出一篇完整、高质量的新文章
+
+【原文如下】
+（粘贴你的文章）</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">⚡ 二、懒人一键版（快速出稿）</h3>
+<div class="codeblock"><pre><code>请帮我对以下内容进行高质量改写：
+
+要求：
+1. 提炼核心观点
+2. 使用全新的结构重写（不要沿用原文逻辑）
+3. 用更自然、更有表达力的语言
+4. 增加适当解释或例子
+5. 输出3个吸引人的标题
+
+注意：
+- 不要使用原句或相似表达
+- 文章要像人写的，而不是总结
+
+【原文】
+（粘贴内容）</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">🔥 三、多文章融合版（高级推荐）</h3>
+<div class="codeblock"><pre><code>请综合以下多篇文章，写一篇全新的原创内容：
+
+要求：
+1. 提炼所有文章的核心观点
+2. 不按任何一篇的结构
+3. 重新组织逻辑，形成新的表达体系
+4. 输出一篇完整、连贯的文章
+5. 内容要有观点、有逻辑，而不是拼接
+
+【文章1】
+（粘贴）
+
+【文章2】
+（粘贴）
+
+【文章3】
+（粘贴）</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">🎯 四、风格强化版（做差异化必用）</h3>
+<div class="codeblock"><pre><code>请将以下内容重写，并强化写作风格：
+
+风格要求：
+- 更像人与人聊天（口语化）
+- 有观点、有态度，而不是中性总结
+- 可以适当加入犀利点评或反思
+- 读起来有节奏感
+
+其他要求：
+- 改变结构
+- 不使用原句
+- 提升吸引力和阅读体验
+
+【原文】
+（粘贴）</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">🧠 五、开头+标题优化专用</h3>
+<div class="codeblock"><pre><code>请帮我优化这篇文章：
+
+1. 写5个更有点击率的标题
+2. 重写开头（前3行必须吸引人）
+3. 可以加入提问/反常识/冲突感
+
+要求：
+- 让人有继续读下去的欲望
+- 避免平铺直叙
+
+【文章】
+（粘贴）</code></pre></div>
+<p>---</p>
+<p># 🏁 最后给你一个实战建议（很关键）</p>
+<p>你可以把这些提示词组合成一个固定流程：</p>
+<p>👉 <strong>多篇输入 → 五步法 → 风格强化 → 标题优化</strong></p>
+<p>这样产出的内容基本具备：</p>
+<ul class="md-ul"><li>✔ 高原创度  </li><li>✔ 强可读性  </li><li>✔ 自媒体风格  </li></ul>
+<p>---</p>
+<p>如果你下一步想更狠一点，我可以帮你做一套：</p>
+<p>👉 <strong>“爆款内容专用提示词（带情绪+转化+结构套路）”</strong></p>
+<p>直接让你从“能写”变成“能出爆款”。</p></div>
+    </section>
+    <section id="s4" class="st4">
+      <div class="sec-h"><span class="idx st4">Q4</span><h2>好的</h2><span class="hint">第 4 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>好的</p></div>
+      <div class="qa-a"><p>好，那我直接给你一套<strong>更狠的：爆款级 AI 洗稿提示词（带情绪 + 节奏 + 转化）</strong>。   这套不是普通改写，而是：<strong>改完就能发、还能更容易出阅读量</strong>👇</p>
+<p>---</p>
+<p># 🔥 爆款级 AI 洗稿提示词（终极版）</p>
+<p>---</p>
+<h3 class="sub-h">🚀 一、全流程爆款改写（直接用这个就够）</h3>
+<div class="codeblock"><pre><code>请你作为一名资深自媒体爆款写手，帮我对以下内容进行“重构式改写”：
+
+【核心目标】
+不是简单改写，而是写出一篇更有传播力、更有观点、更容易引发共鸣的新文章。
+
+【执行步骤】
+
+Step 1：提炼核心
+- 总结原文的3个核心观点
+- 找出最有争议/最有共鸣的点
+
+Step 2：重构逻辑
+- 不沿用原文结构
+- 使用以下结构之一：
+  ① 反常识开头 → 打破认知 → 给出新观点  
+  ② 情绪共鸣开头 → 放大问题 → 给解决方案  
+  ③ 直接结论开头 → 逐步论证  
+
+Step 3：爆款写作
+- 用更口语化、更有画面感的表达
+- 多用短句，增强节奏感
+- 每一段都尽量有“观点”而不是“描述”
+
+Step 4：增强传播性
+- 加入1个现实场景或真实感案例
+- 适当加入“你/我们”增强代入感
+- 制造一点“冲突感”或“反差”
+
+Step 5：收尾设计
+- 用一句有力量的话结尾（可引发思考或共鸣）
+
+Step 6：标题优化
+- 输出5个标题（带情绪/冲突/好奇心）
+
+【强制要求】
+- 不得使用原文句式或结构
+- 不要写成总结报告
+- 必须像一个人“在表达观点”
+
+【原文】
+（粘贴内容）</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">⚡ 二、短内容爆款版（适合小红书/朋友圈）</h3>
+<div class="codeblock"><pre><code>请将以下内容改写成一篇更容易传播的短内容：
+
+要求：
+1. 开头必须抓人（可以用反问/扎心句）
+2. 内容要有情绪、有共鸣
+3. 多用短句，节奏快
+4. 至少有1句“可以被单独摘出来传播”的金句
+5. 结尾要有余味或思考
+
+风格：
+- 像在和朋友聊天
+- 有点犀利，但不过度攻击
+
+【原文】
+（粘贴）</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">🧠 三、金句强化版（提升“记忆点”）</h3>
+<div class="codeblock"><pre><code>请对这篇文章进行优化：
+
+重点：
+1. 提炼5句“金句”（有传播力、可单独引用）
+2. 在正文中自然融入这些金句
+3. 让整篇文章更有“被记住”的点
+
+要求：
+- 金句要简短、有力量、有共鸣
+- 避免鸡汤感，要有现实感
+
+【文章】
+（粘贴）</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">🎯 四、情绪增强版（适合做爆文）</h3>
+<div class="codeblock"><pre><code>请帮我把这篇文章改写得更有情绪张力：
+
+要求：
+1. 放大读者痛点（焦虑/现实/人性）
+2. 增加共鸣表达（让人“对号入座”）
+3. 可以加入一点“残酷但真实”的观点
+4. 保持逻辑，但强化情绪冲击
+
+注意：
+- 不要无病呻吟
+- 情绪要服务于观点
+
+【原文】
+（粘贴）</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">💣 五、转化导向版（适合带产品/带观点）</h3>
+<div class="codeblock"><pre><code>请在改写文章的基础上，增强“转化能力”：
+
+目标：
+让读者在看完后，有行动或认同感
+
+方法：
+1. 在内容中逐步建立认知
+2. 引导读者接受某个观点或选择
+3. 结尾加入“轻引导”（不要硬推销）
+
+适用于：
+- 产品种草
+- 观点输出
+- 行业认知
+
+【原文】
+（粘贴）</code></pre></div>
+<p>---</p>
+<p># 🧩 给你一套“实战组合打法”（重点🔥）</p>
+<p>以后你可以这样用：</p>
+<h4 class="sub-h">👉 标准流程：</h4>
+<p>1️⃣ 多文章融合（提高内容密度）   2️⃣ 用「爆款全流程提示词」重写   3️⃣ 用「情绪增强版」再强化   4️⃣ 用「金句版」补记忆点   5️⃣ 用「标题优化」收尾  </p>
+<p>---</p>
+<p># 🧠 一句话点透本质</p>
+<p>👉 普通改写：<strong>让内容不一样</strong>   👉 爆款改写：<strong>让内容更想被传播</strong></p>
+<p>---</p>
+<p>如果你下一步想更实用一点，我可以帮你做一个：</p>
+<p>👉 <strong>“食品行业专用爆款内容模板”（结合你做采购的优势）</strong>   直接帮你把内容做成：  </p>
+<ul class="md-ul"><li>能发朋友圈  </li><li>能做行业IP  </li><li>甚至能带产品  </li></ul>
+<p>这个会更适合你现在的方向。</p></div>
+    </section>
+    <section id="s5" class="st5">
+      <div class="sec-h"><span class="idx st5">Q5</span><h2>帮我做一份微信公众号推文的爆款内容洗稿模版</h2><span class="hint">第 5 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>帮我做一份微信公众号推文的爆款内容洗稿模版</p></div>
+      <div class="qa-a"><p>好，这一版我给你做的是<strong>专门适配微信公众号的“爆款洗稿模板”</strong>——不是简单改写，而是<strong>直接能发、带阅读量逻辑、带转发属性</strong>的那种。</p>
+<p>你可以当成“固定生产线”，以后每篇都能稳定复用👇</p>
+<p>---</p>
+<p># 🚀 微信公众号爆款洗稿模板（可直接套用）</p>
+<p>---</p>
+<h3 class="sub-h">🧩 一、整篇结构（先理解这个骨架）</h3>
+<p>👉 一篇容易爆的公众号文章，本质结构：</p>
+<div class="codeblock"><pre><code>标题 → 钩子开头 → 情绪/问题放大 → 核心观点 → 案例/拆解 → 升维总结 → 金句收尾 → 引导互动</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">✍️ 二、完整提示词模板（直接复制用）</h3>
+<div class="codeblock"><pre><code>请你作为一名资深微信公众号爆款作者，帮我对以下文章进行“重构式改写”，输出一篇适合公众号发布的文章：
+
+【目标】
+写出一篇更有阅读量潜力、更有共鸣、更适合传播的公众号推文。
+
+【结构要求】
+
+1. 标题部分
+- 输出5个标题
+- 要有情绪/冲突/好奇心（如：反常识、扎心、揭秘）
+
+2. 开头（前3-5行必须抓人）
+- 用以下方式之一开头：
+  - 反常识（很多人以为…其实…）
+  - 提问（为什么你越努力越…？）
+  - 直接结论（大多数人失败，其实不是因为…）
+
+3. 问题/情绪放大
+- 描述读者常见的困境或现实
+- 让读者产生“这说的就是我”的感觉
+
+4. 核心观点输出（2-3点）
+- 每一点都要清晰、有力
+- 不要写成总结，要像在表达立场
+
+5. 案例/拆解
+- 加入1-2个真实感场景或例子
+- 可以是生活/职场/行业现象
+
+6. 升维总结
+- 从更高视角重新解释问题
+- 给读者新的认知
+
+7. 金句收尾
+- 用1-2句有传播力的话结尾（可被单独转发）
+
+8. 互动引导
+- 结尾引导读者留言/点赞/转发
+
+【写作风格】
+- 口语化，有节奏（多用短句）
+- 有观点，不中立
+- 有一点犀利，但不过度攻击
+- 像一个人在“说话”，而不是在“总结”
+
+【强制要求】
+- 不使用原文句式或结构
+- 必须重构逻辑
+- 可以增加内容，但不能变成空话
+
+【原文如下】
+（粘贴内容）</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">🔥 三、标题专用提示词（单独用）</h3>
+<div class="codeblock"><pre><code>请给这篇公众号文章生成10个爆款标题：
+
+要求：
+1. 带情绪（焦虑/扎心/认知颠覆）
+2. 制造冲突或反差
+3. 激发点击欲望
+
+参考方向：
+- 为什么你越努力，反而越…
+- 大多数人都错在…
+- 真相往往很残酷：…
+- 你以为是X，其实是Y</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">💣 四、开头强化提示词（决定打开率）</h3>
+<div class="codeblock"><pre><code>请帮我重写这篇文章的开头：
+
+要求：
+1. 前3行必须抓住读者
+2. 可以用反问/反常识/冲突
+3. 让人有继续读下去的冲动
+4. 避免铺垫过长，直接进入核心
+
+输出3个不同风格版本</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">🧠 五、金句提炼（提升转发率）</h3>
+<div class="codeblock"><pre><code>请从文章中提炼5句金句：
+
+要求：
+- 简短有力
+- 有共鸣或冲击感
+- 可以单独传播（适合截图/转发）</code></pre></div>
+<p>---</p>
+<p># 🎯 四、给你一套“公众号爆款生产流程”（重点）</p>
+<p>以后你每篇文章按这个来👇</p>
+<h4 class="sub-h">👉 Step 1（内容准备）</h4>
+<ul class="md-ul"><li>找1~3篇同主题文章</li></ul>
+<h4 class="sub-h">👉 Step 2（主洗稿）</h4>
+<ul class="md-ul"><li>用「wx001」模板生成整篇</li></ul>
+<h4 class="sub-h">👉 Step 3（强化点击）</h4>
+<ul class="md-ul"><li>用「wx002」优化标题</li><li>用「wx003」优化开头</li></ul>
+<h4 class="sub-h">👉 Step 4（增强传播）</h4>
+<ul class="md-ul"><li>用「wx004」提取金句</li></ul>
+<p>---</p>
+<p># ⚡ 五、一个关键升级点（很多人不会）</p>
+<p>👉 在文章里<strong>刻意加入这3种元素</strong>：</p>
+<ol class="md-ol"><li><strong>“你”</strong></li></ol>
+<ul class="md-ul"><li>增强代入感  </li><li>让读者感觉在被说  </li></ul>
+<ol class="md-ol"><li><strong>“现实感”</strong></li></ol>
+<ul class="md-ul"><li>具体场景（加班、会议、老板、客户）  </li></ul>
+<ol class="md-ol"><li><strong>“轻冲突”</strong></li></ol>
+<ul class="md-ul"><li>打破认知，而不是平铺直叙  </li></ul>
+<p>---</p>
+<p># 🏁 最后一句话点透</p>
+<p>👉 普通洗稿：能发   👉 爆款洗稿：<strong>让人忍不住点开、读完、转发</strong></p>
+<p>---</p>
+<p>如果你下一步想更狠一点，我可以帮你做一个：</p>
+<p>👉 <strong>“食品行业/滋补品赛道专用公众号模板”</strong>   （直接帮你把内容变成：既能种草、又不违规、还能卖货）</p>
+<p>这个会更贴你现在的业务。</p></div>
+    </section>
+    <section id="s6" class="st1">
+      <div class="sec-h"><span class="idx st1">Q6</span><h2>结合以上所有内容，给我生成一套洗稿skill</h2><span class="hint">第 6 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>结合以上所有内容，给我生成一套洗稿skill</p></div>
+      <div class="qa-a"><p>下面是一套可以<strong>直接落地使用的「AI爆款改写（洗稿）Skill」完整结构</strong>，兼顾你前面要的：结构化、可复用、可执行（适合做成 OpenClaw / Agent Skill）。</p>
+<p>---</p>
+<p># 🚀 AI爆款洗稿 Skill（完整结构）</p>
+<p>---</p>
+<h3 class="sub-h">🧩 一、skill.md（对外说明 + 调用入口）</h3>
+<div class="codeblock"><pre><code>---
+name: ai-rewrite-pro
+description: 爆款内容重构与改写技能（适用于公众号/自媒体/行业内容）
+version: 1.0
+author: Gervas
+---
+
+# 🧠 AI爆款改写 Skill
+
+## 🎯 Skill目标
+将已有文章进行“重构式改写”，输出：
+- 高原创度内容
+- 更强传播力（适合公众号/自媒体）
+- 更有观点和情绪的表达
+
+---
+
+## ⚙️ 输入参数
+- content：原始文章（必填）
+- style：写作风格（默认：公众号爆款风）
+- platform：发布平台（默认：微信公众号）
+- tone：语气（理性 / 犀利 / 共鸣）
+- length：篇幅（短 / 中 / 长）
+
+---
+
+## 📤 输出内容
+- 改写后的完整文章
+- 5个爆款标题
+- 3种开头版本
+- 5句金句
+
+---
+
+## 🧩 Skill流程
+1. 拆解原文结构
+2. 提炼核心观点
+3. 重构逻辑结构
+4. 重新写作（口语化 + 观点化）
+5. 增强情绪与传播性
+6. 优化标题与开头
+7. 提炼金句
+
+---
+
+## 🚀 使用场景
+- 公众号洗稿 / 改写
+- 自媒体内容重构
+- 行业内容再创作
+- 产品种草内容优化
+
+---
+
+## 🧠 核心原则
+- 不改“字”，改“结构 + 观点 + 表达”
+- 不做总结，要做表达
+- 增强“人味”和“冲突感”</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">⚙️ 二、config.yaml（参数配置）</h3>
+<div class="codeblock"><pre><code>input:
+  content:
+    type: string
+    required: true
+    description: 原始文章内容
+
+  style:
+    type: string
+    default: 公众号爆款风
+
+  platform:
+    type: string
+    default: 微信公众号
+
+  tone:
+    type: string
+    default: 共鸣
+
+  length:
+    type: string
+    default: 中
+
+output:
+  article: 改写后的文章
+  titles: 标题列表
+  intros: 开头版本
+  quotes: 金句列表</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">🧠 三、prompt.md（核心提示词引擎）</h3>
+<div class="codeblock"><pre><code>你是一名顶级自媒体爆款写手，请对用户提供的内容进行“重构式改写”。
+
+【核心目标】
+不是简单改写，而是写出一篇更有传播力、更有观点、更适合{{platform}}的文章。
+
+---
+
+## 🧩 执行步骤
+
+### Step 1：拆解
+- 提炼3个核心观点
+- 分析原文结构
+
+---
+
+### Step 2：重构
+- 不沿用原结构
+- 使用以下结构之一：
+  - 反常识开头 → 观点 → 案例 → 升维
+  - 情绪共鸣 → 问题 → 解决 → 总结
+  - 结论先行 → 论证 → 延伸
+
+---
+
+### Step 3：重写
+- 完全重写，不使用原句
+- 口语化表达
+- 多短句，增强节奏
+
+---
+
+### Step 4：增强
+- 加入真实场景或案例
+- 增强“你/我们”代入感
+- 制造轻冲突
+
+---
+
+### Step 5：输出优化
+- 5个爆款标题
+- 3个开头版本
+- 5句金句
+
+---
+
+## 🎯 风格要求
+- 风格：{{style}}
+- 语气：{{tone}}
+
+---
+
+## 🚫 禁止
+- 不得使用原句
+- 不得照搬结构
+- 不要写成总结报告
+
+---
+
+## 📥 输入内容
+{{content}}</code></pre></div>
+<p>---</p>
+<h3 class="sub-h">⚡ 四、run.py（执行逻辑）</h3>
+<div class="codeblock"><pre><code>def rewrite_article(content, style=&quot;公众号爆款风&quot;, platform=&quot;微信公众号&quot;, tone=&quot;共鸣&quot;, length=&quot;中&quot;):
+    
+    # Step 1: 提炼核心
+    core_prompt = f&quot;&quot;&quot;
+    提炼以下文章的3个核心观点，并简要说明结构：
+    {content}
+    &quot;&quot;&quot;
+    
+    # Step 2: 重构结构
+    restructure_prompt = f&quot;&quot;&quot;
+    基于以下内容，设计一个全新的文章结构（不沿用原文逻辑）：
+    {content}
+    &quot;&quot;&quot;
+    
+    # Step 3: 重写文章
+    rewrite_prompt = f&quot;&quot;&quot;
+    请根据新的结构，重写一篇文章：
+
+    要求：
+    - 不使用原句
+    - 口语化表达
+    - 有观点、有节奏
+    - 增强共鸣感
+
+    内容：
+    {content}
+    &quot;&quot;&quot;
+    
+    # Step 4: 标题生成
+    title_prompt = f&quot;&quot;&quot;
+    为以下文章生成5个爆款标题：
+    {content}
+    &quot;&quot;&quot;
+    
+    # Step 5: 开头生成
+    intro_prompt = f&quot;&quot;&quot;
+    为文章生成3个不同风格的开头（抓人）：
+    {content}
+    &quot;&quot;&quot;
+    
+    # Step 6: 金句提炼
+    quote_prompt = f&quot;&quot;&quot;
+    提炼5句有传播力的金句：
+    {content}
+    &quot;&quot;&quot;
+    
+    return {
+        &quot;article_prompt&quot;: rewrite_prompt,
+        &quot;title_prompt&quot;: title_prompt,
+        &quot;intro_prompt&quot;: intro_prompt,
+        &quot;quote_prompt&quot;: quote_prompt
+    }</code></pre></div>
+<p>---</p>
+<p># 🏁 五、这个Skill的核心价值（给你点透）</p>
+<p>这套东西本质不是“洗稿工具”，而是：</p>
+<p>👉 <strong>内容重构引擎</strong></p>
+<p>你用它可以做：</p>
+<ul class="md-ul"><li>公众号矩阵</li><li>行业IP输出</li><li>产品种草内容</li><li>甚至信息差套利内容</li></ul>
+<p>---</p>
+<p># 🔥 如果你下一步想升级（建议）</p>
+<p>我可以帮你再做一个进阶版：</p>
+<p>👉 <strong>「食品行业专用洗稿 + 带货 + 选品 + 成本测算」超级Agent</strong></p>
+<p>直接帮你把：</p>
+<ul class="md-ul"><li>内容 → 流量 → 产品 → 利润  </li></ul>
+<p>打通一条链路（这个才是真正赚钱的）</p>
+<p>只要你说一句：<strong>继续升级</strong>，我给你做完整版。</p></div>
+    </section>
+    <section id="s7" class="st2">
+      <div class="sec-h"><span class="idx st2">Q7</span><h2>继续升级，帮我做一个食品行业专用洗稿 + 带货 + 选品 + 成本测算超级Age…</h2><span class="hint">第 7 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>继续升级，帮我做一个食品行业专用洗稿 + 带货 + 选品 + 成本测算超级Agent</p></div>
+      <div class="qa-a"><p>下面给你做一套<strong>食品行业专用「超级Agent Skill」升级版</strong>，目标不是单纯写文章，而是打通一条链路：</p>
+<blockquote class="md-quote">内容生产 → 种草转化 → 选品推荐 → 成本测算 → 利润决策</blockquote>
+<p>可以直接用于 OpenClaw / Agent 系统 / 自动化内容生产。</p>
+<p>---</p>
+<p># 🧠 食品行业超级Agent Skill（v2.0）</p>
+<p>---</p>
+<p># 🧩 一、skill.md（核心定义）</p>
+<div class="codeblock"><pre><code>---
+name: food-growth-super-agent
+description: 食品行业内容增长 + 带货选品 + 成本利润测算一体化Agent
+version: 2.0
+author: Gervas
+---
+
+# 🍜 食品行业超级增长Agent
+
+## 🎯 核心能力
+本Agent用于食品行业全链路增长：
+
+1. 内容生成（公众号 / 小红书 / 短视频脚本）
+2. 爆款改写（洗稿 → 重构 → 情绪化表达）
+3. 产品种草（食品/原料/包装/渠道）
+4. 选品分析（市场需求 + 竞争 + 价格带）
+5. 成本测算（原料 + 包装 + 渠道 + 毛利）
+6. 利润模型输出（建议售价 + 毛利率 + ROI）
+
+---
+
+## ⚙️ 输入参数
+
+### content（可选）
+原始文章/行业信息
+
+### product（必填）
+产品信息（如：坚果、冻干水果、饮料、代餐等）
+
+### cost_data（可选）
+- 原料成本
+- 包装成本
+- 人工/物流
+- 渠道费用
+
+### market（可选）
+目标市场（电商 / 线下 / 团购 / B端）
+
+---
+
+## 📤 输出结构
+
+1. 爆款内容（公众号/种草文）
+2. 选品分析报告
+3. 成本结构拆解
+4. 定价建议
+5. 毛利测算
+6. 带货话术
+7. 标题 + 金句
+
+---
+
+## 🧠 核心原则
+
+- 内容 = 流量入口
+- 产品 = 利润核心
+- 成本 = 决策基础
+- 种草 = 转化桥梁</code></pre></div>
+<p>---</p>
+<p># ⚙️ 二、config.yaml（参数系统）</p>
+<div class="codeblock"><pre><code>input:
+  content:
+    type: string
+    required: false
+
+  product:
+    type: string
+    required: true
+
+  cost_data:
+    type: object
+    required: false
+
+  market:
+    type: string
+    default: 电商
+
+output:
+  content:
+    type: article
+
+  product_analysis:
+    type: object
+
+  cost_model:
+    type: object
+
+  pricing_suggestion:
+    type: object
+
+  marketing_copy:
+    type: string</code></pre></div>
+<p>---</p>
+<p># 🧠 三、prompt核心引擎（超级大脑）</p>
+<div class="codeblock"><pre><code>你是一名“食品行业超级增长策略专家”，同时具备以下能力：
+
+- 资深食品行业产品经理
+- 供应链与采购专家
+- 电商带货操盘手
+- 成本结构分析师
+- 内容爆款写手
+
+---
+
+# 🎯 任务目标
+
+围绕用户提供的食品产品，完成一体化增长分析：
+
+---
+
+# 🧩 第一部分：爆款内容生成（种草）
+
+请生成一篇适合{{platform}}的爆款内容：
+
+要求：
+- 强情绪 + 强代入感
+- 结合食品消费场景（早餐/零食/代餐/送礼）
+- 有真实使用场景
+- 有购买冲动引导
+- 5个标题 + 1篇完整内容
+
+---
+
+# 🧩 第二部分：产品选品分析
+
+分析该产品：
+
+- 市场需求
+- 目标人群
+- 消费场景
+- 竞争情况
+- 差异化机会
+
+输出结构化结论。
+
+---
+
+# 🧩 第三部分：成本拆解模型
+
+基于以下结构：
+
+- 原料成本
+- 包装成本
+- 加工成本
+- 物流成本
+- 渠道费用
+
+输出：
+- 单件成本
+- 成本占比
+- 影响利润关键点
+
+---
+
+# 🧩 第四部分：定价与利润模型
+
+输出：
+
+- 建议零售价（3档）
+- 毛利率分析
+- 渠道利润结构（电商/线下/B端）
+- 盈亏平衡点
+
+---
+
+# 🧩 第五部分：带货话术（关键）
+
+生成：
+
+- 3条短带货话术
+- 1条强转化话术（直播/详情页）
+- 1条朋友圈种草文案
+
+---
+
+# 🚫 禁止
+
+- 不可泛泛而谈
+- 必须结合食品行业逻辑
+- 必须有成本与商业判断</code></pre></div>
+<p>---</p>
+<p># ⚡ 四、run.py（执行引擎）</p>
+<div class="codeblock"><pre><code>def food_super_agent(product, content=None, cost_data=None, market=&quot;电商&quot;):
+
+    # 1️⃣ 内容生成
+    content_prompt = f&quot;&quot;&quot;
+    基于食品产品【{product}】，生成一篇爆款种草内容：
+    要求结合消费场景、情绪共鸣和购买冲动。
+    &quot;&quot;&quot;
+
+    # 2️⃣ 选品分析
+    market_prompt = f&quot;&quot;&quot;
+    分析食品产品【{product}】的市场机会：
+    包括需求、用户、竞争、差异化。
+    &quot;&quot;&quot;
+
+    # 3️⃣ 成本结构
+    cost_prompt = f&quot;&quot;&quot;
+    基于以下成本数据分析产品结构：
+    {cost_data}
+
+    输出单件成本结构与利润关键点。
+    &quot;&quot;&quot;
+
+    # 4️⃣ 定价模型
+    pricing_prompt = f&quot;&quot;&quot;
+    为【{product}】设计定价策略：
+    输出3档售价 + 毛利率 + 盈亏平衡点
+    &quot;&quot;&quot;
+
+    # 5️⃣ 带货内容
+    sales_prompt = f&quot;&quot;&quot;
+    生成食品带货话术：
+    - 短话术3条
+    - 直播转化话术1条
+    - 朋友圈种草1条
+    &quot;&quot;&quot;
+
+    return {
+        &quot;content_prompt&quot;: content_prompt,
+        &quot;market_analysis&quot;: market_prompt,
+        &quot;cost_analysis&quot;: cost_prompt,
+        &quot;pricing&quot;: pricing_prompt,
+        &quot;sales_copy&quot;: sales_prompt
+    }</code></pre></div>
+<p>---</p>
+<p># 🔥 五、这个Agent真正厉害的地方</p>
+<p>它不是一个“写文章工具”，而是：</p>
+<h3 class="sub-h">🧠 一个食品行业增长闭环系统</h3>
+<div class="codeblock"><pre><code>内容（流量）
+   ↓
+种草（转化）
+   ↓
+选品（方向）
+   ↓
+成本（控制）
+   ↓
+定价（利润）
+   ↓
+再反推内容</code></pre></div>
+<p>---</p>
+<p># 💰 六、你可以直接拿来做的3个方向</p>
+<h4 class="sub-h">1️⃣ 食品行业IP账号</h4>
+<ul class="md-ul"><li>做内容（公众号/小红书）</li><li>顺便卖产品</li></ul>
+<h4 class="sub-h">2️⃣ 供应链选品工具</h4>
+<ul class="md-ul"><li>帮你判断什么产品能做</li></ul>
+<h4 class="sub-h">3️⃣ 利润模拟器</h4>
+<ul class="md-ul"><li>上一个新品前先算值不值得做</li></ul>
+<p>---</p>
+<p># 🚀 如果你要继续升级（下一阶段）</p>
+<p>我可以帮你做一个更狠的版本：</p>
+<p>👉 <strong>“食品行业AI选品交易员 Agent（带数据+趋势+爆品预测）”</strong></p>
+<p>可以做到：</p>
+<ul class="md-ul"><li>预测爆品</li><li>判断市场窗口期</li><li>自动推荐可做品类</li><li>甚至做“低风险套利选品”</li></ul>
+<p>只要你说一句：<strong>升级选品交易员版</strong> 我可以继续帮你往上做一层。</p></div>
+    </section>
+    <section id="s8" class="st3">
+      <div class="sec-h"><span class="idx st3">Q8</span><h2>不要食品行业，改成情感专栏</h2><span class="hint">第 8 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>不要食品行业，改成情感专栏</p></div>
+      <div class="qa-a"><p>好，这一步我帮你直接升级成<strong>「情感专栏超级Agent Skill」完整版</strong>，逻辑从“卖货/利润”改成：</p>
+<blockquote class="md-quote">内容爆款化 → 情绪共鸣 → 关系洞察 → 读者转化（关注/私域/付费专栏）</blockquote>
+<p>---</p>
+<p># 🧠 情感专栏超级Agent Skill（v2.0）</p>
+<p>---</p>
+<p># 🧩 一、skill.md（核心定义）</p>
+<div class="codeblock"><pre><code>---
+name: emotion-column-super-agent
+description: 情感专栏爆款写作 + 情绪共鸣 + 内容重构 + 私域转化Agent
+version: 2.0
+author: Gervas
+---
+
+# 💔 情感专栏超级Agent
+
+## 🎯 核心能力
+
+本Agent用于打造情感类内容爆款系统：
+
+1. 情感文章重写（洗稿 → 重构 → 情绪强化）
+2. 情绪共鸣内容生成（恋爱/婚姻/成长/孤独）
+3. 人性洞察表达（关系本质拆解）
+4. 爆款标题与开头设计
+5. 情绪金句提炼
+6. 关注/私域转化引导
+
+---
+
+## ⚙️ 输入参数
+
+### content（必填）
+原始文章/故事/情感素材
+
+### theme（必填）
+主题：
+- 恋爱
+- 分手
+- 婚姻
+- 成长
+- 孤独
+- 人性
+
+### tone（可选）
+语气：
+- 温柔
+- 犀利
+- 克制
+- 共情
+- 冷静叙述
+
+### platform（默认）
+微信公众号 / 小红书 / 朋友圈
+
+---
+
+## 📤 输出结构
+
+1. 爆款情感文章（重写）
+2. 5个标题
+3. 3个开头版本
+4. 5句情绪金句
+5. 结尾共鸣/转化设计
+
+---
+
+## 🧠 核心原则
+
+- 情绪 &gt; 信息
+- 共鸣 &gt; 逻辑
+- 真实感 &gt; 完美表达
+- 留白 &gt; 说透</code></pre></div>
+<p>---</p>
+<p># ⚙️ 二、config.yaml</p>
+<div class="codeblock"><pre><code>input:
+  content:
+    type: string
+    required: true
+
+  theme:
+    type: string
+    required: true
+
+  tone:
+    type: string
+    default: 共情
+
+  platform:
+    type: string
+    default: 微信公众号
+
+output:
+  article: string
+  titles: list
+  intros: list
+  quotes: list
+  closing: string</code></pre></div>
+<p>---</p>
+<p># 🧠 三、核心prompt引擎（情感爆款大脑）</p>
+<div class="codeblock"><pre><code>你是一名“情感专栏爆款写作专家”，擅长：
+
+- 情绪共鸣写作
+- 两性关系洞察
+- 人性弱点表达
+- 爆款内容结构设计
+
+---
+
+# 🎯 任务目标
+
+围绕用户提供的内容，生成一篇“高共鸣情感爆文”。
+
+---
+
+# 🧩 第一部分：情感重构写作
+
+请将以下内容重写为情感专栏文章：
+
+要求：
+- 不改变核心情绪
+- 但必须完全重构表达方式
+- 增强代入感（让读者“感觉在写自己”）
+- 多用短句 + 留白 + 情绪节奏
+
+---
+
+# 🧩 第二部分：情绪结构设计
+
+使用以下结构之一：
+
+1. 关系破裂型：
+   甜蜜 → 矛盾 → 崩塌 → 释然
+
+2. 自我成长型：
+   依赖 → 迷失 → 清醒 → 独立
+
+3. 现实冲击型：
+   理想 → 现实 → 认知反转 → 接受
+
+---
+
+# 🧩 第三部分：爆款强化
+
+必须加入：
+- 一个真实情绪场景
+- 一句扎心但真实的表达
+- 一段“人性洞察”
+
+---
+
+# 🧩 第四部分：标题输出
+
+生成5个标题，要求：
+- 情绪强
+- 有遗憾感/共鸣感/反转感
+
+---
+
+# 🧩 第五部分：金句提炼
+
+提炼5句可以被截图传播的句子
+
+---
+
+# 🚫 禁止
+
+- 不要鸡汤
+- 不要说教
+- 不要总结人生大道理
+- 不要理性分析过多
+
+---
+
+# 📥 输入内容
+
+{{content}}</code></pre></div>
+<p>---</p>
+<p># ⚡ 四、run.py（执行逻辑）</p>
+<div class="codeblock"><pre><code>def emotion_super_agent(content, theme, tone=&quot;共情&quot;, platform=&quot;微信公众号&quot;):
+
+    # 1️⃣ 情感重写
+    rewrite_prompt = f&quot;&quot;&quot;
+    将以下内容改写为情感专栏文章：
+
+    主题：{theme}
+    语气：{tone}
+
+    要求：
+    - 情绪优先
+    - 强代入感
+    - 不使用原句
+
+    内容：
+    {content}
+    &quot;&quot;&quot;
+
+    # 2️⃣ 情绪结构
+    structure_prompt = f&quot;&quot;&quot;
+    为该情感内容设计文章结构：
+    类型（关系/成长/现实冲击）
+
+    内容：
+    {content}
+    &quot;&quot;&quot;
+
+    # 3️⃣ 标题生成
+    title_prompt = f&quot;&quot;&quot;
+    生成5个情感爆款标题：
+    主题：{theme}
+    &quot;&quot;&quot;
+
+    # 4️⃣ 金句提取
+    quote_prompt = f&quot;&quot;&quot;
+    提炼5句情绪金句：
+    要求：可截图传播，有共鸣感
+    内容：
+    {content}
+    &quot;&quot;&quot;
+
+    # 5️⃣ 开头生成
+    intro_prompt = f&quot;&quot;&quot;
+    写3个不同风格的情感开头：
+    要有代入感 + 情绪张力
+    &quot;&quot;&quot;
+
+    return {
+        &quot;rewrite&quot;: rewrite_prompt,
+        &quot;structure&quot;: structure_prompt,
+        &quot;titles&quot;: title_prompt,
+        &quot;quotes&quot;: quote_prompt,
+        &quot;intros&quot;: intro_prompt
+    }</code></pre></div>
+<p>---</p>
+<p># 🔥 五、这个情感Agent的核心能力</p>
+<p>它不是“写文章工具”，而是：</p>
+<h3 class="sub-h">💔 情绪放大器</h3>
+<div class="codeblock"><pre><code>现实故事
+   ↓
+情绪重构
+   ↓
+关系解构
+   ↓
+人性洞察
+   ↓
+共鸣输出
+   ↓
+传播裂变</code></pre></div>
+<p>---</p>
+<p># 🚀 六、它适合做什么</p>
+<h4 class="sub-h">1️⃣ 情感公众号</h4>
+<ul class="md-ul"><li>分手 / 成长 / 人性</li></ul>
+<h4 class="sub-h">2️⃣ 小红书情绪内容</h4>
+<ul class="md-ul"><li>共鸣型短文</li></ul>
+<h4 class="sub-h">3️⃣ 私域内容</h4>
+<ul class="md-ul"><li>建立信任关系</li></ul>
+<h4 class="sub-h">4️⃣ 付费专栏</h4>
+<ul class="md-ul"><li>情绪 + 洞察型内容</li></ul>
+<p>---</p>
+<p># 🧠 最后一层升级（很关键）</p>
+<p>情感类内容的核心不是“写得好”，而是：</p>
+<p>👉 <strong>让读者觉得“这就是我”</strong></p>
+<p>---</p>
+<p># 🚀 如果你要继续升级下一版</p>
+<p>我可以帮你做：</p>
+<p>👉 <strong>“情感IP自动生成Agent（人设 + 连载 + 爆款系列）”</strong></p>
+<p>可以做到：</p>
+<ul class="md-ul"><li>自动生成一个情感博主IP</li><li>自动连载故事</li><li>自动引导关注和付费</li></ul>
+<p>只要你说一句：<strong>升级情感IP版</strong> 我可以继续往上做一层。</p></div>
+    </section>
+    <section id="s9" class="st4">
+      <div class="sec-h"><span class="idx st4">Q9</span><h2>给我做一整套最全的skill文件</h2><span class="hint">第 9 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>给我做一整套最全的skill文件</p></div>
+      <div class="qa-a"><p>下面给你一套<strong>“完整可落地的情感专栏超级Agent Skill全集（最终完整版）”</strong>，已经把你前面所有版本统一升级、工程化、模块化，可以直接用于 OpenClaw / Agent / 本地系统。</p>
+<p>---</p>
+<p># 💔 情感专栏超级Agent Skill（Full Version v3.0）</p>
+<p>---</p>
+<p># 🧩 一、skill.md（系统总入口）</p>
+<div class="codeblock"><pre><code>---
+name: emotion-master-agent
+description: 情感专栏爆款写作 + 情绪重构 + 人性洞察 + 内容增长系统
+version: 3.0
+author: Gervas
+---
+
+# 💔 情感专栏超级Agent（完整版）
+
+## 🎯 系统定位
+
+这是一个“情感内容生成 + 重构 + 增长”一体化Agent系统，用于生产：
+
+- 情感爆款文章（公众号 / 小红书）
+- 情绪共鸣内容
+- 人性洞察内容
+- 连载故事内容
+- 私域转化内容
+
+---
+
+## 🧠 核心能力模块
+
+### 1️⃣ 内容重构引擎（Rewrite Engine）
+- 洗稿 → 重构 → 再表达
+- 结构重建
+- 情绪强化
+- 风格迁移
+
+### 2️⃣ 情绪放大器（Emotion Engine）
+- 孤独 / 爱情 / 分手 / 成长
+- 情绪层级增强
+- 共鸣构建
+
+### 3️⃣ 人性洞察系统（Insight Engine）
+- 关系本质分析
+- 行为动机拆解
+- 情感模式识别
+
+### 4️⃣ 爆款生成系统（Virality Engine）
+- 标题优化
+- 开头钩子
+- 金句提取
+- 节奏优化
+
+### 5️⃣ 内容转化系统（Conversion Engine）
+- 关注引导
+- 私域引导
+- 情绪延续设计
+
+---
+
+## ⚙️ 输入参数
+</code></pre></div>
+<p>content: 原始内容（故事/文章/素材） theme: 情感主题（恋爱/分手/成长/孤独/婚姻/人性） tone: 情绪语气（共情/犀利/克制/冷静/温柔） platform: 发布平台（公众号/小红书/朋友圈） mode: 内容模式（爆款/连载/短文/金句） length: short | medium | long</p>
+<div class="codeblock"><pre><code>
+---
+
+## 📤 输出结构
+
+系统必须输出：
+
+1. 重写后的情感文章
+2. 5个爆款标题
+3. 3个开头版本（不同风格）
+4. 5句情绪金句
+5. 人性洞察总结（可选）
+6. 结尾转化设计（关注/互动）
+
+---
+
+## 🧠 核心原则
+
+- 情绪 &gt; 逻辑
+- 共鸣 &gt; 信息
+- 留白 &gt; 解释
+- 真实感 &gt; 完整性
+- 表达 &gt; 总结
+
+---
+
+## 🚫 禁止行为
+
+- 禁止说教
+- 禁止鸡汤化表达
+- 禁止原句复用
+- 禁止总结式结尾</code></pre></div>
+<p>---</p>
+<p># ⚙️ 二、config.yaml（系统配置）</p>
+<div class="codeblock"><pre><code>input:
+  content:
+    type: string
+    required: true
+
+  theme:
+    type: string
+    required: true
+
+  tone:
+    type: string
+    default: 共情
+
+  platform:
+    type: string
+    default: 微信公众号
+
+  mode:
+    type: string
+    default: 爆款
+
+  length:
+    type: string
+    default: medium
+
+output:
+  article: string
+  titles: list
+  intros: list
+  quotes: list
+  insight: string
+  closing: string</code></pre></div>
+<p>---</p>
+<p># 🧠 三、核心Prompt引擎（大脑系统）</p>
+<div class="codeblock"><pre><code>你是一名“顶级情感内容架构师 + 爆款写作专家”。
+
+你擅长：
+- 情绪重构
+- 人性分析
+- 情感故事写作
+- 爆款内容设计
+- 社交传播优化
+
+---
+
+# 🎯 任务目标
+
+基于用户提供内容，生成一篇“高传播情感爆文”。
+
+---
+
+# 🧩 Step 1：内容拆解
+
+提炼：
+- 核心情绪
+- 关系结构
+- 冲突点
+- 情绪转折点
+
+---
+
+# 🧩 Step 2：结构重建（必须）
+
+必须重写结构，不能沿用原文：
+
+可选结构：
+
+① 情绪递进型：
+- 吸引 → 沉浸 → 崩塌 → 释然
+
+② 人性剖析型：
+- 表象 → 冲突 → 真相 → 认知升级
+
+③ 关系故事型：
+- 相遇 → 依赖 → 变化 → 结束
+
+---
+
+# 🧩 Step 3：情绪强化写作
+
+要求：
+- 多短句
+- 强代入感（你/我们）
+- 场景化表达
+- 有留白
+
+---
+
+# 🧩 Step 4：人性洞察（关键升级）
+
+必须输出至少1条：
+
+- 人为什么会失去？
+- 为什么关系会变淡？
+- 为什么沉默比争吵更可怕？
+
+---
+
+# 🧩 Step 5：爆款优化
+
+生成：
+
+- 5个标题（情绪+冲突+反转）
+- 3个开头（不同风格）
+- 5句金句（可截图传播）
+
+---
+
+# 🧩 Step 6：结尾设计
+
+必须包含：
+
+- 情绪收束
+- 留白
+- 或轻互动引导
+
+---
+
+# 🚫 禁止
+
+- 不得鸡汤
+- 不得说教
+- 不得总结人生大道理
+- 不得使用原句</code></pre></div>
+<p>---</p>
+<p># ⚡ 四、run.py（执行引擎）</p>
+<div class="codeblock"><pre><code>def emotion_master_agent(content, theme, tone=&quot;共情&quot;, platform=&quot;微信公众号&quot;, mode=&quot;爆款&quot;, length=&quot;medium&quot;):
+
+    # 1️⃣ 情绪拆解
+    analyze_prompt = f&quot;&quot;&quot;
+    拆解以下情感内容：
+    - 核心情绪
+    - 冲突点
+    - 转折点
+
+    内容：
+    {content}
+    &quot;&quot;&quot;
+
+    # 2️⃣ 结构重建
+    structure_prompt = f&quot;&quot;&quot;
+    重新设计文章结构（不能沿用原文）：
+
+    主题：{theme}
+    模式：{mode}
+    &quot;&quot;&quot;
+
+    # 3️⃣ 情绪重写
+    rewrite_prompt = f&quot;&quot;&quot;
+    将内容重写为情感爆文：
+
+    要求：
+    - 强共鸣
+    - 场景化表达
+    - 短句节奏
+
+    内容：
+    {content}
+    &quot;&quot;&quot;
+
+    # 4️⃣ 人性洞察
+    insight_prompt = f&quot;&quot;&quot;
+    提炼1-3条人性洞察：
+
+    内容：
+    {content}
+    &quot;&quot;&quot;
+
+    # 5️⃣ 标题生成
+    title_prompt = f&quot;&quot;&quot;
+    生成5个爆款情感标题：
+    要求：冲突 + 情绪 + 好奇心
+    &quot;&quot;&quot;
+
+    # 6️⃣ 金句生成
+    quote_prompt = f&quot;&quot;&quot;
+    提炼5句可传播金句：
+    要求：短 + 有情绪 + 可截图
+    &quot;&quot;&quot;
+
+    # 7️⃣ 开头生成
+    intro_prompt = f&quot;&quot;&quot;
+    写3种不同情绪开头：
+    - 冷静型
+    - 共鸣型
+    - 冲击型
+    &quot;&quot;&quot;
+
+    # 8️⃣ 结尾设计
+    closing_prompt = f&quot;&quot;&quot;
+    写一个留白式结尾：
+    不总结、不说教、有余味
+    &quot;&quot;&quot;
+
+    return {
+        &quot;analysis&quot;: analyze_prompt,
+        &quot;structure&quot;: structure_prompt,
+        &quot;rewrite&quot;: rewrite_prompt,
+        &quot;insight&quot;: insight_prompt,
+        &quot;titles&quot;: title_prompt,
+        &quot;quotes&quot;: quote_prompt,
+        &quot;intros&quot;: intro_prompt,
+        &quot;closing&quot;: closing_prompt
+    }</code></pre></div>
+<p>---</p>
+<p># 🧩 五、系统运行逻辑图</p>
+<div class="codeblock"><pre><code>原始故事/文章
+        ↓
+情绪拆解
+        ↓
+结构重建（关键）
+        ↓
+情感重写（核心）
+        ↓
+人性洞察
+        ↓
+爆款优化（标题/开头/金句）
+        ↓
+传播型输出（公众号/小红书）</code></pre></div>
+<p>---</p>
+<p># 🚀 六、这个Skill真正的能力边界</p>
+<p>它不是写作工具，而是：</p>
+<h3 class="sub-h">💔 情绪内容生产系统</h3>
+<p>可以稳定生产：</p>
+<ul class="md-ul"><li>情感爆文</li><li>共鸣短文</li><li>人性分析文章</li><li>连载故事</li><li>私域引流内容</li></ul>
+<p>---</p>
+<p># 🧠 七、如果再往上升级（终极形态）</p>
+<p>下一步可以升级成：</p>
+<p>👉 <strong>“情感IP自动生成系统（人格 + 连载 + 爆款矩阵）”</strong></p>
+<p>能力包括：</p>
+<ul class="md-ul"><li>自动生成一个情感博主人设</li><li>自动写连续故事（30天连载）</li><li>自动构建粉丝信任</li><li>自动导流私域</li></ul>
+<p>---</p>
+<p>如果你要继续往上做，我可以帮你再升级一层：</p>
+<p>👉 <strong>“情感IP + 自动连载 + 爆款矩阵 Agent（终极版v4）”</strong></p></div>
+    </section>
+    <section id="s10" class="st5">
+      <div class="sec-h"><span class="idx st5">Q10</span><h2>好的</h2><span class="hint">第 10 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>好的</p></div>
+      <div class="qa-a"><p>好，那我给你继续往上升级一层，做成真正可以“跑内容矩阵”的版本：</p>
+<p>👉 <strong>情感IP自动生成 + 连载 + 爆款矩阵 Agent（v4.0终极版）</strong></p>
+<p>这一版的重点已经不是单篇文章，而是：</p>
+<blockquote class="md-quote">一个“情感博主账号”，可以持续产出内容、建立人设、积累信任、形成粉丝粘性。</blockquote>
+<p>---</p>
+<p># 💔 情感IP超级Agent（终极矩阵版 v4.0）</p>
+<p>---</p>
+<p># 🧩 一、skill.md（IP系统总入口）</p>
+<div class="codeblock"><pre><code>---
+name: emotion-ip-matrix-agent
+description: 情感IP自动生成 + 连载内容 + 爆款矩阵增长系统
+version: 4.0
+author: Gervas
+---
+
+# 💔 情感IP超级系统（终极版）
+
+## 🎯 系统定位
+
+这是一个“情感IP自动生产系统”，用于构建一个完整的情感内容账号：
+
+- 可持续输出内容
+- 可形成角色人设
+- 可建立情绪信任
+- 可做内容矩阵分发
+
+---
+
+## 🧠 核心能力模块
+
+### 1️⃣ IP人格生成器
+自动生成：
+- 人设（性格/经历/情感模式）
+- 情绪表达风格
+- 价值观体系
+- 语言习惯
+
+---
+
+### 2️⃣ 连载故事系统（核心）
+自动生成：
+- 10~30集情感故事
+- 每一集都有钩子 + 情绪推进
+- 形成连续剧情
+
+---
+
+### 3️⃣ 爆款内容生成器
+- 公众号长文
+- 小红书短文
+- 朋友圈情绪文案
+
+---
+
+### 4️⃣ 情绪放大系统
+- 爱情 / 分手 / 孤独 / 依赖 / 成长
+- 情绪递进结构设计
+
+---
+
+### 5️⃣ 矩阵分发系统
+- 同一内容多平台改写
+- 标题差异化
+- 风格迁移
+
+---
+
+### 6️⃣ 用户粘性系统
+- 留白结尾
+- 情绪悬念
+- 连载引导
+
+---
+
+## ⚙️ 输入参数
+</code></pre></div>
+<p>seed_story: 初始故事/素材 theme: 情感主题 tone: 情绪风格 platforms: [公众号, 小红书, 朋友圈] episodes: 连载集数（默认10）</p>
+<div class="codeblock"><pre><code>
+---
+
+## 📤 输出结构
+
+1. IP人设卡
+2. 连载故事大纲（N集）
+3. 第一集爆款文章
+4. 标题矩阵（多平台）
+5. 情绪金句库
+6. 后续内容生成规则
+
+---
+
+## 🧠 核心原则
+
+- 人设 &gt; 内容
+- 情绪 &gt; 信息
+- 连载 &gt; 单篇
+- 共鸣 &gt; 逻辑</code></pre></div>
+<p>---</p>
+<p># ⚙️ 二、config.yaml（IP系统配置）</p>
+<div class="codeblock"><pre><code>input:
+  seed_story:
+    type: string
+    required: true
+
+  theme:
+    type: string
+    required: true
+
+  tone:
+    type: string
+    default: 共情
+
+  episodes:
+    type: integer
+    default: 10
+
+  platforms:
+    type: list
+    default: [&quot;微信公众号&quot;, &quot;小红书&quot;, &quot;朋友圈&quot;]
+
+output:
+  ip_profile: object
+  story_series: list
+  articles: list
+  titles: list
+  quotes: list</code></pre></div>
+<p>---</p>
+<p># 🧠 三、核心Prompt引擎（IP生成大脑）</p>
+<div class="codeblock"><pre><code>你是一名“顶级情感IP策划师 + 连载小说编剧 + 爆款内容操盘手”。
+
+---
+
+# 🎯 任务目标
+
+基于用户提供的故事素材，构建一个完整“情感IP账号体系”。
+
+---
+
+# 🧩 Step 1：IP人格生成
+
+生成一个完整情感IP：
+
+包括：
+- 性格
+- 情感经历
+- 情绪表达方式
+- 语言风格
+- 核心价值观
+
+---
+
+# 🧩 Step 2：连载故事设计（核心）
+
+将故事拆解为{{episodes}}集：
+
+每一集必须包含：
+- 情绪钩子
+- 冲突推进
+- 情绪变化
+- 留白悬念
+
+---
+
+# 🧩 Step 3：第一集爆款重写
+
+生成第一集完整文章：
+
+要求：
+- 强开头钩子
+- 情绪递进
+- 强代入感
+- 结尾必须留悬念
+
+---
+
+# 🧩 Step 4：爆款标题矩阵
+
+为不同平台生成标题：
+
+- 微信公众号（深度情绪）
+- 小红书（共鸣短标题）
+- 朋友圈（情绪冲击）
+
+---
+
+# 🧩 Step 5：金句系统
+
+提炼：
+- 可截图传播金句
+- 情绪表达核心句
+
+---
+
+# 🧩 Step 6：内容增长规则
+
+定义后续内容生成逻辑：
+
+- 如何延续故事
+- 如何制造冲突
+- 如何拉情绪
+
+---
+
+# 🚫 禁止
+
+- 不允许单篇思维
+- 不允许没有人设
+- 不允许无情绪内容</code></pre></div>
+<p>---</p>
+<p># ⚡ 四、run.py（IP系统引擎）</p>
+<div class="codeblock"><pre><code>def emotion_ip_agent(seed_story, theme, tone=&quot;共情&quot;, episodes=10, platforms=None):
+
+    if platforms is None:
+        platforms = [&quot;微信公众号&quot;, &quot;小红书&quot;, &quot;朋友圈&quot;]
+
+    # 1️⃣ IP人设生成
+    ip_prompt = f&quot;&quot;&quot;
+    基于以下故事生成一个情感IP人设：
+
+    内容：
+    {seed_story}
+    &quot;&quot;&quot;
+
+    # 2️⃣ 连载故事结构
+    series_prompt = f&quot;&quot;&quot;
+    将故事拆解为{episodes}集连载结构：
+
+    要求：
+    - 每集有冲突推进
+    - 情绪递进
+    - 留悬念
+    &quot;&quot;&quot;
+
+    # 3️⃣ 第一集爆款
+    first_episode_prompt = f&quot;&quot;&quot;
+    写第一集爆款文章：
+
+    主题：{theme}
+    风格：{tone}
+
+    要求：
+    - 强钩子开头
+    - 情绪递进
+    - 留悬念结尾
+    &quot;&quot;&quot;
+
+    # 4️⃣ 标题矩阵
+    title_prompt = f&quot;&quot;&quot;
+    为不同平台生成标题矩阵：
+
+    平台：
+    {platforms}
+    &quot;&quot;&quot;
+
+    # 5️⃣ 金句系统
+    quote_prompt = f&quot;&quot;&quot;
+    提炼情绪金句（可传播）：
+    &quot;&quot;&quot;
+
+    # 6️⃣ 增长规则
+    growth_prompt = f&quot;&quot;&quot;
+    设计内容持续增长规则：
+    - 如何延续IP
+    - 如何制造冲突
+    - 如何维持情绪张力
+    &quot;&quot;&quot;
+
+    return {
+        &quot;ip_profile&quot;: ip_prompt,
+        &quot;series&quot;: series_prompt,
+        &quot;first_episode&quot;: first_episode_prompt,
+        &quot;titles&quot;: title_prompt,
+        &quot;quotes&quot;: quote_prompt,
+        &quot;growth_rules&quot;: growth_prompt
+    }</code></pre></div>
+<p>---</p>
+<p># 🔥 五、这个版本的本质（很重要）</p>
+<p>这一版已经不是“写文章工具”，而是：</p>
+<h3 class="sub-h">💔 一个情感内容IP工厂</h3>
+<p>你得到的是：</p>
+<h4 class="sub-h">1️⃣ 一个“虚拟情感博主”</h4>
+<ul class="md-ul"><li>有人设</li><li>有故事</li><li>有风格</li></ul>
+<h4 class="sub-h">2️⃣ 一条连载内容线</h4>
+<ul class="md-ul"><li>可持续更新10~30篇</li></ul>
+<h4 class="sub-h">3️⃣ 一个内容矩阵</h4>
+<ul class="md-ul"><li>微信公众号（深度）</li><li>小红书（共鸣）</li><li>朋友圈（情绪）</li></ul>
+<p>---</p>
+<p># 🚀 六、最终能力形态</p>
+<div class="codeblock"><pre><code>一个故事种子
+      ↓
+IP人设生成
+      ↓
+连载故事拆解
+      ↓
+爆款第一篇
+      ↓
+持续内容生产
+      ↓
+多平台分发
+      ↓
+粉丝情绪绑定</code></pre></div>
+<p>---</p>
+<p># 🧠 如果你还想继续升级（最后一层）</p>
+<p>我还能帮你做终极形态：</p>
+<p>👉 <strong>“情感IP自动运营Agent（带粉丝增长 + 变现路径设计）”</strong></p>
+<p>可以做到：</p>
+<ul class="md-ul"><li>自动涨粉路径设计</li><li>私域转化结构</li><li>付费专栏体系</li><li>情绪变现模型</li></ul>
+<p>只要你说一句：<strong>继续升级终极运营版</strong> 我可以帮你做到“能变现的完整系统”。</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>如何洗稿重构 · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：如何洗稿重构（2026-03-20）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
