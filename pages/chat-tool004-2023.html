@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M16 44V20l16 12 16-12v24' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>New chat · 2023</title>
+<meta name="description" content="The content of these web pages is about the TUN and TAP modes in the Clash program, which is used to improve the network">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.qa-q{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.qa-q .q-label{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px;display:block}
+.qa-a p{margin-bottom:12px;max-width:var(--maxw-text)}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a .sub-h{font-size:15.5px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+.md-ol,.md-ul{margin:0 0 14px 20px;max-width:var(--maxw-text)}
+.md-ol li,.md-ul li{margin-bottom:5px;line-height:1.75;color:var(--ink-2)}
+.md-quote{border-left:3px solid var(--line-2);padding:8px 16px;margin:0 0 14px;color:var(--muted);background:var(--band);border-radius:0 6px 6px 0;max-width:var(--maxw-text)}
+.codeblock{margin:0 0 16px;max-width:var(--maxw-read)}
+.codeblock pre{background:var(--code);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink-2)}
+.codeblock code{background:none;border:none;padding:0}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.g-pill{position:fixed;bottom:24px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(15,23,42,.25);transition:.15s}
+.g-pill:hover{transform:translateY(-1px)}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+@media(max-width:760px){.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>ChatGPT 会话归档</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="../index.html">首页</a>
+      <a href="#s1" data-sec="s1">Q1</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">ChatGPT 会话归档 · 建站
+  <h1 class="s-h1">New chat</h1>
+  <p class="s-lede">The content of these web pages is about the TUN and TAP modes in the Clash program, which is used to improve the network</p>
+  <div class="s-meta">
+    <span>收录会话 <b>1</b> 条</span>
+    <span>消息总数 <b>2</b></span>
+    <span>时间范围 <b>2023-04-06 ~ 2023-04-06</b></span>
+    <span>分类 <b>建站与技术</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">会话归档</span>
+    <span class="s-chip">建站</span>
+    <span class="s-chip">2023</span>
+  </div>
+</div>
+
+<div class="s-body">
+  <main class="s-main">
+    <section id="s1" class="st1">
+      <div class="sec-h"><span class="idx st1">Q1</span><h2>Web search results:[1] &quot;Clash for window…</h2><span class="hint">第 1 轮对话</span></div>
+      <div class="qa-q"><span class="q-label">提问</span><p>Web search results:</p>
+<p>[1] "Clash for windows 使用教程：clash tun是什么？ 带你一分钟了解普通模式与TUN模式区别，clash tap 设置，支持游戏加速实现翻墙。 科技小露 40.4K subscribers Subscribe 21K views 9 months ago #clash 本期机场网址： https://bit.ly/3uecQhW Clash下载及汉化地址：..." URL: https://www.youtube.com/watch?v=KLgkNQq6-98</p>
+<p>[2] "在使用一些游戏软件需要加速，或者一些不遵循系统代理的软件时，需要开启 TAP/TUN 模式。 专业用户，例如IT、开发人员，需要经常操作终端，使用开发软件，用到Linux子系统的建议使用TUN模式。 其实大部分软件都走系统代理，例如浏览器，但是有些不走系统代理，例如某些游戏，Git等。 平时使用浏览器翻墙，比如访问google网站，或者使用一些遵循系统代理的软件时，不需要开启 TAP/TUN 模式。 建议直接使用系统代理模式。 开启TUN全局代理模式 按照上面三步依次执行，最后点开 mixin 选项，编辑文件，删除里面的内容，粘贴上下面的内容即可! yml 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26" URL: https://clashdingyue.tk/2022/06/%E6%AD%A3%E7%A1%AE%E9%85%8D%E7%BD%AEClash-For-Windows/</p>
+<p>[3] "Tun 模式通过新建一个 Tun 虚拟网卡接受操作系统的三层浏览流量，从而拓展 Clash 入口（inbound）转发能力，Tun 模式可以提升 Clash 处理 UDP 流量的能力，可以劫持任何三层流量，实现 DNS 劫持也是轻而易举，并且它与部分操作系统的网络栈结合也非常好，可以提升利用 iptables 等组件的能力 TAP 模式 TAP 是 二层设备 ，模拟一个物理以太网设备，操作 第二层 数据包如 以太网 数据帧 对于不遵循系统代理的软件，TUN 和 TAP 模式都可以接管系统流量并交由 CFW 处理，但是 TUN 模式在 Windows 下拥有比 TAP 模式更好的性能，本文以 TUN 模式说明，下面开始吧~ 下载 Wintun" URL: https://dejavu.moe/posts/cfw-tun/</p>
+<p>[4] "Clash大家一定都不陌生。Clash提供的大量丰富的网络功能可以为上网提供定制化的良好体验，其中tun模式就是特色之一。 本文将会详细说明如何在Linux和Windows平台上手工配置tun模式。也许你已经在使用Clash for Windows，手动配置是因为我并不喜欢cfw那样的工具，我更喜欢纯粹一点的工具。" URL: https://rainchan.win/2022/05/15/Clash-tun%E6%A8%A1%E5%BC%8F%E9%85%8D%E7%BD%AE%E6%8C%87%E5%8D%97/</p>
+<p>[5] "TUN 是一个虚拟网络设备，它模拟的是一个三层设备，通过它可以处理来自网络层的数据包，也就是 IP 数据包。 由于它只模拟到了 IP 层，所以它无法与物理网卡做 bridge，也没有 MAC 地址，但是可以通过三层交换的方式来与物理网卡相互通信。 TAP 模拟的是一个二层设备，它比 TUN 更加深入，它可以处理数据链路层的数据包，拥有 MAC 地址，可以与物理网卡做 bridge，支持 MAC 层广播，也可以给它设置 IP 地址。 数据包发送/接收流程 如图所示，两个应用程序 A 和 B，都处于用户层，其他的设备都处于内核层，数据的流向可以顺着数字方向来查看。" URL: https://zhuanlan.zhihu.com/p/260405786</p>
+<p>[6] "详解Clash两种翻墙模式：普通代理和虚拟网卡（TAP模式和TUN模式），实现真正的VPN模式，可替代sstap，同时支持SSR和V2ray节点订阅! - YouTube 0:00 / 6:37 • Clash介绍 详解Clash两种翻墙模式：普通代理和虚拟网卡（TAP模式和TUN模式），实现真正的VPN模式，可替代sstap，同时支持SSR和V2ray节点订阅! 冰河圈子..." URL: https://www.youtube.com/watch?v=Q9dzfPfhF3U</p>
+<p>[7] "TUN/TAP模式 在Windows中对于不遵循系统代理的软件，TAP 模式可以接管其流量并交由 CFW 处理。 对于 0.13.8 及以后版本，更推荐使用TUN 模式。 安装虚拟网卡功能后可以实现全局代理! 配置TUN/TAP模式 当前Clash for Windows最新版本是V0.18.7，推荐使用TUN模式 首先下载最新版本的Clash for Windows，具体可以参考： Clash for Windows 中文汉化教程 接下来安装TUN模式或者是TAP模式。 TUN模式 首先安装好汉化后的Clash for Windows最新版本后，打开软件! 在常规 (General)页面中找到服务模式 (Service Mode)，点击后面的管理 (Manage)。 点击之后会弹出小窗口。" URL: https://uzbox.com/tech/clash-atp.html</p>
+<p>[8] "tun模式 方法一 进入网站 https://www.wintun.net ，点击界面中Download Wintun xxx下载压缩包，根据系统版本（win10 64位对应的是amd64目录下）将对应目录中wintun.dll复制至clash的Home Directory目录中（General页面的Home Directory点击就可以打开）" URL: https://ednovas.xyz/2021/02/15/clashtun/</p>
+<p>[9] "请认真检查以下清单中的每一项 已经搜索过，没有发现类似issue 已经搜索过文档，没有发现相关内容 已经尝试使用过最新版，问题依旧存在 使用的是官方版本（未替换及修改过安装目录程序文件） 软件版本 .19.16 操作系统 Windows x64 系统版本 10 问题描述 如题 复现步骤 如题 日志文件 logs 进入Home ..." URL: https://github.com/Fndroid/clash_for_windows_pkg/issues/2988</p>
+<p>[10] "tun设备多用来在用户态模拟网络转发设备，比如隧道的端点，路由器，NAT网关等，但作为转发设备的模拟，其编程模型和作为数据始发站的服务器编程模型有着大不同。 我们先看一下最简单的tun程序模型： tun字符设备和TCP/UDP socket连接作为文件描述符被均等地poll，将从一个fd收到的数据经过加工之后写入另一个fd。 但这种思路是错误的。 是不是觉得性能底下，而tun设备有多队列模式，可以将一个tun虚拟网卡打开为多个文件描述符，下面的样子： 但还是不对。 哪里出了问题呢？ 接下来我基于上述的 单体结构 逐步优化。 所谓的单体结构就是不考虑并发的情况下，如何让一个单独的流 (单独的一个五元组)以最高效的方式通过tun模拟的转发路径。" URL: https://zhuanlan.zhihu.com/p/358501451</p>
+<p>Current date: 2023/4/6</p>
+<p>Instructions: Using the provided web search results, write a comprehensive reply to the given query.  Query: tun模式有什么用</p></div>
+      <div class="qa-a"><p>The content of these web pages is about the TUN and TAP modes in the Clash program, which is used to improve the network experience, especially in games or software that do not follow the system proxy. TUN and TAP modes are used to intercept system traffic and redirect it to the Clash program, which can improve its ability to handle UDP traffic, intercept DNS, and work well with some operating systems' network stacks. The pages provide tutorials on how to configure TUN and TAP modes in different operating systems, including Windows and Linux, as well as explain the differences between TUN and TAP modes in terms of their ability to handle different types of data packets.</p></div>
+    </section>
+  </main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>New chat · 会话归档 V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自 ChatGPT 会话记录，内容照录原对话，反映对话时点的信息与观点，不构成专业建议。收录会话：New chat（2023-04-06）</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+
+<script>
+(function(){
+  var SECS=["s1"];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){
+    for(var i=0;i<secLinks.length;i++){
+      secLinks[i].classList.toggle('on', secLinks[i].getAttribute('data-sec')===cur);
+    }
+  }
+  function spy(){
+    var y=window.scrollY+130, cur=SECS[0];
+    for(var i=0;i<SECS.length;i++){
+      var s=document.getElementById(SECS[i]);
+      if(!s) continue;
+      var top=s.getBoundingClientRect().top+window.scrollY;
+      if(top<=y) cur=SECS[i];
+    }
+    mark(cur);
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+})();
+</script>
+</body>
+</html>
