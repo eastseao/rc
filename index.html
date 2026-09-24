@@ -15,259 +15,160 @@
 -->
 <link rel="stylesheet" href="theme.css">
 <style>
+  /* ── 极简单栏个人主页（pseudoyu 风格）· 主题 token 全部来自 theme.css ── */
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{--bar-h:54px}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  p{max-width:none}
 
- /* ── 首页专属体例变量（主题 token 一律来自 theme.css） ───────────
- 版式：技术文档 / 深色侧栏（方案 C）
- 墨黑顶栏 → 发文式页头 → grid(250px + 1fr) 主体 → 分带页脚 */
- :root{
- --bar-h:50px;
- --sidew:250px;
- --gap:34px;
- --side-bg:#141c2b;
- --side-ink:#94a3b8;
- --side-ink-hi:#5eead4;
- --side-hi:rgba(13,148,136,.18);
- --side-mut:#5b6b80;
- }
- *{margin:0;padding:0;box-sizing:border-box}
- html{scroll-behavior:smooth}
- body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
- a{color:inherit;text-decoration:none}
- button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
- section{scroll-margin-top:calc(var(--bar-h) + 14px)}
+  .wrap{max-width:720px;margin:0 auto;padding:0 24px}
 
- /* ── 1. 顶栏（墨黑） ─────────────────────────────── */
- .s-bar{position:sticky;top:0;z-index:50;background:#0f172a;color:#f1f5f9}
- /* 外壳通栏（--maxw = none）：靠 padding 留呼吸位，桌面 32px。
- ⚠️ 别再写死 max-width —— 版心宽度只在 theme.css 的 --maxw* 三个 token 里改。 */
- .s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
- .s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap;color:#fff}
- .s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
- /* ⚠️ 基础态不写 overflow-x:auto：它会让 overflow-y 隐式变 auto。
- 桌面分类项在 --maxw 内放得下，无需滚动；窄屏断点里再开横滑。 */
- .s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
- .s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);white-space:nowrap;transition:.15s}
- .s-nav a:hover{color:#f1f5f9}
- .s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
- .s-nav a .cnt{font-family:var(--mono);font-size:11px;color:#8b98ab;margin-inline-start:5px}
- .s-nav a.on .cnt{color:var(--side-ink-hi)}
- .s-search{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:var(--radius-sm);color:var(--side-ink);transition:.15s;flex:0 0 auto}
- .s-search:hover{color:#fff;background:rgba(255,255,255,.09)}
+  /* ── 1. 极简顶栏 ─────────────────────────────── */
+  .nav{position:sticky;top:0;z-index:50;background:rgba(247,248,250,.86);backdrop-filter:saturate(180%) blur(10px);-webkit-backdrop-filter:saturate(180%) blur(10px);border-bottom:1px solid var(--line)}
+  .nav-in{max-width:720px;margin:0 auto;padding:0 24px;height:54px;display:flex;align-items:center;gap:14px}
+  .brand{font-weight:700;font-size:15px;letter-spacing:.02em;white-space:nowrap;flex:0 0 auto}
+  .catnav{margin-inline-start:auto;display:flex;align-items:center;gap:1px;font-size:13px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .catnav::-webkit-scrollbar{display:none}
+  .catnav a{padding:4px 9px;border-radius:6px;color:var(--muted);white-space:nowrap;transition:color .15s,background .15s}
+  .catnav a:hover{color:var(--ink)}
+  .catnav a.on{color:var(--ink);background:var(--band);font-weight:600}
+  .catnav a .cnt{display:none}
+  .searchbtn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:6px;color:var(--muted);flex:0 0 auto;transition:.15s}
+  .searchbtn:hover{color:var(--ink);background:var(--band)}
 
- /* ── 2. 发文式页头 ───────────────────────────────── */
- .s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
- .s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
- .s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
- .s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px}
- .s-h1 .dot{color:var(--line-2);font-weight:400;margin:0 .1em}
- .s-lede{color:var(--muted);font-size:14.5px;line-height:1.8;max-width:var(--maxw-text)}
- .s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
- .s-meta b{color:var(--ink);font-weight:700}
+  /* ── 2. 短自我介绍 ─────────────────────────────── */
+  .intro{padding:52px 0 6px}
+  .intro h1{font-size:25px;font-weight:700;letter-spacing:-.01em;line-height:1.3;margin-bottom:10px}
+  .intro p{color:var(--muted);font-size:14.5px;max-width:560px}
+  .stats{margin-top:14px;font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:4px 16px}
+  .stats b{color:var(--ink);font-weight:600}
 
- /* ── 3. 主体：深色侧栏 + 白卡正文 ─────────────────── */
- /* ══ 主体：单栏正文（原深色侧栏目录已并入顶栏分类导航） ══ */
- .s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
- .s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+  /* ── 3. 置顶工具行（轻量一行链接，非卡片） ────── */
+  .pinrow{display:flex;flex-wrap:wrap;align-items:baseline;gap:3px 12px;margin:24px 0 4px;font-size:13px}
+  .pinrow[hidden]{display:none}
+  .pinrow .pin-label{font-family:var(--mono);font-size:11px;color:var(--muted-2);letter-spacing:.1em}
+  .pinrow a{color:var(--muted);border-bottom:1px solid var(--line-2);padding-bottom:1px;transition:.15s}
+  .pinrow a:hover{color:var(--accent-ink);border-bottom-color:var(--accent)}
 
- /* ── 4. 精选块（正文内的头条，不再是全宽深色带） ───── */
- .lead-wrap[hidden]{display:none}
+  /* ── 4. 列表头 ────────────────────────────────── */
+  .list-head{display:flex;align-items:baseline;gap:10px;margin:28px 0 2px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+  .list-head h2{font-size:13px;font-weight:600;letter-spacing:.03em;color:var(--ink)}
+  .list-head .n{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+  .list-head .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2);margin-inline-start:auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
- /* ── 3.5 置顶工具小卡片（精选卡上方，不参与筛选） ── */
- .pinrow{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
- .pinrow[hidden]{display:none}
- .pin{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border:1px solid var(--line);border-radius:var(--radius-sm);
- background:#fff;font-family:var(--mono);font-size:12.5px;color:var(--ink);text-decoration:none;transition:.15s}
- .pin:hover{border-color:var(--accent);box-shadow:var(--shadow-hover)}
- .pin .pin-ic{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;
- background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:11px}
- .pin .pin-k{font-size:10.5px;color:var(--muted-2);letter-spacing:.06em;margin-inline-start:2px}
- .lead{margin-top:22px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--radius);
- background:#fbfcfd;padding:20px 22px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:26px;align-items:center}
- .lead.no-shot{grid-template-columns:1fr}
- .lead-tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.04em;
- color:var(--accent);background:#fff;border:1px solid var(--accent);border-radius:999px;padding:2px 9px}
- .lead h2{font-size:19px;font-weight:700;letter-spacing:-.012em;line-height:1.42;margin:12px 0 10px}
- .lead h2 a:hover{color:var(--accent-ink)}
- .lead p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
- .lead-meta{font-family:var(--mono);font-size:11px;color:var(--muted-2);letter-spacing:.03em;margin:12px 0 14px}
- .lead-shot{display:block;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--line);background:var(--band)}
- .lead-shot img{display:block;width:100%;height:auto}
+  /* ── 5. 文章列表（单栏、无卡片、日期右对齐灰） ── */
+  .row{display:flex;align-items:baseline;gap:16px;padding:11px 0;border-bottom:1px solid var(--line);scroll-margin-top:70px}
+  .row-main{flex:1;min-width:0}
+  .row-title{font-size:14.5px;font-weight:500;line-height:1.5;color:var(--ink);transition:color .15s}
+  .row-title:hover{color:var(--accent-ink)}
+  .row-desc{font-size:12.5px;color:var(--muted);line-height:1.55;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .row-tags{margin-top:3px;font-family:var(--mono);font-size:10.5px;color:var(--muted-2)}
+  .row-tags .tk{margin-inline-end:9px}
+  .row-date{flex:0 0 auto;font-family:var(--mono);font-size:12px;color:var(--muted-2);font-variant-numeric:tabular-nums}
 
- .link-arrow{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--accent);font-family:var(--mono)}
- .link-arrow svg{transition:transform .18s}
- .link-arrow:hover svg{transform:translateX(3px)}
+  /* 关于卡（末页） */
+  .row.about{flex-direction:column;gap:5px;padding:16px 0}
+  .row.about .row-title{font-size:15px;font-weight:600}
+  .row.about .row-desc{white-space:normal;overflow:visible}
+  .row.about .row-tags .tk{border:1px solid var(--line-2);border-radius:999px;padding:2px 9px}
 
- /* ── 5. 章节标题行 + 卡片网格 ─────────────────────── */
- .sec-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:30px 0 14px}
- .sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;line-height:1.4}
- .sec-h .n{font-family:var(--mono);font-size:12px;color:var(--accent);background:var(--accent-soft);
- border-radius:var(--radius-sm);padding:2px 9px;font-weight:700}
- .sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+  .empty{text-align:center;padding:48px 0;color:var(--muted);font-size:14px}
 
- .grid{display:grid;grid-template-columns:1fr;gap:10px}
- .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius-sm);padding:11px 18px;
- display:grid;grid-template-columns:132px minmax(0,1fr) auto;grid-template-rows:auto auto;
- column-gap:18px;row-gap:2px;align-items:center;scroll-margin-top:calc(var(--bar-h) + 20px);
- transition:border-color .18s,box-shadow .18s}
- .card:hover{border-color:var(--accent);box-shadow:var(--shadow-hover)}
- .card .crow{grid-column:1;grid-row:1/3;display:flex;flex-direction:column;gap:3px;justify-content:center}
- .card .cat{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.05em;color:var(--accent-ink)}
- .card .date{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
- .card h3{grid-column:2;grid-row:1;font-size:15px;font-weight:600;letter-spacing:-.01em;line-height:1.45;margin:0;
- min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
- .card h3 a:hover{color:var(--accent-ink)}
- .card .desc{grid-column:2;grid-row:2;font-size:12.5px;color:var(--muted);line-height:1.6;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
- .card .tags{grid-column:3;grid-row:1;display:flex;flex-wrap:wrap;gap:5px;align-items:center;justify-content:flex-end;margin:0}
- .card .tags .k{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.06em;color:var(--accent-ink);background:var(--accent-soft);border-radius:4px;padding:3px 7px}
- .card .tags .t{font-family:var(--mono);font-size:10.5px;color:var(--muted);background:var(--band);border-radius:999px;padding:3px 9px}
- .card .foot{grid-column:3;grid-row:2;justify-self:end;margin:0;padding:0}
+  /* ── 6. 分页 ──────────────────────────────────── */
+  .pager{display:flex;align-items:center;justify-content:center;gap:12px;margin:30px 0;font-family:var(--mono)}
+  .pager[hidden]{display:none}
+  .pager .pg-btn{font-size:13px;color:var(--muted);padding:5px 13px;border:1px solid var(--line-2);border-radius:6px;transition:.15s}
+  .pager .pg-btn:hover:not(:disabled){color:var(--accent-ink);border-color:var(--accent)}
+  .pager .pg-btn:disabled{opacity:.35;cursor:default}
+  .pager .pg-info{font-size:12px;color:var(--muted-2)}
 
- .card.personal{background:var(--band);border-color:transparent}
- .card.personal .kicker{grid-column:1;grid-row:1/3;display:flex;flex-direction:column;gap:3px;justify-content:center;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--muted-2)}
- .card.personal h3{font-size:16px}
- .card.personal .chip-mini{display:inline-block;font-size:12px;color:var(--muted);border:1px solid var(--line-2);background:#fff;border-radius:999px;padding:4px 12px}
+  /* ── 7. 简洁页脚 ──────────────────────────────── */
+  .foot{margin-top:48px;border-top:1px solid var(--line);padding:26px 0 42px}
+  .foot-in{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 20px;font-size:12.5px;color:var(--muted-2)}
+  .foot-links{display:flex;gap:18px}
+  .foot-links a{color:var(--muted);transition:.15s}
+  .foot-links a:hover{color:var(--ink)}
+  .foot-cols{flex-basis:100%;display:flex;flex-wrap:wrap;gap:4px 20px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px}
+  .foot-cols > div{display:flex;flex-wrap:wrap;gap:4px 16px}
+  .foot-cols h4{display:none}
+  .foot-cols a{color:var(--muted-2)}
+  .foot-cols a:hover{color:var(--accent-ink)}
+  .foot-cols a .recent-d{color:var(--muted-2);margin-inline-start:5px}
 
- .empty{grid-column:1/-1;text-align:center;padding:56px 20px;color:var(--muted);border:1px dashed var(--line-2);border-radius:var(--radius)}
- .empty .big{font-family:var(--mono);font-size:26px;margin-bottom:8px;opacity:.5}
-
- /* 分页 */
- .pager{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:28px;font-family:var(--mono)}
- .pager[hidden]{display:none}
- .pager .pg-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;font-size:12.5px;font-family:var(--mono);
- border:1px solid var(--line-2);border-radius:var(--radius-sm);background:#fff;color:var(--muted);cursor:pointer;transition:.15s}
- .pager .pg-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent-ink)}
- .pager .pg-btn:disabled{opacity:.4;cursor:default}
- .pager .pg-info{color:var(--muted-2);font-size:12px;letter-spacing:.04em;padding:0 4px}
-
- /* ── 6. 页脚 ─────────────────────────────────────── */
- .s-foot{background:var(--band);border-top:1px solid var(--line)}
- .s-foot-in{max-width:var(--maxw);margin:0 auto;padding:40px 32px 30px;display:grid;grid-template-columns:1.6fr 1fr 1.2fr 1fr;gap:30px}
- .fcol h4{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--ink);margin-bottom:13px}
- .fcol .fbrand{font-family:var(--mono);font-size:13.5px;font-weight:700;letter-spacing:.16em;margin-bottom:11px}
- .fcol p{font-size:13px;color:var(--muted);line-height:1.75;max-width:320px}
- .fcol a{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:13px;color:var(--muted);padding:3px 0}
- .fcol a:hover{color:var(--accent-ink)}
- .fcol a .recent-t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
- .fcol a .recent-d{flex:0 0 auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
- .watermark{max-width:var(--maxw);margin:0 auto;padding:0 32px}
- .watermark span{display:block;font-family:var(--mono);font-weight:700;letter-spacing:.005em;
- font-size:clamp(34px,6.8vw,78px);line-height:1;color:#dfe6ef;white-space:nowrap;user-select:none}
- .legal{max-width:var(--maxw);margin:0 auto;padding:18px 32px 26px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;
- font-family:var(--mono);font-size:11.5px;color:var(--muted-2)}
-
- /* ── 7. 响应式 ───────────────────────────────────── */
- /* 分类增至 16 个后 chip 自然宽达 ~1629px：≤1850 档给首页分类导航开横向滚动兜底。
- 刻意用 #catnav（仅首页）而非 .s-nav —— 后者是全站 400+ 页面共用组件，
- 按 STYLE-GUIDE 5.4 红线不得在桌面档开 overflow-x。首页 #catnav 内无下拉面板，安全。 */
- @media (max-width:1850px){
- #catnav{overflow-x:auto;scrollbar-width:none}
- #catnav::-webkit-scrollbar{display:none}
- }
- @media (max-width:1180px) and (min-width:901px){
- .grid{grid-template-columns:1fr}
- }
- @media (max-width:900px){
- .s-nav{overflow-x:auto;scrollbar-width:none}
- .s-nav::-webkit-scrollbar{display:none}
- .s-main{padding:8px 18px 30px}
- .grid{grid-template-columns:1fr}
- .card{grid-template-columns:1fr auto;column-gap:14px;row-gap:5px;padding:13px 16px}
- .card .crow{grid-column:1/-1;grid-row:1;flex-direction:row;align-items:baseline;gap:10px}
- .card h3{grid-column:1;grid-row:2}
- .card .desc{grid-column:1;grid-row:3;-webkit-line-clamp:2}
- .card .tags{grid-column:1;grid-row:4;justify-content:flex-start}
- .card .foot{grid-column:2;grid-row:2/5;align-self:center}
- .card.personal .kicker{grid-column:1/-1;grid-row:1;flex-direction:row;align-items:baseline;gap:10px}
- .lead{grid-template-columns:1fr;gap:18px;padding:18px}
- .lead-shot{order:-1}
- .s-foot-in{grid-template-columns:1fr 1fr;gap:26px}
- }
- @media (max-width:640px){
- .s-brand em{display:none}
- .s-nav a{padding:5px 8px;font-size:12.5px}
- .s-nav a .cnt{display:none}
- .s-bar-in,.s-head,.s-body,.s-foot-in,.watermark,.legal{padding-inline:16px}
- .s-head{padding:30px 16px 0}
- .grid{grid-template-columns:1fr}
- .s-foot-in{grid-template-columns:1fr;gap:22px;padding-top:32px}
- .watermark span{font-size:clamp(28px,10.5vw,50px)}
- }
+  /* ── 8. 响应式 ────────────────────────────────── */
+  @media (max-width:640px){
+    .wrap,.nav-in{padding:0 18px}
+    .intro{padding:36px 0 4px}
+    .intro h1{font-size:21px}
+    .row{gap:10px}
+    .row-desc{display:none}
+    .row-tags{display:none}
+    .catnav a{padding:4px 7px}
+  }
 </style>
 </head>
 <body>
-
-<!-- ══ 1. 顶栏（墨黑） ══ -->
-<header class="s-bar">
- <div class="s-bar-in">
- <a class="s-brand" href="index.html">GERVAS<em>日常 · Agent 作品集</em></a>
- <nav class="s-nav" id="catnav" aria-label="按分类筛选"></nav>
- <button class="s-search" id="searchbtn" type="button" title="搜索标题、摘要与标签（Ctrl+K）" aria-label="搜索">
- <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
- </button>
- </div>
+<!-- ══ 1. 极简顶栏 ══ -->
+<header class="nav">
+  <div class="nav-in">
+    <a class="brand" href="index.html">GERVAS</a>
+    <nav class="catnav" id="catnav" aria-label="按分类筛选"></nav>
+    <button class="searchbtn" id="searchbtn" type="button" title="搜索标题、摘要与标签（Ctrl+K）" aria-label="搜索">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+    </button>
+  </div>
 </header>
 
-<!-- ══ 2. 发文式页头 ══ -->
-<div class="s-head">
- <span class="s-eyebrow">GERVAS.WANG · AGENT 作品集</span>
- <h1 class="s-h1">日常 <span class="dot">·</span> Agent 作品集</h1>
- <p class="s-lede">把日常里的调研、测算与工具化，做成可以复用的长文与开源页面。全部页面开源、数据可复现，欢迎自取。</p>
- <div class="s-meta">
- <span>作品 <b id="stat-pages">—</b></span>
- <span>分类 <b id="stat-cats">—</b></span>
- <span>全部开源可复现</span>
- <span>更新至 <b id="stat-updated">—</b></span>
- </div>
-</div>
+<!-- ══ 2. 短自我介绍 + 主体 ══ -->
+<main class="wrap">
+  <div class="intro">
+    <h1>日常 · Agent 作品集</h1>
+    <p>把日常里的调研、测算与工具化，做成可复用的长文与开源页面。全部页面开源、数据可复现。</p>
+    <div class="stats">
+      <span><b id="stat-pages">—</b> 篇作品</span>
+      <span><b id="stat-cats">—</b> 个分类</span>
+      <span>更新至 <b id="stat-updated">—</b></span>
+    </div>
+  </div>
 
-<!-- ══ 3. 主体：单栏正文（原深色侧栏目录已并入顶栏分类导航） ══ -->
-<div class="s-body">
+  <!-- 置顶工具（一行轻量链接，不参与筛选） -->
+  <div class="pinrow" id="pinrow"></div>
 
- <main class="s-main">
- <!-- 置顶工具（精选卡上方的小卡片行，不参与筛选） -->
- <div class="pinrow" id="pinrow"></div>
+  <!-- 精选头条（已取消置顶：featured() 恒为 null，此块恒隐藏） -->
+  <section id="feature" hidden></section>
 
- <!-- 精选头条（参与筛选：不属于当前筛选结果时整块隐藏） -->
- <section class="lead-wrap" id="feature" hidden></section>
+  <!-- 列表头 -->
+  <div class="list-head" id="works">
+    <h2 id="works-title">全部作品</h2>
+    <span class="n" id="list-count">0</span>
+    <span class="hint" id="works-hint"></span>
+  </div>
 
- <!-- 章节标题行 -->
- <div class="sec-h" id="works">
- <h2 id="works-title">全部作品</h2>
- <span class="n" id="list-count">0</span>
- <span class="hint" id="works-hint"></span>
- </div>
+  <!-- 文章列表 -->
+  <div id="grid"></div>
 
- <!-- 卡片网格 -->
- <div class="grid" id="grid"></div>
+  <!-- 分页（每页 20） -->
+  <nav class="pager" id="pager" aria-label="分页"></nav>
+</main>
 
- <!-- 分页（每页 20 卡） -->
- <nav class="pager" id="pager" aria-label="分页"></nav>
- </main>
-
-</div>
-
-<!-- ══ 4. 页脚 ══ -->
-<footer class="s-foot">
- <div class="s-foot-in">
- <div class="fcol">
- <div class="fbrand">GERVAS</div>
- <p>行业研究 / 效率工具 / 金融分析 —— 一份持续更新的个人工作记录。全部页面开源、数据可复现，欢迎自取。</p>
- </div>
- <div class="fcol" id="f-cat"><h4>内容</h4></div>
- <div class="fcol" id="f-recent"><h4>最近更新</h4></div>
- <div class="fcol">
- <h4>关于</h4>
- <a href="#about" data-about>关于我</a>
- <a href="https://github.com/eastseao/rc/commits/main" target="_blank" rel="noopener">更新日志</a>
- <a href="https://eastseao.github.io/horizon/" target="_blank" rel="noopener">个人博客 ↗</a>
- <a href="https://github.com/eastseao/rc" target="_blank" rel="noopener">源代码</a>
- </div>
- </div>
- <div class="watermark" aria-hidden="true"><span>GERVAS.WANG</span></div>
- <div class="legal">
- <span>Copyright 2026 gervas.wang · 保留所有权利</span>
- <a href="https://github.com/eastseao/rc" target="_blank" rel="noopener">GitHub</a>
- </div>
+<!-- ══ 3. 简洁页脚 ══ -->
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div>© 2026 GERVAS · 开源可复现</div>
+    <div class="foot-links">
+      <a href="#about" data-about>关于</a>
+      <a href="https://github.com/eastseao/rc/commits/main" target="_blank" rel="noopener">更新日志</a>
+      <a href="https://eastseao.github.io/horizon/" target="_blank" rel="noopener">博客 ↗</a>
+      <a href="https://github.com/eastseao/rc" target="_blank" rel="noopener">源码</a>
+    </div>
+    <div class="foot-cols">
+      <div id="f-cat"></div>
+      <div id="f-recent"></div>
+    </div>
+  </div>
 </footer>
 
 <script>
@@ -3913,10 +3814,7 @@ const PAGES = [
  url: "pages/pet-bottle-cost-2026.html",
  date: "2026-09-10",
  category: "包装包材",
- tags: ["PET", "原料价格", "成本测算", "采购"],
- feature: true,
- image: "assets/pet-hero.webp",
- imageAlt: "PET 透明瓶身静物摄影"
+ tags: ["PET", "原料价格", "成本测算", "采购"]
  },
  {
  title: "食品品牌入驻大型会员制商超 · 全流程概览",
@@ -9485,15 +9383,11 @@ const PINNED = [
  { title: "大盘云图", url: "https://dapanyuntu.com/", kind: "工具" }
 ];
 function renderPinned(){
- const box = document.getElementById('pinrow');
- if (!PINNED.length) { box.hidden = true; box.innerHTML = ''; return; }
- box.hidden = false;
- box.innerHTML = PINNED.map(p => `
- <a class="pin" href="${p.url}" title="${esc(p.title)}"${p.url.indexOf('http') === 0 ? ' target="_blank" rel="noopener"' : ''}>
- <span class="pin-ic">★</span>
- <span>${esc(p.title)}</span>
- ${p.kind ? `<span class="pin-k">${esc(p.kind)}</span>` : ''}
- </a>`).join('');
+  const box = document.getElementById('pinrow');
+  if (!PINNED.length) { box.hidden = true; box.innerHTML = ''; return; }
+  box.hidden = false;
+  box.innerHTML = '<span class="pin-label">工具</span>' + PINNED.map(p => `
+    <a href="${p.url}" title="${esc(p.title)}"${p.url.indexOf('http') === 0 ? ' target="_blank" rel="noopener"' : ''}>${esc(p.title)}</a>`).join('');
 }
 
 /* ── 精选头条 ─────────────────────────────────────── */
@@ -9529,38 +9423,39 @@ function renderWorksHead(){
 /* ── 卡片网格（每页 20 卡） ───────────────────────── */
 function totalPages(){ return Math.max(1, Math.ceil(gridItems().length / PAGE_SIZE)); }
 function renderGrid(){
- const grid = document.getElementById('grid');
- const list = gridItems();
- if (page > totalPages()) page = totalPages();
- const start = (page - 1) * PAGE_SIZE;
- const slice = list.slice(start, start + PAGE_SIZE);
- const personal = PAGES.filter(p => p.personal);
- const isLast = page === totalPages();
+  const grid = document.getElementById('grid');
+  const list = gridItems();
+  if (page > totalPages()) page = totalPages();
+  const start = (page - 1) * PAGE_SIZE;
+  const slice = list.slice(start, start + PAGE_SIZE);
+  const personal = PAGES.filter(p => p.personal);
+  const isLast = page === totalPages();
 
- let html = slice.map(p => `
- <article class="card">
- <div class="crow"><span class="cat">${esc(p.category)}</span><span class="date">${esc(p.date)}</span></div>
- <h3><a href="${p.url}">${esc(p.title)}</a></h3>
- <div class="desc">${esc(p.desc)}</div>
- <div class="tags">${p.kind ? `<span class="k">${esc(p.kind)}</span>` : ''}${p.tags.slice(0,3).map(t => `<span class="t"># ${esc(t)}</span>`).join('')}</div>
- <div class="foot"><a class="link-arrow" href="${p.url}">阅读全文 ${ARROW}</a></div>
- </article>`).join('');
+  let html = slice.map(p => `
+    <article class="row">
+      <div class="row-main">
+        <a class="row-title" href="${p.url}">${esc(p.title)}</a>
+        <div class="row-desc">${esc(p.desc)}</div>
+        <div class="row-tags">${p.tags.slice(0,3).map(t => `<span class="tk"># ${esc(t)}</span>`).join('')}</div>
+      </div>
+      <time class="row-date">${esc(p.date)}</time>
+    </article>`).join('');
 
- /* 「关于」卡仅在「全部 + 无搜索」时出现在末页网格末位 */
- if (currentCat === "全部" && !keyword && isLast) {
- html += personal.map(p => `
- <article class="card personal" id="about">
- <span class="kicker">${esc(p.kicker)}</span>
- <h3>${esc(p.title)}</h3>
- <div class="desc">${esc(p.desc)}</div>
- <div class="tags">${p.tags.map(t => `<span class="chip-mini">${esc(t)}</span>`).join('')}</div>
- <div class="foot"><a class="link-arrow" href="${p.url}" target="_blank" rel="noopener">${esc(p.cta)} ${ARROW}</a></div>
- </article>`).join('');
- }
+  /* 「关于」卡仅在「全部 + 无搜索」时出现在末页末位 */
+  if (currentCat === "全部" && !keyword && isLast) {
+    html += personal.map(p => `
+      <article class="row about" id="about">
+        <div class="row-main">
+          <a class="row-title" href="${p.url}" target="_blank" rel="noopener">${esc(p.title)} →</a>
+          <div class="row-desc">${esc(p.desc)}</div>
+          <div class="row-tags">${p.tags.map(t => `<span class="tk">${esc(t)}</span>`).join('')}</div>
+        </div>
+      </article>`).join('');
+  }
 
- grid.innerHTML = html || `<div class="empty"><div class="big">[ 空 ]</div>没有匹配的作品${keyword ? `：<b>${esc(keyword)}</b>` : ''}</div>`;
- renderWorksHead();
- renderPager();
+  grid.innerHTML = html || `<div class="empty">没有匹配的作品${keyword ? `：<b>${esc(keyword)}</b>` : ''}</div>`;
+  renderWorksHead();
+  renderPager();
 }
 
 /* ── 分页 ─────────────────────────────────────────── */
