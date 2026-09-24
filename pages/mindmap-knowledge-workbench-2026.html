@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d9488'/%3E<circle cx='32' cy='20' r='6' fill='white'/%3E<circle cx='18' cy='44' r='5' fill='white'/%3E<circle cx='46' cy='44' r='5' fill='white'/%3E%3C/svg%3E">
+<title>思维导图库与知识工作台设计 · 2026</title>
+<meta name="description" content="从 GitHub 上 mindmap 库选型（BlinkMind / jsMind / Mind Elixir / SimpleMindMap / Markmap），到 YouMind 第二大脑、GitHub App 安全审查，再到「知屿」知识工作台的产品设计——6 篇会话整理。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:760px){.g2{grid-template-columns:1fr}}
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+@media(max-width:760px){table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+.codeblock{background:var(--code);border:1px solid var(--line);border-radius:6px;padding:12px 14px;font-family:var(--mono);font-size:12.5px;line-height:1.7;overflow-x:auto;white-space:pre;color:var(--ink-2);margin-bottom:14px}
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}.srcnote li{margin-bottom:4px;line-height:1.7}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+</style>
+</head>
+<body>
+<header class="s-bar"><div class="s-bar-in">
+  <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+  <nav class="s-nav" id="topnav">
+    <a href="#s0" data-sec="s0">01 GitHub App 安全</a>
+    <a href="#s1" data-sec="s1">02 mindmap 库选型</a>
+    <a href="#s2" data-sec="s2">03 开源项目对照</a>
+    <a href="#s3" data-sec="s3">04 YouMind 第二大脑</a>
+    <a href="#s4" data-sec="s4">05 知屿工作台设计</a>
+    <a href="#s5" data-sec="s5">06 技术栈</a>
+    <a href="#s6" data-sec="s6">07 会话清单</a>
+  </nav>
+</div></header>
+
+<div class="s-head">
+  <span class="s-eyebrow">软件工具与技术 · 话题聚类</span>
+  <h1>思维导图库选型与「知屿」知识工作台设计</h1>
+  <p class="s-lede">从「GitHub 上的 App 能不能装」问起，一路查到 Windows 端做思维导图该选哪个开源库、YouMind 这类 AI 第二大脑怎么用，最后落到一个自研产品——把 Typora + MarkItDown + KillerPDF + SimpleMindMap 揉成一个知识工作台——6 篇会话串成一条产品设计轨迹。</p>
+  <div class="s-meta">
+    <span>收录会话 <b>6 篇</b></span>
+    <span>时间跨度 <b>2025-10-26 ~ 2026-06-19</b></span>
+    <span>核心产品 <b>知屿（Knowledge Workspace）</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">BlinkMind</span><span class="s-chip">SimpleMindMap</span><span class="s-chip">jsMind</span><span class="s-chip">Mind Elixir</span><span class="s-chip">Markmap</span><span class="s-chip">ReactFlow</span><span class="s-chip">YouMind</span>
+  </div>
+</div>
+
+<div class="s-body"><main class="s-main">
+  <div class="srcnote"><b>本页合并自以下会话</b>：
+    <ol>
+      <li>2025-10-26 GitHub 里的 App 能不能装、有没有安全隐患</li>
+      <li>2026-04-17 YouMind 网站介绍</li>
+      <li>2026-06-13 GitHub 里 mindmap 库推荐（做 Windows 端 mindmap 应用）</li>
+      <li>2026-06-18 GitHub 上开源思维导图软件横评</li>
+      <li>2026-06-19 GitHub 上类似 Typora 的项目（Typora 替代品横评）</li>
+      <li>2026-06-19 基于 Typora + MarkItDown + KillerPDF + SimpleMindMap 设计知识工作台 UI</li>
+    </ol>
+  </div>
+
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>GitHub 上的 App 能不能装：先分清四类</h2><span class="hint">2025-10-26</span></div>
+    <p class="lede">在选开源项目之前先问了个更底层的问题——GitHub 上挂着的「App」到底是什么、能不能装。答案按风险分四类。</p>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:200px">类型</th><th>示例</th><th>能不能装</th><th>风险</th></tr></thead>
+      <tbody>
+        <tr><td>官方 GitHub Apps / Actions</td><td>Dependabot、Pages、Copilot</td><td>官方界面装</td><td>低（官方审核）</td></tr>
+        <tr><td>第三方 Marketplace 集成</td><td>Vercel、Netlify、CodeCov</td><td>Marketplace 装</td><td>中（需审权限）</td></tr>
+        <tr><td>仓库里的 .exe / .apk / 脚本</td><td>「点这里下载安装包」</td><td>不建议</td><td>高（可能含恶意代码）</td></tr>
+        <tr><td>clone 源码自己 build</td><td>开源项目自编译</td><td>可行</td><td>取决于代码可信度</td></tr>
+      </tbody>
+    </table></div>
+    <div class="warnbox"><h5>装之前过一遍清单</h5><ul>
+      <li>看作者是否可信机构 / 知名开发者；Star 数和更新频率。</li>
+      <li>看权限请求：不要随便给写权限、私有库访问、secrets 读取。</li>
+      <li>看是否在 Marketplace 上架（经过 GitHub 审核）。</li>
+      <li>下载链接跳转到 GitHub 外部云盘 = 直接拉黑。</li>
+    </ul></div>
+  </section>
+
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>mindmap 库选型：第一梯队</h2><span class="hint">2026-06-13</span></div>
+    <p class="lede">目标是做一个媲美 XMind / ProcessOn / 幕布的 Windows 桌面应用。结论是不要只找一个库，而是参考成熟项目 + 核心渲染库 + 图形引擎三层组合。</p>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:160px">项目</th><th style="width:120px">技术栈</th><th>定位</th></tr></thead>
+      <tbody>
+        <tr><td><b>BlinkMind</b>（awehook/blink-mind-desktop）</td><td>React + TS + Electron</td><td>最推荐先研究。完整桌面应用，节点编辑 / 拖拽 / Undo / 多 Sheet / 导出图片 / 快捷键 / 主题 / 富文本 / Markdown。Document 与 UI 分离，以后接 AI 方便。</td></tr>
+        <tr><td><b>jsMind</b>（hizzgdev/jsmind）</td><td>Canvas/SVG，无框架</td><td>经典库，Star ~3.8k，API 简洁稳定，很多国产项目参考过它。可直接当渲染引擎。</td></tr>
+        <tr><td><b>Mind Elixir</b>（ssshooter/mind-elixir-core）</td><td>纯 TS，几十 KB</td><td>UI 现代，布局算法优秀；支持无限缩放 / Drag / Keyboard / Rich Text / SVG。代码质量比 jsMind 现代。</td></tr>
+        <tr><td><b>Open MindMap</b>（XiangFaGitHub/open-mindmap）</td><td>React + SVG</td><td>AI Native，支持 Markdown 实时生成、Streaming。适合做 AI 自动生成导图。</td></tr>
+        <tr><td><b>Remind</b>（luvsic3/remind）</td><td>React</td><td>Undo/Redo/Shortcut/Drag，UI 比 BlinkMind 简洁，适合读源码学习。</td></tr>
+        <tr><td><b>drichard/mindmaps</b></td><td>HTML5</td><td>老牌，支持离线，代码偏旧但架构可参考。</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>开源思维导图项目横评</h2><span class="hint">2026-06-18</span></div>
+    <p class="lede">五天后又问了一次「GitHub 上开源的思维导图软件」，这次偏完整应用而非库。增加了几个重量级项目。</p>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:170px">项目</th><th style="width:100px">技术</th><th>特点</th></tr></thead>
+      <tbody>
+        <tr><td><b>SimpleMindMap</b>（wanglin2/mind-map，~8k Star）</td><td>Vue3 + TS + SVG/Canvas</td><td>国内最完整。插件化、节点样式丰富、导出 PDF/PNG/SVG、Markdown、大纲模式、协同基础。支持 Fishbone / Timeline / Logic Chart / Org Chart / MindMap 五种结构。准备做产品最推荐直接 Fork。</td></tr>
+        <tr><td><b>Markmap</b>（markmap/markmap）</td><td>JS</td><td>Markdown 标题自动生成思维导图。<code># 一级 → ## 二级 → ### 三级</code> 直接变树。很多知识库在用。</td></tr>
+        <tr><td><b>KityMinder</b>（fex-team/kityminder）</td><td>百度出品</td><td>功能完整：富文本、大纲、Markdown、导图。</td></tr>
+        <tr><td><b>Freeplane / FreeMind</b></td><td>Java</td><td>老牌桌面软件，FreeMind 是鼻祖，Freeplane 插件多。</td></tr>
+        <tr><td><b>XMind 旧版开源</b>（xmindltd/xmind）</td><td>Java</td><td>旧版开源可学文件格式 / UI / 导出 / 布局；新版已闭源。</td></tr>
+        <tr><td><b>tldraw / Excalidraw / Affine / AppFlowy</b></td><td>—</td><td>不是纯 mindmap，但无限画布 + 导图是未来趋势，适合参考架构。</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>YouMind：AI 第二大脑是什么</h2><span class="hint">2026-04-17</span></div>
+    <p class="lede">在设计自研工作台之前，先调研了一下 YouMind 这种现成的「第二大脑 + AI」网站工具，拿来对标。</p>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:130px">层</th><th>YouMind 做什么</th></tr></thead>
+      <tbody>
+        <tr><td>收集（输入）</td><td>网页链接、PDF、YouTube 视频、笔记都往里丢</td></tr>
+        <tr><td>AI 理解（处理）</td><td>自动总结、提重点、生成结构化笔记、多内容互相关联（5 篇行业报告 → 一张行业认知地图）</td></tr>
+        <tr><td>组织（结构）</td><td>卡片式内容 + 关联图谱 + 项目/主题管理</td></tr>
+        <tr><td>输出（应用）</td><td>基于自己的知识库写文章、做总结、出报告、生成观点</td></tr>
+      </tbody>
+    </table></div>
+    <div class="srcnote" style="margin-bottom:0"><b>和普通 ChatGPT 的区别</b>：数据来源是你自己的资料库（不是公共训练数据）、上下文是长期积累（不是临时对话）、有知识体系（不是无结构）、输出更贴合你的认知。一句话：YouMind = 带记忆的 AI + 你的私人知识库。缺点：上手有学习成本，必须持续喂数据才有价值，免费版有限制。</div>
+  </section>
+
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>「知屿」知识工作台产品设计</h2><span class="hint">2026-06-19</span></div>
+    <p class="lede">这是本页最重的一篇会话。把前面调研过的 Typora、MarkItDown（微软把 Office/PDF 转 Markdown）、KillerPDF、SimpleMindMap 四个项目揉成一个自研应用，定名「知屿」。</p>
+    <div class="card st5">
+      <div class="card-h"><span class="tag">产品定位</span><h3>Everything → Markdown → AI → MindMap → Export</h3></div>
+      <div class="card-b">
+        <p style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:10px">不是 Typora，也不是思维导图，而是 Markdown + PDF + Office + AI + MindMap 五位一体。</p>
+        <dl class="kv">
+          <dt>参考项目</dt><dd>Typora（Markdown 编辑）★★★★★、MarkItDown（Office/PDF 转 MD）★★★★★、SimpleMindMap（导图）★★★★★、Obsidian（双链）★★★★、KillerPDF（PDF 处理）★★★★、XMind（导图交互）★★★、Logseq（大纲）★★★、Excalidraw（手绘）★★★。</dd>
+          <dt>整体布局</dt><dd>像 VSCode：左侧文件/知识库/AI/导图/PDF/插件侧栏；中间 Tabs + Markdown 编辑器；右侧永远有 AI Copilot；底部 Terminal。</dd>
+          <dt>首页 Dashboard</dt><dd>不直接开编辑器，而是「今天想做什么？」入口：新建 MD / 导入 PDF / 导入 Word / 导入 PPT / 导入 Excel / 新建 MindMap / AI 写文章 / AI 总结 PDF / AI 读论文，下面是最近项目与知识库。</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section id="s5" class="st1">
+    <div class="sec-h"><span class="idx st1">06</span><h2>建议的技术栈（两次会话合并）</h2><span class="hint">2026-06-13 + 06-18</span></div>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:140px">模块</th><th>推荐方案</th></tr></thead>
+      <tbody>
+        <tr><td>桌面壳</td><td>Electron（首选，未来可迁 Tauri）</td></tr>
+        <tr><td>UI</td><td>React 19 + TypeScript + Tailwind</td></tr>
+        <tr><td>画布引擎</td><td>ReactFlow（无限画布 / 节点 / Edge / MiniMap / Zoom / 右键菜单免费），再用 ELK.js 做 Tree Layout 把图编辑器变成思维导图</td></tr>
+        <tr><td>导图内核</td><td>SimpleMindMap 或 BlinkMind 作参考/二次开发</td></tr>
+        <tr><td>状态管理</td><td>Zustand + Immer（Undo/Redo）</td></tr>
+        <tr><td>富文本</td><td>Lexical 或 Slate</td></tr>
+        <tr><td>本地存储</td><td>SQLite + IndexedDB</td></tr>
+        <tr><td>同步/协作</td><td>Y.js + CRDT（预留）</td></tr>
+        <tr><td>AI</td><td>OpenAI / Claude / Gemini；LLM → Markdown → AST → MindMap JSON → ReactFlow，一句话生成导图</td></tr>
+        <tr><td>插件系统</td><td>Plugin API + Command Pattern + 事件总线（预留 MCP）</td></tr>
+      </tbody>
+    </table></div>
+    <div class="srcnote" style="margin-bottom:0"><b>关键判断</b>：不要直接基于 BlinkMind 二次开发，而是把它当参考；用 ReactFlow 当底层画布、ELK.js 自动布局，从第一天就按 AI Native 设计（JSON ↔ Markdown ↔ MindMap 双向转换），预留插件、命令系统和 CRDT 协作能力。</div>
+  </section>
+
+  <section id="s6" class="st2">
+    <div class="sec-h"><span class="idx st2">07</span><h2>本页收录会话清单</h2><span class="hint">6 篇</span></div>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:110px">日期</th><th>主题</th><th style="width:80px">消息数</th></tr></thead>
+      <tbody>
+        <tr><td>2025-10-26</td><td>GitHub 里的 App 能否安装与安全隐患</td><td>2</td></tr>
+        <tr><td>2026-04-17</td><td>YouMind 网站介绍（AI 第二大脑）</td><td>2</td></tr>
+        <tr><td>2026-06-13</td><td>GitHub mindmap 库推荐（Windows 桌面应用）</td><td>2</td></tr>
+        <tr><td>2026-06-18</td><td>GitHub 开源思维导图软件横评</td><td>2</td></tr>
+        <tr><td>2026-06-19</td><td>GitHub 类似 Typora 的项目调研</td><td>8</td></tr>
+        <tr><td>2026-06-19</td><td>基于 Typora+MarkItDown+KillerPDF+SimpleMindMap 设计知识工作台 UI</td><td>6</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+</main></div>
+
+<footer class="s-foot"><div class="s-foot-in">
+  <b>GERVAS</b><span>思维导图与知识工作台设计 · V1.0</span><span class="sp">Copyright 2026 gervas.wang</span>
+</div><div class="s-disc"><p>本页整理自个人 ChatGPT 会话记录，开源项目 Star 数与技术栈以 2026 年 6 月对话时为准；「知屿」为产品构想，尚未实现。</p></div></footer>
+
+<a class="g-pill" href="../index.html">返回首页</a>
+<script>(function(){var S=['s0','s1','s2','s3','s4','s5','s6'];var L=document.querySelectorAll('#topnav a[data-sec]');function m(c){for(var i=0;i<L.length;i++)L[i].classList.toggle('on',L[i].getAttribute('data-sec')===c)}function spy(){var y=window.scrollY+130,c=S[0];for(var i=0;i<S.length;i++){var s=document.getElementById(S[i]);if(!s)continue;if(s.getBoundingClientRect().top+window.scrollY<=y)c=S[i]}m(c)}window.addEventListener('scroll',spy,{passive:true});window.addEventListener('resize',spy);spy()})();</script>
+</body></html>

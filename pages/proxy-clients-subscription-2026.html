@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d9488'/%3E<path d='M14 32h36M14 32l10-10M14 32l10 10M50 32L40 22M50 32L40 42' stroke='white' stroke-width='4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>代理翻墙客户端与订阅生态 · 2026</title>
+<meta name="description" content="从 2023 年 v2rayNG / WinXray / Clash TUN 模式 / 免费节点订阅转换，到 2026 年 FlClash 故障排查与 Quetta 隐私浏览器：12 篇会话整理出的客户端选型、TUN/TAP 区别、订阅转换工具与替代方案对照表。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent); --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:130px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+@media(max-width:760px){table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+
+.codeblock{background:var(--code);border:1px solid var(--line);border-radius:6px;padding:12px 14px;font-family:var(--mono);font-size:12.5px;line-height:1.7;overflow-x:auto;white-space:pre;color:var(--ink-2);margin-bottom:14px}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 客户端总览</a>
+      <a href="#s1" data-sec="s1">02 TUN/TAP 模式</a>
+      <a href="#s2" data-sec="s2">03 WinXray 与故障</a>
+      <a href="#s3" data-sec="s3">04 免费节点与订阅转换</a>
+      <a href="#s4" data-sec="s4">05 FlClash 排查与替代</a>
+      <a href="#s5" data-sec="s5">06 Quetta 隐私浏览器</a>
+      <a href="#s6" data-sec="s6">07 会话清单</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">软件工具与技术 · 话题聚类</span>
+  <h1>代理翻墙客户端与订阅生态</h1>
+  <p class="s-lede">从 2023 年那一批 v2rayNG、WinXray、Clash TUN 模式、免费节点订阅转换的搜索记录，到 2026 年 FlClash 点不开的排查、GitHub 上安卓 VPN 项目挑选、Quetta 隐私浏览器公司背景核查——12 篇会话整理成一份客户端选型与排障笔记。</p>
+  <div class="s-meta">
+    <span>收录会话 <b>12 篇</b></span>
+    <span>时间跨度 <b>2023-04-04 ~ 2026-08-24</b></span>
+    <span>年份分布 <b>2023(9) / 2026(3)</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">v2rayNG</span>
+    <span class="s-chip">Clash TUN</span>
+    <span class="s-chip">WinXray</span>
+    <span class="s-chip">ACL4SSR</span>
+    <span class="s-chip">FlClash</span>
+    <span class="s-chip">Quetta</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本页合并自以下会话</b>（日期 + 原标题）：
+    <ol>
+      <li>2023-04-04 v2rayNG（搜索结果整理）</li>
+      <li>2023-04-06 Clash for Windows TUN/TAP 模式（搜索结果整理）</li>
+      <li>2023-04-06 免费节点及订阅地址（搜索结果整理）</li>
+      <li>2023-04-06 WinXray 通用客户端（搜索结果整理）</li>
+      <li>2023-04-06 WinXray 故障与代理设置（搜索结果整理）</li>
+      <li>2023-04-06 WinXray 再次查询（搜索结果整理）</li>
+      <li>2023-04-06 免费节点订阅链接（搜索结果整理）</li>
+      <li>2023-04-06 ACL4SSR 在线订阅转换（搜索结果整理）</li>
+      <li>2023-04-06 ACL4SSR 再次查询（搜索结果整理）</li>
+      <li>2026-05-02 GitHub 上安卓可用的 VPN 项目</li>
+      <li>2026-06-27 FlClash 安装后点击无反应与同类 APP 推荐</li>
+      <li>2026-08-24 Quetta 浏览器电脑版与公司背景</li>
+    </ol>
+  </div>
+
+  <!-- 01 客户端总览 -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>主流客户端对照（跨年份）</h2><span class="hint">2023 搜索 + 2026 实测推荐</span></div>
+    <p class="lede">2023 年那批会话几乎全是 Web 搜索结果沉淀，当时主流是 v2rayNG（安卓）、WinXray（Windows）、Clash for Windows；到 2026 年再问同类问题时，推荐已经整体切换到 Clash Verge Rev、Hiddify、Mihomo Party 这一代。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:130px">客户端</th><th style="width:100px">平台</th><th style="width:150px">内核 / 协议</th><th>特点与备注</th></tr></thead>
+      <tbody>
+        <tr><td><b>v2rayNG</b></td><td>Android</td><td>Xray / v2fly 内核</td><td>安卓端最经典客户端，支持 VMess，可编译；GitHub 仓库 2dust/v2rayNG。</td></tr>
+        <tr><td><b>WinXray</b></td><td>Windows</td><td>Xray 内核（aardio 开发）</td><td>支持 vmess/vless、SS、SSR、Trojan、Trojan-go、NaiveProxy；自动测速切最快节点，服务器异常自动换；仅 Windows 平台。</td></tr>
+        <tr><td><b>Clash for Windows</b></td><td>Windows</td><td>Clash 内核</td><td>支持 TUN/TAP 虚拟网卡模式；0.18.7 后更推荐 TUN。</td></tr>
+        <tr><td><b>Clash Verge Rev</b></td><td>Windows</td><td>Mihomo 内核</td><td>2026 年首推，Windows 用户最稳，界面完善、社区活跃。</td></tr>
+        <tr><td><b>Hiddify</b></td><td>全平台</td><td>Clash/Mihomo、Sing-box</td><td>界面漂亮、更新活跃，支持 VLESS、Reality、Hysteria2；跨平台体验好。</td></tr>
+        <tr><td><b>Mihomo Party</b></td><td>Windows</td><td>Mihomo 内核</td><td>UI 现代，体验不错。</td></tr>
+        <tr><td><b>v2rayN</b></td><td>Windows</td><td>Xray / v2fly</td><td>老牌稳定，兼容性最好，资源占用低。</td></tr>
+        <tr><td><b>FlClash</b></td><td>全平台</td><td>Flutter 开发</td><td>依赖 WebView2，Windows 上常见「后台有进程、窗口不显示」。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="warnbox"><h5>2026 年的推荐顺序（Windows 11 x64）</h5>
+      <ul>
+        <li>首选 Clash Verge Rev — 最成熟稳定，兼容 Mihomo 配置。</li>
+        <li>次选 Hiddify — 协议最多、更新频繁。</li>
+        <li>备选 v2rayN — 老牌经典，资源占用低。</li>
+        <li>订阅是 Clash/Mihomo 格式，上面三个基本都能直接导入。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 02 TUN/TAP -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>Clash 的 TUN 与 TAP 模式</h2><span class="hint">2023-04-06 搜索整理</span></div>
+    <p class="lede">浏览器走系统代理就够了；但游戏、Git、不遵循系统代理的软件需要虚拟网卡接管全部三层流量。TUN 与 TAP 的区别是当年那批搜索笔记里信息密度最高的一段。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:110px">对比项</th><th>TUN</th><th>TAP</th></tr></thead>
+      <tbody>
+        <tr><td>工作层</td><td>三层（网络层，IP 数据包）</td><td>二层（数据链路层，以太网帧）</td></tr>
+        <tr><td>MAC 地址</td><td>无，不能与物理网卡 bridge</td><td>有，可 bridge、支持 MAC 层广播</td></tr>
+        <tr><td>Windows 性能</td><td><b>更好</b>，0.13.8 后更推荐</td><td>较老方案</td></tr>
+        <tr><td>UDP 处理</td><td>更强，可做 DNS 劫持</td><td>一般</td></tr>
+        <tr><td>安装依赖</td><td>需下载 Wintun（wintun.net，amd64 目录），把 wintun.dll 放到 Clash Home Directory</td><td>需安装虚拟网卡驱动</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">配置步骤</span><h3>Clash for Windows 开 TUN 模式</h3></div>
+      <div class="card-b">
+        <dl class="kv">
+          <dt>触发场景</dt><dd>游戏加速、Git、WSL 等不走系统代理的软件；专业开发建议直接 TUN。日常浏览器浏览用系统代理即可，不必开全局。</dd>
+          <dt>安装 Wintun</dt><dd>从 wintun.net 下载压缩包，按系统选 amd64 目录，把 wintun.dll 复制到 Clash 的 Home Directory（General 页面点击可打开该目录）。</dd>
+          <dt>服务模式</dt><dd>General 页面 → Service Mode → Manage，安装服务模式后再开启 TUN。</dd>
+          <dt>mixin 配置</dt><dd>Mixin 选项编辑文件，清空原有内容后粘贴 TUN 配置片段。</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 WinXray -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>WinXray：导入、测速与常见故障</h2><span class="hint">2023-04-06 三篇会话合并</span></div>
+    <p class="lede">WinXray 是 Windows 上的 Xray 内核通用客户端，aardio 写的，绿色解压即用。三篇同天会话分别查了它的功能、故障、再次确认，合并后是下面这套使用笔记。</p>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:15px;margin-bottom:10px">导入节点三种方式</h3>
+        <ul style="padding-left:18px;font-size:13.5px;line-height:1.9">
+          <li><b>剪贴板批量导入</b>：右键列表 → 从剪贴板批量导入分享链接和订阅源，双击节点启用。</li>
+          <li><b>扫屏幕二维码</b>：右下角托盘图标右键 → 扫一扫导入节点。</li>
+          <li><b>手动 JSON 配置</b>：配置页手写节点参数，不推荐，易错。</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;margin-bottom:10px">优缺点（照录）</h3>
+        <dl class="kv">
+          <dt>优点</dt><dd>支持多协议；导入即用；自动测速切最快节点；服务器抽风自动换；自实现 PAC 服务器解决了 PAC 用久卡死的问题。</dd>
+          <dt>缺点</dt><dd>启动切节点响应略慢；新增节点手动配置难；仅 Windows。</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="warnbox" style="margin-top:16px"><h5>「代理改不了 / 用不了」排查顺序</h5>
+      <ul>
+        <li>先把 WinXray 加入杀毒软件 / Windows Defender 信任列表（常见于安全软件静默拦截）。</li>
+        <li>仍不行：Win+R 输 regedit，定位到 <code>HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings\Connections</code>，删除 Connections 项后注销系统。</li>
+        <li>订阅更新无变化时，完全退出软件再启动（客户端缓存问题）。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 04 免费节点与订阅转换 -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>免费节点源与订阅转换工具</h2><span class="hint">2023-04 四篇搜索合并</span></div>
+    <p class="lede">2023 年那批搜索记录里反复出现的免费节点 GitHub 仓库和 ACL4SSR 订阅转换站，本质上是一套「拿公共节点 → 转成自己客户端能用的配置」的流程。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:170px">资源</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr><td>Pawdroid/Free-servers</td><td>GitHub 免费节点仓库，实时手动测速，6 小时更新。</td></tr>
+        <tr><td>aiboboxx/v2rayfree</td><td>v2ray 公益免费节点订阅，每日更新，附 Telegram 频道。</td></tr>
+        <tr><td>aiboboxx/clashfree</td><td>Clash 免费节点订阅，每日更新。</td></tr>
+        <tr><td>ermaozi/get_subscribe</td><td>提供 clash.yml / v2ray.txt 原始订阅链接。</td></tr>
+        <tr><td>v2rayshare.com</td><td>公益节点分享站，覆盖 SS/SSR/Vmess/Clash/Trojan。</td></tr>
+        <tr><td><b>ACL4SSR 在线订阅转换</b></td><td>acl4ssr-sub.github.io / sub.v1.mk / sub-zh.vercel.app 等，把各机场链接转成 Clash 配置，可过滤、重命名、排序、合并多订阅。</td></tr>
+        <tr><td>tindy2013/subconverter</td><td>可自部署的订阅转换后端，支持 Docker；icpd/subscribe2clash 是 Go 实现。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="srcnote" style="margin-bottom:0"><b>安全提醒</b>：免费节点具有时效性，<b>不要用来登录银行、证券、企业账号</b>；公共转换站可能被盗用流量，敏感场景建议自建 subconverter 后端。DNS 建议手动设 114.114.114.114 或 8.8.8.8。</div>
+  </section>
+
+  <!-- 05 FlClash -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>FlClash 安装后点不开：Windows 11 x64 实测排查</h2><span class="hint">2026-06-27</span></div>
+    <p class="lede">现场症状：Windows 11、x64，双击 FlClash 后<b>任务管理器能看到进程但窗口不弹</b>。这说明程序起来了，UI 没渲染出来，不是配置文件问题。</p>
+
+    <div class="card st5">
+      <div class="card-h"><span class="tag">按优先级排查</span><h3>五步定位</h3></div>
+      <div class="card-b">
+        <dl class="kv">
+          <dt>① 装 WebView2（成功率最高）</dt><dd>FlClash 界面依赖 Microsoft Edge WebView2 Runtime（Evergreen）。系统没装或运行时损坏就会后台有进程、前台无窗口。装完重启电脑再启动。</dd>
+          <dt>② 删配置目录</dt><dd>彻底退出 FlClash，备份后删除其配置目录，再启动（配置损坏也会导致窗口不显示）。</dd>
+          <dt>③ 管理员身份运行</dt><dd>右键 FlClash.exe → 以管理员身份运行。</dd>
+          <dt>④ 查安全软件拦截</dt><dd>Defender 或第三方杀软有时会阻止 Flutter 程序创建窗口。</dd>
+          <dt>⑤ 下最新版覆盖安装</dt><dd>老版本 Flutter 兼容问题直接换最新版。</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="warnbox"><h5>不想折腾就换客户端</h5>
+      <ul>
+        <li>Windows 11：Clash Verge Rev（首推）&gt; Hiddify &gt; v2rayN。</li>
+        <li>FlClash 是 Flutter 写的，显卡驱动 / 运行环境兼容问题会偶发；上面三个社区使用人数更多、更稳。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 06 Quetta -->
+  <section id="s5" class="st1">
+    <div class="sec-h"><span class="idx st1">06</span><h2>Quetta 浏览器：电脑版与公司背景核查</h2><span class="hint">2026-08-24</span></div>
+    <p class="lede">Quetta 是一款定位「video-first」的 Chromium 浏览器，主打 AI 广告拦截 + 隐私保护 + 内置视频下载。2026 年 8 月才刚出 Windows Beta，公司背景需要单独盘一遍。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">核查项</th><th>结论</th></tr></thead>
+      <tbody>
+        <tr><td>Windows 版</td><td>有，<b>Beta</b>，首个版本 2.0.2 发布于 2026-08-04，基于 Chromium，同时有 macOS 版。</td></tr>
+        <tr><td>运营主体</td><td><b>Quetta Networks Limited</b>，注册地址 Office Suite 29A, 23 Wharf Street, London, SE8 3GG，英国伦敦。</td></tr>
+        <tr><td>公司体量</td><td>小型新兴团队，2023 年开始运营；产品负责人 Stephen，产品管理 Cherysun。不是 Google/Mozilla/Brave 那种大厂。</td></tr>
+        <tr><td>核心功能</td><td>AI 广告拦截、Tracker 拦截、指纹防护、HTTPS 优先、内置视频下载（HLS/M3U8/MP4/WebM）。</td></tr>
+        <tr><td>隐私政策</td><td>默认不要求注册、不收集个人信息；但<b>集成 Google Analytics</b> 收集匿名使用数据，可在设置里关。</td></tr>
+        <tr><td>开源程度</td><td>非完全开源浏览器路线；安全审计公开信息有限。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="rl" style="border:1px solid #f3c6c4;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px;margin-bottom:14px">
+      <h4 style="font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px">使用建议</h4>
+      <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5">日常看视频、拦广告可以试；敏感账号别放。</div>
+      <p style="font-size:13.5px;color:var(--ink-2);line-height:1.72">银行、券商、企业后台、密码管理器、邮箱主账号、重要 GitHub 账号仍用 Firefox / Brave / Edge / Chrome。Quetta 装完第一件事先把 Analytics、匿名使用数据、Crash Report 全关掉，裸装观察一段时间更新与崩溃，再决定要不要装扩展、导密码。</p>
+    </div>
+  </section>
+
+  <!-- 07 会话清单 -->
+  <section id="s6" class="st2">
+    <div class="sec-h"><span class="idx st2">07</span><h2>本页收录会话清单</h2><span class="hint">12 篇</span></div>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:110px">日期</th><th>原标题 / 内容</th><th style="width:80px">消息数</th></tr></thead>
+      <tbody>
+        <tr><td>2023-04-04</td><td>v2rayNG（Android V2Ray 客户端搜索结果）</td><td>2</td></tr>
+        <tr><td>2023-04-06</td><td>Clash for Windows TUN/TAP 模式搜索结果</td><td>2</td></tr>
+        <tr><td>2023-04-06</td><td>免费节点及订阅地址搜索结果</td><td>2</td></tr>
+        <tr><td>2023-04-06</td><td>WinXray 通用客户端搜索结果</td><td>2</td></tr>
+        <tr><td>2023-04-06</td><td>WinXray 故障与代理设置搜索结果</td><td>2</td></tr>
+        <tr><td>2023-04-06</td><td>WinXray 再次查询搜索结果</td><td>2</td></tr>
+        <tr><td>2023-04-06</td><td>免费节点订阅链接搜索结果</td><td>2</td></tr>
+        <tr><td>2023-04-06</td><td>ACL4SSR 在线订阅转换搜索结果</td><td>2</td></tr>
+        <tr><td>2023-04-06</td><td>ACL4SSR 再次查询搜索结果</td><td>2</td></tr>
+        <tr><td>2026-05-02</td><td>GitHub 里安卓可用的 VPN 项目</td><td>4</td></tr>
+        <tr><td>2026-06-27</td><td>FlClash 安装后点击无反应，推荐同类 APP</td><td>4</td></tr>
+        <tr><td>2026-08-24</td><td>Quetta 浏览器电脑版与公司安全性</td><td>8</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>代理翻墙客户端与订阅生态 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自个人 ChatGPT 会话记录，涉及客户端与节点信息以当时搜索结果为准；免费节点时效性强、安全性无保证，请勿用于登录敏感账号。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4','s5','s6'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){for(var i=0;i<secLinks.length;i++){secLinks[i].classList.toggle('on',secLinks[i].getAttribute('data-sec')===cur);}}
+  function spy(){var y=window.scrollY+130,cur=SECS[0];for(var i=0;i<SECS.length;i++){var s=document.getElementById(SECS[i]);if(!s)continue;var top=s.getBoundingClientRect().top+window.scrollY;if(top<=y)cur=SECS[i];}mark(cur);}
+  window.addEventListener('scroll',spy,{passive:true});window.addEventListener('resize',spy);spy();
+})();
+</script>
+</body>
+</html>

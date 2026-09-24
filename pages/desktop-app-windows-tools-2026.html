@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d9488'/%3E<rect x='14' y='14' width='36' height='24' rx='2' fill='none' stroke='white' stroke-width='3'/%3E<rect x='24' y='44' width='16' height='4' fill='white'/%3E%3C/svg%3E">
+<title>桌面应用开发与 Windows 工具 · 2026</title>
+<meta name="description" content="从门外汉做安卓 App 的完整教程、Windows 一键清理 BAT 脚本、Codex 桌面应用中文设置，到诗词数据库桌面应用的架构设计——4 篇会话整理。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{--s1:#0d9488;--s2:#2563eb;--s3:#7c3aed;--s4:#ea580c;--s5:#db2777;--s1s:#ccfbf1;--s2s:#dbeafe;--s3s:#ede9fe;--s4s:#ffedd5;--s5s:#fce7f3;--bar-h:50px;--side-ink:#94a3b8;--side-hi:rgba(13,148,136,.18);--sc:var(--accent);--scs:var(--accent-soft)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:760px){.g2{grid-template-columns:1fr}}
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}tbody tr:last-child td{border-bottom:0}
+@media(max-width:760px){table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+.codeblock{background:var(--code);border:1px solid var(--line);border-radius:6px;padding:12px 14px;font-family:var(--mono);font-size:12.5px;line-height:1.7;overflow-x:auto;white-space:pre;color:var(--ink-2);margin-bottom:14px}
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}.srcnote ol{margin:8px 0 0;padding-left:20px}.srcnote li{margin-bottom:4px;line-height:1.7}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.st1{--sc:var(--s1);--scs:var(--s1s)}.st2{--sc:var(--s2);--scs:var(--s2s)}.st3{--sc:var(--s3);--scs:var(--s3s)}.st4{--sc:var(--s4);--scs:var(--s4s)}.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+</style>
+</head>
+<body>
+<header class="s-bar"><div class="s-bar-in">
+  <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+  <nav class="s-nav" id="topnav">
+    <a href="#s0" data-sec="s0">01 安卓 App 入门</a>
+    <a href="#s1" data-sec="s1">02 Windows 清理脚本</a>
+    <a href="#s2" data-sec="s2">03 Codex 中文设置</a>
+    <a href="#s3" data-sec="s3">04 诗词桌面应用</a>
+    <a href="#s4" data-sec="s4">05 会话清单</a>
+  </nav>
+</div></header>
+
+<div class="s-head">
+  <span class="s-eyebrow">软件工具与技术 · 话题聚类</span>
+  <h1>桌面应用开发实战与 Windows 系统工具</h1>
+  <p class="s-lede">从 2023 年一个编程门外汉想做「提示词分享 App」的完整引导，到 2026 年给跑 OpenClaw 的电脑写一键清理 BAT、Codex 桌面端中文设置踩坑、基于 chinese-poetry 仓库设计诗词桌面应用——4 篇会话覆盖「从零做 App」和「给现有系统打补丁」两类工作。</p>
+  <div class="s-meta">
+    <span>收录会话 <b>4 篇</b></span>
+    <span>时间跨度 <b>2023-03-28 ~ 2026-06-27</b></span>
+  </div>
+  <div class="s-chips"><span class="s-chip">Android Studio</span><span class="s-chip">BAT 清理脚本</span><span class="s-chip">Codex</span><span class="s-chip">Electron</span><span class="s-chip">Tauri</span><span class="s-chip">SQLite</span></div>
+</div>
+
+<div class="s-body"><main class="s-main">
+  <div class="srcnote"><b>本页合并自以下会话</b>：
+    <ol><li>2023-03-28 门外汉如何制作安卓应用 APP（含提示词分享 App 设计与示例代码）</li>
+    <li>2026-05-03 跑 OpenClaw 的电脑临时文件太多，写 Windows 一键清理脚本（BAT）</li>
+    <li>2026-06-14 Codex Windows 桌面应用怎么设置中文显示</li>
+    <li>2026-06-27 基于 github.com/eastseao/chinese-poetry 做 Windows 诗词查询 + 每日推荐桌面应用</li></ol>
+  </div>
+
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>门外汉做安卓 App：八步流程 + 提示词社区示例</h2><span class="hint">2023-03-28</span></div>
+    <p class="lede">那时候还是「软件开发门外汉」，目标是做一个专门介绍提示词的 App：首页热门分类、分享社区、个人设置三个 Tab。</p>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:140px">步骤</th><th>做什么</th></tr></thead>
+      <tbody>
+        <tr><td>1. 定想法</td><td>确定应用想法，构思 UI、功能、流程</td></tr>
+        <tr><td>2. 学语言</td><td>Java 或 Kotlin</td></tr>
+        <tr><td>3. 装 Android Studio</td><td>官方开发工具</td></tr>
+        <tr><td>4. 新建项目</td><td>选模板或从零开始</td></tr>
+        <tr><td>5. 设计 UI</td><td>Layout Editor 拖控件（按钮/文本框/图片）</td></tr>
+        <tr><td>6. 加功能</td><td>网络连接 / 数据库 / 图像处理</td></tr>
+        <tr><td>7. 测试调试</td><td>模拟器或真机</td></tr>
+        <tr><td>8. 发布</td><td>Google Play 或其他市场</td></tr>
+      </tbody>
+    </table></div>
+    <div class="card st1">
+      <div class="card-h"><span class="tag">示例代码骨架</span><h3>提示词三 Tab 主界面</h3></div>
+      <div class="card-b">
+        <dl class="kv">
+          <dt>主页面组件</dt><dd>TabLayout + ViewPager2 实现滑动标签（热门分类 / 最新 / 最受欢迎）。</dd>
+          <dt>activity_main.xml</dt><dd>ConstraintLayout 根布局，顶部 TabLayout，下方 ViewPager2。</dd>
+          <dt>分享社区</dt><dd>用户上传提示词 → 列表展示 → 收藏 / 社交分享。</dd>
+          <dt>个人页</dt><dd>修改密码、通知设置、语言切换。</dd>
+          <dt>上线前</dt><dd>充分测试 + 反馈机制；注意用户数据保护与防恶意攻击。</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>Windows 一键清理脚本（BAT）</h2><span class="hint">2026-05-03</span></div>
+    <p class="lede">跑 OpenClaw 这种 Agent 工具后临时文件暴涨。先给了安全版，再升级成「开发者增强版」。</p>
+    <div class="card st2">
+      <div class="card-h"><span class="tag">安全版（先跑这个）</span><h3>clean.bat</h3></div>
+      <div class="card-b">
+<div class="codeblock">@echo off
+echo ==============================
+echo   Windows 垃圾清理开始
+echo ==============================
+
+:: 清理用户临时文件
+echo 清理用户临时文件...
+del /f /s /q %temp%\* >nul 2>&1
+rd /s /q %temp% >nul 2>&1
+mkdir %temp%
+
+:: 清理系统临时文件
+del /f /s /q C:\Windows\Temp\* >nul 2>&1
+
+:: 清理 Prefetch
+del /f /s /q C:\Windows\Prefetch\* >nul 2>&1
+
+:: 清理回收站
+rd /s /q C:\$Recycle.Bin >nul 2>&1
+
+:: 清 DNS 缓存
+ipconfig /flushdns
+
+:: 清 Windows 更新缓存
+net stop wuauserv >nul 2>&1
+del /f /s /q C:\Windows\SoftwareDistribution\Download\* >nul 2>&1
+net start wuauserv >nul 2>&1
+
+echo 清理完成！
+pause</div>
+        <dl class="kv">
+          <dt>用法</dt><dd>新建文本文件 → 粘贴 → 另存为 <code>clean.bat</code> → <b>右键以管理员身份运行</b>。</dd>
+          <dt>安全边界</dt><dd>不删个人文档 / 图片 / 代码；正在使用的文件删不掉是正常的；OpenClaw 类缓存基本能清掉 70%+。</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="warnbox"><h5>增强版可以再加</h5><ul>
+      <li>Chrome / Edge 缓存、Node/npm 缓存、Python <code>__pycache__</code>、Git 残留。</li>
+      <li>定时每天自动跑；只清超过 7 天的文件更安全。</li>
+    </ul></div>
+  </section>
+
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>Codex Windows 桌面应用设中文</h2><span class="hint">2026-06-14</span></div>
+    <p class="lede">OpenAI Codex 桌面端的中文支持当时是半残状态，按四个方法排查。</p>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">方法</th><th>操作</th></tr></thead>
+      <tbody>
+        <tr><td>软件内设置</td><td>File → Settings → General → Language → 中文（zh-CN）→ <b>完全退出后台进程</b> → 重开。</td></tr>
+        <tr><td>查配置文件</td><td>打开 <code>C:\Users\&lt;用户名&gt;\.codex\config.toml</code>，确认有 <code>[desktop] localeOverride = "zh-CN"</code>；或全局 JSON 里 <code>"localeOverride":"zh-CN"</code>。</td></tr>
+        <tr><td>更到最新版</td><td>官方持续修中文；当时仍存在一级菜单中文、二级菜单英文的中英混合状态。</td></tr>
+        <tr><td>社区汉化补丁</td><td>GitHub 有第三方完整汉化，但更新官方版后可能失效，有安全维护风险。</td></tr>
+      </tbody>
+    </table></div>
+    <div class="srcnote" style="margin-bottom:0"><b>已知 Bug</b>：很多用户反馈语言已改成中文、配置文件已写 zh-CN，重启后 UI 仍是英文——官方已确认，未完全修复。</div>
+  </section>
+
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>诗词数据库桌面应用：产品结构与技术选型</h2><span class="hint">2026-06-27</span></div>
+    <p class="lede">数据源是 github.com/eastseao/chinese-poetry。目标是 Windows 桌面：每天打开随机推荐一首，不喜欢就换；能搜索诗名/作者/内容。</p>
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:15px;margin-bottom:10px">四个核心页面</h3>
+        <ul style="padding-left:18px;font-size:13.5px;line-height:1.9">
+          <li><b>首页</b>：每日一首（按 date seed 固定，换一首重随机）；显示诗名/作者/正文/朝代；收藏按钮。</li>
+          <li><b>搜索页</b>：关键词搜诗名/作者/内容；高级筛选朝代、作者、类型。</li>
+          <li><b>详情页</b>：标准排版阅读；上一首/下一首；收藏/分享。</li>
+          <li><b>收藏页</b>：个人诗单，可分类（喜欢/背诵/待学习）。</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;margin-bottom:10px">三条技术路线</h3>
+        <dl class="kv">
+          <dt>首选 Electron + React</dt><dd>跨平台、UI 好做、社区成熟；SQLite + 本地 poetry JSON。</dd>
+          <dt>更轻 Tauri + React</dt><dd>Rust 壳，比 Electron 轻很多、启动快、内存低。</dd>
+          <dt>Windows 原生 WinUI 3 / WPF</dt><dd>偏工程，性能最好但开发慢、不跨平台。</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="srcnote" style="margin-top:14px;margin-bottom:0"><b>体验目标</b>：「像打开一本每天都会变的诗词书」。本质是离线诗词知识库 + 随机推荐阅读器 + 检索工具。</div>
+  </section>
+
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>本页收录会话清单</h2><span class="hint">4 篇</span></div>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:110px">日期</th><th>主题</th><th style="width:80px">消息数</th></tr></thead>
+      <tbody>
+        <tr><td>2023-03-28</td><td>门外汉制作安卓应用 APP（提示词社区）</td><td>12</td></tr>
+        <tr><td>2026-05-03</td><td>OpenClaw 环境 Windows 一键清理 BAT 脚本</td><td>8</td></tr>
+        <tr><td>2026-06-14</td><td>Codex Windows 桌面应用中文显示设置</td><td>2</td></tr>
+        <tr><td>2026-06-27</td><td>基于 chinese-poetry 做 Windows 诗词查询桌面应用</td><td>8</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+</main></div>
+
+<footer class="s-foot"><div class="s-foot-in">
+  <b>GERVAS</b><span>桌面应用开发与 Windows 工具 · V1.0</span><span class="sp">Copyright 2026 gervas.wang</span>
+</div><div class="s-disc"><p>本页整理自个人 ChatGPT 会话记录，脚本与配置以对话时为准；运行清理脚本前请确认路径，避免误删数据。</p></div></footer>
+
+<a class="g-pill" href="../index.html">返回首页</a>
+<script>(function(){var S=['s0','s1','s2','s3','s4'];var L=document.querySelectorAll('#topnav a[data-sec]');function m(c){for(var i=0;i<L.length;i++)L[i].classList.toggle('on',L[i].getAttribute('data-sec')===c)}function spy(){var y=window.scrollY+130,c=S[0];for(var i=0;i<S.length;i++){var s=document.getElementById(S[i]);if(!s)continue;if(s.getBoundingClientRect().top+window.scrollY<=y)c=S[i]}m(c)}window.addEventListener('scroll',spy,{passive:true});window.addEventListener('resize',spy);spy()})();</script>
+</body></html>

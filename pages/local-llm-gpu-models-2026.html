@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d9488'/%3E<text x='32' y='42' font-size='28' text-anchor='middle' fill='white' font-family='monospace' font-weight='bold'>AI</text>%3C/svg%3E">
+<title>本地大模型与 GPU 选型 · 2026</title>
+<meta name="description" content="从 6GB VRAM 能跑哪些 7B 模型、Stable Diffusion 本地部署、Tacotron 2 语音合成，到 Grok 免费额度与开源模型规模：8 篇会话整理出的本地 AI 部署路线图。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent); --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi);font-weight:600}
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+.lede b{color:var(--ink)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#fff;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#475569;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:0}
+@media(max-width:760px){table{min-width:600px;font-size:12.5px}th,td{padding:9px 11px}}
+.codeblock{background:var(--code);border:1px solid var(--line);border-radius:6px;padding:12px 14px;font-family:var(--mono);font-size:12.5px;line-height:1.7;overflow-x:auto;white-space:pre;color:var(--ink-2);margin-bottom:14px}
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.srcnote ol{margin:8px 0 0;padding-left:20px}
+.srcnote li{margin-bottom:4px;line-height:1.7}
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+@media(max-width:900px){.s-main{padding:8px 18px 30px}.s-nav{overflow-x:auto;scrollbar-width:none}.s-nav::-webkit-scrollbar{display:none}}
+@media(max-width:640px){.s-brand em{display:none}.s-nav a{padding:5px 8px;font-size:12.5px}.s-head{padding:30px 18px 0}.s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}}
+</style>
+</head>
+<body>
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">01 硬件底盘</a>
+      <a href="#s1" data-sec="s1">02 LLM 选型</a>
+      <a href="#s2" data-sec="s2">03 图片模型</a>
+      <a href="#s3" data-sec="s3">04 语音模型</a>
+      <a href="#s4" data-sec="s4">05 Pygmalion 7B</a>
+      <a href="#s5" data-sec="s5">06 Grok 云端模型</a>
+      <a href="#s6" data-sec="s6">07 升级路线</a>
+      <a href="#s7" data-sec="s7">08 会话清单</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">软件工具与技术 · 话题聚类</span>
+  <h1>本地大模型与 GPU 选型：从 6GB 显存到 RTX 3060 升级路线</h1>
+  <p class="s-lede">同一台家用台式机（先是 GTX 1660 6GB、后是 GTX 1660 4GB），半年里反复盘：本地能跑哪些 7B 语言模型、Stable Diffusion 能出多大分辨率、Tacotron 2 怎么部署、Pygmalion 7B 怎么聊天、Grok 免费额度多少——8 篇会话整理成一条低配机本地 AI 路线图。</p>
+  <div class="s-meta">
+    <span>收录会话 <b>8 篇</b></span>
+    <span>时间跨度 <b>2026-03-22 ~ 2026-05-24</b></span>
+    <span>硬件基准 <b>GTX 1660 4~6GB / i5-10400F / 8GB RAM</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">LM Studio</span>
+    <span class="s-chip">Ollama</span>
+    <span class="s-chip">Qwen2.5 7B</span>
+    <span class="s-chip">Stable Diffusion</span>
+    <span class="s-chip">Tacotron 2</span>
+    <span class="s-chip">Pygmalion 7B</span>
+    <span class="s-chip">Grok</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <div class="srcnote">
+    <b>本页合并自以下会话</b>：
+    <ol>
+      <li>2026-03-22 Grok 每天免费额度</li>
+      <li>2026-03-24 显卡总内存 10010MB / VRAM 5966MB 能跑哪些语言模型 + 图片模型软件 + Stable Diffusion 本地部署 + Tacotron 2 部署</li>
+      <li>2026-03-24 xAI 开源 Grok-1 / Grok-2 模型大小 + LM Studio 一键方案</li>
+      <li>2026-03-24 6GB VRAM 图片模型最大分辨率 + 还能跑哪些其他模型</li>
+      <li>2026-03-24 怎么和 Pygmalion 7B 聊天 + 调聊技巧 + 模型特点</li>
+      <li>2026-03-24 Mistral-7B 能力介绍</li>
+      <li>2026-03-30 X App 里的 Grok 写小说限制</li>
+      <li>2026-05-24 HOMEPC（i5-10400F / GTX1660 4GB / 8GB）AI 模型推荐 + 本地知识库搭建 + 五阶段路线</li>
+    </ol>
+  </div>
+
+  <!-- 01 硬件底盘 -->
+  <section id="s0" class="st1">
+    <div class="sec-h"><span class="idx st1">01</span><h2>两台机的硬件底盘对比</h2><span class="hint">2026-03 vs 2026-05</span></div>
+    <p class="lede">同一个人、两个月内问了两次「我这电脑能跑什么 AI」。两次的机器描述略有出入，合并起来才看得清瓶颈到底在哪。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:130px">项目</th><th>2026-03 那台</th><th>2026-05 HOMEPC</th></tr></thead>
+      <tbody>
+        <tr><td>CPU</td><td>未明说</td><td>Intel i5-10400F，6 核 12 线程，2.9GHz</td></tr>
+        <tr><td>显卡</td><td>总显存 10010MB，VRAM 5966MB（≈6GB）</td><td>NVIDIA GTX 1660，<b>4GB</b> 显存，驱动 32.0.15.6094</td></tr>
+        <tr><td>内存</td><td>未明说</td><td>ADATA 8GB DDR4 3200（单条）</td></tr>
+        <tr><td>存储</td><td>未明说</td><td>WD SN350 500GB NVMe + 1TB/2TB 两块 SATA 机械</td></tr>
+        <tr><td>主板</td><td>未明说</td><td>微星 B560M BOMBER</td></tr>
+        <tr><td>系统</td><td>Windows</td><td>Windows 11 专业版 26200</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="warnbox"><h5>两个真瓶颈</h5>
+      <ul>
+        <li><b>显存</b>：6GB 是 7B 量化模型的及格线；4GB 必须 Q4 量化 + 上下文压到 4K。</li>
+        <li><b>系统内存 8GB</b>：这是最大短板。浏览器 + Ollama + 模型一上就爆，第一升级位是内存到 32GB，不是显卡。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 02 LLM 选型 -->
+  <section id="s1" class="st2">
+    <div class="sec-h"><span class="idx st2">02</span><h2>本地语言模型选型（6GB / 4GB 两档）</h2><span class="hint">LM Studio + Ollama</span></div>
+    <p class="lede">3 月那次给的是 LM Studio 路线，5 月那次升级成 Ollama + Open WebUI + AnythingLLM 路线。两次推荐的模型清单高度重合，合并后是下面这张表。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:180px">模型</th><th style="width:90px">量化</th><th style="width:110px">适合场景</th><th>6GB / 4GB 表现</th></tr></thead>
+      <tbody>
+        <tr><td><b>Qwen2.5 7B Instruct</b></td><td>Q4_K_M</td><td>中文综合主力</td><td>6GB 流畅（3~8 tok/s）；4GB 可跑但上下文压到 4K~8K</td></tr>
+        <tr><td><b>Qwen2.5 3B Instruct</b></td><td>Q4</td><td>超轻中文</td><td>4GB 最舒服，Agent 稳，体验常比 7B 好</td></tr>
+        <tr><td><b>DeepSeek-R1 Distill Qwen 7B</b></td><td>Q4</td><td>小说 / 长文本 / 推理</td><td>文风稳定、情节强，中文优秀</td></tr>
+        <tr><td><b>DeepSeek Coder 6.7B</b></td><td>Q4</td><td>代码 / 前端 / Python</td><td>本地配 VSCode 当 Copilot 替代</td></tr>
+        <tr><td><b>Llama 3 8B Instruct</b></td><td>Q4_K_M</td><td>英文 + 代码</td><td>比 Qwen 慢一档，英文资料处理用</td></tr>
+        <tr><td><b>Mistral 7B Instruct</b></td><td>Q4</td><td>写作 / 文案</td><td>语言自然，创意写作像人；70 亿参数、GQA+SWA、Apache 2.0</td></tr>
+        <tr><td><b>Phi-3 Mini</b></td><td>—</td><td>超轻量快速问答</td><td>4GB 显存很舒服，响应极快</td></tr>
+        <tr><td><b>Pygmalion 7B</b></td><td>—</td><td>情感陪伴 / 角色扮演</td><td>见第 05 节</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="card st2">
+      <div class="card-h"><span class="tag">LM Studio 一键参数</span><h3>6GB 显存黄金组合（照抄）</h3></div>
+      <div class="card-b">
+        <dl class="kv">
+          <dt>搜索关键词</dt><dd><code>Qwen2.5-7B-Instruct-GGUF</code>，作者选 TheBloke 或官方 GGUF。</dd>
+          <dt>Context Length</dt><dd>4096（爆显存降到 2048）</dd>
+          <dt>GPU Offload</dt><dd>尽量拉满（Auto 或 Max）</dd>
+          <dt>Threads</dt><dd>CPU 核心数 − 1</dd>
+          <dt>Temperature</dt><dd>0.7（严谨 0.3 / 发散 0.9）</dd>
+          <dt>Top_p / Top_k</dt><dd>0.9 / 40</dd>
+          <dt>Repeat penalty</dt><dd>1.1</dd>
+          <dt>爆显存降级顺序</dt><dd>Q5→Q4 → Context 4096→2048 → GPU offload 往下调</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="card st1">
+      <div class="card-h"><span class="tag">Ollama 一行启动</span><h3>5 月升级路线：本地 ChatGPT</h3></div>
+      <div class="card-b">
+        <div class="codeblock">ollama run qwen2.5:3b</div>
+        <p style="font-size:13.5px;color:var(--ink-2)">装完 Ollama 跑这条命令，自动下模型；再装 Open WebUI，浏览器开 <code>http://localhost:3000</code> 就是本地版 ChatGPT。第二阶段加 AnythingLLM 喂 PDF / Markdown / TXT，Embedding 用 <b>bge-m3</b>（中文最强、小说检索强、占用低）。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 图片模型 -->
+  <section id="s2" class="st3">
+    <div class="sec-h"><span class="idx st3">03</span><h2>图片生成模型与分辨率上限</h2><span class="hint">Stable Diffusion 本地部署</span></div>
+    <p class="lede">3 月那天连问了「能跑哪些图片软件」「最大多少像素」「怎么本地部署 SD」。结论合并：6GB 显存跑 SD1.5 完全没问题，SDXL 勉强；4GB 必须 Forge WebUI 低显存模式。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:150px">分辨率</th><th style="width:120px">约需显存</th><th>6GB 卡实测</th></tr></thead>
+      <tbody>
+        <tr><td>512×512</td><td>~2GB</td><td>轻松</td></tr>
+        <tr><td>1024×1024</td><td>~4GB</td><td>可跑</td></tr>
+        <tr><td>2048×2048+</td><td>6GB+</td><td>爆显存，需分块 / hires fix</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:15px;margin-bottom:10px">软件选型（按上手难度）</h3>
+        <ul style="padding-left:18px;font-size:13.5px;line-height:1.9">
+          <li><b>Fooocus</b>：最像 MidJourney，自动调参，新手首选。</li>
+          <li><b>Forge WebUI</b>：低显存优化最强，4GB 卡唯一推荐。</li>
+          <li><b>A1111 WebUI</b>：插件生态最丰富，ControlNet + LoRA。</li>
+          <li><b>ComfyUI</b>：节点流，显存利用率最高，批量/自动化。</li>
+          <li><b>InvokeAI</b>：像 Photoshop 的画布编辑。</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;margin-bottom:10px">推荐底模</h3>
+        <dl class="kv">
+          <dt>写实亚洲风</dt><dd>Realistic Vision V6</dd>
+          <dt>二次元</dt><dd>Anything V5</dd>
+          <dt>通用混合</dt><dd>DreamShaper</dd>
+          <dt>不建议</dt><dd>SDXL / Flux（4~6GB 显存不够）</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="card st3" style="margin-top:14px">
+      <div class="card-h"><span class="tag">原生部署 SD 步骤</span><h3>不想用一键包时的手动路线</h3></div>
+      <div class="card-b">
+        <dl class="kv">
+          <dt>环境</dt><dd>Python 3.9 + Git + NVIDIA CUDA 11.x / cuDNN；6GB 显存起。</dd>
+          <dt>克隆</dt><dd><code>git clone https://github.com/CompVis/stable-diffusion</code> → <code>pip install -r requirements.txt</code></dd>
+          <dt>模型权重</dt><dd>HuggingFace 同意协议后下载 <code>.ckpt</code>，放到 <code>models/ldm/stable-diffusion-v1/</code></dd>
+          <dt>首跑</dt><dd><code>python scripts/txt2img.py --prompt "a scenic landscape" --H 512 --W 512 --plms</code></dd>
+          <dt>结果</dt><dd>图片输出在 <code>outputs/</code> 目录。</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 语音模型 -->
+  <section id="s3" class="st4">
+    <div class="sec-h"><span class="idx st4">04</span><h2>语音合成（TTS）与识别（ASR）</h2><span class="hint">Tacotron 2 本地部署</span></div>
+    <p class="lede">3 月那次顺藤摸瓜问完图片模型又问「还能跑什么模型」，一路问到 TTS/ASR。最终落到 Tacotron 2 的本地部署步骤。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:130px">类型</th><th style="width:150px">模型</th><th>特点</th></tr></thead>
+      <tbody>
+        <tr><td rowspan="3"><b>TTS 语音合成</b></td><td>Tacotron 2</td><td>Google 端到端，文本→频谱→WaveNet 声码器，接近真人</td></tr>
+        <tr><td>FastSpeech</td><td>Transformer 架构，比 Tacotron 2 快，适合实时</td></tr>
+        <tr><td>WaveNet / WaveGlow</td><td>声码器，直接生成波形，质量高但慢</td></tr>
+        <tr><td rowspan="3"><b>ASR 语音识别</b></td><td>Wav2Vec 2.0</td><td>Meta 自监督学习，低资源语言表现好</td></tr>
+        <tr><td>DeepSpeech</td><td>Mozilla 开源，多平台</td></tr>
+        <tr><td>Conformer</td><td>CNN+Transformer，高精度语音助手</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="card st4">
+      <div class="card-h"><span class="tag">部署步骤</span><h3>Tacotron 2 本地跑通</h3></div>
+      <div class="card-b">
+        <dl class="kv">
+          <dt>环境</dt><dd>Python 3.6+、CUDA 11.x + cuDNN、NVIDIA GPU ≥6GB VRAM。</dd>
+          <dt>克隆仓库</dt><dd><code>git clone https://github.com/Rayhane-mamah/Tacotron-2.git</code></dd>
+          <dt>依赖</dt><dd>虚拟环境内 <code>pip install -r requirements.txt</code>；另装 <code>tensorflow numpy scipy matplotlib pandas librosa</code></dd>
+          <dt>预训练权重</dt><dd>下 Tacotron 2 模型解压到 <code>Tacotron-2/models/</code>；可加 NVIDIA WaveGlow 权重提音质。</dd>
+          <dt>推理</dt><dd><code>python synthesizer/inference.py --text "你好，欢迎使用 Tacotron 2" --model_name tacotron2</code></dd>
+          <dt>输出</dt><dd><code>logs/</code> 目录下 .wav 文件；6GB 显存需减小 batch size。</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="srcnote" style="margin-bottom:0"><b>5 月那次更轻量的选择</b>：语音合成直接用 EdgeTTS 或 GPT-SoVITS 小模型；语音识别用 Whisper small/base；OCR 用 PaddleOCR——这几类 4GB 显存都能跑。</div>
+  </section>
+
+  <!-- 05 Pygmalion 7B -->
+  <section id="s4" class="st5">
+    <div class="sec-h"><span class="idx st5">05</span><h2>Pygmalion 7B：情感互动模型怎么聊</h2><span class="hint">2026-03-24</span></div>
+    <p class="lede">Pygmalion 7B 是专门微调过的情感陪伴 / 角色扮演模型。用户当时已经本地部署好，问的是「怎么有技巧地跟它聊天」。</p>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="font-size:15px;margin-bottom:10px">模型特点</h3>
+        <ul style="padding-left:18px;font-size:13.5px;line-height:1.9">
+          <li>7B 参数，专注情感交流与对话生成。</li>
+          <li>能识别情绪变化，用关怀 / 幽默 / 支持性语气回应。</li>
+          <li>开源可自定义风格（温暖 / 幽默 / 正式）。</li>
+          <li>无长期记忆，靠上下文窗口维持连贯。</li>
+          <li>适合情感陪伴、语言练习、创意写作。</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;margin-bottom:10px">聊天技巧</h3>
+        <ul style="padding-left:18px;font-size:13.5px;line-height:1.9">
+          <li>开场先给系统消息定角色：「你是温暖有趣的聊天伙伴」。</li>
+          <li>用开放性问题，别问是 / 否。</li>
+          <li>温度 1.0 更有创意，0.7 更稳定。</li>
+          <li>答偏了直接反馈：「这段不对，聊 AI 伦理」。</li>
+          <li>多轮对话维持上下文，别一次塞太多问题。</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="codeblock" style="margin-top:14px">from transformers import AutoModelForCausalLM, AutoTokenizer
+model = AutoModelForCausalLM.from_pretrained("PygmalionAI/pygmalion-7b")
+tokenizer = AutoTokenizer.from_pretrained("PygmalionAI/pygmalion-7b")
+inputs = tokenizer("你今天过得怎么样？", return_tensors="pt")
+out = model.generate(inputs['input_ids'], max_length=150, temperature=0.9)
+print(tokenizer.decode(out[0], skip_special_tokens=True))</div>
+  </section>
+
+  <!-- 06 Grok -->
+  <section id="s5" class="st1">
+    <div class="sec-h"><span class="idx st1">06</span><h2>Grok：免费额度、开源规模与写小说限制</h2><span class="hint">xAI 云端模型，本地跑不动</span></div>
+    <p class="lede">三篇 Grok 会话分别查了免费额度、开源模型大小、写小说限制。合并后一句话：Grok 是云端级模型，6GB 本地卡跑不了，只能在 X App 或 API 里用，而且写长小说受内容审核。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:160px">项目</th><th>结论</th></tr></thead>
+      <tbody>
+        <tr><td>对话免费额度</td><td>按 2 小时时间窗口刷新，约 2~20 次，不是按天。</td></tr>
+        <tr><td>Think / DeepSearch</td><td>每天合计约 10 次（各 5 次），最容易用光。</td></tr>
+        <tr><td>生图 / 生视频</td><td>24 小时约 20 图 + 20 视频（部分地区）。</td></tr>
+        <tr><td>API 额度</td><td>每月约 $25 免费额度，按调用量计费。</td></tr>
+        <tr><td>Grok-1 开源</td><td>总参数 ~314B，MoE 架构，Apache 2.0。</td></tr>
+        <tr><td>Grok-2 开源</td><td>总参数 ~270B，激活 ~115B，MoE；许可证更严格。</td></tr>
+        <tr><td>本地能否跑</td><td>全精度需 ~500GB 显存；3-bit 量化仍要 100GB+。6GB 卡完全不可能，需 A100/H100 集群。</td></tr>
+        <tr><td>写小说限制</td><td>强审核：露骨成人 / 血腥暴力 / 未成年敏感内容会被拦；偏互联网幽默风，长篇容易跑偏或自我审查；单次输出长度有限。</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="warnbox"><h5>写小说的替代方案</h5>
+      <ul>
+        <li>普通轻剧情 / 搞笑内容：Grok 能用。</li>
+        <li>成人 / 角色扮演 / 长篇情感：换本地 Pygmalion / MythoMax / Mistral 系，无审查、可控性高。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 07 升级路线 -->
+  <section id="s6" class="st2">
+    <div class="sec-h"><span class="idx st2">07</span><h2>五阶段升级路线（HOMEPC 版）</h2><span class="hint">2026-05-24 那次规划</span></div>
+    <p class="lede">最后一次（5 月 24 日）那次会话直接把整台 HOMEPC 的 AI 路线排成了五个阶段。这是整组会话里最完整的一张路线图，照录如下。</p>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:90px">阶段</th><th style="width:220px">装什么</th><th>目标</th></tr></thead>
+      <tbody>
+        <tr><td><b>一</b></td><td>Ollama + Qwen2.5 3B + Open WebUI</td><td>先拥有「本地 ChatGPT」，写作 / 工作 / SEO / 拆任务</td></tr>
+        <tr><td><b>二</b></td><td>AnythingLLM + bge-m3 Embedding + 导入小说/Markdown/PDF</td><td>私人 AI 大脑，懂你的资料与行业</td></tr>
+        <tr><td><b>三</b></td><td>OpenClaw / QClaw</td><td>AI Agent，自动写大纲 / 拆任务 / 对比供应商</td></tr>
+        <tr><td><b>四</b></td><td>n8n / Dify</td><td>自动化工作流：读关键词→搜资料→AI 生成→排版</td></tr>
+        <tr><td><b>五</b></td><td>内存 8GB→32GB + 显卡升 RTX 3060 12GB</td><td>真正的 AI 工作站：SDXL 能跑、Flux 勉强、13B 舒服</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="srcnote" style="margin-bottom:0"><b>升级优先级</b>：第一是内存到 32GB（知识库最吃内存和 SSD，不是 GPU）；第二是加一块 2TB NVMe（向量库 + 模型文件很容易撑爆 500GB）；显卡里 <b>RTX 3060 12GB</b> 是本地 AI 性价比神卡——12GB 显存让 SDXL / Flux / 13B 模型全部解锁。</div>
+  </section>
+
+  <!-- 08 会话清单 -->
+  <section id="s7" class="st3">
+    <div class="sec-h"><span class="idx st3">08</span><h2>本页收录会话清单</h2><span class="hint">8 篇</span></div>
+    <div class="tblwrap"><table>
+      <thead><tr><th style="width:110px">日期</th><th>主题</th><th style="width:80px">消息数</th></tr></thead>
+      <tbody>
+        <tr><td>2026-03-22</td><td>Grok 每天免费额度规则</td><td>2</td></tr>
+        <tr><td>2026-03-24</td><td>5966MB VRAM 能跑哪些语言模型 + 图片模型软件</td><td>12</td></tr>
+        <tr><td>2026-03-24</td><td>Grok-1 / Grok-2 开源参数规模 + LM Studio 一键方案</td><td>4</td></tr>
+        <tr><td>2026-03-24</td><td>6GB VRAM 图片最大分辨率 + SD 部署 + Tacotron 2 部署</td><td>12</td></tr>
+        <tr><td>2026-03-24</td><td>Pygmalion 7B 聊天技巧与模型特点</td><td>6</td></tr>
+        <tr><td>2026-03-24</td><td>Mistral-7B 能力介绍</td><td>2</td></tr>
+        <tr><td>2026-03-30</td><td>X App 里 Grok 写小说的限制</td><td>2</td></tr>
+        <tr><td>2026-05-24</td><td>HOMEPC（i5-10400F / GTX1660 4GB）AI 推荐 + 本地知识库 + 五阶段路线</td><td>6</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>本地大模型与 GPU 选型 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页整理自个人 ChatGPT 会话记录，模型版本与显存需求以 2026 年 3~5 月当时的对话为准；硬件升级建议为对话时的参考，非购买建议。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+(function(){
+  var SECS=['s0','s1','s2','s3','s4','s5','s6','s7'];
+  var secLinks=document.querySelectorAll('#topnav a[data-sec]');
+  function mark(cur){for(var i=0;i<secLinks.length;i++){secLinks[i].classList.toggle('on',secLinks[i].getAttribute('data-sec')===cur);}}
+  function spy(){var y=window.scrollY+130,cur=SECS[0];for(var i=0;i<SECS.length;i++){var s=document.getElementById(SECS[i]);if(!s)continue;var top=s.getBoundingClientRect().top+window.scrollY;if(top<=y)cur=SECS[i];}mark(cur);}
+  window.addEventListener('scroll',spy,{passive:true});window.addEventListener('resize',spy);spy();
+})();
+</script>
+</body>
+</html>
