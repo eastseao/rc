@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>备忘录</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='14' y='18' width='72' height='64' rx='10' fill='%230d9488'/><path d='M30 42h40M30 56h28' stroke='%23ffffff' stroke-width='8' stroke-linecap='round'/></svg>">
+<link rel="stylesheet" href="../theme.css">
+<style>
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans); background: var(--bg); color: var(--ink);
+    font-size: 14px; line-height: 1.65; min-height: 100vh; -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* ── 顶栏（墨黑，与全站文章页一致） ── */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: #0f172a; border-bottom: 1px solid transparent;
+    padding: 9px 32px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: baseline; gap: 8px; white-space: nowrap; }
+  .site-home { font-family: var(--mono); font-size: 14px; font-weight: 600; letter-spacing: .04em; color: #fff; }
+  .site-home:hover { color: #5eead4; }
+  .crumb-sep { color: #64748b; font-size: 13px; }
+  .brand-name { font-size: 14px; font-weight: 600; color: #f1f5f9; }
+  .brand-count { font-family: var(--mono); font-size: 11px; color: #94a3b8; font-variant-numeric: tabular-nums; }
+
+  .search-wrap { flex: 1 1 240px; max-width: 460px; position: relative; }
+  .search-wrap svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: #94a3b8; pointer-events: none; }
+  #search {
+    width: 100%; padding: 8px 46px 8px 32px; background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.14); border-radius: 3px;
+    font-size: 13.5px; font-family: inherit; color: #f1f5f9; outline: none;
+    transition: border-color .15s, background .15s;
+  }
+  #search::placeholder { color: #94a3b8; }
+  #search:focus { border-color: var(--accent); background: rgba(255,255,255,.13); }
+  kbd {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    font-family: var(--mono); font-size: 10px; color: #94a3b8;
+    border: 1px solid rgba(255,255,255,.16); border-radius: 3px; padding: 1px 5px;
+    background: transparent; pointer-events: none;
+  }
+  #search:focus + kbd { opacity: 0; }
+
+  .top-actions { display: flex; gap: 8px; align-items: center; margin-inline-start: auto; }
+  .btn {
+    padding: 7px 13px; border-radius: 3px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--ink); font-size: 13px; font-family: inherit;
+    cursor: pointer; transition: background .15s, border-color .15s; font-weight: 500; white-space: nowrap;
+  }
+  .btn:hover { background: var(--code); border-color: var(--muted); }
+  .btn-dark { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-dark:hover { background: var(--accent-ink); border-color: var(--accent-ink); }
+  .btn-danger { color: var(--danger); border-color: #f3c6c4; background: var(--surface); }
+  .btn-danger:hover { background: var(--danger-soft); border-color: var(--danger); }
+  .topbar .btn {
+    background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.16); color: #e2e8f0;
+  }
+  .topbar .btn:hover { background: rgba(255,255,255,.16); color: #fff; }
+
+  /* ── 正文列 ── */
+  main { max-width: 960px; margin: 0 auto; padding: 28px 32px 96px; }
+
+  /* 粘贴区 */
+  .compose {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 16px 18px; margin-bottom: 26px;
+  }
+  .compose-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .compose-title { font-size: 13.5px; font-weight: 600; }
+  .compose-hint { font-size: 11.5px; color: var(--muted); }
+  #memoInput {
+    width: 100%; min-height: 120px; resize: vertical;
+    background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 12px 14px; font-family: var(--mono); font-size: 13px; line-height: 1.7;
+    color: var(--ink); outline: none; transition: border-color .15s;
+  }
+  #memoInput:focus { border-color: var(--accent); }
+  .compose-foot { display: flex; align-items: center; gap: 8px; margin-top: 11px; flex-wrap: wrap; }
+  .compose-foot .hint { margin-inline-end: auto; font-size: 11.5px; color: var(--muted); }
+
+  .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 12px; }
+  .result-info { font-family: var(--mono); font-size: 11.5px; color: var(--muted); letter-spacing: .03em; }
+  .result-info b { color: var(--ink); font-weight: 600; }
+
+  /* 卡片列表 */
+  .card {
+    background: transparent; border: 0; border-bottom: 1px solid var(--border);
+    border-radius: 0; padding: 18px 2px; display: flex; flex-direction: column; gap: 11px;
+  }
+  .card:last-child { border-bottom: 0; }
+  .card-body {
+    font-family: var(--mono); font-size: 13px; line-height: 1.75; color: var(--ink);
+    background: var(--code); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 14px 16px; white-space: pre-wrap; word-break: break-word;
+  }
+  .card-foot { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .card-date { font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin-inline-end: auto; }
+  .card-actions { display: flex; gap: 6px; }
+  .card-actions .btn { padding: 4px 12px; font-size: 12px; }
+
+  /* 空态 */
+  .empty { text-align: center; padding: 74px 20px; color: var(--muted); border: 1px dashed var(--border); border-radius: var(--radius); }
+  .empty-title { font-size: 14px; color: var(--ink); margin-bottom: 5px; }
+  .empty-sub { font-size: 12.5px; }
+
+  /* Toast */
+  #toast {
+    position: fixed; bottom: 70px; left: 50%;
+    transform: translateX(-50%) translateY(70px);
+    background: var(--ink); color: #faf9f7; border: 1px solid var(--ink);
+    padding: 9px 18px; border-radius: 3px; font-size: 13px;
+    transition: .25s; z-index: 200; opacity: 0; pointer-events: none;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  #toast.err { background: #8a2b1a; border-color: #8a2b1a; }
+
+  /* 响应式 */
+  @media (max-width: 860px) {
+    .topbar { padding: 10px 14px; }
+    .search-wrap { order: 5; flex-basis: 100%; max-width: none; }
+    main { padding: 20px 16px 84px; }
+    .compose { padding: 14px; }
+    .card { padding: 16px 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <a class="site-home" href="../index.html" title="返回日常首页">日常</a>
+    <span class="crumb-sep">/</span>
+    <span class="brand-name">备忘录</span>
+    <span class="brand-count" id="brandCount"></span>
+  </div>
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>
+    </svg>
+    <input id="search" type="text" placeholder="搜索备忘录内容…" autocomplete="off">
+    <kbd>Ctrl K</kbd>
+  </div>
+  <div class="top-actions">
+    <button class="btn" id="btnExport">导出</button>
+    <button class="btn" id="btnImport">导入</button>
+  </div>
+  <input type="file" id="fileInput" accept=".json,application/json" style="display:none">
+</div>
+
+<main>
+  <section class="compose" aria-label="新建备忘录">
+    <div class="compose-head">
+      <span class="compose-title">粘贴新文案</span>
+      <span class="compose-hint">把重要的文案直接粘贴到这里，Ctrl + Enter 存成卡片</span>
+    </div>
+    <textarea id="memoInput" placeholder="粘贴重要的文案…"></textarea>
+    <div class="compose-foot">
+      <span class="hint">Ctrl + Enter 保存 · Esc 取消编辑</span>
+      <button class="btn" id="btnCancel" onclick="cancelEdit()" style="display:none">取消编辑</button>
+      <button class="btn btn-dark" id="btnSave">添加卡片</button>
+    </div>
+  </section>
+
+  <div class="toolbar">
+    <div class="result-info" id="resultInfo"></div>
+  </div>
+  <div id="grid"></div>
+</main>
+
+<div id="toast"></div>
+
+<script>
+const KEY = 'memo_cards_v1';
+let cards = [], editingId = null;
+
+const $ = id => document.getElementById(id);
+
+function load() {
+  try { cards = JSON.parse(localStorage.getItem(KEY) || '[]'); }
+  catch (e) { cards = []; }
+}
+function persist() { localStorage.setItem(KEY, JSON.stringify(cards)); }
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, m =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+}
+function fmt(ts) {
+  const d = new Date(ts);
+  const p = n => String(n).padStart(2, '0');
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) +
+         ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+}
+function newId() {
+  return 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+function render() {
+  const q = $('search').value.trim().toLowerCase();
+  const list = q ? cards.filter(c => c.text.toLowerCase().includes(q)) : cards;
+  $('brandCount').textContent = cards.length + ' 条';
+  $('resultInfo').innerHTML = '共 <b>' + cards.length + '</b> 条' +
+    (list.length !== cards.length ? ' · 筛选出 <b>' + list.length + '</b> 条' : '');
+  const grid = $('grid');
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty"><div class="empty-title">' +
+      (q ? '没有匹配的备忘录' : '还没有备忘录') + '</div>' +
+      '<div class="empty-sub">' +
+      (q ? '换个关键词试试' : '在上方粘贴区粘贴重要的文案，Ctrl + Enter 存成卡片') +
+      '</div></div>';
+    return;
+  }
+  grid.innerHTML = list.map(c => cardHTML(c)).join('');
+}
+
+function cardHTML(c) {
+  return '<div class="card">' +
+    '<div class="card-body">' + esc(c.text) + '</div>' +
+    '<div class="card-foot">' +
+      '<span class="card-date">' + fmt(c.createdAt) + '</span>' +
+      '<div class="card-actions">' +
+        '<button class="btn" onclick="copyCard(\'' + c.id + '\')">复制</button>' +
+        '<button class="btn" onclick="editCard(\'' + c.id + '\')">编辑</button>' +
+        '<button class="btn btn-danger" onclick="delCard(\'' + c.id + '\')">删除</button>' +
+      '</div>' +
+    '</div></div>';
+}
+
+function saveMemo() {
+  const text = $('memoInput').value.trim();
+  if (!text) return toast('请先粘贴或输入内容', true);
+  if (editingId) {
+    const c = cards.find(x => x.id === editingId);
+    if (c) { c.text = text; c.updatedAt = Date.now(); }
+    editingId = null; setEditing(false);
+    persist(); render(); toast('已保存修改');
+  } else {
+    cards.unshift({ id: newId(), text: text, createdAt: Date.now() });
+    persist(); render(); toast('已添加卡片');
+  }
+  $('memoInput').value = '';
+  $('memoInput').focus();
+}
+
+function editCard(id) {
+  const c = cards.find(x => x.id === id); if (!c) return;
+  editingId = id;
+  $('memoInput').value = c.text;
+  setEditing(true);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  $('memoInput').focus();
+}
+
+function cancelEdit() {
+  editingId = null;
+  $('memoInput').value = '';
+  setEditing(false);
+}
+function setEditing(on) {
+  $('btnCancel').style.display = on ? '' : 'none';
+  $('btnSave').textContent = on ? '保存修改' : '添加卡片';
+}
+
+async function copyCard(id) {
+  const c = cards.find(x => x.id === id); if (!c) return;
+  try { await navigator.clipboard.writeText(c.text); toast('已复制到剪贴板'); }
+  catch (e) { toast('复制失败', true); }
+}
+
+function delCard(id) {
+  const c = cards.find(x => x.id === id); if (!c) return;
+  if (!confirm('确定删除这条备忘录吗？删除后不可恢复。')) return;
+  cards = cards.filter(x => x.id !== id);
+  if (editingId === id) cancelEdit();
+  persist(); render(); toast('已删除');
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(cards, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const d = new Date(), p = n => String(n).padStart(2, '0');
+  a.download = 'memo-' + d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + '.json';
+  a.click(); URL.revokeObjectURL(a.href);
+  toast('已导出 ' + cards.length + ' 条');
+}
+$('fileInput').addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const arr = JSON.parse(rd.result);
+      if (!Array.isArray(arr)) throw new Error('bad');
+      if (cards.length && !confirm('导入将覆盖当前 ' + cards.length + ' 条备忘录，确定吗？')) return;
+      cards = arr.filter(x => x && typeof x.text === 'string').map(x => ({
+        id: typeof x.id === 'string' && x.id ? x.id : newId(),
+        text: x.text,
+        createdAt: Number(x.createdAt) || Date.now()
+      }));
+      persist(); render(); toast('已导入 ' + cards.length + ' 条');
+    } catch (err) { toast('文件格式不正确', true); }
+    e.target.value = '';
+  };
+  rd.readAsText(f);
+});
+
+function toast(msg, isErr) {
+  const t = $('toast'); t.textContent = msg;
+  t.className = isErr ? 'err show' : 'show';
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+$('search').addEventListener('input', render);
+$('btnSave').addEventListener('click', saveMemo);
+$('btnExport').addEventListener('click', exportData);
+$('btnImport').addEventListener('click', () => $('fileInput').click());
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); $('search').focus(); }
+  if (e.ctrlKey && e.key === 'Enter') saveMemo();
+  if (e.key === 'Escape' && editingId) cancelEdit();
+});
+
+load(); render();
+</script>
+
+<a class="g-pill" href="../index.html" title="返回日常首页">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg>
+  返回首页
+</a>
+</body>
+</html>
