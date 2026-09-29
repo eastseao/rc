@@ -46,12 +46,19 @@
   .stats{margin-top:14px;font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:4px 16px}
   .stats b{color:var(--ink);font-weight:600}
 
-  /* ── 3. 置顶工具行（轻量一行链接，非卡片） ────── */
-  .pinrow{display:flex;flex-wrap:wrap;align-items:baseline;gap:3px 12px;margin:24px 0 4px;font-size:13px}
+  /* ── 3. 置顶工具行（胶囊按钮，各配不同莫兰迪色） ── */
+  .pinrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:26px 0 4px;font-size:13px}
   .pinrow[hidden]{display:none}
-  .pinrow .pin-label{font-family:var(--mono);font-size:11px;color:var(--muted-2);letter-spacing:.1em}
-  .pinrow a{color:var(--muted);border-bottom:1px solid var(--line-2);padding-bottom:1px;transition:.15s}
-  .pinrow a:hover{color:var(--accent-ink);border-bottom-color:var(--accent)}
+  .pinrow .pin-label{font-family:var(--mono);font-size:11px;color:var(--muted-2);letter-spacing:.1em;margin-inline-end:2px}
+  .pin-cap{
+    display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:999px;
+    font-size:12.5px;font-weight:550;color:var(--pc,#64748b);white-space:nowrap;
+    background:color-mix(in srgb, var(--pc,#64748b) 13%, transparent);
+    border:1px solid color-mix(in srgb, var(--pc,#64748b) 34%, transparent);
+    transition:background .15s, border-color .15s, transform .15s;
+  }
+  .pin-cap:hover{background:color-mix(in srgb, var(--pc,#64748b) 26%, transparent);border-color:var(--pc,#64748b)}
+  .pin-cap:active{transform:translateY(1px)}
 
   /* ── 4. 列表头 ────────────────────────────────── */
   .list-head{display:flex;align-items:baseline;gap:10px;margin:28px 0 2px;padding-bottom:10px;border-bottom:1px solid var(--line)}
@@ -59,15 +66,19 @@
   .list-head .n{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
   .list-head .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2);margin-inline-start:auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-  /* ── 5. 文章列表（单栏、无卡片、日期右对齐灰） ── */
-  .row{display:flex;align-items:baseline;gap:16px;padding:11px 0;border-bottom:1px solid var(--line);scroll-margin-top:70px}
+  /* ── 5. 文章列表（单栏，分类徽章 + 悬停强调，有层次） ── */
+  .row{position:relative;display:flex;align-items:center;gap:16px;padding:14px 0 14px 10px;border-bottom:1px solid var(--line);scroll-margin-top:70px}
+  .row::before{content:"";position:absolute;left:0;top:16px;bottom:16px;width:3px;border-radius:2px;background:var(--accent);opacity:0;transition:opacity .18s}
+  .row:hover::before{opacity:.6}
   .row-main{flex:1;min-width:0}
-  .row-title{font-size:14.5px;font-weight:500;line-height:1.5;color:var(--ink);transition:color .15s}
+  .row-head{display:flex;align-items:center;gap:9px;min-width:0}
+  .row-kind{flex:0 0 auto;font-family:var(--mono);font-size:10px;line-height:1;padding:4px 8px;border-radius:999px;color:var(--kc,#64748b);background:color-mix(in srgb, var(--kc,#64748b) 12%, transparent);border:1px solid color-mix(in srgb, var(--kc,#64748b) 32%, transparent)}
+  .row-title{flex:1;min-width:0;font-size:15px;font-weight:600;line-height:1.5;color:var(--ink);transition:color .15s}
   .row-title:hover{color:var(--accent-ink)}
-  .row-desc{font-size:12.5px;color:var(--muted);line-height:1.55;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .row-desc{font-size:12.5px;color:var(--muted);line-height:1.55;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .row-tags{margin-top:3px;font-family:var(--mono);font-size:10.5px;color:var(--muted-2)}
   .row-tags .tk{margin-inline-end:9px}
-  .row-date{flex:0 0 auto;font-family:var(--mono);font-size:12px;color:var(--muted-2);font-variant-numeric:tabular-nums}
+  .row-date{flex:0 0 auto;font-family:var(--mono);font-size:11.5px;color:var(--muted-2);font-variant-numeric:tabular-nums}
 
   /* 关于卡（末页） */
   .row.about{flex-direction:column;gap:5px;padding:16px 0}
@@ -161,7 +172,7 @@
     <div class="foot-links">
       <a href="#about" data-about>关于</a>
       <a href="https://github.com/eastseao/rc/commits/main" target="_blank" rel="noopener">更新日志</a>
-      <a href="https://eastseao.github.io/horizon/" target="_blank" rel="noopener">博客 ↗</a>
+      <a href="https://eastseao.github.io/" target="_blank" rel="noopener">博客 ↗</a>
       <a href="https://github.com/eastseao/rc" target="_blank" rel="noopener">源码</a>
     </div>
     <div class="foot-cols">
@@ -9377,18 +9388,21 @@ function setCat(cat){
 
 /* ── 置顶工具（精选卡上方小卡片行） ───────────────── */
 const PINNED = [
- { title: "Prompt 库", url: "pages/prompt.html", kind: "工具" },
- { title: "MarkItDown", url: "pages/markitdown.html", kind: "工具" },
- { title: "ICO 转换", url: "pages/ico-converter.html", kind: "工具" },
- { title: "大盘云图", url: "https://dapanyuntu.com/", kind: "工具" }
+ { title: "备忘录", url: "pages/memo.html", kind: "工具", c: "#86A6B7" },
+ { title: "Prompt 库", url: "pages/prompt.html", kind: "工具", c: "#B58A7A" },
+ { title: "MarkItDown", url: "pages/markitdown.html", kind: "工具", c: "#98A98F" },
+ { title: "ICO 转换", url: "pages/ico-converter.html", kind: "工具", c: "#A99BAF" },
+ { title: "大盘云图", url: "https://dapanyuntu.com/", kind: "工具", c: "#B7A874" }
 ];
 function renderPinned(){
   const box = document.getElementById('pinrow');
   if (!PINNED.length) { box.hidden = true; box.innerHTML = ''; return; }
   box.hidden = false;
   box.innerHTML = '<span class="pin-label">工具</span>' + PINNED.map(p => `
-    <a href="${p.url}" title="${esc(p.title)}"${p.url.indexOf('http') === 0 ? ' target="_blank" rel="noopener"' : ''}>${esc(p.title)}</a>`).join('');
+    <a class="pin-cap" href="${p.url}" title="${esc(p.title)}" style="--pc:${p.c || '#64748b'}"${p.url.indexOf('http') === 0 ? ' target="_blank" rel="noopener"' : ''}>${esc(p.title)}</a>`).join('');
 }
+const KIND_C = { '手册':'#9B8F6B', '长文':'#A88A7A', '工具':'#7E93A8', '仪表盘':'#9A8BA8', '收藏':'#8AA086' };
+const kindColor = k => KIND_C[k] || '#64748b';
 
 /* ── 精选头条 ─────────────────────────────────────── */
 function renderFeature(){
@@ -9434,7 +9448,10 @@ function renderGrid(){
   let html = slice.map(p => `
     <article class="row">
       <div class="row-main">
-        <a class="row-title" href="${p.url}">${esc(p.title)}</a>
+        <div class="row-head">
+          ${p.kind ? `<span class="row-kind" style="--kc:${kindColor(p.kind)}">${esc(p.kind)}</span>` : ''}
+          <a class="row-title" href="${p.url}">${esc(p.title)}</a>
+        </div>
         <div class="row-desc">${esc(p.desc)}</div>
         <div class="row-tags">${p.tags.slice(0,3).map(t => `<span class="tk"># ${esc(t)}</span>`).join('')}</div>
       </div>
