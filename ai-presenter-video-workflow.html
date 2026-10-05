@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>照片 + 文案 → 竖版口播视频 · 制作工作流</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23101820'/%3E%3Crect x='12' y='26' width='40' height='18' rx='3' fill='none' stroke='%23E8A33D' stroke-width='4'/%3E%3Ccircle cx='22' cy='35' r='4' fill='%234EC9A8'/%3E%3Ccircle cx='34' cy='35' r='4' fill='%234EC9A8'/%3E%3Cpath d='M44 30v10' stroke='%23E8A33D' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@700;900&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+:root{
+  --bg:#101820; --bg2:#0B1117; --panel:#1B2631; --panel2:#243447;
+  --line:#33465C; --ink:#E8EDF2; --ink2:#9FB0C0; --ink3:#6E8296;
+  --amber:#E8A33D; --green:#4EC9A8; --red:#E05A47; --blue:#6FA8DC;
+  --serif:"Noto Serif SC",serif; --sans:"Noto Sans SC",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:Consolas,"Courier New",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.75;font-size:16px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+::selection{background:rgba(232,163,61,.35)}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(16,24,32,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar .wrap{display:flex;align-items:center;gap:16px;height:56px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;letter-spacing:.02em}
+.brand svg{flex:none}
+.brand em{font-style:normal;color:var(--amber)}
+.topnav{margin-left:auto;display:flex;gap:4px}
+.topnav a{color:var(--ink2);text-decoration:none;font-size:13.5px;padding:6px 10px;border-radius:6px;transition:color .15s,background .15s}
+.topnav a:hover{color:var(--ink);background:rgba(255,255,255,.06)}
+.hero{padding:72px 0 48px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background:
+  linear-gradient(180deg,rgba(16,24,32,0) 0%,var(--bg) 100%),
+  repeating-linear-gradient(90deg,rgba(111,168,220,.05) 0 1px,transparent 1px 40px),
+  repeating-linear-gradient(0deg,rgba(111,168,220,.04) 0 1px,transparent 1px 28px);
+  pointer-events:none}
+.hero .wrap{position:relative}
+.kicker{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--amber);letter-spacing:.22em;font-weight:700;margin-bottom:18px}
+.kicker::before{content:"";width:26px;height:2px;background:var(--amber)}
+h1{font-family:var(--serif);font-weight:900;font-size:clamp(30px,5vw,52px);line-height:1.22;letter-spacing:.01em}
+h1 .lt{color:var(--amber)}
+.sub{margin-top:16px;color:var(--ink2);font-size:clamp(15px,2vw,18px);max-width:640px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:40px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.stat b{display:block;font-family:var(--serif);font-size:30px;font-weight:900;color:var(--amber);line-height:1.1}
+.stat span{font-size:13px;color:var(--ink2)}
+@media(max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}}
+section{padding:56px 0;border-bottom:1px solid var(--line)}
+.sec-head{margin-bottom:32px}
+.sec-head h2{font-family:var(--serif);font-size:26px;font-weight:900;display:flex;align-items:baseline;gap:12px}
+.sec-head h2 .no{color:var(--amber);font-size:18px;letter-spacing:.1em}
+.sec-head p{color:var(--ink2);margin-top:8px;font-size:14.5px;max-width:720px}
+.flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:0;align-items:stretch;margin-top:8px}
+.flow-node{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px;position:relative}
+.flow-node .tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.14em;padding:3px 10px;border-radius:999px;margin-bottom:12px}
+.flow-node.in .tag{background:rgba(111,168,220,.16);color:var(--blue)}
+.flow-node.proc .tag{background:rgba(232,163,61,.16);color:var(--amber)}
+.flow-node.out .tag{background:rgba(78,201,168,.16);color:var(--green)}
+.flow-node h3{font-size:16px;margin-bottom:8px}
+.flow-node p{font-size:13.5px;color:var(--ink2)}
+.flow-arrow{align-self:center;color:var(--amber);font-size:22px;padding:0 8px;text-align:center}
+@media(max-width:760px){.flow{grid-template-columns:1fr}.flow-arrow{transform:rotate(90deg);padding:6px 0;height:36px;display:flex;align-items:center;justify-content:center;font-size:18px}}
+.timeline{display:grid;grid-template-columns:1fr;row-gap:0}
+.tl-node{display:grid;grid-template-columns:88px 32px 1fr;column-gap:0;position:relative;padding-bottom:44px}
+.tl-node:last-child{padding-bottom:8px}
+.tl-cell-time{grid-column:1;text-align:right;padding:0 16px 0 0}
+.tl-cell-axis{grid-column:2;position:relative}
+.tl-cell-body{grid-column:3;padding:0 0 0 22px}
+.tl-dot{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:16px;height:16px;border-radius:50%;background:var(--bg);border:3px solid var(--amber);z-index:2}
+.tl-line{position:absolute;top:0;bottom:0;left:calc(50% - 1px);width:2px;background:var(--line)}
+.tl-node:first-child .tl-line{top:16px}
+.tl-node:last-child .tl-line{height:16px;bottom:auto;top:0}
+.tl-time{font-family:var(--mono);font-size:13px;color:var(--ink3);padding-top:6px;white-space:nowrap}
+.tl-stage{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--amber);border:1px solid var(--line);border-radius:6px;padding:2px 10px;margin-bottom:10px;background:rgba(232,163,61,.08)}
+.tl-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px 22px;cursor:pointer;transition:border-color .18s,transform .18s}
+.tl-card:hover{border-color:var(--amber);transform:translateX(4px)}
+.tl-card h3{font-size:17px;font-weight:700;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tl-card h3 .meta{font-family:var(--mono);font-size:12px;color:var(--ink3);font-weight:400}
+.tl-card .lead{color:var(--ink2);font-size:14px;margin-top:6px}
+.tl-detail{display:none;margin-top:16px;border-top:1px dashed var(--line);padding-top:16px}
+.tl-node.open .tl-detail{display:block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:760px){.grid2,.grid4{grid-template-columns:1fr}}
+.kv{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.kv .k{font-size:12px;color:var(--ink3);letter-spacing:.08em;font-weight:700}
+.kv .v{font-size:14px;color:var(--ink);margin-top:3px;word-break:break-all}
+.kv .v small{color:var(--ink2);font-size:12px}
+.kv.good .v{color:var(--green)}
+.kv.warn .v{color:var(--red)}
+.cmd{margin-top:14px;background:#0A0F14;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.cmd-head{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;background:rgba(255,255,255,.04);border-bottom:1px solid var(--line)}
+.cmd-head span{font-size:12px;color:var(--ink3);font-family:var(--mono);flex:1;min-width:0;white-space:normal;word-break:break-all;padding-right:10px}
+.cmd-copy{background:transparent;border:1px solid var(--line);color:var(--ink2);font-size:12px;padding:3px 10px;border-radius:6px;cursor:pointer;transition:all .15s;font-family:var(--sans)}
+.cmd-copy:hover{color:var(--amber);border-color:var(--amber)}
+.cmd pre{padding:12px 14px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:#C9D6E2;white-space:pre}
+.pit{margin-top:16px;background:rgba(224,90,71,.07);border:1px solid rgba(224,90,71,.35);border-radius:10px;padding:14px 16px}
+.pit .pit-t{color:var(--red);font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.pit p{color:var(--ink2);font-size:13.5px}
+.pit p code{font-family:var(--mono);font-size:12px;background:rgba(255,255,255,.07);padding:1px 6px;border-radius:4px;color:#E0B98A}
+@media(max-width:760px){.timeline{grid-template-columns:64px 22px 1fr}.tl-time{font-size:11px}}
+.pitfalls{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.pcard{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--red);border-radius:8px;padding:16px 18px}
+.pcard.green{border-left-color:var(--green)}
+.pcard h4{font-size:14.5px;display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.pcard h4 .ic{flex:none;width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.pcard.red h4 .ic{background:var(--red);color:#fff}
+.pcard.green h4 .ic{background:var(--green);color:#04231B}
+.pcard p{font-size:13.5px;color:var(--ink2)}
+.pcard code{font-family:var(--mono);font-size:12px;background:rgba(255,255,255,.07);padding:1px 6px;border-radius:4px;color:#E0B98A}
+@media(max-width:760px){.pitfalls{grid-template-columns:1fr}}
+.files{width:100%;border-collapse:collapse;table-layout:fixed}
+.files col:nth-child(1){width:34%}
+.files col:nth-child(2){width:20%}
+.files col:nth-child(3){width:12%}
+.files col:nth-child(4){width:34%}
+.files th,.files td{border:1px solid var(--line);padding:10px 14px;text-align:left;vertical-align:top}
+.files th{background:var(--panel2);font-size:13px;letter-spacing:.06em;color:var(--ink2)}
+.files td{font-size:13.5px;color:var(--ink)}
+.files td .f{font-family:var(--mono);font-size:12.5px;color:#C9D6E2}
+.files td small{color:var(--ink3);font-size:12px}
+.files tr.cur td{background:rgba(232,163,61,.05)}
+.alt{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.acard{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px}
+.acard .n{font-family:var(--serif);font-size:22px;font-weight:900;color:var(--amber)}
+.acard h4{font-size:15px;margin:8px 0 6px}
+.acard p{font-size:13.5px;color:var(--ink2)}
+.acard .status{display:inline-block;margin-top:10px;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px}
+.acard .status.done{background:rgba(78,201,168,.15);color:var(--green)}
+.acard .status.warn{background:rgba(224,90,71,.15);color:var(--red)}
+.acard .status.todo{background:rgba(232,163,61,.15);color:var(--amber)}
+@media(max-width:760px){.alt{grid-template-columns:1fr}}
+footer{padding:36px 0 48px;color:var(--ink3);font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(80px);background:var(--panel2);border:1px solid var(--amber);color:var(--ink);padding:10px 22px;border-radius:8px;font-size:14px;opacity:0;transition:all .25s;z-index:99;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="wrap">
+  <div class="brand">
+    <svg width="26" height="26" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="none" stroke="%23E8A33D" stroke-width="4"/><rect x="12" y="24" width="40" height="18" rx="3" fill="none" stroke="%23E8EDF2" stroke-width="4"/><circle cx="22" cy="33" r="4" fill="%234EC9A8"/><circle cx="34" cy="33" r="4" fill="%234EC9A8"/><path d="M46 27v12" stroke="%23E8A33D" stroke-width="3"/></svg>
+    <span>口播视频流水线 <em>·</em> 工作流</span>
+  </div>
+  <nav class="topnav">
+    <a href="#overview">总览</a>
+    <a href="#timeline">五阶段</a>
+    <a href="#pitfalls">踩坑</a>
+    <a href="#files">文件</a>
+    <a href="#alt">备选</a>
+  </nav>
+</div></div>
+<header class="hero"><div class="wrap">
+  <div class="kicker">AI PRESENTER VIDEO PIPELINE · 2026-09-29</div>
+  <h1>一张照片 + 一份配音文案<br><span class="lt">→</span> 55 秒竖版口播视频</h1>
+  <p class="sub">从科普文案到数字人口播成片的完整制作链路：文案锁定 → TTS 配音 → 人像准备 → 分段生成 → 拼接交付。本文档记录每一步的输入、工具、参数、实测数据与踩坑经验，可直接复现。</p>
+  <div class="stats">
+    <div class="stat"><b>54.9s</b><span>配音实测时长（MiniMax TTS）</span></div>
+    <div class="stat"><b>5</b><span>流水线阶段</span></div>
+    <div class="stat"><b>2</b><span>生成平台（MiniMax / 豆包）</span></div>
+    <div class="stat"><b>6</b><span>踩坑点与修复经验</span></div>
+  </div>
+</div></header>
+<section id="overview"><div class="wrap">
+  <div class="sec-head">
+    <h2><span class="no">01</span>工作流总览</h2>
+    <p>整条链路以「定稿音频」为唯一时间基准：口型、字幕、剪辑点全部对齐它。因此音频一旦生成就不回头改文案，改文案等于整条链路返工。</p>
+  </div>
+  <div class="flow">
+    <div class="flow-node in">
+      <span class="tag">输入</span>
+      <h3>素材</h3>
+      <p>60 秒科普配音文案（225 字）· presenter 人像照片 · MiniMax / 豆包 API 凭证</p>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node proc">
+      <span class="tag">处理</span>
+      <h3>五阶段管线</h3>
+      <p>文案锁定 → TTS 配音 → 人像准备 → 分段数字人生成 → 拼接交付</p>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node out">
+      <span class="tag">输出</span>
+      <h3>成片</h3>
+      <p>9:16 竖版 · presenter_60s.mp4 · 全程 55 秒口播 + 字幕可叠加</p>
+    </div>
+  </div>
+</div></section>
+<section id="timeline"><div class="wrap">
+  <div class="sec-head">
+    <h2><span class="no">02</span>五阶段制作链路</h2>
+    <p>点击任意阶段卡片展开输入、工具、参数与实测数据。时间轴以真实执行顺序与实测耗时为刻度。</p>
+  </div>
+  <div class="timeline" id="tl">
+    <div class="tl-node open" data-i="0">
+      <div class="tl-cell-time"><span class="tl-time">T+00:00</span></div>
+      <div class="tl-cell-axis"><span class="tl-dot"></span><span class="tl-line"></span></div>
+      <div class="tl-cell-body">
+        <span class="tl-stage">STAGE 1 · 文案</span>
+        <div class="tl-card" onclick="toggleNode(0)">
+          <h3>锁定 60 秒科普配音文案 <span class="meta">225 字 · 11 句节拍</span></h3>
+          <p class="lead">钩子 1 句 + 主体 3 节 8 句 + 收束 2 句；零功效声称、零绝对化用语、零商业信息，合规风险最低。</p>
+          <div class="tl-detail">
+            <div class="grid2">
+              <div class="kv"><div class="k">输入</div><div class="v">冬虫夏草60秒科普配音文案.md</div></div>
+              <div class="kv"><div class="k">输出</div><div class="v good">冬虫夏草-配音稿.txt <small>（TTS 友好：无引号、数字写汉字）</small></div></div>
+              <div class="kv"><div class="k">语速</div><div class="v">4.5 字/秒 <small>（讲解类常用区间 4.0–4.8）</small></div></div>
+              <div class="kv"><div class="k">时长推算</div><div class="v">净口播 ≈50s · 含停顿 ≈55s <small>（留 ~5s 片头余量）</small></div></div>
+            </div>
+            <div class="cmd">
+              <div class="cmd-head"><span>时长调整预案（超时删句 / 欠时补句，不靠放慢语速凑时长）</span><button class="cmd-copy" onclick="copyCmd(this)">复制</button></div>
+<pre>超时删句（按序）：① 删「至今，它仍无法大规模人工栽培。」≈3s
+                ② 「冬虫夏草，其实是个误会。」压缩句 02 ≈1.5s
+                ③ 删「冬天是虫，夏天是草，名字就是这么来的。」≈4.5s
+欠时补句（按序）：① 句 08 后补「能长到出土的，只是极少数。」≈3s
+                ② 句 07 后补「海拔低的地方，它活不下来。」≈3s</pre>
+            </div>
+            <div class="pit"><div class="pit-t">关键约束</div><p>字数（225）是硬约束，时长（55s）是软结果：同一段文字换配音员可差 ±8 秒。音频一旦生成，改文案 = 整条链路返工。</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tl-node" data-i="1">
+      <div class="tl-cell-time"><span class="tl-time">T+00:02</span></div>
+      <div class="tl-cell-axis"><span class="tl-dot"></span><span class="tl-line"></span></div>
+      <div class="tl-cell-body">
+        <span class="tl-stage">STAGE 2 · 配音</span>
+        <div class="tl-card" onclick="toggleNode(1)">
+          <h3>MiniMax TTS 生成旁白 <span class="meta">speech-02-hd · male-qn-qingse</span></h3>
+          <p class="lead">一次性合成全稿，实测 54.91 秒、880KB MP3，落在 55–62s 达标区间，无需删句。</p>
+          <div class="tl-detail">
+            <div class="grid4">
+              <div class="kv"><div class="k">模型</div><div class="v">speech-02-hd</div></div>
+              <div class="kv"><div class="k">音色</div><div class="v">male-qn-qingse</div></div>
+              <div class="kv"><div class="k">语速</div><div class="v">1.05</div></div>
+              <div class="kv"><div class="k">采样</div><div class="v">24kHz · mp3</div></div>
+            </div>
+            <div class="cmd">
+              <div class="cmd-head"><span>voiceover.py · 环境变量注入凭证后运行</span><button class="cmd-copy" onclick="copyCmd(this)">复制</button></div>
+<pre>Set-Location "O:\video\20260929_冬虫夏草60秒配音文案"
+$env:MINIMAX_BASE = "https://api.minimaxi.com"   # 脚本内部拼 /v1/t2a_v2
+python voiceover.py
+# 输出：narration.mp3（54.91s）· delivery-report.json</pre>
+            </div>
+            <div class="pit"><div class="pit-t">两次踩坑</div><p>① <code>api.minimaxi.cn</code> 返回网页而非 API；正确域名为 <code>api.minimaxi.com</code>，且 base 不要带 <code>/v1</code>。② <code>audio_setting.bitrate</code> 传 192000 会报 <code>2013 invalid params</code>，去掉该字段即可。</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tl-node" data-i="2">
+      <div class="tl-cell-time"><span class="tl-time">T+00:03</span></div>
+      <div class="tl-cell-axis"><span class="tl-dot"></span><span class="tl-line"></span></div>
+      <div class="tl-cell-body">
+        <span class="tl-stage">STAGE 3 · 人像</span>
+        <div class="tl-card" onclick="toggleNode(2)">
+          <h3>Presenter 照片转正 <span class="meta">PNG → JPG → 720×1280</span></h3>
+          <p class="lead">书房场景、黑框眼镜、米色衬衫、领夹麦；统一为 9:16 偶数尺寸，供各生成平台复用。</p>
+          <div class="tl-detail">
+            <div class="grid2">
+              <div class="kv"><div class="k">原始素材</div><div class="v">微信图片…5_2.png / ChatGPT Image…png</div></div>
+              <div class="kv"><div class="k">输出</div><div class="v good">presenter.jpg <small>（941×1672 → 720×1280）</small></div></div>
+            </div>
+            <div class="cmd">
+              <div class="cmd-head"><span>尺寸归一化（H264 要求宽高为偶数）</span><button class="cmd-copy" onclick="copyCmd(this)">复制</button></div>
+<pre>ffmpeg -y -nostdin -i presenter.png -q:v 9 presenter.jpg
+ffmpeg -y -nostdin -loop 1 -i presenter.jpg `
+  -vf "scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280" `
+  -t 15 -r 30 -pix_fmt yuv420p -c:v libx264 -crf 23 -preset fast v_seg.mp4</pre>
+            </div>
+            <div class="pit"><div class="pit-t">踩坑</div><p>原图 <code>941×1672</code> 宽度为奇数，libx264 直接报 <code>width not divisible by 2</code> 并产出 0 字节文件——必须先 scale + crop 到偶数尺寸。</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tl-node" data-i="3">
+      <div class="tl-cell-time"><span class="tl-time">T+00:05</span></div>
+      <div class="tl-cell-axis"><span class="tl-dot"></span><span class="tl-line"></span></div>
+      <div class="tl-cell-body">
+        <span class="tl-stage">STAGE 4 · 生成</span>
+        <div class="tl-card" onclick="toggleNode(3)">
+          <h3>数字人视频分段生成 <span class="meta">两条路径实测</span></h3>
+          <p class="lead">55s 音频超出单条时长上限，按 12s/15s 切段；每条用同一人像 + 对应音频片段驱动，逐段提交、轮询、下载。</p>
+          <div class="tl-detail">
+            <div class="grid2">
+              <div class="kv"><div class="k">路径 A · MiniMax H3</div><div class="v">/v2/video_generation <small>768P · 9:16 · 单段≤12s</small></div></div>
+              <div class="kv"><div class="k">路径 B · 豆包 Seedance</div><div class="v">seedance_2.5（29s+26s）/ seedance_2.0_fast（15s×3+10s）</div></div>
+            </div>
+            <div class="cmd">
+              <div class="cmd-head"><span>音频切段（按 15s 上限）</span><button class="cmd-copy" onclick="copyCmd(this)">复制</button></div>
+<pre>ffmpeg -y -nostdin -i narration.mp3 -t 15  -c:a libmp3lame -q:a 4 a_seg0.mp3
+ffmpeg -y -nostdin -i narration.mp3 -ss 15 -t 15 -c:a libmp3lame -q:a 4 a_seg1.mp3
+# ... 依次切满 55s；每段配一条同尺寸人像基视频 v_segN.mp4 提交</pre>
+            </div>
+            <div class="pit"><div class="pit-t">两个平台的关键差异</div><p>① MiniMax H3 必须走 <code>/v2/video_generation</code>，图片 role 用 <code>reference_image</code>（v1 的 <code>first_frame</code> 报 <code>2013</code>）；② 豆包侧真人照片需先开启「素材合规承诺」，且参考视频不能是空流（空 mp4 会报 <code>empty audio stream</code>）。</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tl-node" data-i="4">
+      <div class="tl-cell-time"><span class="tl-time">T+06:00</span></div>
+      <div class="tl-cell-axis"><span class="tl-dot"></span><span class="tl-line"></span></div>
+      <div class="tl-cell-body">
+        <span class="tl-stage">STAGE 5 · 交付</span>
+        <div class="tl-card" onclick="toggleNode(4)">
+          <h3>拼接成片与质检 <span class="meta">ffmpeg concat · loudnorm</span></h3>
+          <p class="lead">所有分段按顺序拼接；校验总时长、响度（目标 -16 LUFS）、黑帧/冻结画面，产出主片与分享片。</p>
+          <div class="tl-detail">
+            <div class="grid2">
+              <div class="kv"><div class="k">拼接</div><div class="v">ffmpeg -f concat -c copy</div></div>
+              <div class="kv"><div class="k">响度</div><div class="v good">loudnorm I=-16:TP=-1.5:LRA=11 <small>两遍式标准化</small></div></div>
+            </div>
+            <div class="cmd">
+              <div class="cmd-head"><span>拼接命令（分段编码一致时走 copy）</span><button class="cmd-copy" onclick="copyCmd(this)">复制</button></div>
+<pre>ffmpeg -y -f concat -safe 0 -i _concat.txt -c copy presenter_60s.mp4
+# 编码不一致时回退 re-encode：
+#   -c:v libx264 -crf 20 -c:a aac -pix_fmt yuv420p</pre>
+            </div>
+            <div class="pit"><div class="pit-t">质量门禁</div><p>生成后必须完整解码回读、全速播放目检口型/身份/手部/曝光，并抽帧做九宫格联系表；<code>check_state</code> 全绿才可交付。</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></section>
+<section id="pitfalls"><div class="wrap">
+  <div class="sec-head">
+    <h2><span class="no">03</span>踩坑与经验</h2>
+    <p>同一动作失败两次就换通道，不降级交付物；下面这些是本次实测记录下来的修复路径。</p>
+  </div>
+  <div class="pitfalls">
+    <div class="pcard red"><h4><span class="ic">!</span>SSL 证书过期 / 域名回退</h4><p>Python 访问 <code>api.minimaxi.cn</code> 报 <code>CERTIFICATE_VERIFY_FAILED</code>，且该域名对 API 路径返回网页。改用 <code>api.minimaxi.com</code>（base 不含 <code>/v1</code>）后连通。</p></div>
+    <div class="pcard red"><h4><span class="ic">!</span>TTS 参数 2013</h4><p><code>audio_setting.bitrate=192000</code> 触发 <code>invalid params</code>。去掉 bitrate 字段即可，默认输出 128kbps MP3，音质达标。</p></div>
+    <div class="pcard red"><h4><span class="ic">!</span>H3 接口版本与 role</h4><p>MiniMax-H3 必须用 <code>/v2/video_generation</code>（v1 报「该模型请使用 v2 接口」）；图片 <code>role</code> 用 <code>reference_image</code>，<code>first_frame</code> 与 reference 场景互斥。</p></div>
+    <div class="pcard red"><h4><span class="ic">!</span>空视频流 / 奇数尺寸</h4><p>0 字节的基视频提交报 <code>empty audio stream</code>；941 奇数宽让 libx264 直接失败。先 <code>scale+crop</code> 到 720×1280 再生成。</p></div>
+    <div class="pcard green"><h4><span class="ic"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12.5l5 5L20 6.5"/></svg></span>豆包素材合规承诺</h4><p>真人照片入视频前需在设置 → 内容生成与产物设置 → 打开「素材合规承诺」，否则接口直接拒绝生成。</p></div>
+    <div class="pcard green"><h4><span class="ic"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12.5l5 5L20 6.5"/></svg></span>额度与模型路由</h4><p>seedance 2.5 是会员专属且消耗最大；>15s 必须用它，短段优先 <code>seedance_2.0_fast</code>（单段 4–15s）。额度用尽时平台会提示恢复时间，勿反复重试。</p></div>
+  </div>
+</div></section>
+<section id="files"><div class="wrap">
+  <div class="sec-head">
+    <h2><span class="no">04</span>文件与产物清单</h2>
+    <p>目录 <code>O:\video\20260929_冬虫夏草60秒配音文案\</code> 下的实际文件；加亮行为本轮交付的核心产物。</p>
+  </div>
+  <table class="files">
+    <colgroup><col><col><col><col></colgroup>
+    <thead><tr><th>文件</th><th>类型 / 角色</th><th>大小</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td><span class="f">冬虫夏草60秒科普配音文案.md</span></td><td>文案</td><td>8.2KB</td><td>节拍表、时长预案、合规与事实边界</td></tr>
+      <tr><td><span class="f">冬虫夏草-配音稿.txt</span></td><td>文案</td><td>0.8KB</td><td>TTS 友好纯文本，225 字</td></tr>
+      <tr class="cur"><td><span class="f">narration.mp3</span></td><td>配音</td><td>880KB</td><td>54.91s · 24kHz MP3 · 全链路时间基准</td></tr>
+      <tr class="cur"><td><span class="f">presenter.jpg</span></td><td>人像</td><td>103KB</td><td>书房场景 · 720×1280 归一化</td></tr>
+      <tr><td><span class="f">voiceover.py / h3_generate.py / run_pipeline.py</span></td><td>脚本</td><td>—</td><td>TTS、H3、一键管线（含踩坑修正）</td></tr>
+      <tr><td><span class="f">a_seg*.mp3 / v_seg*.mp4</span></td><td>中间件</td><td>—</td><td>按 15s 上限切分的音频段与同尺寸人像基视频</td></tr>
+      <tr class="cur"><td><span class="f">presenter_60s.mp4</span></td><td>成片</td><td>—</td><td>9:16 竖版 · 拼接后约 55s 口播视频</td></tr>
+    </tbody>
+  </table>
+</div></section>
+<section id="alt"><div class="wrap">
+  <div class="sec-head">
+    <h2><span class="no">05</span>备选路径与下一步</h2>
+    <p>本次执行中并行验证过的三条生成路径，按成本与速度选择。</p>
+  </div>
+  <div class="alt">
+    <div class="acard">
+      <div class="n">A</div>
+      <h4>MiniMax H3 数字人</h4>
+      <p>音频驱动口型、同一人像跨段。v2 接口已调通；受账户余额限制（HTTP 402），充值后即可续跑。</p>
+      <span class="status warn">余额不足 · 待续</span>
+    </div>
+    <div class="acard">
+      <div class="n">B</div>
+      <h4>豆包 Seedance 2.5</h4>
+      <p>会员专属、单条可达 30s，55s 音频仅需两段。消耗额度最大，需先开素材合规承诺。</p>
+      <span class="status warn">额度门控 · 待续</span>
+    </div>
+    <div class="acard">
+      <div class="n">C</div>
+      <h4>豆包 Seedance 2.0_fast</h4>
+      <p>15s/段、速度最快、额度消耗最低，适合先出样片验证口型与身份；质量略低于 2.5。</p>
+      <span class="status todo">快速样片首选</span>
+    </div>
+  </div>
+</div></section>
+<footer><div class="wrap">
+  <span>AI Presenter Video Pipeline · 复现文档 v1.0</span>
+  <span>数据来源：2026-09-29 实际执行记录</span>
+</div></footer>
+<div class="toast" id="toast">已复制到剪贴板</div>
+<script>
+var openNode = 0;
+var nodes = Array.prototype.slice.call(document.querySelectorAll('.tl-node'));
+function toggleNode(i){
+  if(i === openNode){ return; }
+  nodes[openNode].classList.remove('open');
+  nodes[i].classList.add('open');
+  openNode = i;
+}
+function copyCmd(btn){
+  var pre = btn.closest('.cmd').querySelector('pre');
+  var text = pre.innerText.trim();
+  var done = function(){ showToast('已复制到剪贴板'); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done, function(){ fallbackCopy(text, done); });
+  } else {
+    fallbackCopy(text, done);
+  }
+}
+function fallbackCopy(text, done){
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try{ document.execCommand('copy'); done(); }catch(e){}
+  document.body.removeChild(ta);
+}
+function showToast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function(){ t.classList.remove('show'); }, 1800);
+}
+var secs = ['overview','timeline','pitfalls','files','alt'];
+window.addEventListener('scroll', function(){
+  var y = window.scrollY + 90;
+  var cur = 'overview';
+  for(var i=0;i<secs.length;i++){
+    var el = document.getElementById(secs[i]);
+    if(el && el.offsetTop <= y){ cur = secs[i]; }
+  }
+  var links = document.querySelectorAll('.topnav a');
+  for(var j=0;j<links.length;j++){
+    links[j].style.color = links[j].getAttribute('href') === '#'+cur ? '#E8A33D' : '';
+  }
+}, {passive:true});
+</script>
+</body>
+</html>
