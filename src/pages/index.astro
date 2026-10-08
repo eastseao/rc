@@ -1,0 +1,179 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import { getSortedPosts } from "@/utils/getSortedPosts";
+import { getPostUrl } from "@/utils/getPostPaths";
+import { EXPLORE } from "@/data/explore";
+import config from "@/config";
+
+const locale = Astro.currentLocale ?? config.site.lang;
+
+const posts = await getCollection("posts", ({ data }) => !data.draft);
+const sorted = getSortedPosts(posts);
+const latest = sorted.filter(({ data }) => data.featured).slice(0, 3);
+
+const baseRoot = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+
+const formatMonth = (d: Date) =>
+  `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}`;
+
+const projects = [
+  {
+    id: "skillhub",
+    name: "SkillHub Agent",
+    tag: "Agent",
+    desc: "Agent Skill 的研究与实践合集",
+    href: `${baseRoot}projects/#skillhub`,
+  },
+  {
+    id: "markdown",
+    name: "Markdown Editor",
+    tag: "Tools",
+    desc: "属于自己的 Markdown 知识库",
+    href: `${baseRoot}projects/#markdown`,
+  },
+  {
+    id: "poetry",
+    name: "Poetry App",
+    tag: "App",
+    desc: "独立开发的小应用实验",
+    href: `${baseRoot}projects/#poetry`,
+  },
+];
+
+const nowChain = ["Agent Skill", "本地 AI", "Markdown", "Personal Knowledge Base"];
+
+const pill =
+  "rounded-full border border-border px-4 py-1.5 text-sm hover:border-accent hover:text-accent transition";
+---
+
+<Layout>
+  <Header />
+  <main
+    id="main-content"
+    data-layout="index"
+    data-home-path={baseRoot}
+    class="app-layout my-1"
+  >
+    {/* Hero */}
+    <section class="border-border border-b pt-10 pb-8">
+      <h1 class="my-2 text-5xl font-bold tracking-tight sm:text-6xl">
+        GERVAS
+      </h1>
+      <p class="text-accent mt-3 text-lg font-medium">
+        AI × Tools × Design × Life
+      </p>
+      <p class="mt-5 max-w-xl">
+        我喜欢研究新技术，也喜欢做一些东西。
+      </p>
+      <p class="max-w-xl">写下来，做出来，然后继续探索。</p>
+      <div class="mt-7 flex flex-wrap gap-3">
+        <a href={`${baseRoot}posts`} class={pill}>Notes</a>
+        <a href={`${baseRoot}projects`} class={pill}>Projects</a>
+        <a href={`${baseRoot}categories/life`} class={pill}>Life</a>
+        <a href={`${baseRoot}about`} class={pill}>About</a>
+      </div>
+    </section>
+
+    {/* Latest */}
+    <section class="pt-10 pb-6">
+      <h2 class="text-2xl font-semibold tracking-wide">Latest</h2>
+      <ol class="mt-1">
+        {latest.map(({ data, id, filePath }, i) => (
+          <li
+            class="border-border/60 flex items-baseline gap-4 border-b py-3 last:border-0"
+          >
+            <span class="font-mono text-sm opacity-50">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <a
+              href={getPostUrl(id, filePath, locale)}
+              class="flex-1 text-lg hover:text-accent"
+            >
+              {data.title}
+            </a>
+            <span class="font-mono text-sm whitespace-nowrap opacity-70">
+              {data.categoryLabel ?? ""} · {formatMonth(data.pubDatetime)}
+            </span>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    {/* Projects */}
+    <section class="pt-6 pb-6">
+      <h2 class="text-2xl font-semibold tracking-wide">Projects</h2>
+      <div class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {projects.map(p => (
+          <a
+            href={p.href}
+            class="border-border hover:border-accent rounded-xl border p-5 transition hover:shadow-sm"
+          >
+            <div class="text-lg font-semibold">{p.name}</div>
+            <span
+              class="bg-accent/10 text-accent mt-2 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium"
+            >
+              {p.tag}
+            </span>
+            <p class="mt-2 text-sm opacity-75">{p.desc}</p>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    {/* Explore */}
+    <section class="pt-6 pb-6">
+      <h2 class="text-2xl font-semibold tracking-wide">Explore</h2>
+      <div class="mt-3 flex flex-wrap gap-2.5">
+        {EXPLORE.map(e => (
+          <a href={`${baseRoot}categories/${e.id}`} class={pill}>
+            {e.label}
+          </a>
+        ))}
+      </div>
+    </section>
+
+    {/* Now */}
+    <section class="border-border border-t pt-8 pb-6">
+      <h2 class="text-2xl font-semibold tracking-wide">Now</h2>
+      <div class="mt-4 flex flex-wrap items-center gap-2">
+        <span class="text-sm opacity-60">正在研究</span>
+        {nowChain.map(x => (
+          <span class="flex items-center gap-2">
+            <span aria-hidden="true" class="opacity-40">→</span>
+            <span class="border-border rounded-full border px-3 py-1 text-sm">
+              {x}
+            </span>
+          </span>
+        ))}
+      </div>
+    </section>
+
+    {/* About */}
+    <section class="border-border border-t pt-8 pb-10">
+      <h2 class="text-2xl font-semibold tracking-wide">About</h2>
+      <p class="mt-3 max-w-2xl">
+        GERVAS · 包装解决方案 · AI 爱好者 · 独立开发探索者 · 杭州
+      </p>
+      <a
+        href={`${baseRoot}about`}
+        class="mt-3 inline-block text-sm hover:text-accent"
+      >
+        了解更多 →
+      </a>
+    </section>
+  </main>
+  <Footer />
+</Layout>
+
+<script>
+  document.addEventListener("astro:page-load", () => {
+    const indexLayout = (document.querySelector("#main-content") as HTMLElement)
+      ?.dataset;
+    if (indexLayout?.layout) {
+      sessionStorage.setItem("backUrl", indexLayout.homePath ?? "/rc/");
+    }
+  });
+</script>

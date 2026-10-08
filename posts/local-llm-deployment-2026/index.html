@@ -1,0 +1,848 @@
+<!DOCTYPE html><html dir="ltr" lang="zh-CN" class="overflow-y-scroll scroll-smooth"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/svg+xml" href="/rc/favicon.svg"><link rel="icon" href="/rc/favicon.ico"><link rel="canonical" href="https://eastseao.github.io/rc/posts/local-llm-deployment-2026/"><meta name="generator" content="Astro v7.3.7"><!-- Font --><style>:root{--font-google-sans-code:"Google Sans Code-1a30c214885cb404",monospace;}</style><!-- Primary meta --><title>本地大模型部署 · 聊天 · 搜索实现 | GERVAS</title><meta name="title" content="本地大模型部署 · 聊天 · 搜索实现 | GERVAS"><meta name="description" content="普通电脑本地模型推荐、RAG 与微调取舍、搜索实现、两套硬件配置清单与 Ollama 接入。"><meta name="author" content="GERVAS"><link rel="sitemap" href="/rc/sitemap-index.xml"><!-- Open Graph --><meta property="og:type" content="website"><meta property="og:site_name" content="GERVAS"><meta property="og:title" content="本地大模型部署 · 聊天 · 搜索实现 | GERVAS"><meta property="og:description" content="普通电脑本地模型推荐、RAG 与微调取舍、搜索实现、两套硬件配置清单与 Ollama 接入。"><meta property="og:url" content="https://eastseao.github.io/rc/posts/local-llm-deployment-2026/"><meta property="og:image" content="https://eastseao.github.io/rc/default-og.jpg"><!-- Twitter / X --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://eastseao.github.io/rc/posts/local-llm-deployment-2026/"><meta property="twitter:title" content="本地大模型部署 · 聊天 · 搜索实现 | GERVAS"><meta property="twitter:description" content="普通电脑本地模型推荐、RAG 与微调取舍、搜索实现、两套硬件配置清单与 Ollama 接入。"><meta property="twitter:image" content="https://eastseao.github.io/rc/default-og.jpg"><!-- RSS autodiscovery --><link rel="alternate" type="application/rss+xml" title="GERVAS" href="https://eastseao.github.io/rc/rss.xml/"><!-- Filled at runtime by theme.ts to match the current background colour --><meta name="theme-color" content=""><!-- Extra head content injected by child layouts (e.g. JSON-LD, article meta) --><meta property="og:type" content="article"><meta property="article:published_time" content="2026-04-27T00:00:00.000Z"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"本地大模型部署 · 聊天 · 搜索实现 | GERVAS","datePublished":"2026-04-27T00:00:00.000Z","author":[{"@type":"Person","name":"GERVAS","url":"https://eastseao.github.io/rc/about"}]}</script><!--
+      Inline FOUC-prevention script: sets data-theme on <html> before
+      the browser paints. Runs synchronously, no defer/async.
+    --><script>
+      (function () {
+        const stored = localStorage.getItem("theme");
+        const prefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)"
+        ).matches;
+        const theme = stored ?? (prefersDark ? "dark" : "light");
+        const root = document.firstElementChild;
+        root?.setAttribute("data-theme", theme);
+        root?.classList.toggle("dark", theme === "dark");
+        // Expose value so theme.ts can skip re-detection.
+        window.__theme = { value: theme };
+      })();
+    </script><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><script type="module" src="/rc/_astro/ClientRouter.astro_astro_type_script_index_0_lang.BDCjmQ8c.js"></script><link rel="stylesheet" href="/rc/_astro/Footer.BNEnPMnF.css"><style>@keyframes astroFadeInOut{0%{opacity:1}to{opacity:0}}@keyframes astroFadeIn{0%{opacity:0;mix-blend-mode:plus-lighter}to{opacity:1;mix-blend-mode:plus-lighter}}@keyframes astroFadeOut{0%{opacity:1;mix-blend-mode:plus-lighter}to{opacity:0;mix-blend-mode:plus-lighter}}@keyframes astroSlideFromRight{0%{transform:translate(100%)}}@keyframes astroSlideFromLeft{0%{transform:translate(-100%)}}@keyframes astroSlideToRight{to{transform:translate(100%)}}@keyframes astroSlideToLeft{to{transform:translate(-100%)}}@media (prefers-reduced-motion){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*),[data-astro-transition-scope]{animation:none!important}}
+</style><style>[data-astro-transition-scope="astro-bztu2lml-1"] { view-transition-name: \672C\5730\6A21\578B\63A8\8350; }@layer astro { ::view-transition-old(\672C\5730\6A21\578B\63A8\8350) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }::view-transition-new(\672C\5730\6A21\578B\63A8\8350) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(\672C\5730\6A21\578B\63A8\8350) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(\672C\5730\6A21\578B\63A8\8350) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-bztu2lml-1"],
+			[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-bztu2lml-1"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-bztu2lml-1"],
+			[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-bztu2lml-1"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-bztu2lml-1"],
+			[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-bztu2lml-1"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-bztu2lml-1"],
+			[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-bztu2lml-1"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-bztu2lml-2"] { view-transition-name: rag-\5FAE\8C03; }@layer astro { ::view-transition-old(rag-\5FAE\8C03) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }::view-transition-new(rag-\5FAE\8C03) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(rag-\5FAE\8C03) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(rag-\5FAE\8C03) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-bztu2lml-2"],
+			[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-bztu2lml-2"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-bztu2lml-2"],
+			[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-bztu2lml-2"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-bztu2lml-2"],
+			[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-bztu2lml-2"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-bztu2lml-2"],
+			[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-bztu2lml-2"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-bztu2lml-3"] { view-transition-name: ollama; }@layer astro { ::view-transition-old(ollama) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }::view-transition-new(ollama) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(ollama) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(ollama) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-bztu2lml-3"],
+			[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-bztu2lml-3"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-bztu2lml-3"],
+			[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-bztu2lml-3"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-bztu2lml-3"],
+			[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-bztu2lml-3"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-bztu2lml-3"],
+			[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-bztu2lml-3"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-bztu2lml-4"] { view-transition-name: \786C\4EF6\914D\7F6E\6E05\5355; }@layer astro { ::view-transition-old(\786C\4EF6\914D\7F6E\6E05\5355) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }::view-transition-new(\786C\4EF6\914D\7F6E\6E05\5355) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(\786C\4EF6\914D\7F6E\6E05\5355) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(\786C\4EF6\914D\7F6E\6E05\5355) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-bztu2lml-4"],
+			[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-bztu2lml-4"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-bztu2lml-4"],
+			[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-bztu2lml-4"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-bztu2lml-4"],
+			[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-bztu2lml-4"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-bztu2lml-4"],
+			[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-bztu2lml-4"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-bztu2lml-5"] { view-transition-name: hermes-\63A5\5165; }@layer astro { ::view-transition-old(hermes-\63A5\5165) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }::view-transition-new(hermes-\63A5\5165) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(hermes-\63A5\5165) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(hermes-\63A5\5165) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-bztu2lml-5"],
+			[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-bztu2lml-5"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-bztu2lml-5"],
+			[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-bztu2lml-5"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-bztu2lml-5"],
+			[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-bztu2lml-5"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-bztu2lml-5"],
+			[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-bztu2lml-5"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }</style></head><body class="bg-background font-app text-foreground selection:bg-accent/75 selection:text-accent-foreground flex min-h-svh flex-col"><a id="skip-to-content" href="#main-content" class="bg-background text-accent absolute inset-s-16 -top-full z-50 px-3 py-2 backdrop-blur-lg transition-all focus:top-4">跳到正文</a><header class="app-layout flex flex-col items-center justify-between sm:flex-row"><div class="border-border bg-background relative flex w-full items-baseline justify-between border-b py-4 sm:items-center sm:py-6"><a href="/rc/" class="absolute py-1 text-xl leading-8 font-semibold whitespace-nowrap sm:static sm:my-auto sm:text-2xl sm:leading-none">GERVAS</a><nav id="nav-menu" class="flex w-full flex-col items-center sm:ms-2 sm:flex-row sm:justify-end sm:space-x-4 sm:py-0"><button id="menu-btn" class="focus-outline self-end p-2 sm:hidden" aria-label="打开菜单" aria-expanded="false" aria-controls="menu-items" data-label-open="打开菜单" data-label-close="关闭菜单"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="hidden" viewBox="0 0 24 24" id="close-icon"><path stroke="none" d="M0 0h24v24H0z" /><path d="M18 6 6 18M6 6l12 12" /></svg><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="icon icon-tabler icons-tabler-outline icon-tabler-menu-deep" viewBox="0 0 24 24" id="menu-icon"><path stroke="none" d="M0 0h24v24H0z" /><path d="M4 6h16M7 12h13M10 18h10" /></svg></button><ul id="menu-items" class="[&amp;&gt;li&gt;a]:hover:text-accent mt-4 hidden w-44 grid-cols-2 place-content-center gap-2 sm:mt-0 sm:flex sm:w-auto sm:gap-x-5 sm:gap-y-0 sm:[&amp;&gt;li]:h-8 [&amp;&gt;li&gt;a]:block [&amp;&gt;li&gt;a]:px-4 [&amp;&gt;li&gt;a]:py-3 [&amp;&gt;li&gt;a]:text-center [&amp;&gt;li&gt;a]:font-medium sm:[&amp;&gt;li&gt;a]:px-2 sm:[&amp;&gt;li&gt;a]:py-1"><li class="col-span-2"><a href="/rc/posts/" class="active-nav">Notes</a></li><li class="col-span-2"><a href="/rc/projects/">Projects</a></li><li class="col-span-2"><a href="/rc/categories/life/">Life</a></li><li class="col-span-2"><a href="/rc/about/">About</a></li><li class="col-span-1 flex items-center justify-center"><a href="/rc/search/" title="搜索" aria-label="搜索" class="group inline-flex items-center gap-1 hover:text-accent focus-outline relative size-8"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="absolute top-1/2 left-1/2 size-6 -translate-x-1/2 -translate-y-1/2" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M3 10a7 7 0 1 0 14 0 7 7 0 1 0-14 0M21 21l-6-6" /></svg><span class="sr-only">搜索</span></a></li><li class="col-span-1 flex items-center justify-center"><button id="theme-btn" class="focus-outline hover:[&amp;&gt;svg]:stroke-accent relative size-12 p-4 sm:size-8" title="切换主题" aria-label="auto" aria-live="polite"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="absolute top-[50%] left-[50%] translate-[-50%] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M12 3h.393a7.5 7.5 0 0 0 7.92 12.446A9 9 0 1 1 12 2.992z" /></svg><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="absolute top-[50%] left-[50%] translate-[-50%] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M14.828 14.828a4 4 0 1 0-5.656-5.656 4 4 0 0 0 5.656 5.656M6.343 17.657l-1.414 1.414M6.343 6.343 4.929 4.929M17.657 6.343l1.414-1.414M17.657 17.657l1.414 1.414M4 12H2M12 4V2M20 12h2M12 20v2" /></svg></button></li></ul></nav></div></header><script type="module">function e(){let e=document.querySelector(`#menu-btn`),t=document.querySelector(`#menu-items`),n=document.querySelector(`#menu-icon`),r=document.querySelector(`#close-icon`);if(!e||!t||!n||!r)return;let i=e.dataset.labelOpen??`Open menu`,a=e.dataset.labelClose??`Close menu`;e.addEventListener(`click`,()=>{let o=e.getAttribute(`aria-expanded`)===`true`;e.setAttribute(`aria-expanded`,o?`false`:`true`),e.setAttribute(`aria-label`,o?i:a),t.classList.toggle(`hidden`),t.classList.toggle(`grid`),n.classList.toggle(`hidden`),r.classList.toggle(`hidden`)})}function t(){let e=document.getElementById(`skip-to-content`);e&&e.addEventListener(`click`,e=>{if(e.defaultPrevented||e.metaKey||e.ctrlKey||e.shiftKey||e.button!==0)return;e.preventDefault();let t=document.getElementById(`main-content`);t&&(t.setAttribute(`tabindex`,`-1`),t.addEventListener(`blur`,()=>t.removeAttribute(`tabindex`),{once:!0}),t.focus(),t.scrollIntoView({behavior:`smooth`}))})}e(),document.addEventListener(`astro:after-swap`,e),t(),document.addEventListener(`astro:after-swap`,t);</script><div class="app-layout flex items-center justify-start"><a id="back-button" href="/rc/" class="group inline-flex items-center gap-1 hover:text-accent focus-outline hover:text-foreground/75 -ms-2 mt-8 mb-2"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 rtl:rotate-180" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="m15 6-6 6 6 6" /></svg><span>返回</span></a></div><script type="module">function e(){let e=document.querySelector(`#back-button`),t=sessionStorage.getItem(`backUrl`);t&&e&&(e.href=t)}document.addEventListener(`astro:page-load`,e),e();</script><main id="main-content" class="app-layout" data-pagefind-body><h1 style="view-transition-name:local-llm-deployment-2026" class="text-accent inline-block text-2xl font-bold sm:text-3xl">本地大模型部署 · 聊天 · 搜索实现</h1><div class="my-2 flex items-center gap-2"><div class="text-muted-foreground flex items-center gap-x-2"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 min-w-5.5" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zM16 3v4M8 3v4M4 11h16M7 14h.013M10.01 14h.005M13.01 14h.005M16.015 14h.005M13.015 17h.005M7.01 17h.005M10.01 17h.005" /></svg><time class="text-sm sm:text-base" datetime="2026-04-27T00:00:00.000Z">27 Apr, 2026</time></div><span aria-hidden="true" class="text-muted-foreground max-sm:hidden">|</span><a href="https://github.com/eastseao/rc/edit/main/src/content/posts/local-llm-deployment-2026.md" target="_blank" rel="noopener noreferrer" class="hover:text-accent text-muted-foreground flex justify-baseline gap-1.5 max-sm:hidden"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M7 7H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0-2.97-2.97L9 12v3h3zM16 5l3 3" /></svg><span>编辑页面</span></a></div><article id="article" class="mt-8 w-full app-prose max-w-app prose-pre:bg-(--shiki-light-bg) dark:prose-pre:bg-(--shiki-dark-bg)"><blockquote><p><strong>本手册合并自以下笔记</strong>（序号即原笔记编号，括号内为笔记日期）：00724-2026-03-14 普通电脑本地模型推荐00791-2026-03-24 本地大模型聊天知识提升00793-2026-03-24 本地模型搜索实现方式01030-2026-04-27 本地部署大模型配置建议00955-2026-04-17 Hermes 接入本地 Qwen 模型</p></blockquote>
+<h2 id="01--普通电脑能跑哪些本地模型00724--2026-03-14">01 · 普通电脑能跑哪些本地模型（00724 · 2026-03-14）</h2>
+<p>得益于量化技术，许多大模型压缩后在<strong>8GB–16GB</strong>内存的电脑上就能跑得不错。下表是主流推荐与量化后内存需求（照录）。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>模型</th><th>参数</th><th>内存需求（量化后）</th><th>特点与适用场景</th></tr></thead><tbody><tr><td><strong>Llama 3.1</strong></td><td>8B</td><td>约 7.2–8 GB</td><td>Meta 通用型，对话、写代码、总结文档全面。</td></tr><tr><td><strong>Qwen2.5（通义千问）</strong></td><td>7B</td><td>约 6–7.5 GB</td><td>阿里出品，中文出色、支持长文本，适合中文内容。</td></tr><tr><td><strong>DeepSeek R1</strong></td><td>7B/8B</td><td>约 6.7–7.3 GB</td><td>擅长逻辑推理与代码理解，思维过程透明。</td></tr><tr><td><strong>Gemma 2</strong></td><td>2B/4B/7B</td><td>4B 约 4GB；7B 约 6–8GB</td><td>Google 轻量高效，4B 对低配友好，7B 能力更强。</td></tr><tr><td><strong>Mistral 7B</strong></td><td>7B</td><td>约 6.9–7.6 GB</td><td>速度快、效率高，适合实时聊天机器人。</td></tr><tr><td><strong>Phi-3 Mini</strong></td><td>3.8B</td><td>约 4–7.5 GB</td><td>微软小参数强逻辑与编程，性价比高。</td></tr><tr><td><strong>Granite</strong></td><td>3B/4B</td><td>约 3–5 GB</td><td>IBM 最小语言模型，速度快、资源有限设备。</td></tr><tr><td><strong>DeepSeek Coder V2</strong></td><td>6.7B</td><td>约 6 GB</td><td>专为代码生成与理解优化，本地编程辅助。</td></tr></tbody></table>
+<div style="display:grid;gap:14px;margin:14px 0;grid-template-columns:repeat(2,minmax(0,1fr))"><div style="border:1px solid #dfe6ef;border-radius:8px;padding:16px 20px;background:#fff;margin:14px 0"><h3 style="font-size:15px;font-weight:700;margin-bottom:10px">常用部署「启动器」</h3><dl style="display:grid;grid-template-columns:110px 1fr;gap:8px 16px;margin:14px 0"><dt>Ollama</dt><dd>操作最简单，命令行一键安装运行，对新手友好。</dd><dt>LM Studio</dt><dd>漂亮图形界面，像普通软件一样安装，内置模型搜索下载。</dd><dt>Llama.cpp</dt><dd>性能核心，专注普通硬件（甚至树莓派）高效运行，许多工具基于它。</dd></dl></div><div style="border:1px solid #dfe6ef;border-radius:8px;padding:16px 20px;background:#fff;margin:14px 0"><h3 style="font-size:15px;font-weight:700;margin-bottom:10px">8GB 内存的取舍</h3><dl style="display:grid;grid-template-columns:110px 1fr;gap:8px 16px;margin:14px 0"><dt>选量化版</dt><dd>文件名带<code>Q4_K_M.gguf</code>即 4-bit 量化，是性能与占用的最佳平衡；建议为模型预留约 1.2 倍内存。</dd><dt>8GB 首选</dt><dd>Gemma 2:4B（首选）、Phi-3 Mini（备选）；写中文可试 Qwen2.5:7B 的 Q3 量化版。</dd><dt>16GB 可选</dt><dd>可流畅跑 Llama 3.1 或 Qwen2.5。</dd></dl></div></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>维度</th><th>在线版 AI</th><th>本地语言模型</th></tr></thead><tbody><tr><td><strong>硬件依赖</strong></td><td>无需配置，有浏览器即可</td><td>完全依赖本机；8GB 内存只能跑 3B–9B 小模型</td></tr><tr><td><strong>模型能力</strong></td><td>极强，可用最新最大模型</td><td>相对较弱，受硬件限制</td></tr><tr><td><strong>隐私安全</strong></td><td>数据上传服务器，有泄露/被用于训练风险</td><td>完全离线、数据不出电脑，最适合敏感信息</td></tr><tr><td><strong>成本</strong></td><td>基础免费、高级付费</td><td>完全免费、无限次使用</td></tr></tbody></table>
+<p>笔记建议的混合用法：<strong>日常、隐私、草稿</strong>用本地模型快速记录与初润；<strong>定稿、创意、难题</strong>把草稿交给在线版优化标题、文采与结构。</p>
+<h2 id="02--和本地模型聊天能让它变聪明吗00791--2026-03-24">02 · 和本地模型聊天，能让它变聪明吗（00791 · 2026-03-24）</h2>
+<p>结论先行：**单纯聊天无法永久提升本地大模型的知识或能力。**差别在模型是怎么跑起来的。</p>
+<div style="display:grid;gap:14px;margin:14px 0;grid-template-columns:repeat(2,minmax(0,1fr))"><div style="border:1px solid #dfe6ef;border-radius:8px;padding:16px 20px;background:#fff;margin:14px 0"><h3 style="font-size:15px;font-weight:700;margin-bottom:10px">静态模型（Ollama / LM Studio / llama.cpp）</h3><p style="font-size:13.5px;color:inherit">部署后<b>权重是冻结</b>的：每次聊天只基于训练时数据推理，对话历史只活在当前会话的上下文窗口里；关窗即「失忆」，不会因为聊得久就变聪明。</p></div><div style="border:1px solid #dfe6ef;border-radius:8px;padding:16px 20px;background:#fff;margin:14px 0"><h3 style="font-size:15px;font-weight:700;margin-bottom:10px">带「长期记忆」的实验架构</h3><p style="font-size:13.5px;color:inherit">如 MemGPT、LangChain 记忆模块，会把对话总结存进向量数据库，下次聊天能检索到历史作参考——<b>但权重参数依然没变</b>，只是「伪装成记忆」。</p></div></div>
+<blockquote><p><strong>真正「提升」知识的两条路</strong></p><ul>
+<li><strong>检索增强生成（RAG）</strong>：把文档喂给它，回答时「查书」——目前本地模型获取新知识的主流方式。</li>
+<li><strong>微调（Fine-tuning）</strong>：用新数据训练、修改权重，需要较高显存与技术门槛，已不是「聊天」。</li>
+</ul></blockquote>
+<h2 id="03--本地模型如何实现在线搜索00793--2026-03-24">03 · 本地模型如何实现「在线搜索」（00793 · 2026-03-24）</h2>
+<p><strong>本地模型本身不具备在线搜索能力</strong>——它只是一个静态本地文件、语言生成器。要搜索，得由前端/中间层先调搜索 API，再把结果连同问题喂给模型。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>实现方式</th><th>做法</th></tr></thead><tbody><tr><td><strong>支持联网的客户端</strong></td><td>Open WebUI、AnythingLLM、ChatGPT-Next-Web 等可配置搜索引擎 API（Google/Bing/SearchAPI）：模型需要搜索时，工具先取搜索结果，再连同问题发给模型作答。主流组合即<strong>Open WebUI + 本地模型（如 Ollama）+ 搜索引擎 API</strong>。</td></tr><tr><td><strong>自己写脚本</strong></td><td>用 Python 等先调搜索 API，把结果拼接后再调本地模型 API 接口回答。</td></tr><tr><td><strong>云平台「本地部署」模型</strong></td><td>有些 API 服务虽称「本地」，实际跑在云端，是否内置搜索插件取决于平台。</td></tr></tbody></table>
+<div style="border:1px solid #dfe6ef;border-radius:8px;overflow:hidden;background:#fff;margin:14px 0"><div style="padding:12px 16px;border-bottom:1px solid #dfe6ef;background:#f6f8fa;font-weight:700"><span>附 · LM Studio 与图片</span><h3>LM Studio 能不能装图片生成模型</h3></div><div style="padding:14px 16px"><p>结论：<b>不能直接「安装/运行」图片生成模型（如 Stable Diffusion）</b>，它是专门跑大语言模型（LLM）的工具。但它能做两件和「图」相关的事。</p><div style="overflow-x:auto;margin:16px 0"><table><thead><tr><th style="width:180px">功能</th><th style="width:120px">能否</th><th>说明</th></tr></thead><tbody><tr><td>直接生成图片</td><td>不能</td><td>本身不是为图像生成设计的。</td></tr><tr><td>运行图像理解模型（VLM）</td><td>能</td><td>支持 VLM 读取并理解图片，官方示例 qwen2-vl-2b-instruct、gemma-3-*、pixtral-* 等，可上传图片提问。</td></tr><tr><td>辅助图片生成</td><td>能</td><td>当「提示词工程师」把想法扩成详细 Prompt 再交给绘图工具；或经 Gemini MCP Server 等插件、或作为节点接入 ComfyUI 工作流。</td></tr></tbody></table></div></div></div>
+<h2 id="04--2万3万元预算硬件配置清单01030--2026-04-27">04 · 2万~3万元预算硬件配置清单（01030 · 2026-04-27）</h2>
+<p>核心思路：优先保障<strong>大显存显卡</strong>。笔记给了两套方案——单卡约 2.2 万跑 7B–14B，双卡约 3.0 万挑战 70B+ 量化模型。CPU 与主板决定你能插几块卡。以下总价均为<strong>不含显示器</strong>的参考估算。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>方案</th><th>显卡 GPU</th><th>CPU</th><th>内存 RAM</th><th>硬盘 SSD</th><th>参考总价</th></tr></thead><tbody><tr><td><strong>方案一<br></strong></td><td><strong>1 × RTX 4090 24GB</strong>（~¥17,000）</td><td>Intel i7-13700K（~¥2,500）</td><td>64GB DDR5（~¥1,500）</td><td>1TB NVMe（<del>¥500）+ 4TB HDD（</del>¥600）</td><td><strong>≈ ¥2.2 万</strong></td></tr><tr><td><strong>方案二<br></strong></td><td><strong>2 × RTX 3090 24GB</strong>（二手，~¥11,000）</td><td>AMD Ryzen 9 7950X（~¥3,500）</td><td>64GB DDR5（~¥1,500）</td><td>1TB NVMe（<del>¥500）+ 4TB HDD（</del>¥600）</td><td><strong>≈ ¥3.0 万</strong></td></tr></tbody></table>
+<div style="display:grid;gap:14px;margin:14px 0;grid-template-columns:repeat(2,minmax(0,1fr))"><div style="border:1px solid #dfe6ef;border-radius:8px;padding:16px 20px;background:#fff;margin:14px 0"><h3 style="font-size:15px;font-weight:700;margin-bottom:10px">方案一 · 单卡旗舰（≈¥2.2 万）</h3><dl style="display:grid;grid-template-columns:110px 1fr;gap:8px 16px;margin:14px 0"><dt>主板</dt><dd>Z790 芯片组（~¥2,000），ATX、一线品牌主流型号，重点供电与散热片。</dd><dt>内存</dt><dd>64GB（32GB×2）DDR5 6000MHz，确保加载运行稳定、留余量。</dd><dt>电源</dt><dd>1000W 金牌全模组（~¥1,200）——4090 峰值功耗高。</dd><dt>散热机箱</dt><dd>360mm 一体水冷 + 中塔机箱（~¥1,200），压 i7-13700K。</dd></dl></div><div style="border:1px solid #dfe6ef;border-radius:8px;padding:16px 20px;background:#fff;margin:14px 0"><h3 style="font-size:15px;font-weight:700;margin-bottom:10px">方案二 · 双卡探索（≈¥3.0 万）</h3><dl style="display:grid;grid-template-columns:110px 1fr;gap:8px 16px;margin:14px 0"><dt>主板</dt><dd>X670E（~¥2,500），双 PCIe 5.0 x16，两张 3090 满速。</dd><dt>关键提醒</dt><dd>二手 3090 务必辨别矿卡/高强度卡；双卡发热大，选全塔机箱并装满风扇。</dd><dt>电源</dt><dd>1500W+ 金牌全模组（~¥2,500）——双卡+旗舰 CPU 满载功耗高。</dd><dt>散热</dt><dd>强烈建议 360 水冷压 7950X。</dd></dl></div></div>
+<blockquote><p><strong>为什么旧 3090 可能比新 4090 更有用</strong>：部署大模型，<strong>显存容量</strong>是决定能跑多大模型的第一要素。一个 70B 模型即使压缩也约需<strong>35–40GB</strong>显存；4090 24GB 只能把部分任务甩给 CPU 而速度骤降，两张 3090 组成 48GB 显存池则刚好装下。</p></blockquote>
+<h4 id="这套硬件能跑哪些模型照录">这套硬件能跑哪些模型（照录）</h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>模型</th><th>参数规模</th><th>推荐量化</th><th>显存需求</th><th>推荐方案</th><th>预估速度</th></tr></thead><tbody><tr><td><strong>Qwen3.5-9B</strong></td><td>9B</td><td>Q4_K_M (4-bit)</td><td>~6 GB</td><td>方案一/二</td><td>极快（>50 t/s）</td></tr><tr><td><strong>DeepSeek-R1-Distill-Qwen-14B</strong></td><td>14B</td><td>Q4_K_M (4-bit)</td><td>~10 GB</td><td>方案一/二</td><td>快（>30 t/s）</td></tr><tr><td><strong>Qwen3.5-35B-A3B</strong></td><td>35B（MoE，激活 3B）</td><td>Q4_K_M (4-bit)</td><td>~20 GB</td><td>方案一/二</td><td>极快（约 196 t/s）</td></tr><tr><td><strong>DeepSeek-V4（量化版）</strong></td><td>671B（MoE，激活 37B）</td><td>量化版</td><td>~24 GB+</td><td>方案一</td><td>中等（~15 t/s）</td></tr><tr><td><strong>Qwen2.5-72B</strong></td><td>72B</td><td>GPTQ-Int4 (4-bit)</td><td>~35–40 GB</td><td>方案二</td><td>中等（~15–20 t/s）</td></tr><tr><td><strong>Llama-4（量化版）</strong></td><td>1090B（MoE，激活 17B）</td><td>4-bit</td><td>~60 GB</td><td>预算上限</td><td>—</td></tr></tbody></table>
+<p>上手工具：<strong>Ollama + Open WebUI</strong>（新手一条命令下载、浏览器聊天）；<strong>vLLM</strong>（多并发 API 后端）；<strong>llama.cpp</strong>（进阶、CPU/GPU 混合）；<strong>Unsloth</strong>（微调降显存）。系统推荐 Ubuntu 22.04 LTS，装最新 NVIDIA 驱动、CUDA、cuDNN。</p>
+<blockquote><p><strong>口径提醒</strong></p><ul>
+<li>推理速度受量化方法、上下文长度、后端框架影响，表中数值为社区公开数据的数量级参考。</li>
+<li>硬件价格波动频繁，RTX 4090 近期从 1.2 万左右涨至 1.7 万甚至更高，选购时关注行情。</li>
+</ul></blockquote>
+<h2 id="05--hermes-接入本地-qwen-7b00955--2026-04-17">05 · Hermes 接入本地 Qwen 7B（00955 · 2026-04-17）</h2>
+<p>核心：Hermes 支持<strong>OpenAI 兼容接口</strong>，只要模型提供符合格式的 API 地址就能无缝调用。下面是最省事的 Ollama 路径与配置文件路径。</p>
+<div style="border:1px solid #dfe6ef;border-radius:8px;overflow:hidden;background:#fff;margin:14px 0"><div style="padding:12px 16px;border-bottom:1px solid #dfe6ef;background:#f6f8fa;font-weight:700"><span>方法一 · Ollama（新手首选）</span><h3>先跑模型，再配 Hermes</h3></div><div style="padding:14px 16px"><p style="margin-bottom:8px">第一步：确认 Qwen 已在本地经 Ollama 运行——</p><div style="margin:14px 0"><span># 1. 拉取模型</span>ollama pull qwen2:7b<span># 2. 启动服务</span>ollama serve<span># 3. 另开终端验证状态，确认 qwen2:7b 为 loaded</span>ollama list<span># 也可访问 http://localhost:11434 确认服务就绪</span></div><p style="margin-bottom:8px">第二步：终端输入<code>hermes model</code>进入配置向导——Provider 选<code>custom</code>（<b>不要选</b><code>ollama</code>，旧版 Hermes 对原生 Ollama 接口支持不佳），按下表填写：</p><div style="overflow-x:auto;margin:16px 0"><table><thead><tr><th style="width:150px">字段</th><th>填写值</th></tr></thead><tbody><tr><td>Base URL</td><td><code>http://localhost:11434/v1</code></td></tr><tr><td>Model Name</td><td>Ollama 中的确切模型名，如<code>qwen2:7b</code></td></tr><tr><td>API Key</td><td>任意非空字符，如<code>ollama</code>（Hermes 会校验，Ollama 会忽略其值）</td></tr></tbody></table></div><p style="font-size:13.5px;color:inherit">配置完成后执行<code>hermes</code>即可与本地 Qwen 7B 对话。</p></div></div>
+<div style="border:1px solid #dfe6ef;border-radius:8px;overflow:hidden;background:#fff;margin:14px 0"><div style="padding:12px 16px;border-bottom:1px solid #dfe6ef;background:#f6f8fa;font-weight:700"><span>方法二 · 配置文件</span><h3>~/.hermes/config.yaml 手动接入</h3></div><div style="padding:14px 16px"><p style="margin-bottom:8px">用<code>hermes config edit</code>打开配置文件，添加如下内容：</p><div style="margin:14px 0"><span># ~/.hermes/config.yaml</span>llm: provider: custom model: "qwen2:7b"<span># 你使用的模型名称</span>base_url: "http://localhost:11434/v1"<span># 本地推理服务地址</span>api_key: "ollama"<span># 任意非空值即可</span><span># 遇 JSON 解析错误可尝试启用兼容模式</span><span># ollama_compatible: true</span><span># 多模型共存示例</span><span># providers:</span><span># qwen_ollama:</span><span># provider: custom</span><span># base_url: "http://localhost:11434/v1"</span><span># api_key: "ollama"</span><span># qwen_vllm:</span><span># provider: custom</span><span># base_url: "http://localhost:8000/v1"</span><span># api_key: "EMPTY"</span></div><p style="margin-bottom:10px">多模型时在<code>providers</code>下定义多个服务，再用<code>provider名/模型名</code>选默认模型。进阶：vLLM 追求高性能生产部署，启动时需加<code>--enable-auto-tool-choice</code>与<code>--tool-call-parser hermes</code>才支持 Qwen 工具调用；用阿里云 DashScope 则在向导选<b>Qwen OAuth</b>。</p></div></div>
+<div style="border:1px solid #dfe6ef;border-radius:8px;overflow:hidden;background:#fff;margin:14px 0"><div style="padding:12px 16px;border-bottom:1px solid #dfe6ef;background:#f6f8fa;font-weight:700"><span>排障</span><h3>三个常见问题</h3></div><div style="padding:14px 16px"><div style="overflow-x:auto;margin:16px 0"><table><thead><tr><th style="width:190px">现象</th><th>原因与解决</th></tr></thead><tbody><tr><td>模型不支持最小上下文报错</td><td>部分低量化 Qwen 上下文窗口小；换上下文更大的模型，如<code>qwen2.5:7b</code>或<code>gemma4:e2b</code>。</td></tr><tr><td>连接失败 / Connection refused</td><td>本地推理服务未启动或 base_url 配错；Ollama 地址通常是<code>http://localhost:11434/v1</code>。</td></tr><tr><td>API Key 无效 / 401 Unauthorized</td><td>Hermes 必须有 API Key 但 Ollama 忽略其值；填任意非空串如<code>ollama</code>或<code>dummy</code>。</td></tr></tbody></table></div><div style="display:grid;gap:14px;margin:14px 0;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:14px"><div style="border:1px solid #dfe6ef;border-radius:8px;padding:16px 20px;background:#fff;margin:14px 0"><dl style="display:grid;grid-template-columns:110px 1fr;gap:8px 16px;margin:14px 0"><dt>Ollama</dt><dd>部署最简、配置最快、资源占用低，适合个人/新手/快速原型。</dd></dl></div><div style="border:1px solid #dfe6ef;border-radius:8px;padding:16px 20px;background:#fff;margin:14px 0"><dl style="display:grid;grid-template-columns:110px 1fr;gap:8px 16px;margin:14px 0"><dt>vLLM</dt><dd>推理性能高、支持高并发，适合生产部署。</dd></dl></div><div style="border:1px solid #dfe6ef;border-radius:8px;padding:16px 20px;background:#fff;margin:14px 0"><dl style="display:grid;grid-template-columns:110px 1fr;gap:8px 16px;margin:14px 0"><dt>DashScope</dt><dd>无需本地硬件，直接调官方最强模型。</dd></dl></div></div></div></div></article><hr class="my-8 border-dashed"><a href="https://github.com/eastseao/rc/edit/main/src/content/posts/local-llm-deployment-2026.md" target="_blank" rel="noopener noreferrer" class="hover:text-accent text-muted-foreground flex justify-baseline gap-1.5 sm:hidden"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M7 7H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0-2.97-2.97L9 12v3h3zM16 5l3 3" /></svg><span>编辑页面</span></a><div id="btt-btn-container" class="fixed inset-e-4 bottom-8 z-50 md:sticky md:inset-e-auto md:float-end md:me-1 translate-y-14 opacity-0 transition duration-500"><button data-button="back-to-top" class="group bg-background relative px-2 py-1 size-14 rounded-full shadow-xl md:h-8 md:w-fit md:rounded-md md:shadow-none md:focus-visible:rounded-none md:bg-background/35 md:bg-clip-padding md:backdrop-blur-lg"><span id="progress-indicator" class="absolute inset-0 -z-10 block size-14 scale-110 rounded-full bg-transparent md:hidden md:h-8 md:rounded-md"></span><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block rotate-90 md:hidden" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M5 12h14M5 12l6 6M5 12l6-6" /></svg><span class="group-hover:text-accent sr-only text-sm md:not-sr-only"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-4" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M12 5v14M16 9l-4-4M8 9l4-4" /></svg>回到顶部</span></button></div><script data-astro-rerun>
+  function backToTop() {
+    const rootElement = document.documentElement;
+    const btnContainer = document.querySelector("#btt-btn-container");
+    const backToTopBtn = document.querySelector("[data-button='back-to-top']");
+    const progressIndicator = document.querySelector("#progress-indicator");
+
+    if (!rootElement || !btnContainer || !backToTopBtn || !progressIndicator)
+      return;
+
+    backToTopBtn.addEventListener("click", () => {
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+    });
+
+    let lastVisible = null;
+    function handleScroll() {
+      const scrollTotal = rootElement.scrollHeight - rootElement.clientHeight;
+      const scrollTop = rootElement.scrollTop;
+      const scrollPercent = Math.floor((scrollTop / scrollTotal) * 100);
+
+      progressIndicator.style.setProperty(
+        "background-image",
+        `conic-gradient(var(--accent), var(--accent) ${scrollPercent}%, transparent ${scrollPercent}%)`
+      );
+
+      const isVisible = scrollTop / scrollTotal > 0.3;
+
+      if (isVisible !== lastVisible) {
+        btnContainer.classList.toggle("opacity-100", isVisible);
+        btnContainer.classList.toggle("translate-y-0", isVisible);
+        btnContainer.classList.toggle("opacity-0", !isVisible);
+        btnContainer.classList.toggle("translate-y-14", !isVisible);
+        lastVisible = isVisible;
+      }
+    }
+
+    let ticking = false;
+    document.addEventListener("scroll", () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          handleScroll();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+  }
+  backToTop();
+</script><ul class="mt-4 mb-8 flex flex-wrap gap-4 sm:my-8"><li><a data-astro-transition-scope="astro-bztu2lml-1" href="/rc/tags/本地模型推荐/" class="flex items-center gap-0.5 border-foreground border-b-2 border-dashed hover:border-accent hover:text-accent hover:-mt-0.5 focus-visible:text-accent focus-visible:border-none text-sm"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="opacity-80 size-4" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M5 9h14M5 15h14M11 4 7 20M17 4l-4 16" /></svg>本地模型推荐</a></li><li><a data-astro-transition-scope="astro-bztu2lml-2" href="/rc/tags/rag-微调/" class="flex items-center gap-0.5 border-foreground border-b-2 border-dashed hover:border-accent hover:text-accent hover:-mt-0.5 focus-visible:text-accent focus-visible:border-none text-sm"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="opacity-80 size-4" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M5 9h14M5 15h14M11 4 7 20M17 4l-4 16" /></svg>RAG/微调</a></li><li><a data-astro-transition-scope="astro-bztu2lml-3" href="/rc/tags/ollama/" class="flex items-center gap-0.5 border-foreground border-b-2 border-dashed hover:border-accent hover:text-accent hover:-mt-0.5 focus-visible:text-accent focus-visible:border-none text-sm"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="opacity-80 size-4" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M5 9h14M5 15h14M11 4 7 20M17 4l-4 16" /></svg>Ollama</a></li><li><a data-astro-transition-scope="astro-bztu2lml-4" href="/rc/tags/硬件配置清单/" class="flex items-center gap-0.5 border-foreground border-b-2 border-dashed hover:border-accent hover:text-accent hover:-mt-0.5 focus-visible:text-accent focus-visible:border-none text-sm"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="opacity-80 size-4" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M5 9h14M5 15h14M11 4 7 20M17 4l-4 16" /></svg>硬件配置清单</a></li><li><a data-astro-transition-scope="astro-bztu2lml-5" href="/rc/tags/hermes-接入/" class="flex items-center gap-0.5 border-foreground border-b-2 border-dashed hover:border-accent hover:text-accent hover:-mt-0.5 focus-visible:text-accent focus-visible:border-none text-sm"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="opacity-80 size-4" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M5 9h14M5 15h14M11 4 7 20M17 4l-4 16" /></svg>Hermes 接入</a></li></ul><div class="flex flex-none flex-col items-center justify-center gap-1 md:items-start"><span class="italic">分享这篇文章：</span><div class="text-center"><a href="https://x.com/intent/post?url=https://eastseao.github.io/rc/posts/local-llm-deployment-2026/" title="在 X 分享这篇文章" target="_blank" rel="noopener noreferrer" class="group inline-flex items-center gap-1 hover:text-accent scale-90 p-2 hover:rotate-6 sm:p-1"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="m4 4 11.733 16H20L8.267 4zM4 20l6.768-6.768m2.46-2.46L20 4" /></svg><span class="sr-only">在 X 分享这篇文章</span></a><a href="https://t.me/share/url?url=https://eastseao.github.io/rc/posts/local-llm-deployment-2026/" title="在 Telegram 分享这篇文章" target="_blank" rel="noopener noreferrer" class="group inline-flex items-center gap-1 hover:text-accent scale-90 p-2 hover:rotate-6 sm:p-1"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="m15 10-4 4 6 6 4-16-18 7 4 2 2 6 3-4" /></svg><span class="sr-only">在 Telegram 分享这篇文章</span></a><a href="mailto:?subject=See%20this%20post&amp;body=https://eastseao.github.io/rc/posts/local-llm-deployment-2026/" title="通过邮件分享这篇文章" target="_blank" rel="noopener noreferrer" class="group inline-flex items-center gap-1 hover:text-accent scale-90 p-2 hover:rotate-6 sm:p-1"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="m3 7 9 6 9-6" /></svg><span class="sr-only">通过邮件分享这篇文章</span></a></div></div><hr class="my-8 border-dashed"><div data-pagefind-ignore class="my-8 grid grid-cols-1 gap-6 sm:grid-cols-2"><a href="/rc/posts/misc-life-utilities-2026/" class="flex w-full gap-1 hover:opacity-75"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block flex-none rtl:rotate-180" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M5 12h14M5 12l6 6M5 12l6-6" /></svg><div><span>上一篇</span><div class="text-accent/85 text-sm">盒马积分·12306 候补·讯飞输入法·生活工具</div></div></a><a href="/rc/posts/language-writing-notes-2026/" class="flex w-full justify-end gap-1 text-end hover:opacity-75 sm:col-start-2"><div><span>下一篇</span><div class="text-accent/85 text-sm">文字语言与写作笔记</div></div><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block flex-none rtl:rotate-180" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M5 12h14M13 18l6-6M13 6l6 6" /></svg></a></div></main><footer class="app-layout mt-auto"><div class="border-border flex flex-col items-center justify-between border-t py-6 sm:flex-row-reverse sm:py-4"><div class="flex flex-wrap items-center gap-1"><a href="https://github.com/eastseao/rc" title="GERVAS on Github" class="group inline-flex items-center gap-1 hover:text-accent p-2 hover:rotate-6 sm:p-1"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21" /></svg><span class="sr-only">GERVAS on Github</span></a></div><div class="my-2 flex flex-col items-center whitespace-nowrap sm:flex-row"><span>版权所有 &#169; 2026</span><span class="hidden sm:inline">&nbsp;|&nbsp;</span><span>保留所有权利。</span></div></div></footer><script type="module">var e=`theme`,t=`light`,n=`dark`;function r(){return localStorage.getItem(e)||(window.matchMedia(`(prefers-color-scheme: dark)`).matches?n:t)}var i=window.__theme?.value??r();function a(){localStorage.setItem(e,i),o()}function o(){let e=document.firstElementChild;e?.setAttribute(`data-theme`,i),e?.classList.toggle(`dark`,i===n),document.querySelector(`#theme-btn`)?.setAttribute(`aria-label`,i);let t=window.getComputedStyle(document.body).backgroundColor;document.querySelector(`meta[name='theme-color']`)?.setAttribute(`content`,t)}function s(){o(),document.querySelector(`#theme-btn`)?.addEventListener(`click`,()=>{i=i===t?n:t,a()})}s(),document.addEventListener(`astro:after-swap`,s),document.addEventListener(`astro:before-swap`,e=>{let t=document.querySelector(`meta[name='theme-color']`)?.getAttribute(`content`);t&&e.newDocument.querySelector(`meta[name='theme-color']`)?.setAttribute(`content`,t)}),window.matchMedia(`(prefers-color-scheme: dark)`).addEventListener(`change`,({matches:e})=>{i=e?n:t,a()});</script></body></html><script data-astro-rerun>
+  function createProgressBar() {
+    const progressContainer = document.createElement("div");
+    progressContainer.className =
+      "progress-container fixed top-0 z-10 h-1 w-full bg-background";
+
+    const progressBar = document.createElement("div");
+    progressBar.className = "progress-bar h-1 w-0 bg-accent";
+    progressBar.id = "myBar";
+
+    progressContainer.appendChild(progressBar);
+    document.body.appendChild(progressContainer);
+  }
+  createProgressBar();
+
+  function updateScrollProgress() {
+    document.addEventListener("scroll", () => {
+      const winScroll =
+        document.body.scrollTop || document.documentElement.scrollTop;
+      const height =
+        document.documentElement.scrollHeight -
+        document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      if (document) {
+        const myBar = document.getElementById("myBar");
+        if (myBar) {
+          myBar.style.width = scrolled + "%";
+        }
+      }
+    });
+  }
+  updateScrollProgress();
+
+  function addHeadingLinks() {
+    const headings = Array.from(
+      document.querySelectorAll("h2, h3, h4, h5, h6")
+    );
+    for (const heading of headings) {
+      heading.classList.add("group");
+      const link = document.createElement("a");
+      link.className =
+        "heading-link ms-2 no-underline opacity-75 md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100";
+      link.href = "#" + heading.id;
+
+      const span = document.createElement("span");
+      span.ariaHidden = "true";
+      span.innerText = "#";
+      link.appendChild(span);
+      heading.appendChild(link);
+    }
+  }
+  addHeadingLinks();
+
+  function attachCopyButtons() {
+    const copyButtonLabel = "Copy";
+    const codeBlocks = Array.from(document.querySelectorAll("pre"));
+
+    for (const codeBlock of codeBlocks) {
+      const wrapper = document.createElement("div");
+      wrapper.style.position = "relative";
+
+      const computedStyle = getComputedStyle(codeBlock);
+      const hasFileNameOffset =
+        computedStyle.getPropertyValue("--file-name-offset").trim() !== "";
+
+      const topClass = hasFileNameOffset
+        ? "top-(--file-name-offset)"
+        : "-top-3";
+
+      const copyButton = document.createElement("button");
+      copyButton.className = `copy-code absolute end-3 ${topClass} rounded bg-muted border border-muted px-2 py-1 text-xs leading-4 text-foreground font-medium`;
+      copyButton.innerHTML = copyButtonLabel;
+      codeBlock.setAttribute("tabindex", "0");
+      codeBlock.appendChild(copyButton);
+
+      codeBlock?.parentNode?.insertBefore(wrapper, codeBlock);
+      wrapper.appendChild(codeBlock);
+
+      copyButton.addEventListener("click", async () => {
+        await copyCode(codeBlock, copyButton);
+      });
+    }
+
+    async function copyCode(block, button) {
+      const code = block.querySelector("code");
+      const text = code?.innerText;
+
+      await navigator.clipboard.writeText(text ?? "");
+
+      button.innerText = "Copied";
+
+      setTimeout(() => {
+        button.innerText = copyButtonLabel;
+      }, 700);
+    }
+  }
+  attachCopyButtons();
+
+  /** Accessible image lightbox for article images. */
+  function initLightbox() {
+    const article = document.getElementById("article");
+    if (!article) return;
+
+    const prefersReducedMotion = () =>
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let overlay = null;
+    let lastFocused = null;
+
+    // Defer attribute mutations so they don't push the LCP timestamp.
+    // Event listeners below use delegation and don't need the attributes to exist yet.
+    requestAnimationFrame(() => {
+      const images = Array.from(article.querySelectorAll("img"));
+      for (const image of images) {
+        if (image.closest("a")) continue;
+        image.setAttribute("role", "button");
+        image.setAttribute("tabindex", "0");
+        image.setAttribute("aria-haspopup", "dialog");
+        image.setAttribute(
+          "aria-label",
+          image.alt ? `Zoom image: ${image.alt}` : "Zoom image"
+        );
+      }
+    });
+
+    function open(src, alt, trigger) {
+      if (overlay) return;
+      lastFocused = trigger ?? document.activeElement;
+
+      overlay = document.createElement("div");
+      overlay.setAttribute("role", "dialog");
+      overlay.setAttribute("aria-modal", "true");
+      overlay.setAttribute(
+        "aria-label",
+        alt ? `Image preview: ${alt}` : "Image preview"
+      );
+      overlay.className =
+        "fixed inset-0 z-50 flex cursor-zoom-out items-center justify-center bg-black/70 backdrop-blur-sm opacity-0 transition-opacity duration-200 motion-reduce:transition-none";
+
+      const closeButton = document.createElement("button");
+      closeButton.type = "button";
+      closeButton.setAttribute("aria-label", "Close image preview");
+      closeButton.className =
+        "absolute end-4 top-4 rounded p-2 text-3xl leading-none text-white";
+      closeButton.innerHTML = "&#10005;";
+      closeButton.addEventListener("click", close);
+
+      const image = document.createElement("img");
+      image.src = src;
+      image.alt = "";
+      image.className =
+        "max-h-[90dvh] max-w-[90dvw] cursor-default object-contain";
+
+      overlay.append(closeButton, image);
+      overlay.addEventListener("click", e => {
+        if (e.target === overlay && currentScale <= 1) close();
+      });
+
+      let currentScale = 1;
+      let translateX = 0;
+      let translateY = 0;
+      let initialDist = 0;
+      let initialScale = 1;
+      let panStartX = 0;
+      let panStartY = 0;
+      let panStartTranslateX = 0;
+      let panStartTranslateY = 0;
+      let lastTapTime = 0;
+
+      function applyTransform() {
+        image.style.transform = `scale(${currentScale}) translate(${translateX}px, ${translateY}px)`;
+      }
+
+      function resetTransform() {
+        currentScale = 1;
+        translateX = 0;
+        translateY = 0;
+        image.style.transform = "";
+      }
+
+      overlay.addEventListener(
+        "touchstart",
+        e => {
+          const t = e.touches;
+          if (t.length === 2) {
+            initialDist = Math.hypot(
+              t[1].clientX - t[0].clientX,
+              t[1].clientY - t[0].clientY
+            );
+            initialScale = currentScale;
+          } else if (t.length === 1) {
+            const now = Date.now();
+            if (now - lastTapTime < 300) {
+              e.preventDefault();
+              if (currentScale > 1) {
+                resetTransform();
+              } else {
+                currentScale = 2;
+                translateX = 0;
+                translateY = 0;
+                applyTransform();
+              }
+              lastTapTime = 0;
+              panStartX = t[0].clientX;
+              panStartY = t[0].clientY;
+              panStartTranslateX = translateX;
+              panStartTranslateY = translateY;
+            } else {
+              lastTapTime = now;
+              if (currentScale > 1) {
+                panStartX = t[0].clientX;
+                panStartY = t[0].clientY;
+                panStartTranslateX = translateX;
+                panStartTranslateY = translateY;
+              }
+            }
+          }
+        },
+        { passive: false }
+      );
+
+      overlay.addEventListener(
+        "touchmove",
+        e => {
+          const t = e.touches;
+          if (t.length === 2) {
+            e.preventDefault();
+            const dist = Math.hypot(
+              t[1].clientX - t[0].clientX,
+              t[1].clientY - t[0].clientY
+            );
+            currentScale = Math.min(
+              4,
+              Math.max(1, initialScale * (dist / initialDist))
+            );
+            applyTransform();
+          } else if (t.length === 1) {
+            if (currentScale > 1) {
+              e.preventDefault();
+              translateX =
+                panStartTranslateX + (t[0].clientX - panStartX) / currentScale;
+              translateY =
+                panStartTranslateY + (t[0].clientY - panStartY) / currentScale;
+              const maxX = Math.max(
+                0,
+                (image.clientWidth - overlay.clientWidth / currentScale) / 2
+              );
+              const maxY = Math.max(
+                0,
+                (image.clientHeight - overlay.clientHeight / currentScale) / 2
+              );
+              translateX = Math.min(maxX, Math.max(-maxX, translateX));
+              translateY = Math.min(maxY, Math.max(-maxY, translateY));
+              applyTransform();
+            } else {
+              e.preventDefault();
+            }
+          }
+        },
+        { passive: false }
+      );
+
+      overlay.addEventListener("touchend", e => {
+        if (e.touches.length === 0 && currentScale <= 1.05) {
+          resetTransform();
+        }
+      });
+
+      overlay.addEventListener("touchcancel", e => {
+        if (e.touches.length === 0 && currentScale <= 1.05) {
+          resetTransform();
+        }
+      });
+
+      document.body.appendChild(overlay);
+      document.body.style.overflow = "hidden";
+      document.addEventListener("keydown", onKeyDown);
+      window.__closeLightbox = close;
+
+      requestAnimationFrame(() => overlay?.classList.add("opacity-100"));
+      closeButton.focus();
+    }
+
+    function close() {
+      if (!overlay) return;
+      const el = overlay;
+      overlay = null;
+      window.__closeLightbox = null;
+
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = "";
+      lastFocused?.focus();
+      lastFocused = null;
+
+      if (prefersReducedMotion()) {
+        el.remove();
+        return;
+      }
+      const remove = () => el.remove();
+      el.addEventListener("transitionend", remove, { once: true });
+      setTimeout(remove, 250); // fallback in case transitionend never fires
+      el.classList.remove("opacity-100");
+    }
+
+    function onKeyDown(e) {
+      if (e.key === "Escape") {
+        close();
+      } else if (e.key === "Tab") {
+        trapFocus(e);
+      }
+    }
+
+    // Keep keyboard focus inside the open dialog.
+    function trapFocus(e) {
+      if (!overlay) return;
+      const focusables = overlay.querySelectorAll(
+        'a[href], button, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+
+    function triggerFromEvent(e) {
+      const image = e.target.closest("img");
+      if (!image || !article.contains(image) || image.closest("a")) return null;
+      return image;
+    }
+
+    function activate(image) {
+      open(image.currentSrc || image.src, image.alt, image);
+    }
+
+    article.addEventListener("click", e => {
+      const image = triggerFromEvent(e);
+      if (!image) return;
+      e.preventDefault();
+      activate(image);
+    });
+
+    article.addEventListener("keydown", e => {
+      if (e.key !== "Enter" && e.key !== " " && e.key !== "Spacebar") return;
+      const image = triggerFromEvent(e);
+      if (!image) return;
+      e.preventDefault();
+      activate(image);
+    });
+  }
+  initLightbox();
+
+  if (!window.__lightboxSwapBound) {
+    window.__lightboxSwapBound = true;
+    document.addEventListener("astro:before-swap", () =>
+      window.__closeLightbox?.()
+    );
+  }
+
+  document.addEventListener("astro:after-swap", () =>
+    window.scrollTo({ left: 0, top: 0, behavior: "instant" })
+  );
+</script>

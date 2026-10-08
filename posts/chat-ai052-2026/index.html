@@ -1,0 +1,3329 @@
+<!DOCTYPE html><html dir="ltr" lang="zh-CN" class="overflow-y-scroll scroll-smooth"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/svg+xml" href="/rc/favicon.svg"><link rel="icon" href="/rc/favicon.ico"><link rel="canonical" href="https://eastseao.github.io/rc/posts/chat-ai052-2026/"><meta name="generator" content="Astro v7.3.7"><!-- Font --><style>:root{--font-google-sans-code:"Google Sans Code-1a30c214885cb404",monospace;}</style><!-- Primary meta --><title>主题簇技能设计 | GERVAS</title><meta name="title" content="主题簇技能设计 | GERVAS"><meta name="description" content="主题簇生成系统（Topic Cluster Engine） 适用于 OpenClaw / QClaw / Claude Skill 的完整规范版 Skill这套技能的核心目标是：- 自动生成 SEO + GEO 双适配的主题簇- 支持企"><meta name="author" content="GERVAS"><link rel="sitemap" href="/rc/sitemap-index.xml"><!-- Open Graph --><meta property="og:type" content="website"><meta property="og:site_name" content="GERVAS"><meta property="og:title" content="主题簇技能设计 | GERVAS"><meta property="og:description" content="主题簇生成系统（Topic Cluster Engine） 适用于 OpenClaw / QClaw / Claude Skill 的完整规范版 Skill这套技能的核心目标是：- 自动生成 SEO + GEO 双适配的主题簇- 支持企"><meta property="og:url" content="https://eastseao.github.io/rc/posts/chat-ai052-2026/"><meta property="og:image" content="https://eastseao.github.io/rc/default-og.jpg"><!-- Twitter / X --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://eastseao.github.io/rc/posts/chat-ai052-2026/"><meta property="twitter:title" content="主题簇技能设计 | GERVAS"><meta property="twitter:description" content="主题簇生成系统（Topic Cluster Engine） 适用于 OpenClaw / QClaw / Claude Skill 的完整规范版 Skill这套技能的核心目标是：- 自动生成 SEO + GEO 双适配的主题簇- 支持企"><meta property="twitter:image" content="https://eastseao.github.io/rc/default-og.jpg"><!-- RSS autodiscovery --><link rel="alternate" type="application/rss+xml" title="GERVAS" href="https://eastseao.github.io/rc/rss.xml/"><!-- Filled at runtime by theme.ts to match the current background colour --><meta name="theme-color" content=""><!-- Extra head content injected by child layouts (e.g. JSON-LD, article meta) --><meta property="og:type" content="article"><meta property="article:published_time" content="2026-05-25T00:00:00.000Z"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"主题簇技能设计 | GERVAS","datePublished":"2026-05-25T00:00:00.000Z","author":[{"@type":"Person","name":"GERVAS","url":"https://eastseao.github.io/rc/about"}]}</script><!--
+      Inline FOUC-prevention script: sets data-theme on <html> before
+      the browser paints. Runs synchronously, no defer/async.
+    --><script>
+      (function () {
+        const stored = localStorage.getItem("theme");
+        const prefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)"
+        ).matches;
+        const theme = stored ?? (prefersDark ? "dark" : "light");
+        const root = document.firstElementChild;
+        root?.setAttribute("data-theme", theme);
+        root?.classList.toggle("dark", theme === "dark");
+        // Expose value so theme.ts can skip re-detection.
+        window.__theme = { value: theme };
+      })();
+    </script><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><script type="module" src="/rc/_astro/ClientRouter.astro_astro_type_script_index_0_lang.BDCjmQ8c.js"></script><link rel="stylesheet" href="/rc/_astro/Footer.BNEnPMnF.css"><style>@keyframes astroFadeInOut{0%{opacity:1}to{opacity:0}}@keyframes astroFadeIn{0%{opacity:0;mix-blend-mode:plus-lighter}to{opacity:1;mix-blend-mode:plus-lighter}}@keyframes astroFadeOut{0%{opacity:1;mix-blend-mode:plus-lighter}to{opacity:0;mix-blend-mode:plus-lighter}}@keyframes astroSlideFromRight{0%{transform:translate(100%)}}@keyframes astroSlideFromLeft{0%{transform:translate(-100%)}}@keyframes astroSlideToRight{to{transform:translate(100%)}}@keyframes astroSlideToLeft{to{transform:translate(-100%)}}@media (prefers-reduced-motion){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*),[data-astro-transition-scope]{animation:none!important}}
+</style><style>[data-astro-transition-scope="astro-bztu2lml-1"] { view-transition-name: chatgpt; }@layer astro { ::view-transition-old(chatgpt) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }::view-transition-new(chatgpt) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(chatgpt) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(chatgpt) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-bztu2lml-1"],
+			[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-bztu2lml-1"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-bztu2lml-1"],
+			[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-bztu2lml-1"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-bztu2lml-1"],
+			[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-bztu2lml-1"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-bztu2lml-1"],
+			[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-bztu2lml-1"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-bztu2lml-2"] { view-transition-name: \4F1A\8BDD\5F52\6863; }@layer astro { ::view-transition-old(\4F1A\8BDD\5F52\6863) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }::view-transition-new(\4F1A\8BDD\5F52\6863) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(\4F1A\8BDD\5F52\6863) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(\4F1A\8BDD\5F52\6863) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-bztu2lml-2"],
+			[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-bztu2lml-2"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-bztu2lml-2"],
+			[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-bztu2lml-2"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-bztu2lml-2"],
+			[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-bztu2lml-2"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-bztu2lml-2"],
+			[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-bztu2lml-2"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }</style></head><body class="bg-background font-app text-foreground selection:bg-accent/75 selection:text-accent-foreground flex min-h-svh flex-col"><a id="skip-to-content" href="#main-content" class="bg-background text-accent absolute inset-s-16 -top-full z-50 px-3 py-2 backdrop-blur-lg transition-all focus:top-4">跳到正文</a><header class="app-layout flex flex-col items-center justify-between sm:flex-row"><div class="border-border bg-background relative flex w-full items-baseline justify-between border-b py-4 sm:items-center sm:py-6"><a href="/rc/" class="absolute py-1 text-xl leading-8 font-semibold whitespace-nowrap sm:static sm:my-auto sm:text-2xl sm:leading-none">GERVAS</a><nav id="nav-menu" class="flex w-full flex-col items-center sm:ms-2 sm:flex-row sm:justify-end sm:space-x-4 sm:py-0"><button id="menu-btn" class="focus-outline self-end p-2 sm:hidden" aria-label="打开菜单" aria-expanded="false" aria-controls="menu-items" data-label-open="打开菜单" data-label-close="关闭菜单"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="hidden" viewBox="0 0 24 24" id="close-icon"><path stroke="none" d="M0 0h24v24H0z" /><path d="M18 6 6 18M6 6l12 12" /></svg><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="icon icon-tabler icons-tabler-outline icon-tabler-menu-deep" viewBox="0 0 24 24" id="menu-icon"><path stroke="none" d="M0 0h24v24H0z" /><path d="M4 6h16M7 12h13M10 18h10" /></svg></button><ul id="menu-items" class="[&amp;&gt;li&gt;a]:hover:text-accent mt-4 hidden w-44 grid-cols-2 place-content-center gap-2 sm:mt-0 sm:flex sm:w-auto sm:gap-x-5 sm:gap-y-0 sm:[&amp;&gt;li]:h-8 [&amp;&gt;li&gt;a]:block [&amp;&gt;li&gt;a]:px-4 [&amp;&gt;li&gt;a]:py-3 [&amp;&gt;li&gt;a]:text-center [&amp;&gt;li&gt;a]:font-medium sm:[&amp;&gt;li&gt;a]:px-2 sm:[&amp;&gt;li&gt;a]:py-1"><li class="col-span-2"><a href="/rc/posts/" class="active-nav">Notes</a></li><li class="col-span-2"><a href="/rc/projects/">Projects</a></li><li class="col-span-2"><a href="/rc/categories/life/">Life</a></li><li class="col-span-2"><a href="/rc/about/">About</a></li><li class="col-span-1 flex items-center justify-center"><a href="/rc/search/" title="搜索" aria-label="搜索" class="group inline-flex items-center gap-1 hover:text-accent focus-outline relative size-8"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="absolute top-1/2 left-1/2 size-6 -translate-x-1/2 -translate-y-1/2" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M3 10a7 7 0 1 0 14 0 7 7 0 1 0-14 0M21 21l-6-6" /></svg><span class="sr-only">搜索</span></a></li><li class="col-span-1 flex items-center justify-center"><button id="theme-btn" class="focus-outline hover:[&amp;&gt;svg]:stroke-accent relative size-12 p-4 sm:size-8" title="切换主题" aria-label="auto" aria-live="polite"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="absolute top-[50%] left-[50%] translate-[-50%] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M12 3h.393a7.5 7.5 0 0 0 7.92 12.446A9 9 0 1 1 12 2.992z" /></svg><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="absolute top-[50%] left-[50%] translate-[-50%] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M14.828 14.828a4 4 0 1 0-5.656-5.656 4 4 0 0 0 5.656 5.656M6.343 17.657l-1.414 1.414M6.343 6.343 4.929 4.929M17.657 6.343l1.414-1.414M17.657 17.657l1.414 1.414M4 12H2M12 4V2M20 12h2M12 20v2" /></svg></button></li></ul></nav></div></header><script type="module">function e(){let e=document.querySelector(`#menu-btn`),t=document.querySelector(`#menu-items`),n=document.querySelector(`#menu-icon`),r=document.querySelector(`#close-icon`);if(!e||!t||!n||!r)return;let i=e.dataset.labelOpen??`Open menu`,a=e.dataset.labelClose??`Close menu`;e.addEventListener(`click`,()=>{let o=e.getAttribute(`aria-expanded`)===`true`;e.setAttribute(`aria-expanded`,o?`false`:`true`),e.setAttribute(`aria-label`,o?i:a),t.classList.toggle(`hidden`),t.classList.toggle(`grid`),n.classList.toggle(`hidden`),r.classList.toggle(`hidden`)})}function t(){let e=document.getElementById(`skip-to-content`);e&&e.addEventListener(`click`,e=>{if(e.defaultPrevented||e.metaKey||e.ctrlKey||e.shiftKey||e.button!==0)return;e.preventDefault();let t=document.getElementById(`main-content`);t&&(t.setAttribute(`tabindex`,`-1`),t.addEventListener(`blur`,()=>t.removeAttribute(`tabindex`),{once:!0}),t.focus(),t.scrollIntoView({behavior:`smooth`}))})}e(),document.addEventListener(`astro:after-swap`,e),t(),document.addEventListener(`astro:after-swap`,t);</script><div class="app-layout flex items-center justify-start"><a id="back-button" href="/rc/" class="group inline-flex items-center gap-1 hover:text-accent focus-outline hover:text-foreground/75 -ms-2 mt-8 mb-2"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 rtl:rotate-180" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="m15 6-6 6 6 6" /></svg><span>返回</span></a></div><script type="module">function e(){let e=document.querySelector(`#back-button`),t=sessionStorage.getItem(`backUrl`);t&&e&&(e.href=t)}document.addEventListener(`astro:page-load`,e),e();</script><main id="main-content" class="app-layout" data-pagefind-body><h1 style="view-transition-name:chat-ai052-2026" class="text-accent inline-block text-2xl font-bold sm:text-3xl">主题簇技能设计</h1><div class="my-2 flex items-center gap-2"><div class="text-muted-foreground flex items-center gap-x-2"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 min-w-5.5" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zM16 3v4M8 3v4M4 11h16M7 14h.013M10.01 14h.005M13.01 14h.005M16.015 14h.005M13.015 17h.005M7.01 17h.005M10.01 17h.005" /></svg><time class="text-sm sm:text-base" datetime="2026-05-25T00:00:00.000Z">25 May, 2026</time></div><span aria-hidden="true" class="text-muted-foreground max-sm:hidden">|</span><a href="https://github.com/eastseao/rc/edit/main/src/content/posts/chat-ai052-2026.md" target="_blank" rel="noopener noreferrer" class="hover:text-accent text-muted-foreground flex justify-baseline gap-1.5 max-sm:hidden"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M7 7H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0-2.97-2.97L9 12v3h3zM16 5l3 3" /></svg><span>编辑页面</span></a></div><article id="article" class="mt-8 w-full app-prose max-w-app prose-pre:bg-(--shiki-light-bg) dark:prose-pre:bg-(--shiki-dark-bg)"><h2 id="q1--设计一套主题簇技能第-1-轮对话">Q1 · 设计一套主题簇技能（第 1 轮对话）</h2>
+<blockquote><p><strong>提问：</strong> 设计一套主题簇技能</p></blockquote>
+<h1 id="主题簇生成系统topic-cluster-engine-适用于-openclaw--qclaw--claude-skill-的完整规范版-skill">主题簇生成系统（Topic Cluster Engine） 适用于 OpenClaw / QClaw / Claude Skill 的完整规范版 Skill</h1>
+<p>这套技能的核心目标是：</p>
+<ul>
+<li>
+<p>自动生成 SEO + GEO 双适配的主题簇</p>
+</li>
+<li>
+<p>支持企业站 / 博客 / 知识库 / B2B 官网</p>
+</li>
+<li>
+<p>自动拆分：</p>
+</li>
+<li>
+<p>核心主题（Pillar） - 子主题（Cluster） - 长尾问题（Long-tail） - GEO 问答节点 - 内容发布顺序</p>
+</li>
+<li>
+<p>自动构建：</p>
+</li>
+<li>
+<p>内链结构 - 权重流转 - 用户搜索意图 - AI搜索适配结构</p>
+</li>
+</ul>
+<p>尤其适合：</p>
+<ul>
+<li>
+<p>铝瓶铝罐企业</p>
+</li>
+<li>
+<p>食品行业</p>
+</li>
+<li>
+<p>工业制造</p>
+</li>
+<li>
+<p>SaaS</p>
+</li>
+<li>
+<p>AI工具站</p>
+</li>
+<li>
+<p>小说/知识类博客</p>
+</li>
+<li>
+<p>独立站SEO</p>
+</li>
+</ul>
+<hr>
+<h1 id="一目录结构">一、目录结构</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>topic-cluster-engine/</span></span>
+<span class="line"><span>├── skill.md</span></span>
+<span class="line"><span>├── config.yaml</span></span>
+<span class="line"><span>├── memory/</span></span>
+<span class="line"><span>│   └── topic_memory.md</span></span>
+<span class="line"><span>├── prompts/</span></span>
+<span class="line"><span>│   ├── cluster_system.md</span></span>
+<span class="line"><span>│   ├── search_intent.md</span></span>
+<span class="line"><span>│   ├── geo_expansion.md</span></span>
+<span class="line"><span>│   ├── internal_link.md</span></span>
+<span class="line"><span>│   ├── content_calendar.md</span></span>
+<span class="line"><span>│   └── authority_map.md</span></span>
+<span class="line"><span>├── templates/</span></span>
+<span class="line"><span>│   ├── cluster_output.md</span></span>
+<span class="line"><span>│   ├── geo_output.md</span></span>
+<span class="line"><span>│   ├── calendar_output.md</span></span>
+<span class="line"><span>│   └── authority_output.md</span></span>
+<span class="line"><span>└── outputs/</span></span></code></pre>
+<hr>
+<h1 id="二skillmd">二、skill.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>---</span></span>
+<span class="line"><span>name: TopicClusterEngine</span></span>
+<span class="line"><span>description: 自动生成SEO/GEO主题簇、权威内容结构、长尾关键词矩阵、AI搜索适配内容体系</span></span>
+<span class="line"><span>author: Gervas</span></span>
+<span class="line"><span>version: 4.0</span></span>
+<span class="line"><span>category: SEO</span></span>
+<span class="line"><span>tags:</span></span>
+<span class="line"><span>  - SEO</span></span>
+<span class="line"><span>  - GEO</span></span>
+<span class="line"><span>  - Topic Cluster</span></span>
+<span class="line"><span>  - Content Strategy</span></span>
+<span class="line"><span>  - Authority Building</span></span>
+<span class="line"><span>model:</span></span>
+<span class="line"><span>  - claude</span></span>
+<span class="line"><span>  - gpt</span></span>
+<span class="line"><span>  - gemini</span></span>
+<span class="line"><span>capabilities:</span></span>
+<span class="line"><span>  - keyword-clustering</span></span>
+<span class="line"><span>  - topic-authority</span></span>
+<span class="line"><span>  - geo-search-optimization</span></span>
+<span class="line"><span>  - content-planning</span></span>
+<span class="line"><span>  - internal-link-structure</span></span>
+<span class="line"><span>  - long-tail-generation</span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># TopicClusterEngine</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## 技能目标</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>围绕某个核心主题，</span></span>
+<span class="line"><span>自动构建：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- Pillar Page（支柱页面）</span></span>
+<span class="line"><span>- Topic Cluster（主题簇）</span></span>
+<span class="line"><span>- GEO问答矩阵</span></span>
+<span class="line"><span>- 长尾关键词</span></span>
+<span class="line"><span>- 搜索意图分类</span></span>
+<span class="line"><span>- AI搜索适配结构</span></span>
+<span class="line"><span>- 内容发布顺序</span></span>
+<span class="line"><span>- 权威内容地图</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>适用于：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 企业SEO</span></span>
+<span class="line"><span>- 独立站</span></span>
+<span class="line"><span>- B2B官网</span></span>
+<span class="line"><span>- 博客矩阵</span></span>
+<span class="line"><span>- AI搜索优化</span></span>
+<span class="line"><span>- 知识库建设</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 输入格式</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>用户输入：</span></span></code></pre>
+<p>核心主题： 行业： 目标用户： 目标地区： 竞争对手： 内容目标：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span></span></span>
+<span class="line"><span>示例：</span></span></code></pre>
+<p>核心主题：铝瓶 行业：包装制造 目标用户：饮料品牌商 目标地区：欧美 竞争对手：Trivium Packaging 内容目标：获取Google自然流量和AI搜索曝光</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 系统执行流程</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## STEP 1：核心主题拆解</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>自动识别：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 核心关键词</span></span>
+<span class="line"><span>- 商业关键词</span></span>
+<span class="line"><span>- 信息型关键词</span></span>
+<span class="line"><span>- GEO问答关键词</span></span>
+<span class="line"><span>- 采购型关键词</span></span>
+<span class="line"><span>- 长尾问题</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>输出：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- Topic Seed</span></span>
+<span class="line"><span>- Search Intent</span></span>
+<span class="line"><span>- User Journey</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## STEP 2：建立Pillar Page</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>生成：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 支柱页面标题</span></span>
+<span class="line"><span>- 页面结构</span></span>
+<span class="line"><span>- H1-H4结构</span></span>
+<span class="line"><span>- FAQ模块</span></span>
+<span class="line"><span>- GEO引用结构</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>要求：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 能成为行业权威页面</span></span>
+<span class="line"><span>- 支持AI引用</span></span>
+<span class="line"><span>- 支持Google精选摘要</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## STEP 3：生成主题簇</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>自动输出：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- Cluster Topic</span></span>
+<span class="line"><span>- 对应搜索意图</span></span>
+<span class="line"><span>- 难度</span></span>
+<span class="line"><span>- 商业价值</span></span>
+<span class="line"><span>- GEO价值</span></span>
+<span class="line"><span>- 推荐字数</span></span>
+<span class="line"><span>- 推荐发布日期</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>每个主题簇必须：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 与Pillar强相关</span></span>
+<span class="line"><span>- 支持内链</span></span>
+<span class="line"><span>- 支持长尾流量</span></span>
+<span class="line"><span>- 支持AI搜索引用</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## STEP 4：生成GEO结构</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>自动扩展：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- AI搜索问题</span></span>
+<span class="line"><span>- 对话式问题</span></span>
+<span class="line"><span>- Reddit风格问题</span></span>
+<span class="line"><span>- Perplexity问题</span></span>
+<span class="line"><span>- ChatGPT风格提问</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>包括：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- Why</span></span>
+<span class="line"><span>- How</span></span>
+<span class="line"><span>- What</span></span>
+<span class="line"><span>- Best</span></span>
+<span class="line"><span>- Comparison</span></span>
+<span class="line"><span>- Supplier</span></span>
+<span class="line"><span>- Cost</span></span>
+<span class="line"><span>- Manufacturing</span></span>
+<span class="line"><span>- OEM</span></span>
+<span class="line"><span>- MOQ</span></span>
+<span class="line"><span>- Sustainability</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## STEP 5：建立权威地图</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>输出：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 内容层级</span></span>
+<span class="line"><span>- 权重流向</span></span>
+<span class="line"><span>- 内链逻辑</span></span>
+<span class="line"><span>- 权威路径</span></span>
+<span class="line"><span>- 收录优先级</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## STEP 6：生成发布日历</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>自动规划：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 30天</span></span>
+<span class="line"><span>- 60天</span></span>
+<span class="line"><span>- 90天</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>包括：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 发布时间</span></span>
+<span class="line"><span>- 发布顺序</span></span>
+<span class="line"><span>- 更新顺序</span></span>
+<span class="line"><span>- 内链插入时机</span></span>
+<span class="line"><span>- 社媒扩散节点</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 输出规范</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>必须输出：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 1. 核心主题分析</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 2. Pillar Page</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 3. Topic Cluster列表</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 4. GEO问题矩阵</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 5. 长尾关键词</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 6. 内链结构</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 7. 权威地图</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 8. 内容发布计划</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 9. AI搜索适配建议</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>输出格式必须为Markdown。</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>禁止：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 空泛建议</span></span>
+<span class="line"><span>- 只有关键词无结构</span></span>
+<span class="line"><span>- 无搜索意图分类</span></span>
+<span class="line"><span>- 无用户阶段划分</span></span></code></pre>
+<hr>
+<h1 id="三configyaml">三、config.yaml</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>system:</span></span>
+<span class="line"><span>  language: zh-CN</span></span>
+<span class="line"><span>  output_format: markdown</span></span>
+<span class="line"><span>  creativity: high</span></span>
+<span class="line"><span>  reasoning: deep</span></span>
+<span class="line"><span>  temperature: 0.8</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>seo:</span></span>
+<span class="line"><span>  enable_semantic_keywords: true</span></span>
+<span class="line"><span>  enable_search_intent: true</span></span>
+<span class="line"><span>  enable_longtail: true</span></span>
+<span class="line"><span>  enable_internal_linking: true</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>geo:</span></span>
+<span class="line"><span>  enable_ai_search: true</span></span>
+<span class="line"><span>  enable_conversation_queries: true</span></span>
+<span class="line"><span>  enable_reddit_style: true</span></span>
+<span class="line"><span>  enable_perplexity_style: true</span></span>
+<span class="line"><span>  enable_chatgpt_style: true</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>content:</span></span>
+<span class="line"><span>  enable_calendar: true</span></span>
+<span class="line"><span>  enable_authority_map: true</span></span>
+<span class="line"><span>  enable_priority_score: true</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>quality_control:</span></span>
+<span class="line"><span>  avoid_keyword_stuffing: true</span></span>
+<span class="line"><span>  avoid_generic_topics: true</span></span>
+<span class="line"><span>  require_business_value: true</span></span></code></pre>
+<hr>
+<h1 id="四cluster_systemmd">四、cluster_system.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 主题簇生成规则</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>围绕核心主题：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>1. 建立一个Pillar Page</span></span>
+<span class="line"><span>2. 生成10-50个Cluster Topic</span></span>
+<span class="line"><span>3. 每个Cluster必须：</span></span>
+<span class="line"><span>   - 可独立排名</span></span>
+<span class="line"><span>   - 能回链Pillar</span></span>
+<span class="line"><span>   - 有明确搜索意图</span></span>
+<span class="line"><span>   - 有商业价值</span></span>
+<span class="line"><span>   - 有AI搜索价值</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 搜索意图分类</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- Informational</span></span>
+<span class="line"><span>- Commercial</span></span>
+<span class="line"><span>- Transactional</span></span>
+<span class="line"><span>- Navigational</span></span>
+<span class="line"><span>- GEO Conversational</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 用户阶段</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- Awareness</span></span>
+<span class="line"><span>- Consideration</span></span>
+<span class="line"><span>- Decision</span></span>
+<span class="line"><span>- Purchase</span></span>
+<span class="line"><span>- Retention</span></span></code></pre>
+<hr>
+<h1 id="五search_intentmd">五、search_intent.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 搜索意图分析系统</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>分析：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 用户为什么搜索</span></span>
+<span class="line"><span>- 用户想解决什么问题</span></span>
+<span class="line"><span>- 用户下一步动作</span></span>
+<span class="line"><span>- 用户采购阶段</span></span>
+<span class="line"><span>- AI搜索可能提问方式</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>输出：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 搜索意图</span></span>
+<span class="line"><span>- 用户痛点</span></span>
+<span class="line"><span>- 用户目标</span></span>
+<span class="line"><span>- 转化可能性</span></span></code></pre>
+<hr>
+<h1 id="六geo_expansionmd">六、geo_expansion.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># GEO问题扩展规则</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>扩展：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- ChatGPT风格问题</span></span>
+<span class="line"><span>- Reddit真实提问</span></span>
+<span class="line"><span>- Perplexity问题</span></span>
+<span class="line"><span>- Google SGE问题</span></span>
+<span class="line"><span>- AI摘要问题</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>生成：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- Why</span></span>
+<span class="line"><span>- What</span></span>
+<span class="line"><span>- How</span></span>
+<span class="line"><span>- Best</span></span>
+<span class="line"><span>- VS</span></span>
+<span class="line"><span>- Alternative</span></span>
+<span class="line"><span>- Cost</span></span>
+<span class="line"><span>- Supplier</span></span>
+<span class="line"><span>- Manufacturer</span></span>
+<span class="line"><span>- OEM</span></span>
+<span class="line"><span>- Factory</span></span>
+<span class="line"><span>- Sustainability</span></span></code></pre>
+<hr>
+<h1 id="七internal_linkmd">七、internal_link.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 内链结构规则</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Pillar：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 指向所有Cluster</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Cluster：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 回链Pillar</span></span>
+<span class="line"><span>- 横向连接相关Cluster</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>高商业价值页面：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 获得更多内部链接</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>高流量页面：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 导流采购页面</span></span></code></pre>
+<hr>
+<h1 id="八content_calendarmd">八、content_calendar.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 内容发布系统</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>优先发布：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>1. 高搜索量低竞争</span></span>
+<span class="line"><span>2. 高商业价值</span></span>
+<span class="line"><span>3. 高AI引用概率</span></span>
+<span class="line"><span>4. 高转化主题</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>发布频率：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 初期：每日2-3篇</span></span>
+<span class="line"><span>- 中期：每日1篇</span></span>
+<span class="line"><span>- 后期：每周更新</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>更新策略：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 30天更新</span></span>
+<span class="line"><span>- 增量更新</span></span>
+<span class="line"><span>- FAQ扩展</span></span>
+<span class="line"><span>- GEO扩展</span></span></code></pre>
+<hr>
+<h1 id="九authority_mapmd">九、authority_map.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 权威地图规则</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>建立：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 行业权威节点</span></span>
+<span class="line"><span>- 高价值内容节点</span></span>
+<span class="line"><span>- AI高引用节点</span></span>
+<span class="line"><span>- FAQ节点</span></span>
+<span class="line"><span>- GEO节点</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>形成：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Pillar</span></span>
+<span class="line"><span>  ↓</span></span>
+<span class="line"><span>Cluster</span></span>
+<span class="line"><span>  ↓</span></span>
+<span class="line"><span>Longtail</span></span>
+<span class="line"><span>  ↓</span></span>
+<span class="line"><span>FAQ</span></span>
+<span class="line"><span>  ↓</span></span>
+<span class="line"><span>AI引用</span></span></code></pre>
+<hr>
+<h1 id="十cluster_outputmd">十、cluster_output.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># Topic Cluster 输出模板</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>| Topic | Intent | Difficulty | Business Value | GEO Value | Priority |</span></span>
+<span class="line"><span>|---|---|---|---|---|---|</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 示例</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>| Best Aluminum Bottle Manufacturers | Commercial | Medium | High | High | P1 |</span></span>
+<span class="line"><span>| Aluminum Bottle vs Plastic Bottle | Informational | Low | Medium | High | P2 |</span></span></code></pre>
+<hr>
+<h1 id="十一geo_outputmd">十一、geo_output.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># GEO问题矩阵</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## ChatGPT风格</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 什么是最适合饮料行业的铝瓶？</span></span>
+<span class="line"><span>- 为什么越来越多品牌使用铝瓶？</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## Reddit风格</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 有没有真正靠谱的铝瓶供应商？</span></span>
+<span class="line"><span>- 铝瓶真的比PET环保吗？</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## Perplexity风格</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- Compare aluminum bottles and PET bottles in beverage packaging.</span></span></code></pre>
+<hr>
+<h1 id="十二calendar_outputmd">十二、calendar_output.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 内容发布日历</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>| Day | Topic | Type | Goal |</span></span>
+<span class="line"><span>|---|---|---|---|</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>| Day 1 | Ultimate Guide to Aluminum Bottles | Pillar | Authority |</span></span>
+<span class="line"><span>| Day 2 | Aluminum Bottle MOQ Explained | Cluster | Conversion |</span></span></code></pre>
+<hr>
+<h1 id="十三authority_outputmd">十三、authority_output.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 权威结构图</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Pillar</span></span>
+<span class="line"><span>├── Manufacturing</span></span>
+<span class="line"><span>├── OEM</span></span>
+<span class="line"><span>├── MOQ</span></span>
+<span class="line"><span>├── Sustainability</span></span>
+<span class="line"><span>├── Beverage Packaging</span></span>
+<span class="line"><span>├── Cosmetic Packaging</span></span>
+<span class="line"><span>└── Supplier Guide</span></span></code></pre>
+<hr>
+<h1 id="十四推荐升级方向v5">十四、推荐升级方向（V5）</h1>
+<p>下一代建议增加：</p>
+<h4 id="1-serp抓取">1. SERP抓取</h4>
+<p>自动分析：</p>
+<ul>
+<li>
+<p>Google前10</p>
+</li>
+<li>
+<p>Reddit</p>
+</li>
+<li>
+<p>Quora</p>
+</li>
+<li>
+<p>Perplexity</p>
+</li>
+</ul>
+<hr>
+<h4 id="2-自动生成文章">2. 自动生成文章</h4>
+<p>主题簇生成后：</p>
+<p>直接生成：</p>
+<ul>
+<li>
+<p>标题</p>
+</li>
+<li>
+<p>大纲</p>
+</li>
+<li>
+<p>FAQ</p>
+</li>
+<li>
+<p>Schema</p>
+</li>
+<li>
+<p>正文</p>
+</li>
+</ul>
+<hr>
+<h4 id="3-ai搜索引用优化">3. AI搜索引用优化</h4>
+<p>自动生成：</p>
+<ul>
+<li>
+<p>AI引用块</p>
+</li>
+<li>
+<p>精简答案</p>
+</li>
+<li>
+<p>TL;DR</p>
+</li>
+<li>
+<p>实体定义</p>
+</li>
+</ul>
+<hr>
+<h4 id="4-自动形成站点结构">4. 自动形成站点结构</h4>
+<p>生成：</p>
+<ul>
+<li>
+<p>URL结构</p>
+</li>
+<li>
+<p>分类目录</p>
+</li>
+<li>
+<p>Breadcrumb</p>
+</li>
+<li>
+<p>Sitemap</p>
+</li>
+</ul>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span></span></span></code></pre>
+<h2 id="q2--这个技能主要针对国内第-2-轮对话">Q2 · 这个技能主要针对国内（第 2 轮对话）</h2>
+<blockquote><p><strong>提问：</strong> 这个技能主要针对国内</p></blockquote>
+<p>如果这套技能主要面向国内（中文互联网 + 百度/微信/小红书/知乎/抖音生态），那么原版偏 Google SEO / GEO 的结构需要进行一次“中文搜索生态重构”。</p>
+<p>因为国内的主题簇逻辑和海外完全不一样：</p>
+<ul>
+<li>
+<p>海外：</p>
+</li>
+<li>
+<p>Google - Reddit - Quora - Perplexity - ChatGPT</p>
+</li>
+<li>
+<p>国内：</p>
+</li>
+<li>
+<p>百度SEO - 微信搜一搜 - 小红书搜索 - 知乎搜索 - 抖音搜索 - 豆包 / Kimi / 元宝 / DeepSeek - AI摘要流量 - 百度智能体 - 腾讯元宝引用 - 百家号 - 公众号矩阵</p>
+</li>
+</ul>
+<p>所以建议你把这个技能升级成：</p>
+<h1 id="中文主题簇系统cn-topic-cluster-engine">中文主题簇系统（CN Topic Cluster Engine）</h1>
+<p>更适合：</p>
+<ul>
+<li>
+<p>企业官网</p>
+</li>
+<li>
+<p>百度SEO</p>
+</li>
+<li>
+<p>微信公众号</p>
+</li>
+<li>
+<p>小红书矩阵</p>
+</li>
+<li>
+<p>知乎专栏</p>
+</li>
+<li>
+<p>抖音口播文案</p>
+</li>
+<li>
+<p>AI搜索流量</p>
+</li>
+<li>
+<p>GEO中文生态</p>
+</li>
+</ul>
+<p>下面给你一套真正适合国内生态的升级版架构。</p>
+<hr>
+<h1 id="一技能定位国内版">一、技能定位（国内版）</h1>
+<h4 id="核心目标">核心目标</h4>
+<p>围绕一个核心行业词：</p>
+<p>自动生成：</p>
+<ul>
+<li>
+<p>百度SEO主题簇</p>
+</li>
+<li>
+<p>微信搜一搜内容矩阵</p>
+</li>
+<li>
+<p>小红书种草矩阵</p>
+</li>
+<li>
+<p>知乎问答矩阵</p>
+</li>
+<li>
+<p>AI搜索问答矩阵</p>
+</li>
+<li>
+<p>抖音口播选题</p>
+</li>
+<li>
+<p>百家号收录结构</p>
+</li>
+<li>
+<p>中文长尾关键词</p>
+</li>
+<li>
+<p>用户决策路径</p>
+</li>
+</ul>
+<p>最终形成：</p>
+<h1 id="全中文内容流量矩阵">“全中文内容流量矩阵”</h1>
+<p>而不仅仅是SEO。</p>
+<hr>
+<h1 id="二建议技能名称">二、建议技能名称</h1>
+<p>推荐几个：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>名称</th><th>风格</th></tr></thead><tbody><tr><td>CNTopicCluster</td><td>专业</td></tr><tr><td>中文主题簇引擎</td><td>通用</td></tr><tr><td>流量矩阵生成器</td><td>国内流量风</td></tr><tr><td>中文SEO内容工厂</td><td>企业风</td></tr><tr><td>全域主题簇系统</td><td>高级感</td></tr><tr><td>百度GEO内容引擎</td><td>GEO方向</td></tr><tr><td>中文搜索矩阵系统</td><td>AI搜索方向</td></tr></tbody></table>
+<p>我最推荐：</p>
+<h1 id="中文搜索矩阵系统-chinese-search-matrix-engine">中文搜索矩阵系统 （Chinese Search Matrix Engine）</h1>
+<p>因为它不局限于SEO。</p>
+<hr>
+<h1 id="三国内版目录结构">三、国内版目录结构</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>cn-topic-cluster/</span></span>
+<span class="line"><span>├── skill.md</span></span>
+<span class="line"><span>├── config.yaml</span></span>
+<span class="line"><span>├── memory/</span></span>
+<span class="line"><span>│   ├── keyword_memory.md</span></span>
+<span class="line"><span>│   ├── platform_memory.md</span></span>
+<span class="line"><span>│   └── content_memory.md</span></span>
+<span class="line"><span>├── prompts/</span></span>
+<span class="line"><span>│   ├── baidu_cluster.md</span></span>
+<span class="line"><span>│   ├── wechat_cluster.md</span></span>
+<span class="line"><span>│   ├── xiaohongshu_cluster.md</span></span>
+<span class="line"><span>│   ├── zhihu_cluster.md</span></span>
+<span class="line"><span>│   ├── douyin_cluster.md</span></span>
+<span class="line"><span>│   ├── ai_search_cluster.md</span></span>
+<span class="line"><span>│   ├── longtail.md</span></span>
+<span class="line"><span>│   ├── internal_link.md</span></span>
+<span class="line"><span>│   └── authority.md</span></span>
+<span class="line"><span>├── templates/</span></span>
+<span class="line"><span>│   ├── cluster_table.md</span></span>
+<span class="line"><span>│   ├── ai_questions.md</span></span>
+<span class="line"><span>│   ├── platform_matrix.md</span></span>
+<span class="line"><span>│   └── content_calendar.md</span></span>
+<span class="line"><span>└── outputs/</span></span></code></pre>
+<hr>
+<h1 id="四国内版-skillmd-核心升级">四、国内版 skill.md 核心升级</h1>
+<p>新增：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>capabilities:</span></span>
+<span class="line"><span>  - baidu-seo</span></span>
+<span class="line"><span>  - wechat-search</span></span>
+<span class="line"><span>  - xiaohongshu-seo</span></span>
+<span class="line"><span>  - zhihu-traffic</span></span>
+<span class="line"><span>  - douyin-topics</span></span>
+<span class="line"><span>  - ai-search-optimization</span></span>
+<span class="line"><span>  - chinese-longtail-keywords</span></span>
+<span class="line"><span>  - platform-clustering</span></span></code></pre>
+<hr>
+<h1 id="五国内主题簇核心逻辑重点">五、国内主题簇核心逻辑（重点）</h1>
+<p>国内不能只做“关键词”。</p>
+<p>而是：</p>
+<h1 id="平台主题簇">“平台主题簇”</h1>
+<p>例如：</p>
+<p>核心主题：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>铝瓶包装</span></span></code></pre>
+<p>系统会自动拆分：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>平台</th><th>内容方向</th></tr></thead><tbody><tr><td>百度</td><td>行业词SEO</td></tr><tr><td>微信</td><td>深度行业文章</td></tr><tr><td>小红书</td><td>种草场景</td></tr><tr><td>知乎</td><td>专业问答</td></tr><tr><td>抖音</td><td>口播选题</td></tr><tr><td>AI搜索</td><td>问答摘要</td></tr><tr><td>百家号</td><td>收录流量</td></tr><tr><td>B2B平台</td><td>采购词</td></tr></tbody></table>
+<hr>
+<h1 id="六国内版-geo重点升级">六、国内版 GEO（重点升级）</h1>
+<p>海外GEO已经变成：</p>
+<ul>
+<li>
+<p>ChatGPT</p>
+</li>
+<li>
+<p>Perplexity</p>
+</li>
+</ul>
+<p>而国内正在变成：</p>
+<ul>
+<li>
+<p>豆包</p>
+</li>
+<li>
+<p>腾讯元宝</p>
+</li>
+<li>
+<p>Kimi</p>
+</li>
+<li>
+<p>DeepSeek</p>
+</li>
+<li>
+<p>百度AI</p>
+</li>
+<li>
+<p>通义</p>
+</li>
+</ul>
+<p>所以：</p>
+<p>你需要加入：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 中文AI搜索问题生成</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>生成：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 豆包式提问</span></span>
+<span class="line"><span>- 元宝式提问</span></span>
+<span class="line"><span>- Kimi式提问</span></span>
+<span class="line"><span>- DeepSeek式提问</span></span>
+<span class="line"><span>- 百度AI摘要问题</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>要求：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 中文自然口语</span></span>
+<span class="line"><span>- 用户真实提问</span></span>
+<span class="line"><span>- 对话式搜索</span></span>
+<span class="line"><span>- 采购场景</span></span>
+<span class="line"><span>- 对比场景</span></span></code></pre>
+<hr>
+<h1 id="七平台级主题簇核心">七、平台级主题簇（核心）</h1>
+<h4 id="1-百度seo主题簇">1. 百度SEO主题簇</h4>
+<p>输出：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>- 铝瓶是什么</span></span>
+<span class="line"><span>- 铝瓶生产厂家</span></span>
+<span class="line"><span>- 铝瓶包装优势</span></span>
+<span class="line"><span>- 铝瓶和PET区别</span></span>
+<span class="line"><span>- 食品级铝瓶</span></span>
+<span class="line"><span>- 铝瓶定制</span></span></code></pre>
+<hr>
+<h4 id="2-微信公众号主题簇">2. 微信公众号主题簇</h4>
+<p>输出：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>- 为什么越来越多饮料品牌开始用铝瓶？</span></span>
+<span class="line"><span>- 铝瓶包装会成为下一个趋势吗？</span></span>
+<span class="line"><span>- 高端饮料为什么偏爱铝瓶？</span></span></code></pre>
+<p>特点：</p>
+<ul>
+<li>
+<p>深度</p>
+</li>
+<li>
+<p>行业分析</p>
+</li>
+<li>
+<p>观点型</p>
+</li>
+</ul>
+<hr>
+<h4 id="3-小红书主题簇">3. 小红书主题簇</h4>
+<p>输出：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>- 巨高级的饮料包装！</span></span>
+<span class="line"><span>- 被这个铝瓶颜值惊艳了</span></span>
+<span class="line"><span>- 为什么精品咖啡都开始用铝瓶？</span></span></code></pre>
+<p>特点：</p>
+<ul>
+<li>
+<p>情绪</p>
+</li>
+<li>
+<p>种草</p>
+</li>
+<li>
+<p>场景化</p>
+</li>
+<li>
+<p>标题党</p>
+</li>
+</ul>
+<hr>
+<h4 id="4-知乎主题簇">4. 知乎主题簇</h4>
+<p>输出：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>- 铝瓶真的比塑料瓶环保吗？</span></span>
+<span class="line"><span>- 为什么高端饮料越来越少用PET？</span></span>
+<span class="line"><span>- 铝瓶包装成本到底高多少？</span></span></code></pre>
+<p>特点：</p>
+<ul>
+<li>
+<p>问答</p>
+</li>
+<li>
+<p>专业解释</p>
+</li>
+<li>
+<p>对比</p>
+</li>
+</ul>
+<hr>
+<h4 id="5-抖音主题簇">5. 抖音主题簇</h4>
+<p>输出：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>- 一分钟看懂铝瓶生产过程</span></span>
+<span class="line"><span>- 为什么高端饮料都换成铝瓶？</span></span>
+<span class="line"><span>- 铝瓶居然比塑料瓶更便宜？</span></span></code></pre>
+<p>特点：</p>
+<ul>
+<li>
+<p>冲突</p>
+</li>
+<li>
+<p>反差</p>
+</li>
+<li>
+<p>口播</p>
+</li>
+</ul>
+<hr>
+<h1 id="八国内版长尾关键词生成核心">八、国内版长尾关键词生成（核心）</h1>
+<p>重点加入：</p>
+<h4 id="采购词">采购词</h4>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>铝瓶厂家</span></span>
+<span class="line"><span>铝瓶定制</span></span>
+<span class="line"><span>食品级铝瓶</span></span>
+<span class="line"><span>铝瓶OEM</span></span>
+<span class="line"><span>铝瓶ODM</span></span></code></pre>
+<hr>
+<h4 id="地域词">地域词</h4>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>广东铝瓶厂家</span></span>
+<span class="line"><span>浙江铝瓶工厂</span></span>
+<span class="line"><span>江苏铝瓶供应商</span></span></code></pre>
+<hr>
+<h4 id="微信搜索词">微信搜索词</h4>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>铝瓶包装趋势</span></span>
+<span class="line"><span>铝瓶案例</span></span>
+<span class="line"><span>铝瓶品牌</span></span></code></pre>
+<hr>
+<h4 id="ai搜索词">AI搜索词</h4>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>哪家铝瓶厂家靠谱</span></span>
+<span class="line"><span>铝瓶适合饮料吗</span></span>
+<span class="line"><span>铝瓶环保吗</span></span></code></pre>
+<hr>
+<h1 id="九国内版内容日历重点">九、国内版内容日历（重点）</h1>
+<p>国内需要：</p>
+<h1 id="平台同步发布">“平台同步发布”</h1>
+<p>例如：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Day</th><th>平台</th><th>内容</th></tr></thead><tbody><tr><td>1</td><td>官网</td><td>Pillar</td></tr><tr><td>2</td><td>微信</td><td>深度文章</td></tr><tr><td>3</td><td>知乎</td><td>问答</td></tr><tr><td>4</td><td>小红书</td><td>种草</td></tr><tr><td>5</td><td>抖音</td><td>口播</td></tr></tbody></table>
+<p>形成：</p>
+<h1 id="百度收录--社媒扩散--ai引用">百度收录 + 社媒扩散 + AI引用</h1>
+<p>三位一体。</p>
+<hr>
+<h1 id="十最关键升级真正核心">十、最关键升级（真正核心）</h1>
+<p>国内SEO已经不是：</p>
+<h1 id="网站seo">“网站SEO”</h1>
+<p>而是：</p>
+<h1 id="全域内容矩阵">“全域内容矩阵”</h1>
+<p>所以：</p>
+<p>你这个技能真正应该变成：</p>
+<h1 id="中文全域流量系统">中文全域流量系统</h1>
+<p>核心是：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>模块</th><th>作用</th></tr></thead><tbody><tr><td>百度SEO</td><td>搜索流量</td></tr><tr><td>微信</td><td>私域沉淀</td></tr><tr><td>小红书</td><td>种草</td></tr><tr><td>知乎</td><td>信任</td></tr><tr><td>抖音</td><td>曝光</td></tr><tr><td>AI搜索</td><td>新流量入口</td></tr><tr><td>官网</td><td>转化</td></tr><tr><td>B2B平台</td><td>获客</td></tr></tbody></table>
+<p>这才是国内玩法。</p>
+<h2 id="q3--提供国内版的全套skill第-3-轮对话">Q3 · 提供国内版的全套SKILL（第 3 轮对话）</h2>
+<blockquote><p><strong>提问：</strong> 提供国内版的全套SKILL</p></blockquote>
+<h1 id="中文全域主题簇系统cn-search-matrix-engine">中文全域主题簇系统（CN Search Matrix Engine）</h1>
+<p>适用于：</p>
+<ul>
+<li>
+<p>OpenClaw</p>
+</li>
+<li>
+<p>QClaw</p>
+</li>
+<li>
+<p>Claude Skill</p>
+</li>
+<li>
+<p>企业内容矩阵</p>
+</li>
+<li>
+<p>百度SEO</p>
+</li>
+<li>
+<p>微信公众号</p>
+</li>
+<li>
+<p>小红书</p>
+</li>
+<li>
+<p>知乎</p>
+</li>
+<li>
+<p>抖音</p>
+</li>
+<li>
+<p>AI搜索优化</p>
+</li>
+</ul>
+<hr>
+<h1 id="一目录结构-1">一、目录结构</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>cn-search-matrix-engine/</span></span>
+<span class="line"><span>├── skill.md</span></span>
+<span class="line"><span>├── config.yaml</span></span>
+<span class="line"><span>├── memory/</span></span>
+<span class="line"><span>│   ├── keyword_memory.md</span></span>
+<span class="line"><span>│   ├── platform_memory.md</span></span>
+<span class="line"><span>│   ├── authority_memory.md</span></span>
+<span class="line"><span>│   └── content_memory.md</span></span>
+<span class="line"><span>├── prompts/</span></span>
+<span class="line"><span>│   ├── core_cluster.md</span></span>
+<span class="line"><span>│   ├── baidu_seo.md</span></span>
+<span class="line"><span>│   ├── wechat_cluster.md</span></span>
+<span class="line"><span>│   ├── xiaohongshu_cluster.md</span></span>
+<span class="line"><span>│   ├── zhihu_cluster.md</span></span>
+<span class="line"><span>│   ├── douyin_cluster.md</span></span>
+<span class="line"><span>│   ├── ai_search_cluster.md</span></span>
+<span class="line"><span>│   ├── longtail.md</span></span>
+<span class="line"><span>│   ├── authority_map.md</span></span>
+<span class="line"><span>│   ├── internal_link.md</span></span>
+<span class="line"><span>│   └── content_calendar.md</span></span>
+<span class="line"><span>├── templates/</span></span>
+<span class="line"><span>│   ├── cluster_output.md</span></span>
+<span class="line"><span>│   ├── platform_output.md</span></span>
+<span class="line"><span>│   ├── ai_output.md</span></span>
+<span class="line"><span>│   ├── calendar_output.md</span></span>
+<span class="line"><span>│   └── authority_output.md</span></span>
+<span class="line"><span>└── outputs/</span></span></code></pre>
+<hr>
+<h1 id="二skillmd-1">二、skill.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>---</span></span>
+<span class="line"><span>name: CNSearchMatrixEngine</span></span>
+<span class="line"><span>description: 中文全域主题簇系统，自动生成百度SEO、微信、小红书、知乎、抖音、AI搜索内容矩阵</span></span>
+<span class="line"><span>author: Gervas</span></span>
+<span class="line"><span>version: 5.0</span></span>
+<span class="line"><span>category: SEO</span></span>
+<span class="line"><span>tags:</span></span>
+<span class="line"><span>  - 百度SEO</span></span>
+<span class="line"><span>  - 微信SEO</span></span>
+<span class="line"><span>  - 小红书SEO</span></span>
+<span class="line"><span>  - 抖音SEO</span></span>
+<span class="line"><span>  - AI搜索优化</span></span>
+<span class="line"><span>  - GEO</span></span>
+<span class="line"><span>  - 内容矩阵</span></span>
+<span class="line"><span>  - Topic Cluster</span></span>
+<span class="line"><span>model:</span></span>
+<span class="line"><span>  - claude</span></span>
+<span class="line"><span>  - gpt</span></span>
+<span class="line"><span>  - gemini</span></span>
+<span class="line"><span>capabilities:</span></span>
+<span class="line"><span>  - baidu-seo</span></span>
+<span class="line"><span>  - wechat-search</span></span>
+<span class="line"><span>  - xiaohongshu-seo</span></span>
+<span class="line"><span>  - zhihu-traffic</span></span>
+<span class="line"><span>  - douyin-topics</span></span>
+<span class="line"><span>  - ai-search-optimization</span></span>
+<span class="line"><span>  - chinese-topic-cluster</span></span>
+<span class="line"><span>  - longtail-keywords</span></span>
+<span class="line"><span>  - authority-building</span></span>
+<span class="line"><span>  - content-calendar</span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># CN Search Matrix Engine</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## 技能目标</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>围绕一个中文核心主题：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>自动生成：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 百度SEO主题簇</span></span>
+<span class="line"><span>- 微信公众号内容矩阵</span></span>
+<span class="line"><span>- 小红书种草矩阵</span></span>
+<span class="line"><span>- 知乎问答矩阵</span></span>
+<span class="line"><span>- 抖音口播矩阵</span></span>
+<span class="line"><span>- AI搜索问题矩阵</span></span>
+<span class="line"><span>- 长尾关键词</span></span>
+<span class="line"><span>- 内链结构</span></span>
+<span class="line"><span>- 权威地图</span></span>
+<span class="line"><span>- 内容发布日历</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>最终形成：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 中文全域流量系统</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 输入格式</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>用户输入：</span></span></code></pre>
+<p>核心主题： 行业： 目标用户： 目标地区： 竞争对手： 内容目标： 平台重点：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span></span></span>
+<span class="line"><span>示例：</span></span></code></pre>
+<p>核心主题：铝瓶包装 行业：包装制造 目标用户：饮料品牌商 目标地区：中国 竞争对手：奥瑞金 内容目标：获取百度和AI搜索流量 平台重点：百度、知乎、公众号</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 执行流程</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## STEP 1：主题拆解</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>识别：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 核心词</span></span>
+<span class="line"><span>- 行业词</span></span>
+<span class="line"><span>- 商业词</span></span>
+<span class="line"><span>- 采购词</span></span>
+<span class="line"><span>- 地域词</span></span>
+<span class="line"><span>- AI搜索词</span></span>
+<span class="line"><span>- 微信搜索词</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>输出：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 搜索意图</span></span>
+<span class="line"><span>- 用户阶段</span></span>
+<span class="line"><span>- 商业价值</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## STEP 2：百度SEO主题簇</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>生成：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 支柱页面</span></span>
+<span class="line"><span>- SEO栏目</span></span>
+<span class="line"><span>- Cluster Topic</span></span>
+<span class="line"><span>- 长尾词</span></span>
+<span class="line"><span>- FAQ</span></span>
+<span class="line"><span>- 百度精选摘要结构</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>要求：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 适合百度收录</span></span>
+<span class="line"><span>- 适合中文搜索</span></span>
+<span class="line"><span>- 支持AI引用</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## STEP 3：平台主题簇</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>自动拆分：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>### 微信公众号</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 深度行业文章</span></span>
+<span class="line"><span>- 趋势分析</span></span>
+<span class="line"><span>- 观点型内容</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>### 小红书</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 场景化种草</span></span>
+<span class="line"><span>- 情绪标题</span></span>
+<span class="line"><span>- 爆款标题</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>### 知乎</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 专业问答</span></span>
+<span class="line"><span>- 对比内容</span></span>
+<span class="line"><span>- 行业解释</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>### 抖音</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 冲突型标题</span></span>
+<span class="line"><span>- 口播选题</span></span>
+<span class="line"><span>- 工厂揭秘</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## STEP 4：AI搜索矩阵</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>生成：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 豆包问题</span></span>
+<span class="line"><span>- Kimi问题</span></span>
+<span class="line"><span>- 元宝问题</span></span>
+<span class="line"><span>- DeepSeek问题</span></span>
+<span class="line"><span>- 百度AI问题</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>要求：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 中文自然口语</span></span>
+<span class="line"><span>- 用户真实提问</span></span>
+<span class="line"><span>- 对话式问题</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## STEP 5：建立权威结构</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>生成：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 内容层级</span></span>
+<span class="line"><span>- 权重流向</span></span>
+<span class="line"><span>- 内链结构</span></span>
+<span class="line"><span>- AI引用节点</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## STEP 6：内容发布日历</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>自动规划：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 30天</span></span>
+<span class="line"><span>- 60天</span></span>
+<span class="line"><span>- 90天</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>包括：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 发布时间</span></span>
+<span class="line"><span>- 发布平台</span></span>
+<span class="line"><span>- 内容形式</span></span>
+<span class="line"><span>- 引流路径</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 输出要求</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>必须输出：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 1. 核心主题分析</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 2. 百度SEO主题簇</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 3. 微信内容矩阵</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 4. 小红书矩阵</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 5. 知乎问题矩阵</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 6. 抖音选题矩阵</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 7. AI搜索问题矩阵</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 8. 长尾关键词</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 9. 权威地图</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 10. 内链结构</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 11. 内容发布日历</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>输出格式必须为Markdown。</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>禁止：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 空泛建议</span></span>
+<span class="line"><span>- 无平台区分</span></span>
+<span class="line"><span>- 无商业价值</span></span>
+<span class="line"><span>- 无用户阶段</span></span>
+<span class="line"><span>- 无搜索意图</span></span></code></pre>
+<hr>
+<h1 id="三configyaml-1">三、config.yaml</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>system:</span></span>
+<span class="line"><span>  language: zh-CN</span></span>
+<span class="line"><span>  output_format: markdown</span></span>
+<span class="line"><span>  creativity: high</span></span>
+<span class="line"><span>  reasoning: deep</span></span>
+<span class="line"><span>  temperature: 0.85</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>seo:</span></span>
+<span class="line"><span>  enable_baidu_seo: true</span></span>
+<span class="line"><span>  enable_longtail_keywords: true</span></span>
+<span class="line"><span>  enable_internal_linking: true</span></span>
+<span class="line"><span>  enable_search_intent: true</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>platform:</span></span>
+<span class="line"><span>  enable_wechat: true</span></span>
+<span class="line"><span>  enable_xiaohongshu: true</span></span>
+<span class="line"><span>  enable_zhihu: true</span></span>
+<span class="line"><span>  enable_douyin: true</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>geo:</span></span>
+<span class="line"><span>  enable_ai_search: true</span></span>
+<span class="line"><span>  enable_deepseek_queries: true</span></span>
+<span class="line"><span>  enable_kimi_queries: true</span></span>
+<span class="line"><span>  enable_doubao_queries: true</span></span>
+<span class="line"><span>  enable_yuanbao_queries: true</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>content:</span></span>
+<span class="line"><span>  enable_calendar: true</span></span>
+<span class="line"><span>  enable_authority_map: true</span></span>
+<span class="line"><span>  enable_priority_score: true</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>quality_control:</span></span>
+<span class="line"><span>  avoid_generic_topics: true</span></span>
+<span class="line"><span>  avoid_keyword_stuffing: true</span></span>
+<span class="line"><span>  require_business_value: true</span></span></code></pre>
+<hr>
+<h1 id="四core_clustermd">四、core_cluster.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 中文主题簇生成规则</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>围绕核心主题：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>1. 建立Pillar Page</span></span>
+<span class="line"><span>2. 生成10-50个Topic Cluster</span></span>
+<span class="line"><span>3. 每个Cluster必须：</span></span>
+<span class="line"><span>   - 有搜索价值</span></span>
+<span class="line"><span>   - 有商业价值</span></span>
+<span class="line"><span>   - 有AI搜索价值</span></span>
+<span class="line"><span>   - 有平台传播价值</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 搜索意图</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 信息型</span></span>
+<span class="line"><span>- 商业型</span></span>
+<span class="line"><span>- 采购型</span></span>
+<span class="line"><span>- 对比型</span></span>
+<span class="line"><span>- GEO对话型</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 用户阶段</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 认知阶段</span></span>
+<span class="line"><span>- 调研阶段</span></span>
+<span class="line"><span>- 对比阶段</span></span>
+<span class="line"><span>- 决策阶段</span></span>
+<span class="line"><span>- 采购阶段</span></span></code></pre>
+<hr>
+<h1 id="五baidu_seomd">五、baidu_seo.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 百度SEO规则</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>生成：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 百度SEO栏目</span></span>
+<span class="line"><span>- 支柱页面</span></span>
+<span class="line"><span>- Cluster Topic</span></span>
+<span class="line"><span>- FAQ结构</span></span>
+<span class="line"><span>- 百度精选摘要结构</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>要求：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 中文自然表达</span></span>
+<span class="line"><span>- 适合百度收录</span></span>
+<span class="line"><span>- 支持长尾词</span></span>
+<span class="line"><span>- 支持AI摘要</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>重点：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 标题前30字</span></span>
+<span class="line"><span>- H结构</span></span>
+<span class="line"><span>- FAQ</span></span>
+<span class="line"><span>- 地域词</span></span>
+<span class="line"><span>- 商业词</span></span></code></pre>
+<hr>
+<h1 id="六wechat_clustermd">六、wechat_cluster.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 微信公众号主题簇</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>生成：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 行业深度文章</span></span>
+<span class="line"><span>- 趋势分析</span></span>
+<span class="line"><span>- 观点型内容</span></span>
+<span class="line"><span>- 企业案例</span></span>
+<span class="line"><span>- 行业洞察</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>标题要求：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 有观点</span></span>
+<span class="line"><span>- 有行业感</span></span>
+<span class="line"><span>- 有传播性</span></span></code></pre>
+<hr>
+<h1 id="七xiaohongshu_clustermd">七、xiaohongshu_cluster.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 小红书主题簇</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>生成：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 种草内容</span></span>
+<span class="line"><span>- 场景化内容</span></span>
+<span class="line"><span>- 颜值内容</span></span>
+<span class="line"><span>- 爆款标题</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>标题风格：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 情绪化</span></span>
+<span class="line"><span>- 反差感</span></span>
+<span class="line"><span>- 种草感</span></span>
+<span class="line"><span>- 高级感</span></span></code></pre>
+<hr>
+<h1 id="八zhihu_clustermd">八、zhihu_cluster.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 知乎问题矩阵</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>生成：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 专业问答</span></span>
+<span class="line"><span>- 行业解释</span></span>
+<span class="line"><span>- 对比内容</span></span>
+<span class="line"><span>- 采购问题</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>问题要求：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 真实用户会搜索</span></span>
+<span class="line"><span>- 有讨论空间</span></span>
+<span class="line"><span>- 有专业度</span></span></code></pre>
+<hr>
+<h1 id="九douyin_clustermd">九、douyin_cluster.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 抖音选题矩阵</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>生成：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 工厂揭秘</span></span>
+<span class="line"><span>- 行业内幕</span></span>
+<span class="line"><span>- 冲突观点</span></span>
+<span class="line"><span>- 口播选题</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>要求：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 前3秒吸引</span></span>
+<span class="line"><span>- 有冲突</span></span>
+<span class="line"><span>- 有反差</span></span>
+<span class="line"><span>- 有传播性</span></span></code></pre>
+<hr>
+<h1 id="十ai_search_clustermd">十、ai_search_cluster.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># AI搜索问题矩阵</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>生成：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 豆包问题</span></span>
+<span class="line"><span>- DeepSeek问题</span></span>
+<span class="line"><span>- 元宝问题</span></span>
+<span class="line"><span>- Kimi问题</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>问题风格：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 中文口语</span></span>
+<span class="line"><span>- 对话式</span></span>
+<span class="line"><span>- 真实提问</span></span>
+<span class="line"><span>- 用户视角</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>包括：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 为什么</span></span>
+<span class="line"><span>- 怎么选</span></span>
+<span class="line"><span>- 哪家好</span></span>
+<span class="line"><span>- 是否靠谱</span></span>
+<span class="line"><span>- 如何比较</span></span></code></pre>
+<hr>
+<h1 id="十一longtailmd">十一、longtail.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 中文长尾关键词规则</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>必须生成：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## 行业词</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## 商业词</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## 采购词</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## 地域词</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## AI搜索词</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## 微信搜索词</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## 问题词</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 示例</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>铝瓶厂家</span></span>
+<span class="line"><span>铝瓶OEM</span></span>
+<span class="line"><span>食品级铝瓶</span></span>
+<span class="line"><span>广东铝瓶工厂</span></span>
+<span class="line"><span>铝瓶靠谱吗</span></span></code></pre>
+<hr>
+<h1 id="十二authority_mapmd">十二、authority_map.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 权威地图规则</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>建立：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Pillar</span></span>
+<span class="line"><span>  ↓</span></span>
+<span class="line"><span>Cluster</span></span>
+<span class="line"><span>  ↓</span></span>
+<span class="line"><span>FAQ</span></span>
+<span class="line"><span>  ↓</span></span>
+<span class="line"><span>AI引用</span></span>
+<span class="line"><span>  ↓</span></span>
+<span class="line"><span>转化页面</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>高商业价值页面：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 获得更多内链</span></span>
+<span class="line"><span>- 获得更多更新频率</span></span>
+<span class="line"><span>- 获得更多平台分发</span></span></code></pre>
+<hr>
+<h1 id="十三internal_linkmd">十三、internal_link.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 内链规则</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Pillar：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 指向所有Cluster</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Cluster：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 回链Pillar</span></span>
+<span class="line"><span>- 横向互链</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>商业页：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 获得更多流量导入</span></span></code></pre>
+<hr>
+<h1 id="十四content_calendarmd">十四、content_calendar.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 中文内容发布系统</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>发布顺序：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>1. 官网Pillar</span></span>
+<span class="line"><span>2. 百度SEO文章</span></span>
+<span class="line"><span>3. 微信深度文章</span></span>
+<span class="line"><span>4. 知乎问答</span></span>
+<span class="line"><span>5. 小红书种草</span></span>
+<span class="line"><span>6. 抖音视频</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>更新策略：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 7天更新</span></span>
+<span class="line"><span>- FAQ增量</span></span>
+<span class="line"><span>- AI问题扩展</span></span>
+<span class="line"><span>- 热点融合</span></span></code></pre>
+<hr>
+<h1 id="十五cluster_outputmd">十五、cluster_output.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 百度SEO主题簇</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>| Topic | 搜索意图 | 商业价值 | AI价值 | 优先级 |</span></span>
+<span class="line"><span>|---|---|---|---|---|</span></span></code></pre>
+<hr>
+<h1 id="十六platform_outputmd">十六、platform_output.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 平台内容矩阵</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>| 平台 | 内容主题 | 内容形式 | 目标 |</span></span>
+<span class="line"><span>|---|---|---|---|</span></span></code></pre>
+<hr>
+<h1 id="十七ai_outputmd">十七、ai_output.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># AI搜索问题矩阵</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## 豆包风格</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## Kimi风格</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## 元宝风格</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## DeepSeek风格</span></span></code></pre>
+<hr>
+<h1 id="十八calendar_outputmd">十八、calendar_output.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 内容发布日历</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>| Day | 平台 | 内容 | 目标 |</span></span>
+<span class="line"><span>|---|---|---|---|</span></span></code></pre>
+<hr>
+<h1 id="十九authority_outputmd">十九、authority_output.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 权威结构图</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Pillar</span></span>
+<span class="line"><span>├── 行业词</span></span>
+<span class="line"><span>├── FAQ</span></span>
+<span class="line"><span>├── 商业词</span></span>
+<span class="line"><span>├── 采购词</span></span>
+<span class="line"><span>├── AI问题</span></span>
+<span class="line"><span>└── 转化页面</span></span></code></pre>
+<hr>
+<h1 id="二十推荐下一步升级v6">二十、推荐下一步升级（V6）</h1>
+<p>建议未来增加：</p>
+<h4 id="1-百度serp分析">1. 百度SERP分析</h4>
+<p>自动分析：</p>
+<ul>
+<li>
+<p>百度前10</p>
+</li>
+<li>
+<p>知乎</p>
+</li>
+<li>
+<p>百家号</p>
+</li>
+<li>
+<p>小红书</p>
+</li>
+</ul>
+<hr>
+<h4 id="2-自动爆文生成">2. 自动爆文生成</h4>
+<p>主题簇生成后：</p>
+<p>自动生成：</p>
+<ul>
+<li>
+<p>标题</p>
+</li>
+<li>
+<p>大纲</p>
+</li>
+<li>
+<p>正文</p>
+</li>
+<li>
+<p>FAQ</p>
+</li>
+<li>
+<p>AI摘要</p>
+</li>
+</ul>
+<hr>
+<h4 id="3-自动平台改写">3. 自动平台改写</h4>
+<p>同一个主题：</p>
+<p>自动改写：</p>
+<ul>
+<li>
+<p>微信版</p>
+</li>
+<li>
+<p>小红书版</p>
+</li>
+<li>
+<p>知乎版</p>
+</li>
+<li>
+<p>抖音版</p>
+</li>
+</ul>
+<hr>
+<h4 id="4-自动形成企业内容中台">4. 自动形成企业内容中台</h4>
+<p>最终形成：</p>
+<h1 id="企业内容工厂系统">企业内容工厂系统</h1>
+<p>支持：</p>
+<ul>
+<li>
+<p>SEO</p>
+</li>
+<li>
+<p>GEO</p>
+</li>
+<li>
+<p>AI搜索</p>
+</li>
+<li>
+<p>全域分发</p>
+</li>
+<li>
+<p>私域沉淀</p>
+</li>
+</ul>
+<h2 id="q4--提供v6第-4-轮对话">Q4 · 提供V6（第 4 轮对话）</h2>
+<blockquote><p><strong>提问：</strong> 提供V6</p></blockquote>
+<h1 id="中文全域搜索矩阵系统-v6-cn-search-matrix-engine-v6">中文全域搜索矩阵系统 V6 （CN Search Matrix Engine V6）</h1>
+<blockquote><p>面向： - 百度SEO - AI搜索（豆包/Kimi/DeepSeek/元宝） - 微信公众号 - 小红书 - 知乎 - 抖音 - 企业官网 - 百家号 - B2B获客 的完整企业级内容工厂系统。</p></blockquote>
+<hr>
+<h1 id="一v6-核心升级重点">一、V6 核心升级（重点）</h1>
+<p>V5 还是：</p>
+<h1 id="主题簇生成器">“主题簇生成器”</h1>
+<p>而 V6：</p>
+<h1 id="已经是完整的">已经是完整的：</h1>
+<h1 id="中文-ai-seo-内容中台">中文 AI SEO 内容中台</h1>
+<p>新增核心能力：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>模块</th><th>V5</th><th>V6</th></tr></thead><tbody><tr><td>主题簇</td><td>✓</td><td>✓</td></tr><tr><td>百度SEO</td><td>✓</td><td>✓</td></tr><tr><td>AI搜索</td><td>✓</td><td>✓</td></tr><tr><td>平台矩阵</td><td>✓</td><td>✓</td></tr><tr><td>SERP分析</td><td>×</td><td>✓</td></tr><tr><td>竞品分析</td><td>×</td><td>✓</td></tr><tr><td>自动爆文生成</td><td>×</td><td>✓</td></tr><tr><td>多平台改写</td><td>×</td><td>✓</td></tr><tr><td>内容去AI味</td><td>×</td><td>✓</td></tr><tr><td>用户画像</td><td>×</td><td>✓</td></tr><tr><td>转化路径</td><td>×</td><td>✓</td></tr><tr><td>内容评分系统</td><td>×</td><td>✓</td></tr><tr><td>权威度系统</td><td>×</td><td>✓</td></tr><tr><td>AI引用优化</td><td>×</td><td>✓</td></tr><tr><td>企业知识库</td><td>×</td><td>✓</td></tr><tr><td>自动更新策略</td><td>×</td><td>✓</td></tr></tbody></table>
+<hr>
+<h1 id="二v6目录结构企业级">二、V6目录结构（企业级）</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>cn-search-matrix-engine-v6/</span></span>
+<span class="line"><span>├── skill.md</span></span>
+<span class="line"><span>├── config.yaml</span></span>
+<span class="line"><span>├── memory/</span></span>
+<span class="line"><span>│   ├── keyword_memory.md</span></span>
+<span class="line"><span>│   ├── competitor_memory.md</span></span>
+<span class="line"><span>│   ├── authority_memory.md</span></span>
+<span class="line"><span>│   ├── platform_memory.md</span></span>
+<span class="line"><span>│   ├── user_persona.md</span></span>
+<span class="line"><span>│   ├── ai_search_memory.md</span></span>
+<span class="line"><span>│   └── content_memory.md</span></span>
+<span class="line"><span>├── prompts/</span></span>
+<span class="line"><span>│   ├── 01_core_cluster.md</span></span>
+<span class="line"><span>│   ├── 02_baidu_seo.md</span></span>
+<span class="line"><span>│   ├── 03_wechat.md</span></span>
+<span class="line"><span>│   ├── 04_xiaohongshu.md</span></span>
+<span class="line"><span>│   ├── 05_zhihu.md</span></span>
+<span class="line"><span>│   ├── 06_douyin.md</span></span>
+<span class="line"><span>│   ├── 07_ai_search.md</span></span>
+<span class="line"><span>│   ├── 08_serp_analysis.md</span></span>
+<span class="line"><span>│   ├── 09_competitor_analysis.md</span></span>
+<span class="line"><span>│   ├── 10_content_generation.md</span></span>
+<span class="line"><span>│   ├── 11_deaify.md</span></span>
+<span class="line"><span>│   ├── 12_internal_link.md</span></span>
+<span class="line"><span>│   ├── 13_authority_map.md</span></span>
+<span class="line"><span>│   ├── 14_conversion_path.md</span></span>
+<span class="line"><span>│   ├── 15_content_scoring.md</span></span>
+<span class="line"><span>│   ├── 16_content_calendar.md</span></span>
+<span class="line"><span>│   ├── 17_auto_update.md</span></span>
+<span class="line"><span>│   └── 18_knowledge_base.md</span></span>
+<span class="line"><span>├── templates/</span></span>
+<span class="line"><span>│   ├── seo_cluster.md</span></span>
+<span class="line"><span>│   ├── platform_matrix.md</span></span>
+<span class="line"><span>│   ├── ai_questions.md</span></span>
+<span class="line"><span>│   ├── content_plan.md</span></span>
+<span class="line"><span>│   ├── authority_map.md</span></span>
+<span class="line"><span>│   ├── conversion_map.md</span></span>
+<span class="line"><span>│   ├── content_score.md</span></span>
+<span class="line"><span>│   └── serp_report.md</span></span>
+<span class="line"><span>└── outputs/</span></span></code></pre>
+<hr>
+<h1 id="三v6-skillmd核心">三、V6 skill.md（核心）</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>---</span></span>
+<span class="line"><span>name: CNSearchMatrixEngineV6</span></span>
+<span class="line"><span>description: 中文AI搜索时代的企业级全域内容工厂系统</span></span>
+<span class="line"><span>author: Gervas</span></span>
+<span class="line"><span>version: 6.0</span></span>
+<span class="line"><span>category: SEO</span></span>
+<span class="line"><span>tags:</span></span>
+<span class="line"><span>  - 百度SEO</span></span>
+<span class="line"><span>  - GEO</span></span>
+<span class="line"><span>  - AI搜索</span></span>
+<span class="line"><span>  - 企业内容工厂</span></span>
+<span class="line"><span>  - 小红书SEO</span></span>
+<span class="line"><span>  - 知乎SEO</span></span>
+<span class="line"><span>  - 抖音SEO</span></span>
+<span class="line"><span>  - Topic Cluster</span></span>
+<span class="line"><span>  - AI SEO</span></span>
+<span class="line"><span>  - Content Engine</span></span>
+<span class="line"><span>model:</span></span>
+<span class="line"><span>  - claude</span></span>
+<span class="line"><span>  - gpt</span></span>
+<span class="line"><span>  - gemini</span></span>
+<span class="line"><span>capabilities:</span></span>
+<span class="line"><span>  - baidu-seo</span></span>
+<span class="line"><span>  - ai-search-optimization</span></span>
+<span class="line"><span>  - chinese-topic-cluster</span></span>
+<span class="line"><span>  - serp-analysis</span></span>
+<span class="line"><span>  - competitor-analysis</span></span>
+<span class="line"><span>  - platform-rewriting</span></span>
+<span class="line"><span>  - authority-building</span></span>
+<span class="line"><span>  - auto-content-generation</span></span>
+<span class="line"><span>  - deaify</span></span>
+<span class="line"><span>  - conversion-optimization</span></span>
+<span class="line"><span>  - enterprise-knowledge-base</span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># CN Search Matrix Engine V6</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## 技能定位</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>本系统不是单纯SEO工具。</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>而是：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 中文AI搜索时代的企业内容中台</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>目标：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>围绕核心主题：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>自动形成：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- SEO流量</span></span>
+<span class="line"><span>- AI搜索流量</span></span>
+<span class="line"><span>- 社媒流量</span></span>
+<span class="line"><span>- 私域流量</span></span>
+<span class="line"><span>- B2B获客流量</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 输入格式</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>用户输入：</span></span></code></pre>
+<p>核心主题： 行业： 目标用户： 目标地区： 竞争对手： 内容目标： 平台重点： 内容风格： 转化目标：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 系统执行流程</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## STEP 1：行业分析</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>分析：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 行业竞争</span></span>
+<span class="line"><span>- 搜索需求</span></span>
+<span class="line"><span>- 用户阶段</span></span>
+<span class="line"><span>- 商业价值</span></span>
+<span class="line"><span>- AI搜索趋势</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## STEP 2：SERP分析</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>自动分析：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 百度前10</span></span>
+<span class="line"><span>- 知乎</span></span>
+<span class="line"><span>- 百家号</span></span>
+<span class="line"><span>- 小红书</span></span>
+<span class="line"><span>- 微信文章</span></span>
+<span class="line"><span>- AI搜索摘要</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>提取：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 高权重结构</span></span>
+<span class="line"><span>- 标题规律</span></span>
+<span class="line"><span>- FAQ规律</span></span>
+<span class="line"><span>- AI引用规律</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## STEP 3：建立主题簇</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>自动生成：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- Pillar</span></span>
+<span class="line"><span>- Cluster</span></span>
+<span class="line"><span>- FAQ</span></span>
+<span class="line"><span>- AI问题</span></span>
+<span class="line"><span>- 平台话题</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## STEP 4：平台矩阵</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>自动改写：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>### 百度SEO版</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>### 微信版</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>### 小红书版</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>### 知乎版</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>### 抖音版</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>### AI搜索版</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## STEP 5：AI搜索优化</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>自动生成：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- AI摘要块</span></span>
+<span class="line"><span>- TL;DR</span></span>
+<span class="line"><span>- 实体定义</span></span>
+<span class="line"><span>- FAQ结构</span></span>
+<span class="line"><span>- 对话式回答</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>适配：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 豆包</span></span>
+<span class="line"><span>- Kimi</span></span>
+<span class="line"><span>- 元宝</span></span>
+<span class="line"><span>- DeepSeek</span></span>
+<span class="line"><span>- 百度AI</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## STEP 6：转化路径</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>自动建立：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>流量页</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>对比页</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>案例页</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>采购页</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>咨询页</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## STEP 7：内容评分</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>评分维度：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- SEO价值</span></span>
+<span class="line"><span>- AI引用概率</span></span>
+<span class="line"><span>- 商业价值</span></span>
+<span class="line"><span>- 平台传播性</span></span>
+<span class="line"><span>- 转化能力</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## STEP 8：自动更新</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>自动识别：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 老化内容</span></span>
+<span class="line"><span>- AI搜索新问题</span></span>
+<span class="line"><span>- 热点变化</span></span>
+<span class="line"><span>- SERP变化</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>并生成更新建议。</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 输出要求</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>必须输出：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 1. 行业分析</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 2. SERP分析</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 3. 百度SEO主题簇</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 4. 微信矩阵</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 5. 小红书矩阵</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 6. 知乎矩阵</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 7. 抖音矩阵</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 8. AI搜索矩阵</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 9. 长尾关键词</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 10. 权威地图</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 11. 转化路径</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 12. 内容评分</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 13. 更新策略</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 14. 内容发布计划</span></span></code></pre>
+<hr>
+<h1 id="四configyamlv6">四、config.yaml（V6）</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>system:</span></span>
+<span class="line"><span>  language: zh-CN</span></span>
+<span class="line"><span>  output_format: markdown</span></span>
+<span class="line"><span>  reasoning: deep</span></span>
+<span class="line"><span>  creativity: high</span></span>
+<span class="line"><span>  temperature: 0.9</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>seo:</span></span>
+<span class="line"><span>  enable_baidu_seo: true</span></span>
+<span class="line"><span>  enable_longtail_keywords: true</span></span>
+<span class="line"><span>  enable_internal_linking: true</span></span>
+<span class="line"><span>  enable_featured_snippet: true</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>geo:</span></span>
+<span class="line"><span>  enable_ai_search: true</span></span>
+<span class="line"><span>  enable_entity_definition: true</span></span>
+<span class="line"><span>  enable_ai_summary_block: true</span></span>
+<span class="line"><span>  enable_tldr: true</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>platform:</span></span>
+<span class="line"><span>  enable_wechat: true</span></span>
+<span class="line"><span>  enable_xiaohongshu: true</span></span>
+<span class="line"><span>  enable_zhihu: true</span></span>
+<span class="line"><span>  enable_douyin: true</span></span>
+<span class="line"><span>  enable_baijiahao: true</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>content:</span></span>
+<span class="line"><span>  enable_auto_rewriting: true</span></span>
+<span class="line"><span>  enable_deaify: true</span></span>
+<span class="line"><span>  enable_content_scoring: true</span></span>
+<span class="line"><span>  enable_conversion_path: true</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>analysis:</span></span>
+<span class="line"><span>  enable_serp_analysis: true</span></span>
+<span class="line"><span>  enable_competitor_analysis: true</span></span>
+<span class="line"><span>  enable_trend_analysis: true</span></span></code></pre>
+<hr>
+<h1 id="五serp分析模块重点">五、SERP分析模块（重点）</h1>
+<h4 id="08_serp_analysismd">08_serp_analysis.md</h4>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 百度SERP分析系统</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>自动分析：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 百度前10</span></span>
+<span class="line"><span>- 知乎排名</span></span>
+<span class="line"><span>- 百家号</span></span>
+<span class="line"><span>- 微信文章</span></span>
+<span class="line"><span>- 小红书内容</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>提取：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 标题结构</span></span>
+<span class="line"><span>- H标签规律</span></span>
+<span class="line"><span>- FAQ规律</span></span>
+<span class="line"><span>- AI摘要规律</span></span>
+<span class="line"><span>- 高CTR标题</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>输出：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- SERP机会点</span></span>
+<span class="line"><span>- 内容缺口</span></span>
+<span class="line"><span>- AI引用机会</span></span></code></pre>
+<hr>
+<h1 id="六竞品分析模块">六、竞品分析模块</h1>
+<h4 id="09_competitor_analysismd">09_competitor_analysis.md</h4>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 竞品内容分析</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>分析：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 竞品主题结构</span></span>
+<span class="line"><span>- 高流量页面</span></span>
+<span class="line"><span>- FAQ</span></span>
+<span class="line"><span>- AI搜索曝光</span></span>
+<span class="line"><span>- 小红书策略</span></span>
+<span class="line"><span>- 知乎策略</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>输出：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 可超越点</span></span>
+<span class="line"><span>- 内容缺口</span></span>
+<span class="line"><span>- 流量缺口</span></span></code></pre>
+<hr>
+<h1 id="七自动爆文生成重点">七、自动爆文生成（重点）</h1>
+<h4 id="10_content_generationmd">10_content_generation.md</h4>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 自动内容生成系统</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>生成：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 标题</span></span>
+<span class="line"><span>- 大纲</span></span>
+<span class="line"><span>- 正文</span></span>
+<span class="line"><span>- FAQ</span></span>
+<span class="line"><span>- AI摘要</span></span>
+<span class="line"><span>- TLDR</span></span>
+<span class="line"><span>- CTA</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>支持：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 百度SEO版</span></span>
+<span class="line"><span>- 微信版</span></span>
+<span class="line"><span>- 小红书版</span></span>
+<span class="line"><span>- 知乎版</span></span>
+<span class="line"><span>- 抖音口播版</span></span></code></pre>
+<hr>
+<h1 id="八去ai味系统核心">八、去AI味系统（核心）</h1>
+<h4 id="11_deaifymd">11_deaify.md</h4>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 去AI味规则</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>禁止：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- AI腔</span></span>
+<span class="line"><span>- 套话</span></span>
+<span class="line"><span>- 机械结构</span></span>
+<span class="line"><span>- 重复句式</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>增强：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 中文自然表达</span></span>
+<span class="line"><span>- 行业口语</span></span>
+<span class="line"><span>- 情绪感</span></span>
+<span class="line"><span>- 真人经验感</span></span>
+<span class="line"><span>- 社交平台语感</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>不同平台：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 微信：行业深度</span></span>
+<span class="line"><span>- 小红书：生活化</span></span>
+<span class="line"><span>- 知乎：专业感</span></span>
+<span class="line"><span>- 抖音：口播感</span></span></code></pre>
+<hr>
+<h1 id="九转化路径系统重点">九、转化路径系统（重点）</h1>
+<h4 id="14_conversion_pathmd">14_conversion_path.md</h4>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 转化路径设计</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>建立：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>搜索流量</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>问题页</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>对比页</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>案例页</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>采购页</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>咨询页</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>每个页面：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 必须有CTA</span></span>
+<span class="line"><span>- 必须有内链</span></span>
+<span class="line"><span>- 必须有转化入口</span></span></code></pre>
+<hr>
+<h1 id="十内容评分系统">十、内容评分系统</h1>
+<h4 id="15_content_scoringmd">15_content_scoring.md</h4>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 内容评分模型</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>评分：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>| 维度 | 分值 |</span></span>
+<span class="line"><span>|---|---|</span></span>
+<span class="line"><span>| SEO价值 | 20 |</span></span>
+<span class="line"><span>| AI引用概率 | 20 |</span></span>
+<span class="line"><span>| 商业价值 | 20 |</span></span>
+<span class="line"><span>| 平台传播性 | 20 |</span></span>
+<span class="line"><span>| 转化能力 | 20 |</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>80分以上：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 优先发布</span></span>
+<span class="line"><span>- 重点更新</span></span>
+<span class="line"><span>- 多平台分发</span></span></code></pre>
+<hr>
+<h1 id="十一自动更新系统">十一、自动更新系统</h1>
+<h4 id="17_auto_updatemd">17_auto_update.md</h4>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 自动更新策略</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>自动检测：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- SERP变化</span></span>
+<span class="line"><span>- AI问题变化</span></span>
+<span class="line"><span>- 热点变化</span></span>
+<span class="line"><span>- 用户搜索变化</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>更新：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- FAQ</span></span>
+<span class="line"><span>- AI摘要</span></span>
+<span class="line"><span>- 数据</span></span>
+<span class="line"><span>- 案例</span></span>
+<span class="line"><span>- 对比内容</span></span></code></pre>
+<hr>
+<h1 id="十二企业知识库系统">十二、企业知识库系统</h1>
+<h4 id="18_knowledge_basemd">18_knowledge_base.md</h4>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 企业知识库系统</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>自动沉淀：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- FAQ</span></span>
+<span class="line"><span>- 行业定义</span></span>
+<span class="line"><span>- 产品定义</span></span>
+<span class="line"><span>- 工艺知识</span></span>
+<span class="line"><span>- AI引用块</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>最终形成：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 企业知识中台</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>支持：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- SEO</span></span>
+<span class="line"><span>- AI搜索</span></span>
+<span class="line"><span>- 销售培训</span></span>
+<span class="line"><span>- 客服系统</span></span></code></pre>
+<hr>
+<h1 id="十三v6-真正核心最重要">十三、V6 真正核心（最重要）</h1>
+<p>V6 的本质：</p>
+<p>不是：</p>
+<h1 id="做seo">“做SEO”</h1>
+<p>而是：</p>
+<h1 id="控制中文ai搜索里的行业认知">“控制中文AI搜索里的行业认知”</h1>
+<p>因为未来流量入口：</p>
+<p>正在从：</p>
+<ul>
+<li>百度搜索</li>
+</ul>
+<p>变成：</p>
+<ul>
+<li>AI问答</li>
+</ul>
+<p>所以：</p>
+<p>V6核心目标：</p>
+<h1 id="让企业成为-ai-默认引用源">让企业成为 AI 默认引用源。</h1>
+<p>这是下一代SEO。</p>
+<h2 id="q5--请提供v6的详细使用方法第-5-轮对话">Q5 · 请提供V6的详细使用方法（第 5 轮对话）</h2>
+<blockquote><p><strong>提问：</strong> 请提供V6的详细使用方法</p></blockquote>
+<h1 id="中文全域搜索矩阵系统-v6-使用手册-cn-search-matrix-engine-v6">中文全域搜索矩阵系统 V6 使用手册 （CN Search Matrix Engine V6）</h1>
+<p>这套 Skill 的本质不是“生成几个关键词”。</p>
+<p>而是：</p>
+<h1 id="搭建企业级内容流量系统">搭建企业级内容流量系统</h1>
+<p>最终目标：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>搜索流量</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>AI搜索曝光</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>平台传播</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>品牌认知</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>询盘转化</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>私域沉淀</span></span></code></pre>
+<p>适用于：</p>
+<ul>
+<li>
+<p>企业官网</p>
+</li>
+<li>
+<p>工厂外贸站</p>
+</li>
+<li>
+<p>百度SEO</p>
+</li>
+<li>
+<p>AI搜索</p>
+</li>
+<li>
+<p>微信公众号</p>
+</li>
+<li>
+<p>小红书</p>
+</li>
+<li>
+<p>知乎</p>
+</li>
+<li>
+<p>抖音</p>
+</li>
+<li>
+<p>百家号</p>
+</li>
+<li>
+<p>B2B获客</p>
+</li>
+</ul>
+<hr>
+<h1 id="一v6-的标准工作流最重要">一、V6 的标准工作流（最重要）</h1>
+<p>V6 的完整使用流程：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>STEP 1：输入行业主题</span></span>
+<span class="line"><span>STEP 2：生成主题簇</span></span>
+<span class="line"><span>STEP 3：生成平台矩阵</span></span>
+<span class="line"><span>STEP 4：生成AI搜索矩阵</span></span>
+<span class="line"><span>STEP 5：生成内容计划</span></span>
+<span class="line"><span>STEP 6：批量生成文章</span></span>
+<span class="line"><span>STEP 7：平台改写</span></span>
+<span class="line"><span>STEP 8：发布</span></span>
+<span class="line"><span>STEP 9：更新迭代</span></span></code></pre>
+<p>真正的核心：</p>
+<h1 id="持续内容生产">“持续内容生产”</h1>
+<p>而不是一次性生成。</p>
+<hr>
+<h1 id="二最标准的使用方式推荐">二、最标准的使用方式（推荐）</h1>
+<h4 id="第一阶段建立行业主主题">第一阶段：建立行业主主题</h4>
+<p>输入：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>核心主题：铝瓶包装</span></span>
+<span class="line"><span>行业：包装制造</span></span>
+<span class="line"><span>目标用户：饮料品牌商</span></span>
+<span class="line"><span>目标地区：中国</span></span>
+<span class="line"><span>竞争对手：奥瑞金</span></span>
+<span class="line"><span>内容目标：百度SEO + AI搜索曝光</span></span>
+<span class="line"><span>平台重点：百度、知乎、公众号</span></span>
+<span class="line"><span>内容风格：专业、行业权威</span></span>
+<span class="line"><span>转化目标：询盘</span></span></code></pre>
+<p>系统会输出：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>1. 行业分析</span></span>
+<span class="line"><span>2. 百度主题簇</span></span>
+<span class="line"><span>3. AI搜索问题矩阵</span></span>
+<span class="line"><span>4. 平台内容矩阵</span></span>
+<span class="line"><span>5. 内容日历</span></span>
+<span class="line"><span>6. 转化结构</span></span></code></pre>
+<p>这是：</p>
+<h1 id="总规划层">“总规划层”</h1>
+<p>相当于企业内容战略。</p>
+<hr>
+<h1 id="三第二阶段生成百度seo结构">三、第二阶段：生成百度SEO结构</h1>
+<h4 id="使用方式">使用方式</h4>
+<p>输入：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>基于“铝瓶包装”主题簇，</span></span>
+<span class="line"><span>生成百度SEO结构。</span></span></code></pre>
+<p>系统输出：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Pillar Page</span></span>
+<span class="line"><span>Cluster Topic</span></span>
+<span class="line"><span>FAQ</span></span>
+<span class="line"><span>长尾词</span></span>
+<span class="line"><span>栏目结构</span></span>
+<span class="line"><span>内链结构</span></span></code></pre>
+<hr>
+<h1 id="四百度seo正确玩法重点">四、百度SEO正确玩法（重点）</h1>
+<p>V6 会自动建立：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>首页</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>行业页</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>支柱页</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>主题簇</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>FAQ</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>转化页</span></span></code></pre>
+<p>例如：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>/aluminum-bottle/</span></span>
+<span class="line"><span>/aluminum-bottle/manufacturer/</span></span>
+<span class="line"><span>/aluminum-bottle/oem/</span></span>
+<span class="line"><span>/aluminum-bottle/food-grade/</span></span>
+<span class="line"><span>/aluminum-bottle/faq/</span></span></code></pre>
+<p>这是：</p>
+<h1 id="百度最喜欢的结构">百度最喜欢的结构。</h1>
+<hr>
+<h1 id="五第三阶段生成平台矩阵核心">五、第三阶段：生成平台矩阵（核心）</h1>
+<p>这是 V6 最强功能。</p>
+<p>因为：</p>
+<h1 id="国内流量不只来自百度">国内流量不只来自百度。</h1>
+<p>输入：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>围绕“铝瓶包装”，</span></span>
+<span class="line"><span>生成：</span></span>
+<span class="line"><span>- 微信公众号矩阵</span></span>
+<span class="line"><span>- 小红书矩阵</span></span>
+<span class="line"><span>- 知乎矩阵</span></span>
+<span class="line"><span>- 抖音矩阵</span></span></code></pre>
+<p>系统会自动输出：</p>
+<hr>
+<h4 id="微信版">微信版</h4>
+<p>适合：</p>
+<ul>
+<li>
+<p>行业深度</p>
+</li>
+<li>
+<p>企业权威</p>
+</li>
+<li>
+<p>私域</p>
+</li>
+</ul>
+<p>例如：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>为什么越来越多饮料品牌开始用铝瓶？</span></span></code></pre>
+<hr>
+<h4 id="小红书版">小红书版</h4>
+<p>适合：</p>
+<ul>
+<li>
+<p>种草</p>
+</li>
+<li>
+<p>高级感</p>
+</li>
+<li>
+<p>场景感</p>
+</li>
+</ul>
+<p>例如：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>这个饮料包装也太高级了……</span></span></code></pre>
+<hr>
+<h4 id="知乎版">知乎版</h4>
+<p>适合：</p>
+<ul>
+<li>
+<p>专业问答</p>
+</li>
+<li>
+<p>信任建立</p>
+</li>
+</ul>
+<p>例如：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>铝瓶真的比塑料瓶环保吗？</span></span></code></pre>
+<hr>
+<h4 id="抖音版">抖音版</h4>
+<p>适合：</p>
+<ul>
+<li>
+<p>曝光</p>
+</li>
+<li>
+<p>冲突</p>
+</li>
+<li>
+<p>工厂揭秘</p>
+</li>
+</ul>
+<p>例如：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>为什么高端饮料都开始抛弃塑料瓶？</span></span></code></pre>
+<hr>
+<h1 id="六第四阶段ai搜索优化重点">六、第四阶段：AI搜索优化（重点）</h1>
+<p>这是 V6 真正核心。</p>
+<p>未来流量：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>百度搜索 ↓</span></span>
+<span class="line"><span>AI搜索 ↑</span></span></code></pre>
+<p>所以：</p>
+<p>输入：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>围绕“铝瓶包装”</span></span>
+<span class="line"><span>生成AI搜索问题矩阵</span></span></code></pre>
+<p>系统会生成：</p>
+<hr>
+<h4 id="豆包风格">豆包风格</h4>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>铝瓶包装适合饮料行业吗？</span></span></code></pre>
+<hr>
+<h4 id="kimi风格">Kimi风格</h4>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>铝瓶和PET瓶的优缺点对比</span></span></code></pre>
+<hr>
+<h4 id="deepseek风格">DeepSeek风格</h4>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>国内有哪些靠谱的铝瓶厂家？</span></span></code></pre>
+<hr>
+<h4 id="元宝风格">元宝风格</h4>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>为什么高端饮料越来越喜欢铝瓶？</span></span></code></pre>
+<hr>
+<h1 id="七ai搜索真正玩法重要">七、AI搜索真正玩法（重要）</h1>
+<p>V6 会自动生成：</p>
+<h4 id="ai摘要块">AI摘要块</h4>
+<p>例如：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>铝瓶是一种高阻隔、高回收率的包装形式，</span></span>
+<span class="line"><span>广泛应用于饮料、功能饮品、</span></span>
+<span class="line"><span>咖啡、啤酒等行业。</span></span></code></pre>
+<p>这是：</p>
+<h1 id="ai最容易引用的结构">AI最容易引用的结构。</h1>
+<hr>
+<h1 id="八第五阶段自动生成文章重点">八、第五阶段：自动生成文章（重点）</h1>
+<p>输入：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>基于以下主题：</span></span>
+<span class="line"><span>“为什么越来越多品牌开始用铝瓶”</span></span>
+<span class="line"><span>生成：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 百度SEO版</span></span>
+<span class="line"><span>- 微信版</span></span>
+<span class="line"><span>- 小红书版</span></span>
+<span class="line"><span>- 知乎版</span></span>
+<span class="line"><span>- 抖音口播版</span></span></code></pre>
+<p>系统会：</p>
+<h1 id="自动多平台改写">自动多平台改写。</h1>
+<hr>
+<h1 id="九平台改写逻辑核心">九、平台改写逻辑（核心）</h1>
+<h4 id="百度版">百度版</h4>
+<p>特点：</p>
+<ul>
+<li>
+<p>SEO结构</p>
+</li>
+<li>
+<p>H标签</p>
+</li>
+<li>
+<p>FAQ</p>
+</li>
+<li>
+<p>长尾词</p>
+</li>
+</ul>
+<hr>
+<h4 id="微信版-1">微信版</h4>
+<p>特点：</p>
+<ul>
+<li>
+<p>深度</p>
+</li>
+<li>
+<p>行业洞察</p>
+</li>
+<li>
+<p>观点型</p>
+</li>
+</ul>
+<hr>
+<h4 id="小红书版-1">小红书版</h4>
+<p>特点：</p>
+<ul>
+<li>
+<p>情绪感</p>
+</li>
+<li>
+<p>场景感</p>
+</li>
+<li>
+<p>高级感</p>
+</li>
+</ul>
+<hr>
+<h4 id="知乎版-1">知乎版</h4>
+<p>特点：</p>
+<ul>
+<li>
+<p>专业解释</p>
+</li>
+<li>
+<p>对比</p>
+</li>
+<li>
+<p>数据</p>
+</li>
+</ul>
+<hr>
+<h4 id="抖音版-1">抖音版</h4>
+<p>特点：</p>
+<ul>
+<li>
+<p>前3秒吸引</p>
+</li>
+<li>
+<p>冲突</p>
+</li>
+<li>
+<p>口播节奏</p>
+</li>
+</ul>
+<hr>
+<h1 id="十第六阶段去ai味非常重要">十、第六阶段：去AI味（非常重要）</h1>
+<p>输入：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>对以上内容进行：</span></span>
+<span class="line"><span>- 去AI味</span></span>
+<span class="line"><span>- 中文化</span></span>
+<span class="line"><span>- 平台语感优化</span></span></code></pre>
+<p>系统会自动：</p>
+<hr>
+<h4 id="删除">删除：</h4>
+<ul>
+<li>
+<p>AI套话</p>
+</li>
+<li>
+<p>机械结构</p>
+</li>
+<li>
+<p>空洞总结</p>
+</li>
+</ul>
+<hr>
+<h4 id="增强">增强：</h4>
+<ul>
+<li>
+<p>真人表达</p>
+</li>
+<li>
+<p>行业口语</p>
+</li>
+<li>
+<p>情绪感</p>
+</li>
+<li>
+<p>社交平台感</p>
+</li>
+</ul>
+<hr>
+<h1 id="十一第七阶段建立转化路径核心">十一、第七阶段：建立转化路径（核心）</h1>
+<p>V6 不是只做流量。</p>
+<p>而是：</p>
+<h1 id="流量--询盘">流量 → 询盘</h1>
+<p>输入：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>为“铝瓶包装”建立转化路径</span></span></code></pre>
+<p>系统输出：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>SEO文章</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>对比文章</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>行业案例</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>工厂介绍</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>OEM页</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>询盘页</span></span></code></pre>
+<hr>
+<h1 id="十二第八阶段建立内容日历">十二、第八阶段：建立内容日历</h1>
+<p>输入：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>生成90天内容发布计划</span></span></code></pre>
+<p>系统输出：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Day</th><th>平台</th><th>内容</th><th>目标</th></tr></thead><tbody><tr><td>1</td><td>官网</td><td>Pillar</td><td>权威</td></tr><tr><td>2</td><td>微信</td><td>深度文章</td><td>私域</td></tr><tr><td>3</td><td>知乎</td><td>问答</td><td>信任</td></tr><tr><td>4</td><td>小红书</td><td>种草</td><td>曝光</td></tr><tr><td>5</td><td>抖音</td><td>视频</td><td>流量</td></tr></tbody></table>
+<hr>
+<h1 id="十三企业真正正确玩法重点">十三、企业真正正确玩法（重点）</h1>
+<p>很多企业错误：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>只做官网SEO</span></span></code></pre>
+<p>而 V6 正确玩法：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>官网</span></span>
+<span class="line"><span>+ 微信</span></span>
+<span class="line"><span>+ 知乎</span></span>
+<span class="line"><span>+ 小红书</span></span>
+<span class="line"><span>+ 抖音</span></span>
+<span class="line"><span>+ AI搜索</span></span></code></pre>
+<p>形成：</p>
+<h1 id="全域搜索覆盖">“全域搜索覆盖”</h1>
+<hr>
+<h1 id="十四最推荐的企业执行方式重点">十四、最推荐的企业执行方式（重点）</h1>
+<h4 id="第一阶段1个月">第一阶段（1个月）</h4>
+<p>建立：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>行业Pillar</span></span>
+<span class="line"><span>+ 30篇SEO文章</span></span></code></pre>
+<p>目标：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>百度收录</span></span></code></pre>
+<hr>
+<h4 id="第二阶段2个月">第二阶段（2个月）</h4>
+<p>建立：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>知乎矩阵</span></span>
+<span class="line"><span>微信公众号</span></span></code></pre>
+<p>目标：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>行业权威</span></span></code></pre>
+<hr>
+<h4 id="第三阶段3个月">第三阶段（3个月）</h4>
+<p>建立：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>小红书</span></span>
+<span class="line"><span>抖音</span></span></code></pre>
+<p>目标：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>品牌曝光</span></span></code></pre>
+<hr>
+<h4 id="第四阶段长期">第四阶段（长期）</h4>
+<p>重点：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>AI搜索优化</span></span></code></pre>
+<p>目标：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>让AI引用你</span></span></code></pre>
+<hr>
+<h1 id="十五v6-最核心理念真正重点">十五、V6 最核心理念（真正重点）</h1>
+<p>V6 真正做的不是：</p>
+<h1 id="seo">“SEO”</h1>
+<p>而是：</p>
+<h1 id="行业认知控制">“行业认知控制”</h1>
+<p>未来：</p>
+<p>谁会被 AI 大量引用，</p>
+<p>谁就会：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>获得流量</span></span>
+<span class="line"><span>获得品牌权威</span></span>
+<span class="line"><span>获得询盘</span></span></code></pre>
+<p>所以：</p>
+<p>V6 的真正目标：</p>
+<h1 id="成为-ai-搜索里的行业标准答案">成为 AI 搜索里的行业标准答案。</h1></article><hr class="my-8 border-dashed"><a href="https://github.com/eastseao/rc/edit/main/src/content/posts/chat-ai052-2026.md" target="_blank" rel="noopener noreferrer" class="hover:text-accent text-muted-foreground flex justify-baseline gap-1.5 sm:hidden"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M7 7H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0-2.97-2.97L9 12v3h3zM16 5l3 3" /></svg><span>编辑页面</span></a><div id="btt-btn-container" class="fixed inset-e-4 bottom-8 z-50 md:sticky md:inset-e-auto md:float-end md:me-1 translate-y-14 opacity-0 transition duration-500"><button data-button="back-to-top" class="group bg-background relative px-2 py-1 size-14 rounded-full shadow-xl md:h-8 md:w-fit md:rounded-md md:shadow-none md:focus-visible:rounded-none md:bg-background/35 md:bg-clip-padding md:backdrop-blur-lg"><span id="progress-indicator" class="absolute inset-0 -z-10 block size-14 scale-110 rounded-full bg-transparent md:hidden md:h-8 md:rounded-md"></span><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block rotate-90 md:hidden" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M5 12h14M5 12l6 6M5 12l6-6" /></svg><span class="group-hover:text-accent sr-only text-sm md:not-sr-only"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-4" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M12 5v14M16 9l-4-4M8 9l4-4" /></svg>回到顶部</span></button></div><script data-astro-rerun>
+  function backToTop() {
+    const rootElement = document.documentElement;
+    const btnContainer = document.querySelector("#btt-btn-container");
+    const backToTopBtn = document.querySelector("[data-button='back-to-top']");
+    const progressIndicator = document.querySelector("#progress-indicator");
+
+    if (!rootElement || !btnContainer || !backToTopBtn || !progressIndicator)
+      return;
+
+    backToTopBtn.addEventListener("click", () => {
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+    });
+
+    let lastVisible = null;
+    function handleScroll() {
+      const scrollTotal = rootElement.scrollHeight - rootElement.clientHeight;
+      const scrollTop = rootElement.scrollTop;
+      const scrollPercent = Math.floor((scrollTop / scrollTotal) * 100);
+
+      progressIndicator.style.setProperty(
+        "background-image",
+        `conic-gradient(var(--accent), var(--accent) ${scrollPercent}%, transparent ${scrollPercent}%)`
+      );
+
+      const isVisible = scrollTop / scrollTotal > 0.3;
+
+      if (isVisible !== lastVisible) {
+        btnContainer.classList.toggle("opacity-100", isVisible);
+        btnContainer.classList.toggle("translate-y-0", isVisible);
+        btnContainer.classList.toggle("opacity-0", !isVisible);
+        btnContainer.classList.toggle("translate-y-14", !isVisible);
+        lastVisible = isVisible;
+      }
+    }
+
+    let ticking = false;
+    document.addEventListener("scroll", () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          handleScroll();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+  }
+  backToTop();
+</script><ul class="mt-4 mb-8 flex flex-wrap gap-4 sm:my-8"><li><a data-astro-transition-scope="astro-bztu2lml-1" href="/rc/tags/chatgpt/" class="flex items-center gap-0.5 border-foreground border-b-2 border-dashed hover:border-accent hover:text-accent hover:-mt-0.5 focus-visible:text-accent focus-visible:border-none text-sm"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="opacity-80 size-4" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M5 9h14M5 15h14M11 4 7 20M17 4l-4 16" /></svg>ChatGPT</a></li><li><a data-astro-transition-scope="astro-bztu2lml-2" href="/rc/tags/会话归档/" class="flex items-center gap-0.5 border-foreground border-b-2 border-dashed hover:border-accent hover:text-accent hover:-mt-0.5 focus-visible:text-accent focus-visible:border-none text-sm"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="opacity-80 size-4" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M5 9h14M5 15h14M11 4 7 20M17 4l-4 16" /></svg>会话归档</a></li></ul><div class="flex flex-none flex-col items-center justify-center gap-1 md:items-start"><span class="italic">分享这篇文章：</span><div class="text-center"><a href="https://x.com/intent/post?url=https://eastseao.github.io/rc/posts/chat-ai052-2026/" title="在 X 分享这篇文章" target="_blank" rel="noopener noreferrer" class="group inline-flex items-center gap-1 hover:text-accent scale-90 p-2 hover:rotate-6 sm:p-1"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="m4 4 11.733 16H20L8.267 4zM4 20l6.768-6.768m2.46-2.46L20 4" /></svg><span class="sr-only">在 X 分享这篇文章</span></a><a href="https://t.me/share/url?url=https://eastseao.github.io/rc/posts/chat-ai052-2026/" title="在 Telegram 分享这篇文章" target="_blank" rel="noopener noreferrer" class="group inline-flex items-center gap-1 hover:text-accent scale-90 p-2 hover:rotate-6 sm:p-1"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="m15 10-4 4 6 6 4-16-18 7 4 2 2 6 3-4" /></svg><span class="sr-only">在 Telegram 分享这篇文章</span></a><a href="mailto:?subject=See%20this%20post&amp;body=https://eastseao.github.io/rc/posts/chat-ai052-2026/" title="通过邮件分享这篇文章" target="_blank" rel="noopener noreferrer" class="group inline-flex items-center gap-1 hover:text-accent scale-90 p-2 hover:rotate-6 sm:p-1"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="m3 7 9 6 9-6" /></svg><span class="sr-only">通过邮件分享这篇文章</span></a></div></div><hr class="my-8 border-dashed"><div data-pagefind-ignore class="my-8 grid grid-cols-1 gap-6 sm:grid-cols-2"><a href="/rc/posts/prompt-visualization-2026/" class="flex w-full gap-1 hover:opacity-75"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block flex-none rtl:rotate-180" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M5 12h14M5 12l6 6M5 12l6-6" /></svg><div><span>上一篇</span><div class="text-accent/85 text-sm">信息可视化 · 宣传图提示词 · 包装形式提问</div></div></a><a href="/rc/posts/chat-ai051-2026/" class="flex w-full justify-end gap-1 text-end hover:opacity-75 sm:col-start-2"><div><span>下一篇</span><div class="text-accent/85 text-sm">企业GEO推广Agent设定</div></div><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block flex-none rtl:rotate-180" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M5 12h14M13 18l6-6M13 6l6 6" /></svg></a></div></main><footer class="app-layout mt-auto"><div class="border-border flex flex-col items-center justify-between border-t py-6 sm:flex-row-reverse sm:py-4"><div class="flex flex-wrap items-center gap-1"><a href="https://github.com/eastseao/rc" title="GERVAS on Github" class="group inline-flex items-center gap-1 hover:text-accent p-2 hover:rotate-6 sm:p-1"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21" /></svg><span class="sr-only">GERVAS on Github</span></a></div><div class="my-2 flex flex-col items-center whitespace-nowrap sm:flex-row"><span>版权所有 &#169; 2026</span><span class="hidden sm:inline">&nbsp;|&nbsp;</span><span>保留所有权利。</span></div></div></footer><script type="module">var e=`theme`,t=`light`,n=`dark`;function r(){return localStorage.getItem(e)||(window.matchMedia(`(prefers-color-scheme: dark)`).matches?n:t)}var i=window.__theme?.value??r();function a(){localStorage.setItem(e,i),o()}function o(){let e=document.firstElementChild;e?.setAttribute(`data-theme`,i),e?.classList.toggle(`dark`,i===n),document.querySelector(`#theme-btn`)?.setAttribute(`aria-label`,i);let t=window.getComputedStyle(document.body).backgroundColor;document.querySelector(`meta[name='theme-color']`)?.setAttribute(`content`,t)}function s(){o(),document.querySelector(`#theme-btn`)?.addEventListener(`click`,()=>{i=i===t?n:t,a()})}s(),document.addEventListener(`astro:after-swap`,s),document.addEventListener(`astro:before-swap`,e=>{let t=document.querySelector(`meta[name='theme-color']`)?.getAttribute(`content`);t&&e.newDocument.querySelector(`meta[name='theme-color']`)?.setAttribute(`content`,t)}),window.matchMedia(`(prefers-color-scheme: dark)`).addEventListener(`change`,({matches:e})=>{i=e?n:t,a()});</script></body></html><script data-astro-rerun>
+  function createProgressBar() {
+    const progressContainer = document.createElement("div");
+    progressContainer.className =
+      "progress-container fixed top-0 z-10 h-1 w-full bg-background";
+
+    const progressBar = document.createElement("div");
+    progressBar.className = "progress-bar h-1 w-0 bg-accent";
+    progressBar.id = "myBar";
+
+    progressContainer.appendChild(progressBar);
+    document.body.appendChild(progressContainer);
+  }
+  createProgressBar();
+
+  function updateScrollProgress() {
+    document.addEventListener("scroll", () => {
+      const winScroll =
+        document.body.scrollTop || document.documentElement.scrollTop;
+      const height =
+        document.documentElement.scrollHeight -
+        document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      if (document) {
+        const myBar = document.getElementById("myBar");
+        if (myBar) {
+          myBar.style.width = scrolled + "%";
+        }
+      }
+    });
+  }
+  updateScrollProgress();
+
+  function addHeadingLinks() {
+    const headings = Array.from(
+      document.querySelectorAll("h2, h3, h4, h5, h6")
+    );
+    for (const heading of headings) {
+      heading.classList.add("group");
+      const link = document.createElement("a");
+      link.className =
+        "heading-link ms-2 no-underline opacity-75 md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100";
+      link.href = "#" + heading.id;
+
+      const span = document.createElement("span");
+      span.ariaHidden = "true";
+      span.innerText = "#";
+      link.appendChild(span);
+      heading.appendChild(link);
+    }
+  }
+  addHeadingLinks();
+
+  function attachCopyButtons() {
+    const copyButtonLabel = "Copy";
+    const codeBlocks = Array.from(document.querySelectorAll("pre"));
+
+    for (const codeBlock of codeBlocks) {
+      const wrapper = document.createElement("div");
+      wrapper.style.position = "relative";
+
+      const computedStyle = getComputedStyle(codeBlock);
+      const hasFileNameOffset =
+        computedStyle.getPropertyValue("--file-name-offset").trim() !== "";
+
+      const topClass = hasFileNameOffset
+        ? "top-(--file-name-offset)"
+        : "-top-3";
+
+      const copyButton = document.createElement("button");
+      copyButton.className = `copy-code absolute end-3 ${topClass} rounded bg-muted border border-muted px-2 py-1 text-xs leading-4 text-foreground font-medium`;
+      copyButton.innerHTML = copyButtonLabel;
+      codeBlock.setAttribute("tabindex", "0");
+      codeBlock.appendChild(copyButton);
+
+      codeBlock?.parentNode?.insertBefore(wrapper, codeBlock);
+      wrapper.appendChild(codeBlock);
+
+      copyButton.addEventListener("click", async () => {
+        await copyCode(codeBlock, copyButton);
+      });
+    }
+
+    async function copyCode(block, button) {
+      const code = block.querySelector("code");
+      const text = code?.innerText;
+
+      await navigator.clipboard.writeText(text ?? "");
+
+      button.innerText = "Copied";
+
+      setTimeout(() => {
+        button.innerText = copyButtonLabel;
+      }, 700);
+    }
+  }
+  attachCopyButtons();
+
+  /** Accessible image lightbox for article images. */
+  function initLightbox() {
+    const article = document.getElementById("article");
+    if (!article) return;
+
+    const prefersReducedMotion = () =>
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let overlay = null;
+    let lastFocused = null;
+
+    // Defer attribute mutations so they don't push the LCP timestamp.
+    // Event listeners below use delegation and don't need the attributes to exist yet.
+    requestAnimationFrame(() => {
+      const images = Array.from(article.querySelectorAll("img"));
+      for (const image of images) {
+        if (image.closest("a")) continue;
+        image.setAttribute("role", "button");
+        image.setAttribute("tabindex", "0");
+        image.setAttribute("aria-haspopup", "dialog");
+        image.setAttribute(
+          "aria-label",
+          image.alt ? `Zoom image: ${image.alt}` : "Zoom image"
+        );
+      }
+    });
+
+    function open(src, alt, trigger) {
+      if (overlay) return;
+      lastFocused = trigger ?? document.activeElement;
+
+      overlay = document.createElement("div");
+      overlay.setAttribute("role", "dialog");
+      overlay.setAttribute("aria-modal", "true");
+      overlay.setAttribute(
+        "aria-label",
+        alt ? `Image preview: ${alt}` : "Image preview"
+      );
+      overlay.className =
+        "fixed inset-0 z-50 flex cursor-zoom-out items-center justify-center bg-black/70 backdrop-blur-sm opacity-0 transition-opacity duration-200 motion-reduce:transition-none";
+
+      const closeButton = document.createElement("button");
+      closeButton.type = "button";
+      closeButton.setAttribute("aria-label", "Close image preview");
+      closeButton.className =
+        "absolute end-4 top-4 rounded p-2 text-3xl leading-none text-white";
+      closeButton.innerHTML = "&#10005;";
+      closeButton.addEventListener("click", close);
+
+      const image = document.createElement("img");
+      image.src = src;
+      image.alt = "";
+      image.className =
+        "max-h-[90dvh] max-w-[90dvw] cursor-default object-contain";
+
+      overlay.append(closeButton, image);
+      overlay.addEventListener("click", e => {
+        if (e.target === overlay && currentScale <= 1) close();
+      });
+
+      let currentScale = 1;
+      let translateX = 0;
+      let translateY = 0;
+      let initialDist = 0;
+      let initialScale = 1;
+      let panStartX = 0;
+      let panStartY = 0;
+      let panStartTranslateX = 0;
+      let panStartTranslateY = 0;
+      let lastTapTime = 0;
+
+      function applyTransform() {
+        image.style.transform = `scale(${currentScale}) translate(${translateX}px, ${translateY}px)`;
+      }
+
+      function resetTransform() {
+        currentScale = 1;
+        translateX = 0;
+        translateY = 0;
+        image.style.transform = "";
+      }
+
+      overlay.addEventListener(
+        "touchstart",
+        e => {
+          const t = e.touches;
+          if (t.length === 2) {
+            initialDist = Math.hypot(
+              t[1].clientX - t[0].clientX,
+              t[1].clientY - t[0].clientY
+            );
+            initialScale = currentScale;
+          } else if (t.length === 1) {
+            const now = Date.now();
+            if (now - lastTapTime < 300) {
+              e.preventDefault();
+              if (currentScale > 1) {
+                resetTransform();
+              } else {
+                currentScale = 2;
+                translateX = 0;
+                translateY = 0;
+                applyTransform();
+              }
+              lastTapTime = 0;
+              panStartX = t[0].clientX;
+              panStartY = t[0].clientY;
+              panStartTranslateX = translateX;
+              panStartTranslateY = translateY;
+            } else {
+              lastTapTime = now;
+              if (currentScale > 1) {
+                panStartX = t[0].clientX;
+                panStartY = t[0].clientY;
+                panStartTranslateX = translateX;
+                panStartTranslateY = translateY;
+              }
+            }
+          }
+        },
+        { passive: false }
+      );
+
+      overlay.addEventListener(
+        "touchmove",
+        e => {
+          const t = e.touches;
+          if (t.length === 2) {
+            e.preventDefault();
+            const dist = Math.hypot(
+              t[1].clientX - t[0].clientX,
+              t[1].clientY - t[0].clientY
+            );
+            currentScale = Math.min(
+              4,
+              Math.max(1, initialScale * (dist / initialDist))
+            );
+            applyTransform();
+          } else if (t.length === 1) {
+            if (currentScale > 1) {
+              e.preventDefault();
+              translateX =
+                panStartTranslateX + (t[0].clientX - panStartX) / currentScale;
+              translateY =
+                panStartTranslateY + (t[0].clientY - panStartY) / currentScale;
+              const maxX = Math.max(
+                0,
+                (image.clientWidth - overlay.clientWidth / currentScale) / 2
+              );
+              const maxY = Math.max(
+                0,
+                (image.clientHeight - overlay.clientHeight / currentScale) / 2
+              );
+              translateX = Math.min(maxX, Math.max(-maxX, translateX));
+              translateY = Math.min(maxY, Math.max(-maxY, translateY));
+              applyTransform();
+            } else {
+              e.preventDefault();
+            }
+          }
+        },
+        { passive: false }
+      );
+
+      overlay.addEventListener("touchend", e => {
+        if (e.touches.length === 0 && currentScale <= 1.05) {
+          resetTransform();
+        }
+      });
+
+      overlay.addEventListener("touchcancel", e => {
+        if (e.touches.length === 0 && currentScale <= 1.05) {
+          resetTransform();
+        }
+      });
+
+      document.body.appendChild(overlay);
+      document.body.style.overflow = "hidden";
+      document.addEventListener("keydown", onKeyDown);
+      window.__closeLightbox = close;
+
+      requestAnimationFrame(() => overlay?.classList.add("opacity-100"));
+      closeButton.focus();
+    }
+
+    function close() {
+      if (!overlay) return;
+      const el = overlay;
+      overlay = null;
+      window.__closeLightbox = null;
+
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = "";
+      lastFocused?.focus();
+      lastFocused = null;
+
+      if (prefersReducedMotion()) {
+        el.remove();
+        return;
+      }
+      const remove = () => el.remove();
+      el.addEventListener("transitionend", remove, { once: true });
+      setTimeout(remove, 250); // fallback in case transitionend never fires
+      el.classList.remove("opacity-100");
+    }
+
+    function onKeyDown(e) {
+      if (e.key === "Escape") {
+        close();
+      } else if (e.key === "Tab") {
+        trapFocus(e);
+      }
+    }
+
+    // Keep keyboard focus inside the open dialog.
+    function trapFocus(e) {
+      if (!overlay) return;
+      const focusables = overlay.querySelectorAll(
+        'a[href], button, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+
+    function triggerFromEvent(e) {
+      const image = e.target.closest("img");
+      if (!image || !article.contains(image) || image.closest("a")) return null;
+      return image;
+    }
+
+    function activate(image) {
+      open(image.currentSrc || image.src, image.alt, image);
+    }
+
+    article.addEventListener("click", e => {
+      const image = triggerFromEvent(e);
+      if (!image) return;
+      e.preventDefault();
+      activate(image);
+    });
+
+    article.addEventListener("keydown", e => {
+      if (e.key !== "Enter" && e.key !== " " && e.key !== "Spacebar") return;
+      const image = triggerFromEvent(e);
+      if (!image) return;
+      e.preventDefault();
+      activate(image);
+    });
+  }
+  initLightbox();
+
+  if (!window.__lightboxSwapBound) {
+    window.__lightboxSwapBound = true;
+    document.addEventListener("astro:before-swap", () =>
+      window.__closeLightbox?.()
+    );
+  }
+
+  document.addEventListener("astro:after-swap", () =>
+    window.scrollTo({ left: 0, top: 0, behavior: "instant" })
+  );
+</script>

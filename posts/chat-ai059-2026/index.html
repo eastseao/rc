@@ -1,0 +1,2359 @@
+<!DOCTYPE html><html dir="ltr" lang="zh-CN" class="overflow-y-scroll scroll-smooth"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/svg+xml" href="/rc/favicon.svg"><link rel="icon" href="/rc/favicon.ico"><link rel="canonical" href="https://eastseao.github.io/rc/posts/chat-ai059-2026/"><meta name="generator" content="Astro v7.3.7"><!-- Font --><style>:root{--font-google-sans-code:"Google Sans Code-1a30c214885cb404",monospace;}</style><!-- Primary meta --><title>知乎主题簇引擎设计 | GERVAS</title><meta name="title" content="知乎主题簇引擎设计 | GERVAS"><meta name="description" content="你现在这套资料，其实已经接近一个「知乎爆款内容工业化系统」了。🔥 你缺的不是单点能力，而是： “主题簇（Topic Cluster）生成与调度层”也就是：- 怎么批量找知乎能打的主题- 怎么把主题做成系列矩阵- 怎么自动扩散成长尾- 怎么"><meta name="author" content="GERVAS"><link rel="sitemap" href="/rc/sitemap-index.xml"><!-- Open Graph --><meta property="og:type" content="website"><meta property="og:site_name" content="GERVAS"><meta property="og:title" content="知乎主题簇引擎设计 | GERVAS"><meta property="og:description" content="你现在这套资料，其实已经接近一个「知乎爆款内容工业化系统」了。🔥 你缺的不是单点能力，而是： “主题簇（Topic Cluster）生成与调度层”也就是：- 怎么批量找知乎能打的主题- 怎么把主题做成系列矩阵- 怎么自动扩散成长尾- 怎么"><meta property="og:url" content="https://eastseao.github.io/rc/posts/chat-ai059-2026/"><meta property="og:image" content="https://eastseao.github.io/rc/default-og.jpg"><!-- Twitter / X --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://eastseao.github.io/rc/posts/chat-ai059-2026/"><meta property="twitter:title" content="知乎主题簇引擎设计 | GERVAS"><meta property="twitter:description" content="你现在这套资料，其实已经接近一个「知乎爆款内容工业化系统」了。🔥 你缺的不是单点能力，而是： “主题簇（Topic Cluster）生成与调度层”也就是：- 怎么批量找知乎能打的主题- 怎么把主题做成系列矩阵- 怎么自动扩散成长尾- 怎么"><meta property="twitter:image" content="https://eastseao.github.io/rc/default-og.jpg"><!-- RSS autodiscovery --><link rel="alternate" type="application/rss+xml" title="GERVAS" href="https://eastseao.github.io/rc/rss.xml/"><!-- Filled at runtime by theme.ts to match the current background colour --><meta name="theme-color" content=""><!-- Extra head content injected by child layouts (e.g. JSON-LD, article meta) --><meta property="og:type" content="article"><meta property="article:published_time" content="2026-05-28T00:00:00.000Z"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"知乎主题簇引擎设计 | GERVAS","datePublished":"2026-05-28T00:00:00.000Z","author":[{"@type":"Person","name":"GERVAS","url":"https://eastseao.github.io/rc/about"}]}</script><!--
+      Inline FOUC-prevention script: sets data-theme on <html> before
+      the browser paints. Runs synchronously, no defer/async.
+    --><script>
+      (function () {
+        const stored = localStorage.getItem("theme");
+        const prefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)"
+        ).matches;
+        const theme = stored ?? (prefersDark ? "dark" : "light");
+        const root = document.firstElementChild;
+        root?.setAttribute("data-theme", theme);
+        root?.classList.toggle("dark", theme === "dark");
+        // Expose value so theme.ts can skip re-detection.
+        window.__theme = { value: theme };
+      })();
+    </script><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><script type="module" src="/rc/_astro/ClientRouter.astro_astro_type_script_index_0_lang.BDCjmQ8c.js"></script><link rel="stylesheet" href="/rc/_astro/Footer.BNEnPMnF.css"><style>@keyframes astroFadeInOut{0%{opacity:1}to{opacity:0}}@keyframes astroFadeIn{0%{opacity:0;mix-blend-mode:plus-lighter}to{opacity:1;mix-blend-mode:plus-lighter}}@keyframes astroFadeOut{0%{opacity:1;mix-blend-mode:plus-lighter}to{opacity:0;mix-blend-mode:plus-lighter}}@keyframes astroSlideFromRight{0%{transform:translate(100%)}}@keyframes astroSlideFromLeft{0%{transform:translate(-100%)}}@keyframes astroSlideToRight{to{transform:translate(100%)}}@keyframes astroSlideToLeft{to{transform:translate(-100%)}}@media (prefers-reduced-motion){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*),[data-astro-transition-scope]{animation:none!important}}
+</style><style>[data-astro-transition-scope="astro-bztu2lml-1"] { view-transition-name: chatgpt; }@layer astro { ::view-transition-old(chatgpt) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }::view-transition-new(chatgpt) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(chatgpt) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(chatgpt) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-bztu2lml-1"],
+			[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-bztu2lml-1"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-bztu2lml-1"],
+			[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-bztu2lml-1"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-bztu2lml-1"],
+			[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-bztu2lml-1"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-bztu2lml-1"],
+			[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-bztu2lml-1"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-bztu2lml-2"] { view-transition-name: \4F1A\8BDD\5F52\6863; }@layer astro { ::view-transition-old(\4F1A\8BDD\5F52\6863) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }::view-transition-new(\4F1A\8BDD\5F52\6863) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(\4F1A\8BDD\5F52\6863) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(\4F1A\8BDD\5F52\6863) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-bztu2lml-2"],
+			[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-bztu2lml-2"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-bztu2lml-2"],
+			[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-bztu2lml-2"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-bztu2lml-2"],
+			[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-bztu2lml-2"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-bztu2lml-2"],
+			[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-bztu2lml-2"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }</style></head><body class="bg-background font-app text-foreground selection:bg-accent/75 selection:text-accent-foreground flex min-h-svh flex-col"><a id="skip-to-content" href="#main-content" class="bg-background text-accent absolute inset-s-16 -top-full z-50 px-3 py-2 backdrop-blur-lg transition-all focus:top-4">跳到正文</a><header class="app-layout flex flex-col items-center justify-between sm:flex-row"><div class="border-border bg-background relative flex w-full items-baseline justify-between border-b py-4 sm:items-center sm:py-6"><a href="/rc/" class="absolute py-1 text-xl leading-8 font-semibold whitespace-nowrap sm:static sm:my-auto sm:text-2xl sm:leading-none">GERVAS</a><nav id="nav-menu" class="flex w-full flex-col items-center sm:ms-2 sm:flex-row sm:justify-end sm:space-x-4 sm:py-0"><button id="menu-btn" class="focus-outline self-end p-2 sm:hidden" aria-label="打开菜单" aria-expanded="false" aria-controls="menu-items" data-label-open="打开菜单" data-label-close="关闭菜单"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="hidden" viewBox="0 0 24 24" id="close-icon"><path stroke="none" d="M0 0h24v24H0z" /><path d="M18 6 6 18M6 6l12 12" /></svg><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="icon icon-tabler icons-tabler-outline icon-tabler-menu-deep" viewBox="0 0 24 24" id="menu-icon"><path stroke="none" d="M0 0h24v24H0z" /><path d="M4 6h16M7 12h13M10 18h10" /></svg></button><ul id="menu-items" class="[&amp;&gt;li&gt;a]:hover:text-accent mt-4 hidden w-44 grid-cols-2 place-content-center gap-2 sm:mt-0 sm:flex sm:w-auto sm:gap-x-5 sm:gap-y-0 sm:[&amp;&gt;li]:h-8 [&amp;&gt;li&gt;a]:block [&amp;&gt;li&gt;a]:px-4 [&amp;&gt;li&gt;a]:py-3 [&amp;&gt;li&gt;a]:text-center [&amp;&gt;li&gt;a]:font-medium sm:[&amp;&gt;li&gt;a]:px-2 sm:[&amp;&gt;li&gt;a]:py-1"><li class="col-span-2"><a href="/rc/posts/" class="active-nav">Notes</a></li><li class="col-span-2"><a href="/rc/projects/">Projects</a></li><li class="col-span-2"><a href="/rc/categories/life/">Life</a></li><li class="col-span-2"><a href="/rc/about/">About</a></li><li class="col-span-1 flex items-center justify-center"><a href="/rc/search/" title="搜索" aria-label="搜索" class="group inline-flex items-center gap-1 hover:text-accent focus-outline relative size-8"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="absolute top-1/2 left-1/2 size-6 -translate-x-1/2 -translate-y-1/2" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M3 10a7 7 0 1 0 14 0 7 7 0 1 0-14 0M21 21l-6-6" /></svg><span class="sr-only">搜索</span></a></li><li class="col-span-1 flex items-center justify-center"><button id="theme-btn" class="focus-outline hover:[&amp;&gt;svg]:stroke-accent relative size-12 p-4 sm:size-8" title="切换主题" aria-label="auto" aria-live="polite"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="absolute top-[50%] left-[50%] translate-[-50%] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M12 3h.393a7.5 7.5 0 0 0 7.92 12.446A9 9 0 1 1 12 2.992z" /></svg><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="absolute top-[50%] left-[50%] translate-[-50%] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M14.828 14.828a4 4 0 1 0-5.656-5.656 4 4 0 0 0 5.656 5.656M6.343 17.657l-1.414 1.414M6.343 6.343 4.929 4.929M17.657 6.343l1.414-1.414M17.657 17.657l1.414 1.414M4 12H2M12 4V2M20 12h2M12 20v2" /></svg></button></li></ul></nav></div></header><script type="module">function e(){let e=document.querySelector(`#menu-btn`),t=document.querySelector(`#menu-items`),n=document.querySelector(`#menu-icon`),r=document.querySelector(`#close-icon`);if(!e||!t||!n||!r)return;let i=e.dataset.labelOpen??`Open menu`,a=e.dataset.labelClose??`Close menu`;e.addEventListener(`click`,()=>{let o=e.getAttribute(`aria-expanded`)===`true`;e.setAttribute(`aria-expanded`,o?`false`:`true`),e.setAttribute(`aria-label`,o?i:a),t.classList.toggle(`hidden`),t.classList.toggle(`grid`),n.classList.toggle(`hidden`),r.classList.toggle(`hidden`)})}function t(){let e=document.getElementById(`skip-to-content`);e&&e.addEventListener(`click`,e=>{if(e.defaultPrevented||e.metaKey||e.ctrlKey||e.shiftKey||e.button!==0)return;e.preventDefault();let t=document.getElementById(`main-content`);t&&(t.setAttribute(`tabindex`,`-1`),t.addEventListener(`blur`,()=>t.removeAttribute(`tabindex`),{once:!0}),t.focus(),t.scrollIntoView({behavior:`smooth`}))})}e(),document.addEventListener(`astro:after-swap`,e),t(),document.addEventListener(`astro:after-swap`,t);</script><div class="app-layout flex items-center justify-start"><a id="back-button" href="/rc/" class="group inline-flex items-center gap-1 hover:text-accent focus-outline hover:text-foreground/75 -ms-2 mt-8 mb-2"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 rtl:rotate-180" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="m15 6-6 6 6 6" /></svg><span>返回</span></a></div><script type="module">function e(){let e=document.querySelector(`#back-button`),t=sessionStorage.getItem(`backUrl`);t&&e&&(e.href=t)}document.addEventListener(`astro:page-load`,e),e();</script><main id="main-content" class="app-layout" data-pagefind-body><h1 style="view-transition-name:chat-ai059-2026" class="text-accent inline-block text-2xl font-bold sm:text-3xl">知乎主题簇引擎设计</h1><div class="my-2 flex items-center gap-2"><div class="text-muted-foreground flex items-center gap-x-2"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 min-w-5.5" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zM16 3v4M8 3v4M4 11h16M7 14h.013M10.01 14h.005M13.01 14h.005M16.015 14h.005M13.015 17h.005M7.01 17h.005M10.01 17h.005" /></svg><time class="text-sm sm:text-base" datetime="2026-05-28T00:00:00.000Z">28 May, 2026</time></div><span aria-hidden="true" class="text-muted-foreground max-sm:hidden">|</span><a href="https://github.com/eastseao/rc/edit/main/src/content/posts/chat-ai059-2026.md" target="_blank" rel="noopener noreferrer" class="hover:text-accent text-muted-foreground flex justify-baseline gap-1.5 max-sm:hidden"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M7 7H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0-2.97-2.97L9 12v3h3zM16 5l3 3" /></svg><span>编辑页面</span></a></div><article id="article" class="mt-8 w-full app-prose max-w-app prose-pre:bg-(--shiki-light-bg) dark:prose-pre:bg-(--shiki-dark-bg)"><h2 id="q1--我已经有这些资料核心引擎10个genre_rulesmd题材分析规则库第-1-轮对话">Q1 · 我已经有这些资料：核心引擎（10个）genre_rules.md（题材分析规则库…（第 1 轮对话）</h2>
+<blockquote><p><strong>提问：</strong> 我已经有这些资料：核心引擎（10个） genre_rules.md（题材分析规则库） structure_rules.md（结构分析规则库） analyse.md（小说拆解分析模板） HOOK_ENGINE.md（钩子引擎） CHARACTER_ENGINE.md（人物模型引擎） EMOTION_ENGINE.md（情绪节奏引擎） OUTLINE_ENGINE.md（大纲生成引擎） REBUILD_ENGINE.md（故事重构引擎） CHAPTER_ENGINE.md（章节生成引擎） TITLE_ENGINE.md（标题生成引擎） STYLE_ENGINE.md（文风转换引擎） DATABASE_ENGINE.md（数据库引擎） 资源库（8个） zhihu_style.md（知乎风写作指南） emotion_library.md（情绪库） hook_library.md（钩子库） title_library.md（标题库） reversal_library.md（反转库） ending_library.md（结尾库） female_market.md（女频市场） male_market.md（男频市场），现在请给我设计一套知乎的主题簇生成技能</p></blockquote>
+<p>你现在这套资料，其实已经接近一个「知乎爆款内容工业化系统」了。🔥 你缺的不是单点能力，而是：</p>
+<blockquote><p><strong>“主题簇（Topic Cluster）生成与调度层”</strong></p></blockquote>
+<p>也就是：</p>
+<ul>
+<li>
+<p>怎么批量找知乎能打的主题</p>
+</li>
+<li>
+<p>怎么把主题做成系列矩阵</p>
+</li>
+<li>
+<p>怎么自动扩散成长尾</p>
+</li>
+<li>
+<p>怎么和你的 HOOK / 情绪 / 标题 / 重构引擎联动</p>
+</li>
+<li>
+<p>怎么形成持续更新的知乎内容库</p>
+</li>
+</ul>
+<p>下面我直接给你设计一套：</p>
+<h1 id="知乎主题簇生成技能zhihu-topic-cluster-engine">知乎主题簇生成技能（Zhihu Topic Cluster Engine）</h1>
+<p>适用于：</p>
+<ul>
+<li>
+<p>OpenClaw</p>
+</li>
+<li>
+<p>QClaw</p>
+</li>
+<li>
+<p>Claude Skill</p>
+</li>
+<li>
+<p>Agent Workflow</p>
+</li>
+<li>
+<p>本地知识库驱动写作系统</p>
+</li>
+</ul>
+<p>建议中文名：</p>
+<h1 id="知乎爆款主题簇引擎">「知乎爆款主题簇引擎」</h1>
+<p>或者：</p>
+<h1 id="知乎热点选题矩阵系统">「知乎热点选题矩阵系统」</h1>
+<hr>
+<h1 id="一这个-skill-的核心定位">一、这个 Skill 的核心定位</h1>
+<p>它不是：</p>
+<ul>
+<li>单篇文章生成器</li>
+</ul>
+<p>而是：</p>
+<h1 id="知乎内容战略层">“知乎内容战略层”</h1>
+<p>作用：</p>
+<h5 id="输入">输入：</h5>
+<p>一个行业 / 方向 / 人群 / 产品</p>
+<h5 id="输出">输出：</h5>
+<p>自动生成：</p>
+<ul>
+<li>
+<p>主主题</p>
+</li>
+<li>
+<p>子主题</p>
+</li>
+<li>
+<p>长尾问题</p>
+</li>
+<li>
+<p>情绪方向</p>
+</li>
+<li>
+<p>钩子方向</p>
+</li>
+<li>
+<p>适合的标题模型</p>
+</li>
+<li>
+<p>适合的文风</p>
+</li>
+<li>
+<p>适合的知乎回答结构</p>
+</li>
+<li>
+<p>连载路径</p>
+</li>
+<li>
+<p>知乎盐选化路线</p>
+</li>
+<li>
+<p>SEO/GEO扩散路线</p>
+</li>
+</ul>
+<p>本质上：</p>
+<h1 id="知乎内容地图自动生成器">「知乎内容地图自动生成器」</h1>
+<hr>
+<h1 id="二推荐目录结构">二、推荐目录结构</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>zhihu-topic-cluster/</span></span>
+<span class="line"><span>│</span></span>
+<span class="line"><span>├── skill.md</span></span>
+<span class="line"><span>├── config.yaml</span></span>
+<span class="line"><span>├── README.md</span></span>
+<span class="line"><span>│</span></span>
+<span class="line"><span>├── prompts/</span></span>
+<span class="line"><span>│   ├── discover_topics.md</span></span>
+<span class="line"><span>│   ├── cluster_expand.md</span></span>
+<span class="line"><span>│   ├── emotion_mapping.md</span></span>
+<span class="line"><span>│   ├── audience_mapping.md</span></span>
+<span class="line"><span>│   ├── hook_mapping.md</span></span>
+<span class="line"><span>│   ├── title_mapping.md</span></span>
+<span class="line"><span>│   ├── content_path.md</span></span>
+<span class="line"><span>│   ├── zhihu_style_select.md</span></span>
+<span class="line"><span>│   ├── monetization_path.md</span></span>
+<span class="line"><span>│</span></span>
+<span class="line"><span>├── engines/</span></span>
+<span class="line"><span>│   ├── TREND_ENGINE.md</span></span>
+<span class="line"><span>│   ├── CLUSTER_ENGINE.md</span></span>
+<span class="line"><span>│   ├── QUESTION_ENGINE.md</span></span>
+<span class="line"><span>│   ├── VIRAL_ENGINE.md</span></span>
+<span class="line"><span>│   ├── TRAFFIC_ENGINE.md</span></span>
+<span class="line"><span>│</span></span>
+<span class="line"><span>├── database/</span></span>
+<span class="line"><span>│   ├── zhihu_hot_topics.md</span></span>
+<span class="line"><span>│   ├── emotion_tags.md</span></span>
+<span class="line"><span>│   ├── traffic_keywords.md</span></span>
+<span class="line"><span>│   ├── user_desires.md</span></span>
+<span class="line"><span>│   ├── pain_points.md</span></span>
+<span class="line"><span>│</span></span>
+<span class="line"><span>├── templates/</span></span>
+<span class="line"><span>│   ├── cluster_template.md</span></span>
+<span class="line"><span>│   ├── article_path_template.md</span></span>
+<span class="line"><span>│   ├── serial_template.md</span></span>
+<span class="line"><span>│</span></span>
+<span class="line"><span>└── output/</span></span>
+<span class="line"><span>    ├── cluster_result.md</span></span>
+<span class="line"><span>    ├── content_calendar.md</span></span>
+<span class="line"><span>    ├── article_matrix.md</span></span></code></pre>
+<hr>
+<h1 id="三skill-核心逻辑非常关键">三、Skill 核心逻辑（非常关键）</h1>
+<p>这个 Skill 的真正核心：</p>
+<h1 id="topic--cluster--emotion--hook--traffic">Topic → Cluster → Emotion → Hook → Traffic</h1>
+<p>不是简单生成标题。</p>
+<p>而是：</p>
+<h4 id="step1发现高价值主题">Step1：发现高价值主题</h4>
+<p>例如：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>副业</span></span>
+<span class="line"><span>情感</span></span>
+<span class="line"><span>成长</span></span>
+<span class="line"><span>AI</span></span>
+<span class="line"><span>职场</span></span>
+<span class="line"><span>婚姻</span></span>
+<span class="line"><span>女性成长</span></span>
+<span class="line"><span>普通人赚钱</span></span>
+<span class="line"><span>中年危机</span></span>
+<span class="line"><span>消费降级</span></span>
+<span class="line"><span>原生家庭</span></span>
+<span class="line"><span>考公</span></span>
+<span class="line"><span>AI创业</span></span></code></pre>
+<p>这里调用：</p>
+<ul>
+<li>
+<p>female_market.md</p>
+</li>
+<li>
+<p>male_market.md</p>
+</li>
+<li>
+<p>emotion_library.md</p>
+</li>
+</ul>
+<p>进行市场识别。</p>
+<hr>
+<h1 id="四主题簇生成逻辑">四、主题簇生成逻辑</h1>
+<p>例如用户输入：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>AI副业</span></span></code></pre>
+<p>系统自动扩展：</p>
+<h1 id="一级主题簇">一级主题簇</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>AI赚钱</span></span>
+<span class="line"><span>AI接单</span></span>
+<span class="line"><span>AI写作</span></span>
+<span class="line"><span>AI绘图</span></span>
+<span class="line"><span>AI短视频</span></span>
+<span class="line"><span>AI自媒体</span></span>
+<span class="line"><span>AI知识付费</span></span>
+<span class="line"><span>AI代运营</span></span></code></pre>
+<hr>
+<h1 id="二级主题簇">二级主题簇</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>普通人如何靠AI月入1万</span></span>
+<span class="line"><span>AI写公众号还能赚钱吗</span></span>
+<span class="line"><span>AI会不会取代文案</span></span>
+<span class="line"><span>AI副业为什么越来越卷</span></span></code></pre>
+<hr>
+<h1 id="三级知乎问题化">三级知乎问题化</h1>
+<p>知乎最重要：</p>
+<h1 id="问题化表达">「问题化表达」</h1>
+<p>系统自动转换：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>为什么很多人学AI赚不到钱？</span></span>
+<span class="line"><span>普通人做AI副业最大的误区是什么？</span></span>
+<span class="line"><span>为什么AI工具越来越多，但赚钱越来越难？</span></span></code></pre>
+<p>这个模块：</p>
+<h1 id="question_engine">QUESTION_ENGINE</h1>
+<p>负责。</p>
+<hr>
+<h1 id="五核心-skill-工作流">五、核心 Skill 工作流</h1>
+<h1 id="工作流-v1">工作流 V1</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>用户输入方向</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>趋势发现</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>主题聚类</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>问题化</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>情绪映射</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>钩子映射</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>标题映射</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>知乎结构匹配</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>内容连载路径</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>输出主题矩阵</span></span></code></pre>
+<hr>
+<h1 id="六你现有资料如何联动重点">六、你现有资料如何联动（重点）</h1>
+<p>你已经有的资源非常强。</p>
+<p>下面是联动方式：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>你的资料</th><th>在主题簇中的作用</th></tr></thead><tbody><tr><td>HOOK_ENGINE</td><td>生成开头钩子</td></tr><tr><td>TITLE_ENGINE</td><td>爆款标题</td></tr><tr><td>EMOTION_ENGINE</td><td>情绪驱动</td></tr><tr><td>CHARACTER_ENGINE</td><td>人设绑定</td></tr><tr><td>STYLE_ENGINE</td><td>知乎文风适配</td></tr><tr><td>OUTLINE_ENGINE</td><td>自动大纲</td></tr><tr><td>CHAPTER_ENGINE</td><td>系列化输出</td></tr><tr><td>REBUILD_ENGINE</td><td>爆文重构</td></tr><tr><td>DATABASE_ENGINE</td><td>主题库存储</td></tr><tr><td>hook_library</td><td>钩子数据库</td></tr><tr><td>title_library</td><td>标题数据库</td></tr><tr><td>emotion_library</td><td>情绪数据库</td></tr><tr><td>reversal_library</td><td>反转设计</td></tr><tr><td>ending_library</td><td>结尾强化</td></tr></tbody></table>
+<p>你其实已经有：</p>
+<h1 id="知乎内容生产流水线">“知乎内容生产流水线”</h1>
+<p>现在缺的是：</p>
+<h1 id="流量入口调度系统">「流量入口调度系统」</h1>
+<p>也就是 Topic Cluster。</p>
+<hr>
+<h1 id="七推荐新增的核心引擎很重要">七、推荐新增的核心引擎（很重要）</h1>
+<p>你现在建议新增：</p>
+<h1 id="1-trend_enginemd">1. TREND_ENGINE.md</h1>
+<p>负责：</p>
+<ul>
+<li>
+<p>热点发现</p>
+</li>
+<li>
+<p>平台趋势</p>
+</li>
+<li>
+<p>用户需求变化</p>
+</li>
+<li>
+<p>赛道热度</p>
+</li>
+</ul>
+<p>例如：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>近期知乎热议：</span></span>
+<span class="line"><span>AI失业</span></span>
+<span class="line"><span>消费降级</span></span>
+<span class="line"><span>副业焦虑</span></span>
+<span class="line"><span>中年裁员</span></span></code></pre>
+<hr>
+<h1 id="2-cluster_enginemd">2. CLUSTER_ENGINE.md</h1>
+<p>负责：</p>
+<h1 id="一个主题扩散成100个主题">“一个主题扩散成100个主题”</h1>
+<p>例如：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>职场</span></span>
+<span class="line"><span>→ 裁员</span></span>
+<span class="line"><span>→ 35岁危机</span></span>
+<span class="line"><span>→ 大厂</span></span>
+<span class="line"><span>→ 降薪</span></span>
+<span class="line"><span>→ 摸鱼</span></span>
+<span class="line"><span>→ 副业</span></span>
+<span class="line"><span>→ AI替代</span></span></code></pre>
+<p>这是核心中的核心。</p>
+<hr>
+<h1 id="3-question_enginemd">3. QUESTION_ENGINE.md</h1>
+<p>知乎最重要的能力：</p>
+<h1 id="把观点转化成知乎问题">“把观点转化成知乎问题”</h1>
+<p>例如：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>AI副业很多人失败</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>为什么多数人做AI副业赚不到钱？</span></span></code></pre>
+<hr>
+<h1 id="4-viral_enginemd">4. VIRAL_ENGINE.md</h1>
+<p>负责：</p>
+<ul>
+<li>
+<p>爆点</p>
+</li>
+<li>
+<p>争议</p>
+</li>
+<li>
+<p>情绪</p>
+</li>
+<li>
+<p>反差</p>
+</li>
+<li>
+<p>反转</p>
+</li>
+<li>
+<p>身份冲突</p>
+</li>
+</ul>
+<p>例如：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>月薪3万的人开始送外卖</span></span>
+<span class="line"><span>985毕业生失业</span></span>
+<span class="line"><span>35岁程序员转行</span></span></code></pre>
+<hr>
+<h1 id="八最关键的输出结果建议">八、最关键的输出结果（建议）</h1>
+<p>最终不要只输出标题。</p>
+<p>而是输出：</p>
+<h1 id="知乎主题矩阵">《知乎主题矩阵》</h1>
+<p>例如：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>主题</th><th>情绪</th><th>钩子</th><th>标题方向</th><th>适合结构</th></tr></thead><tbody><tr><td>AI副业</td><td>焦虑</td><td>收入危机</td><td>为什么越来越多人做AI副业失败</td><td>故事型</td></tr><tr><td>AI写作</td><td>希望</td><td>普通人逆袭</td><td>我靠AI写作赚到第一桶金</td><td>成长型</td></tr><tr><td>AI绘图</td><td>猎奇</td><td>技术冲击</td><td>AI绘图已经开始抢设计师饭碗了吗</td><td>争议型</td></tr></tbody></table>
+<p>这才是真正的主题簇系统。</p>
+<hr>
+<h1 id="九推荐增加的高级能力非常强">九、推荐增加的高级能力（非常强）</h1>
+<h1 id="1-知乎连载路线">1. 知乎连载路线</h1>
+<p>自动生成：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>第一篇：认知冲击</span></span>
+<span class="line"><span>第二篇：行业内幕</span></span>
+<span class="line"><span>第三篇：普通人案例</span></span>
+<span class="line"><span>第四篇：失败原因</span></span>
+<span class="line"><span>第五篇：赚钱路径</span></span></code></pre>
+<p>形成：</p>
+<h1 id="知乎账号养成系统">“知乎账号养成系统”</h1>
+<hr>
+<h1 id="2-盐选化改造">2. 盐选化改造</h1>
+<p>自动识别：</p>
+<p>哪些主题：</p>
+<ul>
+<li>
+<p>适合短回答</p>
+</li>
+<li>
+<p>适合长文</p>
+</li>
+<li>
+<p>适合盐选小说</p>
+</li>
+<li>
+<p>适合故事化</p>
+</li>
+</ul>
+<hr>
+<h1 id="3-seogeo扩散">3. SEO/GEO扩散</h1>
+<p>自动生成：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>知乎</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>公众号</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>小红书</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>头条</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>百家号</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>SEO站群</span></span></code></pre>
+<hr>
+<h1 id="十推荐的最终形态真正强大的玩法">十、推荐的最终形态（真正强大的玩法）</h1>
+<p>你现在其实可以形成：</p>
+<h1 id="知乎内容工厂-agent">「知乎内容工厂 Agent」</h1>
+<p>结构：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Topic Cluster Engine</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>Trend Engine</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>Emotion Engine</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>Hook Engine</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>Title Engine</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>Outline Engine</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>Chapter Engine</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>Style Engine</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>Publish System</span></span></code></pre>
+<p>这已经不是普通 Skill 了。</p>
+<p>而是：</p>
+<h1 id="知乎内容操作系统">“知乎内容操作系统”</h1>
+<hr>
+<h1 id="十一我最推荐你接下来补的内容优先级">十一、我最推荐你接下来补的内容（优先级）</h1>
+<h4 id="第一优先级必须">第一优先级（必须）</h4>
+<p>新增：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>TREND_ENGINE</span></span>
+<span class="line"><span>CLUSTER_ENGINE</span></span>
+<span class="line"><span>QUESTION_ENGINE</span></span></code></pre>
+<p>因为你现在缺的是：</p>
+<h1 id="选题层">「选题层」</h1>
+<hr>
+<h4 id="第二优先级强烈推荐">第二优先级（强烈推荐）</h4>
+<p>新增数据库：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>pain_points.md</span></span>
+<span class="line"><span>desire_library.md</span></span>
+<span class="line"><span>controversy_library.md</span></span></code></pre>
+<p>知乎极度依赖：</p>
+<ul>
+<li>
+<p>焦虑</p>
+</li>
+<li>
+<p>欲望</p>
+</li>
+<li>
+<p>争议</p>
+</li>
+</ul>
+<hr>
+<h4 id="第三优先级后期">第三优先级（后期）</h4>
+<p>加入：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>SERIAL_ENGINE</span></span>
+<span class="line"><span>PLATFORM_ENGINE</span></span></code></pre>
+<p>做多平台矩阵。</p>
+<hr>
+<h1 id="十二这个系统最强的地方">十二、这个系统最强的地方</h1>
+<p>你现在已经不是：</p>
+<h1 id="写文章">“写文章”</h1>
+<p>而是：</p>
+<h1 id="批量生产知乎流量">“批量生产知乎流量”</h1>
+<p>核心思维已经变成：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>用户情绪</span></span>
+<span class="line"><span>→ 平台热点</span></span>
+<span class="line"><span>→ 主题扩散</span></span>
+<span class="line"><span>→ 问题化</span></span>
+<span class="line"><span>→ 钩子化</span></span>
+<span class="line"><span>→ 标题化</span></span>
+<span class="line"><span>→ 内容化</span></span>
+<span class="line"><span>→ 连载化</span></span>
+<span class="line"><span>→ 流量化</span></span></code></pre>
+<p>这是完全不同的层级。🚀</p>
+<h2 id="q2--给出这套skill的详细内容第-2-轮对话">Q2 · 给出这套SKILL的详细内容（第 2 轮对话）</h2>
+<blockquote><p><strong>提问：</strong> 给出这套SKILL的详细内容</p></blockquote>
+<p>下面我直接给你一套：</p>
+<h1 id="知乎主题簇生成系统v1-完整-skill">「知乎主题簇生成系统」V1 完整 Skill</h1>
+<p>这套是：</p>
+<ul>
+<li>
+<p>OpenClaw/QClaw 风格</p>
+</li>
+<li>
+<p>模块化 Agent Skill</p>
+</li>
+<li>
+<p>可直接落地</p>
+</li>
+<li>
+<p>可继续扩展为内容工厂</p>
+</li>
+</ul>
+<p>我会按照：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>skill.md</span></span>
+<span class="line"><span>config.yaml</span></span>
+<span class="line"><span>engines/</span></span>
+<span class="line"><span>prompts/</span></span>
+<span class="line"><span>database/</span></span>
+<span class="line"><span>templates/</span></span></code></pre>
+<p>完整给你。🔥</p>
+<hr>
+<h1 id="目录结构">目录结构</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>zhihu-topic-cluster/</span></span>
+<span class="line"><span>│</span></span>
+<span class="line"><span>├── skill.md</span></span>
+<span class="line"><span>├── config.yaml</span></span>
+<span class="line"><span>├── README.md</span></span>
+<span class="line"><span>│</span></span>
+<span class="line"><span>├── engines/</span></span>
+<span class="line"><span>│   ├── TREND_ENGINE.md</span></span>
+<span class="line"><span>│   ├── CLUSTER_ENGINE.md</span></span>
+<span class="line"><span>│   ├── QUESTION_ENGINE.md</span></span>
+<span class="line"><span>│   ├── VIRAL_ENGINE.md</span></span>
+<span class="line"><span>│   ├── TRAFFIC_ENGINE.md</span></span>
+<span class="line"><span>│</span></span>
+<span class="line"><span>├── prompts/</span></span>
+<span class="line"><span>│   ├── discover_topics.md</span></span>
+<span class="line"><span>│   ├── cluster_expand.md</span></span>
+<span class="line"><span>│   ├── emotion_mapping.md</span></span>
+<span class="line"><span>│   ├── hook_mapping.md</span></span>
+<span class="line"><span>│   ├── title_mapping.md</span></span>
+<span class="line"><span>│   ├── content_path.md</span></span>
+<span class="line"><span>│</span></span>
+<span class="line"><span>├── database/</span></span>
+<span class="line"><span>│   ├── pain_points.md</span></span>
+<span class="line"><span>│   ├── desires.md</span></span>
+<span class="line"><span>│   ├── controversy.md</span></span>
+<span class="line"><span>│   ├── zhihu_emotions.md</span></span>
+<span class="line"><span>│   ├── traffic_keywords.md</span></span>
+<span class="line"><span>│</span></span>
+<span class="line"><span>├── templates/</span></span>
+<span class="line"><span>│   ├── topic_cluster_template.md</span></span>
+<span class="line"><span>│   ├── serial_template.md</span></span>
+<span class="line"><span>│   ├── article_matrix_template.md</span></span>
+<span class="line"><span>│</span></span>
+<span class="line"><span>└── output/</span></span>
+<span class="line"><span>    ├── cluster_result.md</span></span>
+<span class="line"><span>    ├── article_calendar.md</span></span>
+<span class="line"><span>    ├── article_matrix.md</span></span></code></pre>
+<hr>
+<h1 id="一skillmd核心">一、skill.md（核心）</h1>
+<p>:::writing{variant=“document” id=“48271”} # SKILL: Zhihu Topic Cluster Engine</p>
+<h4 id="技能描述">技能描述</h4>
+<p>知乎主题簇生成系统。</p>
+<p>用于：</p>
+<ul>
+<li>
+<p>批量发现知乎高流量主题</p>
+</li>
+<li>
+<p>自动扩展长尾问题</p>
+</li>
+<li>
+<p>生成知乎爆款选题矩阵</p>
+</li>
+<li>
+<p>构建持续输出的内容主题簇</p>
+</li>
+<li>
+<p>自动适配知乎回答风格</p>
+</li>
+<li>
+<p>自动匹配情绪与钩子</p>
+</li>
+<li>
+<p>自动生成知乎连载路径</p>
+</li>
+</ul>
+<p>适用于：</p>
+<ul>
+<li>
+<p>知乎回答</p>
+</li>
+<li>
+<p>知乎专栏</p>
+</li>
+<li>
+<p>盐选内容</p>
+</li>
+<li>
+<p>AI内容矩阵</p>
+</li>
+<li>
+<p>SEO/GEO内容扩散</p>
+</li>
+</ul>
+<hr>
+<h1 id="核心能力">核心能力</h1>
+<h4 id="1-热点发现">1. 热点发现</h4>
+<p>自动识别：</p>
+<ul>
+<li>
+<p>高热度方向</p>
+</li>
+<li>
+<p>高情绪方向</p>
+</li>
+<li>
+<p>高争议方向</p>
+</li>
+<li>
+<p>高传播方向</p>
+</li>
+</ul>
+<hr>
+<h4 id="2-主题扩展">2. 主题扩展</h4>
+<p>自动生成：</p>
+<ul>
+<li>
+<p>一级主题</p>
+</li>
+<li>
+<p>二级主题</p>
+</li>
+<li>
+<p>长尾主题</p>
+</li>
+<li>
+<p>问题化主题</p>
+</li>
+</ul>
+<hr>
+<h4 id="3-知乎问题化">3. 知乎问题化</h4>
+<p>自动将观点转化为知乎提问格式：</p>
+<p>例如：</p>
+<p>AI副业失败 ↓ 为什么很多人做AI副业赚不到钱？</p>
+<hr>
+<h4 id="4-情绪映射">4. 情绪映射</h4>
+<p>自动识别：</p>
+<ul>
+<li>
+<p>焦虑</p>
+</li>
+<li>
+<p>希望</p>
+</li>
+<li>
+<p>欲望</p>
+</li>
+<li>
+<p>逆袭</p>
+</li>
+<li>
+<p>愤怒</p>
+</li>
+<li>
+<p>猎奇</p>
+</li>
+<li>
+<p>身份认同</p>
+</li>
+</ul>
+<hr>
+<h4 id="5-钩子匹配">5. 钩子匹配</h4>
+<p>自动生成：</p>
+<ul>
+<li>
+<p>冲突型钩子</p>
+</li>
+<li>
+<p>反差型钩子</p>
+</li>
+<li>
+<p>数据型钩子</p>
+</li>
+<li>
+<p>身份型钩子</p>
+</li>
+<li>
+<p>情绪型钩子</p>
+</li>
+</ul>
+<hr>
+<h4 id="6-连载路径生成">6. 连载路径生成</h4>
+<p>自动生成知乎内容系列：</p>
+<p>第一篇：认知冲击 第二篇：行业内幕 第三篇：案例拆解 第四篇：错误认知 第五篇：解决方案</p>
+<hr>
+<h1 id="工作流">工作流</h1>
+<p>用户输入主题 → 趋势分析 → 主题聚类 → 问题扩展 → 情绪分析 → 钩子匹配 → 标题生成 → 内容路径规划 → 输出主题矩阵</p>
+<hr>
+<h1 id="输入格式">输入格式</h1>
+<p>主题： 行业： 目标人群： 内容方向： 平台： 风格：</p>
+<hr>
+<h1 id="输出格式">输出格式</h1>
+<ul>
+<li>
+<p>热点主题</p>
+</li>
+<li>
+<p>长尾问题</p>
+</li>
+<li>
+<p>知乎问题化</p>
+</li>
+<li>
+<p>情绪标签</p>
+</li>
+<li>
+<p>钩子方向</p>
+</li>
+<li>
+<p>爆款标题</p>
+</li>
+<li>
+<p>连载路线</p>
+</li>
+<li>
+<p>内容矩阵</p>
+</li>
+<li>
+<p>SEO扩散建议</p>
+</li>
+</ul>
+<hr>
+<h1 id="调用引擎">调用引擎</h1>
+<p>TREND_ENGINE CLUSTER_ENGINE QUESTION_ENGINE VIRAL_ENGINE TRAFFIC_ENGINE</p>
+<hr>
+<h1 id="自动调用数据库">自动调用数据库</h1>
+<p>pain_points.md desires.md controversy.md zhihu_emotions.md traffic_keywords.md</p>
+<hr>
+<h1 id="联动外部引擎">联动外部引擎</h1>
+<p>HOOK_ENGINE TITLE_ENGINE EMOTION_ENGINE STYLE_ENGINE OUTLINE_ENGINE REBUILD_ENGINE</p>
+<hr>
+<h1 id="输出目标">输出目标</h1>
+<p>生成：</p>
+<ul>
+<li>
+<p>可持续更新的知乎主题簇</p>
+</li>
+<li>
+<p>可批量扩展的流量选题</p>
+</li>
+<li>
+<p>可形成矩阵的内容结构</p>
+</li>
+<li>
+<p>可长期SEO/GEO扩散的主题体系</p>
+</li>
+</ul>
+<p>:::</p>
+<hr>
+<h1 id="二configyaml">二、config.yaml</h1>
+<p>:::writing{variant=“document” id=“48272”} name: Zhihu Topic Cluster Engine</p>
+<p>version: 1.0</p>
+<p>author: Gervas</p>
+<p>description: > 知乎主题簇生成系统， 用于批量生成知乎热点主题、 长尾问题与爆款内容矩阵。</p>
+<p>entry: skill.md</p>
+<p>mode: auto_cluster: true auto_question: true auto_emotion: true auto_hook: true auto_title: true auto_serial: true</p>
+<p>platform: - zhihu - wechat - xiaohongshu - toutiao - seo</p>
+<p>emotion_priority: - 焦虑 - 欲望 - 逆袭 - 身份认同 - 信息差 - 阶层冲突</p>
+<p>cluster_depth: 3</p>
+<p>max_topics: 100</p>
+<p>question_style: - 为什么 - 如何 - 是什么体验 - 普通人能不能 - 有没有必要 - 真相是什么</p>
+<p>viral_elements: - 反差 - 冲突 - 争议 - 逆袭 - 数据冲击 - 阶层对比</p>
+<p>output: matrix: true serial: true seo_keywords: true article_paths: true :::</p>
+<hr>
+<h1 id="三trend_enginemd">三、TREND_ENGINE.md</h1>
+<p>:::writing{variant=“document” id=“48273”} # TREND_ENGINE</p>
+<h4 id="功能">功能</h4>
+<p>用于发现知乎高热度趋势。</p>
+<hr>
+<h1 id="趋势识别维度">趋势识别维度</h1>
+<h4 id="1-平台热点">1. 平台热点</h4>
+<p>识别：</p>
+<ul>
+<li>
+<p>高频讨论</p>
+</li>
+<li>
+<p>高频搜索</p>
+</li>
+<li>
+<p>高频情绪</p>
+</li>
+<li>
+<p>高频争议</p>
+</li>
+</ul>
+<hr>
+<h4 id="2-用户焦虑">2. 用户焦虑</h4>
+<p>识别：</p>
+<ul>
+<li>
+<p>收入焦虑</p>
+</li>
+<li>
+<p>职场焦虑</p>
+</li>
+<li>
+<p>婚姻焦虑</p>
+</li>
+<li>
+<p>年龄焦虑</p>
+</li>
+<li>
+<p>AI替代焦虑</p>
+</li>
+</ul>
+<hr>
+<h4 id="3-用户欲望">3. 用户欲望</h4>
+<p>识别：</p>
+<ul>
+<li>
+<p>赚钱</p>
+</li>
+<li>
+<p>逆袭</p>
+</li>
+<li>
+<p>阶层跃迁</p>
+</li>
+<li>
+<p>财富自由</p>
+</li>
+<li>
+<p>情感满足</p>
+</li>
+</ul>
+<hr>
+<h4 id="4-高传播方向">4. 高传播方向</h4>
+<p>优先：</p>
+<ul>
+<li>
+<p>争议</p>
+</li>
+<li>
+<p>对立</p>
+</li>
+<li>
+<p>反常识</p>
+</li>
+<li>
+<p>信息差</p>
+</li>
+<li>
+<p>阶层冲突</p>
+</li>
+</ul>
+<hr>
+<h1 id="输出格式-1">输出格式</h1>
+<p>热点主题： 用户情绪： 传播等级： 竞争等级： 变现潜力： 适合平台： :::</p>
+<hr>
+<h1 id="四cluster_enginemd">四、CLUSTER_ENGINE.md</h1>
+<p>:::writing{variant=“document” id=“48274”} # CLUSTER_ENGINE</p>
+<h4 id="功能-1">功能</h4>
+<p>将一个主题扩展为完整主题簇。</p>
+<hr>
+<h1 id="扩展逻辑">扩展逻辑</h1>
+<h4 id="一级扩展">一级扩展</h4>
+<p>核心主题直接相关：</p>
+<p>AI副业 ↓ AI写作 AI绘图 AI短视频</p>
+<hr>
+<h4 id="二级扩展">二级扩展</h4>
+<p>用户问题：</p>
+<p>AI写作还能赚钱吗？ 普通人能做AI副业吗？</p>
+<hr>
+<h4 id="三级扩展">三级扩展</h4>
+<p>情绪化问题：</p>
+<p>为什么越来越多人AI副业失败？ 为什么学AI的人反而更焦虑？</p>
+<hr>
+<h1 id="自动扩展方向">自动扩展方向</h1>
+<h4 id="1-人群扩展">1. 人群扩展</h4>
+<ul>
+<li>
+<p>学生</p>
+</li>
+<li>
+<p>宝妈</p>
+</li>
+<li>
+<p>上班族</p>
+</li>
+<li>
+<p>中年人</p>
+</li>
+<li>
+<p>创业者</p>
+</li>
+</ul>
+<hr>
+<h4 id="2-场景扩展">2. 场景扩展</h4>
+<ul>
+<li>
+<p>副业</p>
+</li>
+<li>
+<p>失业</p>
+</li>
+<li>
+<p>转行</p>
+</li>
+<li>
+<p>裁员</p>
+</li>
+<li>
+<p>创业</p>
+</li>
+</ul>
+<hr>
+<h4 id="3-情绪扩展">3. 情绪扩展</h4>
+<ul>
+<li>
+<p>焦虑</p>
+</li>
+<li>
+<p>希望</p>
+</li>
+<li>
+<p>愤怒</p>
+</li>
+<li>
+<p>猎奇</p>
+</li>
+<li>
+<p>逆袭</p>
+</li>
+</ul>
+<hr>
+<h1 id="输出格式-2">输出格式</h1>
+<p>一级主题： 二级主题： 三级主题： 知乎问题化： 情绪标签： 传播潜力： :::</p>
+<hr>
+<h1 id="五question_enginemd">五、QUESTION_ENGINE.md</h1>
+<p>:::writing{variant=“document” id=“48275”} # QUESTION_ENGINE</p>
+<h4 id="功能-2">功能</h4>
+<p>将普通主题转化为知乎问题。</p>
+<hr>
+<h1 id="知乎问题化模板">知乎问题化模板</h1>
+<h4 id="为什么型">为什么型</h4>
+<p>为什么越来越多人……</p>
+<hr>
+<h4 id="普通人型">普通人型</h4>
+<p>普通人真的能……</p>
+<hr>
+<h4 id="真相型">真相型</h4>
+<p>……背后的真相是什么？</p>
+<hr>
+<h4 id="对立型">对立型</h4>
+<p>为什么有人认为……</p>
+<hr>
+<h4 id="体验型">体验型</h4>
+<p>……是什么体验？</p>
+<hr>
+<h1 id="问题生成原则">问题生成原则</h1>
+<p>必须具备：</p>
+<ul>
+<li>
+<p>情绪</p>
+</li>
+<li>
+<p>冲突</p>
+</li>
+<li>
+<p>代入感</p>
+</li>
+<li>
+<p>用户身份</p>
+</li>
+<li>
+<p>好奇心</p>
+</li>
+</ul>
+<hr>
+<h1 id="错误案例">错误案例</h1>
+<p>AI写作教程</p>
+<hr>
+<h1 id="正确案例">正确案例</h1>
+<p>为什么很多人学AI写作后反而赚不到钱？ :::</p>
+<hr>
+<h1 id="六viral_enginemd">六、VIRAL_ENGINE.md</h1>
+<p>:::writing{variant=“document” id=“48276”} # VIRAL_ENGINE</p>
+<h4 id="功能-3">功能</h4>
+<p>增强主题传播力。</p>
+<hr>
+<h1 id="爆款元素">爆款元素</h1>
+<h4 id="1-阶层冲突">1. 阶层冲突</h4>
+<p>月薪3000 VS 月薪3万</p>
+<hr>
+<h4 id="2-身份反差">2. 身份反差</h4>
+<p>985毕业送外卖</p>
+<hr>
+<h4 id="3-信息差">3. 信息差</h4>
+<p>99%的人不知道</p>
+<hr>
+<h4 id="4-认知冲突">4. 认知冲突</h4>
+<p>努力为什么不赚钱？</p>
+<hr>
+<h4 id="5-情绪刺激">5. 情绪刺激</h4>
+<p>焦虑 愤怒 欲望 希望</p>
+<hr>
+<h1 id="爆款结构">爆款结构</h1>
+<p>反常识 ↓ 冲突 ↓ 情绪 ↓ 解决方案 :::</p>
+<hr>
+<h1 id="七traffic_enginemd">七、TRAFFIC_ENGINE.md</h1>
+<p>:::writing{variant=“document” id=“48277”} # TRAFFIC_ENGINE</p>
+<h4 id="功能-4">功能</h4>
+<p>生成SEO/GEO扩散路径。</p>
+<hr>
+<h1 id="扩散平台">扩散平台</h1>
+<p>知乎 公众号 头条 百家号 小红书 SEO站群</p>
+<hr>
+<h1 id="扩散逻辑">扩散逻辑</h1>
+<p>知乎长文 ↓ 公众号深度版 ↓ 小红书情绪版 ↓ SEO关键词版</p>
+<hr>
+<h1 id="自动生成">自动生成</h1>
+<ul>
+<li>
+<p>SEO关键词</p>
+</li>
+<li>
+<p>GEO关键词</p>
+</li>
+<li>
+<p>长尾搜索词</p>
+</li>
+<li>
+<p>平台适配标题</p>
+</li>
+</ul>
+<p>:::</p>
+<hr>
+<h1 id="八databasepain_pointsmd">八、database/pain_points.md</h1>
+<p>:::writing{variant=“document” id=“48278”} # 用户痛点库</p>
+<h4 id="收入焦虑">收入焦虑</h4>
+<ul>
+<li>
+<p>工资低</p>
+</li>
+<li>
+<p>副业失败</p>
+</li>
+<li>
+<p>被裁员</p>
+</li>
+<li>
+<p>AI替代</p>
+</li>
+</ul>
+<hr>
+<h4 id="情感焦虑">情感焦虑</h4>
+<ul>
+<li>
+<p>单身</p>
+</li>
+<li>
+<p>婚姻问题</p>
+</li>
+<li>
+<p>情绪内耗</p>
+</li>
+</ul>
+<hr>
+<h4 id="成长焦虑">成长焦虑</h4>
+<ul>
+<li>
+<p>普通人逆袭</p>
+</li>
+<li>
+<p>年龄危机</p>
+</li>
+<li>
+<p>阶层固化</p>
+</li>
+</ul>
+<hr>
+<h4 id="职场焦虑">职场焦虑</h4>
+<ul>
+<li>
+<p>35岁危机</p>
+</li>
+<li>
+<p>大厂裁员</p>
+</li>
+<li>
+<p>转行困难</p>
+</li>
+</ul>
+<p>:::</p>
+<hr>
+<h1 id="九databasedesiresmd">九、database/desires.md</h1>
+<p>:::writing{variant=“document” id=“48279”} # 用户欲望库</p>
+<h4 id="财富欲望">财富欲望</h4>
+<ul>
+<li>
+<p>月入过万</p>
+</li>
+<li>
+<p>财富自由</p>
+</li>
+<li>
+<p>副业赚钱</p>
+</li>
+</ul>
+<hr>
+<h4 id="身份欲望">身份欲望</h4>
+<ul>
+<li>
+<p>被认可</p>
+</li>
+<li>
+<p>阶层跃迁</p>
+</li>
+<li>
+<p>成为专家</p>
+</li>
+</ul>
+<hr>
+<h4 id="情绪欲望">情绪欲望</h4>
+<ul>
+<li>
+<p>安全感</p>
+</li>
+<li>
+<p>控制感</p>
+</li>
+<li>
+<p>优越感</p>
+</li>
+</ul>
+<hr>
+<h4 id="情感欲望">情感欲望</h4>
+<ul>
+<li>
+<p>被爱</p>
+</li>
+<li>
+<p>被理解</p>
+</li>
+<li>
+<p>高质量关系</p>
+</li>
+</ul>
+<p>:::</p>
+<hr>
+<h1 id="十templatestopic_cluster_templatemd">十、templates/topic_cluster_template.md</h1>
+<p>:::writing{variant=“document” id=“48280”} # 主题簇输出模板</p>
+<h4 id="核心主题">核心主题</h4>
+<p>{{topic}}</p>
+<hr>
+<h1 id="一级主题">一级主题</h1>
+<p>{{cluster_level_1}}</p>
+<hr>
+<h1 id="二级主题">二级主题</h1>
+<p>{{cluster_level_2}}</p>
+<hr>
+<h1 id="三级主题">三级主题</h1>
+<p>{{cluster_level_3}}</p>
+<hr>
+<h1 id="知乎问题化">知乎问题化</h1>
+<p>{{questions}}</p>
+<hr>
+<h1 id="情绪标签">情绪标签</h1>
+<p>{{emotions}}</p>
+<hr>
+<h1 id="钩子方向">钩子方向</h1>
+<p>{{hooks}}</p>
+<hr>
+<h1 id="爆款标题">爆款标题</h1>
+<p>{{titles}}</p>
+<hr>
+<h1 id="连载路径">连载路径</h1>
+<p>{{serials}}</p>
+<hr>
+<h1 id="seo关键词">SEO关键词</h1>
+<p>{{seo_keywords}}</p>
+<hr>
+<h1 id="geo扩散建议">GEO扩散建议</h1>
+<p>{{geo_strategy}} :::</p>
+<h2 id="q3--skill的内容文件格式不规范输出技能结构的目录和规范的内容第-3-轮对话">Q3 · SKILL的内容文件格式不规范，输出技能结构的目录和规范的内容（第 3 轮对话）</h2>
+<blockquote><p><strong>提问：</strong> SKILL的内容文件格式不规范，输出技能结构的目录和规范的内容</p></blockquote>
+<p>你说得对。 上面那版更像“概念文档”，不是严格的 OpenClaw / QClaw Skill 规范。⚠️</p>
+<p>你现在需要的是：</p>
+<h1 id="真正可落地的-skill-文件结构">「真正可落地的 Skill 文件结构」</h1>
+<p>也就是：</p>
+<ul>
+<li>
+<p>YAML Frontmatter</p>
+</li>
+<li>
+<p>标准 skill.md</p>
+</li>
+<li>
+<p>prompt 分离</p>
+</li>
+<li>
+<p>engine 分离</p>
+</li>
+<li>
+<p>database 分离</p>
+</li>
+<li>
+<p>agent 可读取</p>
+</li>
+<li>
+<p>可直接上传 GitHub</p>
+</li>
+<li>
+<p>可直接被 OpenClaw/QClaw 调用</p>
+</li>
+</ul>
+<p>下面我按：</p>
+<h1 id="openclawqclaw-标准-skill-结构">OpenClaw/QClaw 标准 Skill 结构</h1>
+<p>重新给你。🔥</p>
+<hr>
+<h1 id="一标准目录结构规范版">一、标准目录结构（规范版）</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span>zhihu-topic-cluster/</span></span>
+<span class="line"><span>│</span></span>
+<span class="line"><span>├── skill.md</span></span>
+<span class="line"><span>├── config.yaml</span></span>
+<span class="line"><span>├── README.md</span></span>
+<span class="line"><span>│</span></span>
+<span class="line"><span>├── prompts/</span></span>
+<span class="line"><span>│   ├── discover_topics.md</span></span>
+<span class="line"><span>│   ├── expand_cluster.md</span></span>
+<span class="line"><span>│   ├── question_transform.md</span></span>
+<span class="line"><span>│   ├── emotion_mapping.md</span></span>
+<span class="line"><span>│   ├── viral_rewrite.md</span></span>
+<span class="line"><span>│   ├── serial_path.md</span></span>
+<span class="line"><span>│   └── seo_expand.md</span></span>
+<span class="line"><span>│</span></span>
+<span class="line"><span>├── engines/</span></span>
+<span class="line"><span>│   ├── TREND_ENGINE.md</span></span>
+<span class="line"><span>│   ├── CLUSTER_ENGINE.md</span></span>
+<span class="line"><span>│   ├── QUESTION_ENGINE.md</span></span>
+<span class="line"><span>│   ├── VIRAL_ENGINE.md</span></span>
+<span class="line"><span>│   └── TRAFFIC_ENGINE.md</span></span>
+<span class="line"><span>│</span></span>
+<span class="line"><span>├── database/</span></span>
+<span class="line"><span>│   ├── pain_points.md</span></span>
+<span class="line"><span>│   ├── desires.md</span></span>
+<span class="line"><span>│   ├── controversy.md</span></span>
+<span class="line"><span>│   ├── zhihu_emotions.md</span></span>
+<span class="line"><span>│   └── traffic_keywords.md</span></span>
+<span class="line"><span>│</span></span>
+<span class="line"><span>├── templates/</span></span>
+<span class="line"><span>│   ├── cluster_output.md</span></span>
+<span class="line"><span>│   ├── serial_output.md</span></span>
+<span class="line"><span>│   └── seo_output.md</span></span>
+<span class="line"><span>│</span></span>
+<span class="line"><span>└── output/</span></span>
+<span class="line"><span>    ├── cluster_result.md</span></span>
+<span class="line"><span>    ├── article_matrix.md</span></span>
+<span class="line"><span>    └── serial_plan.md</span></span></code></pre>
+<hr>
+<h1 id="二规范版-skillmd核心">二、规范版 skill.md（核心）</h1>
+<p>这是：</p>
+<h1 id="openclawqclaw-标准格式">OpenClaw/QClaw 标准格式</h1>
+<hr>
+<p>:::writing{variant=“document” id=“58271”} --- name: Zhihu Topic Cluster Engine description: 知乎主题簇生成系统，用于批量生成知乎热点主题、长尾问题、情绪选题与流量矩阵 author: Gervas version: 1.0 tags: - zhihu - topic-cluster - seo - geo - content-marketing - viral-content - ai-writing inputs: - topic - industry - audience - platform outputs: - topic_cluster - question_matrix - emotional_topics - viral_titles - serial_plan - seo_keywords tools: - TREND_ENGINE - CLUSTER_ENGINE - QUESTION_ENGINE - VIRAL_ENGINE - TRAFFIC_ENGINE ---</p>
+<h1 id="zhihu-topic-cluster-engine">Zhihu Topic Cluster Engine</h1>
+<h4 id="role">Role</h4>
+<p>你是一套知乎主题簇生成系统。</p>
+<p>你的任务是：</p>
+<ul>
+<li>
+<p>发现知乎高热度方向</p>
+</li>
+<li>
+<p>识别用户情绪</p>
+</li>
+<li>
+<p>扩展长尾问题</p>
+</li>
+<li>
+<p>构建主题矩阵</p>
+</li>
+<li>
+<p>生成爆款问题</p>
+</li>
+<li>
+<p>形成知乎连载体系</p>
+</li>
+<li>
+<p>输出SEO/GEO扩散结构</p>
+</li>
+</ul>
+<hr>
+<h1 id="workflow">Workflow</h1>
+<p>按照以下流程执行：</p>
+<ol>
+<li>
+<p>趋势发现</p>
+</li>
+<li>
+<p>用户情绪分析</p>
+</li>
+<li>
+<p>一级主题扩展</p>
+</li>
+<li>
+<p>二级长尾扩展</p>
+</li>
+<li>
+<p>知乎问题化</p>
+</li>
+<li>
+<p>情绪映射</p>
+</li>
+<li>
+<p>钩子增强</p>
+</li>
+<li>
+<p>标题生成</p>
+</li>
+<li>
+<p>连载规划</p>
+</li>
+<li>
+<p>SEO扩散</p>
+</li>
+</ol>
+<hr>
+<h1 id="topic-rules">Topic Rules</h1>
+<p>知乎主题必须满足：</p>
+<ul>
+<li>
+<p>有情绪</p>
+</li>
+<li>
+<p>有冲突</p>
+</li>
+<li>
+<p>有身份代入</p>
+</li>
+<li>
+<p>有信息差</p>
+</li>
+<li>
+<p>有传播性</p>
+</li>
+<li>
+<p>有现实焦虑</p>
+</li>
+</ul>
+<hr>
+<h1 id="emotion-priority">Emotion Priority</h1>
+<p>优先级：</p>
+<ol>
+<li>
+<p>焦虑</p>
+</li>
+<li>
+<p>欲望</p>
+</li>
+<li>
+<p>逆袭</p>
+</li>
+<li>
+<p>阶层冲突</p>
+</li>
+<li>
+<p>认知反差</p>
+</li>
+<li>
+<p>情感代入</p>
+</li>
+</ol>
+<hr>
+<h1 id="cluster-strategy">Cluster Strategy</h1>
+<p>主题扩展：</p>
+<p>核心主题 ↓ 一级主题 ↓ 二级问题 ↓ 情绪问题 ↓ 知乎化问题</p>
+<hr>
+<h1 id="output-format">Output Format</h1>
+<p>输出：</p>
+<h4 id="热点主题">热点主题</h4>
+<h4 id="一级主题簇-1">一级主题簇</h4>
+<h4 id="二级问题簇">二级问题簇</h4>
+<h4 id="知乎问题化-1">知乎问题化</h4>
+<h4 id="情绪标签-1">情绪标签</h4>
+<h4 id="钩子方向-1">钩子方向</h4>
+<h4 id="爆款标题-1">爆款标题</h4>
+<h4 id="连载规划">连载规划</h4>
+<h4 id="seo关键词-1">SEO关键词</h4>
+<h4 id="geo扩散建议-1">GEO扩散建议</h4>
+<hr>
+<h1 id="constraints">Constraints</h1>
+<p>禁止：</p>
+<ul>
+<li>
+<p>纯关键词堆砌</p>
+</li>
+<li>
+<p>无情绪主题</p>
+</li>
+<li>
+<p>无传播性的普通标题</p>
+</li>
+<li>
+<p>机械化AI表达</p>
+</li>
+<li>
+<p>无知乎感的问题</p>
+</li>
+</ul>
+<p>必须：</p>
+<ul>
+<li>
+<p>强情绪</p>
+</li>
+<li>
+<p>强代入</p>
+</li>
+<li>
+<p>强传播</p>
+</li>
+<li>
+<p>强问题化</p>
+</li>
+<li>
+<p>强讨论感</p>
+</li>
+</ul>
+<p>:::</p>
+<hr>
+<h1 id="三规范版-configyaml">三、规范版 config.yaml</h1>
+<p>:::writing{variant=“document” id=“58272”} name: zhihu-topic-cluster</p>
+<p>version: 1.0</p>
+<p>author: Gervas</p>
+<p>entry: skill.md</p>
+<p>settings:</p>
+<p>cluster_depth: 3</p>
+<p>max_topics: 100</p>
+<p>auto_question_transform: true</p>
+<p>auto_emotion_mapping: true</p>
+<p>auto_hook_generation: true</p>
+<p>auto_serial_generation: true</p>
+<p>auto_seo_expand: true</p>
+<p>emotion_weights:</p>
+<p>anxiety: 10</p>
+<p>desire: 9</p>
+<p>reversal: 8</p>
+<p>identity: 8</p>
+<p>controversy: 7</p>
+<p>curiosity: 7</p>
+<p>platform_weights:</p>
+<p>zhihu: 10</p>
+<p>xiaohongshu: 8</p>
+<p>wechat: 7</p>
+<p>seo: 6</p>
+<p>question_templates:</p>
+<ul>
+<li>为什么越来越多人… - 普通人真的能…吗 - …背后的真相是什么 - 为什么有人认为… - …是什么体验 - 有没有必要…</li>
+</ul>
+<p>viral_elements:</p>
+<ul>
+<li>
+<p>阶层冲突</p>
+</li>
+<li>
+<p>信息差</p>
+</li>
+<li>
+<p>认知颠覆</p>
+</li>
+<li>
+<p>身份反差</p>
+</li>
+<li>
+<p>数据冲击</p>
+</li>
+<li>
+<p>情绪刺激</p>
+</li>
+</ul>
+<p>output:</p>
+<p>markdown: true</p>
+<p>topic_matrix: true</p>
+<p>serial_output: true</p>
+<p>seo_output: true :::</p>
+<hr>
+<h1 id="四规范版-trend_enginemd">四、规范版 TREND_ENGINE.md</h1>
+<p>:::writing{variant=“document” id=“58273”} # TREND_ENGINE</p>
+<h4 id="purpose">Purpose</h4>
+<p>发现知乎当前高热度方向。</p>
+<hr>
+<h1 id="analysis-dimensions">Analysis Dimensions</h1>
+<h4 id="platform-trends">Platform Trends</h4>
+<p>分析：</p>
+<ul>
+<li>
+<p>高频讨论</p>
+</li>
+<li>
+<p>高频搜索</p>
+</li>
+<li>
+<p>高频情绪</p>
+</li>
+<li>
+<p>高频争议</p>
+</li>
+</ul>
+<hr>
+<h4 id="emotional-trends">Emotional Trends</h4>
+<p>识别：</p>
+<ul>
+<li>
+<p>焦虑</p>
+</li>
+<li>
+<p>欲望</p>
+</li>
+<li>
+<p>逆袭</p>
+</li>
+<li>
+<p>身份认同</p>
+</li>
+<li>
+<p>阶层压力</p>
+</li>
+</ul>
+<hr>
+<h4 id="viral-potential">Viral Potential</h4>
+<p>优先：</p>
+<ul>
+<li>
+<p>冲突</p>
+</li>
+<li>
+<p>争议</p>
+</li>
+<li>
+<p>反常识</p>
+</li>
+<li>
+<p>信息差</p>
+</li>
+<li>
+<p>社会现实</p>
+</li>
+</ul>
+<hr>
+<h1 id="output">Output</h1>
+<h4 id="热点方向">热点方向</h4>
+<h4 id="用户情绪">用户情绪</h4>
+<h4 id="传播潜力">传播潜力</h4>
+<h4 id="竞争等级">竞争等级</h4>
+<h4 id="seo潜力">SEO潜力</h4>
+<h4 id="推荐扩展方向">推荐扩展方向</h4>
+<p>:::</p>
+<hr>
+<h1 id="五规范版-cluster_enginemd">五、规范版 CLUSTER_ENGINE.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># CLUSTER_ENGINE</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## Purpose</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>将一个主题扩展为知乎主题簇。</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># Expansion Logic</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## Level 1</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>核心方向扩展。</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>示例：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>AI副业</span></span>
+<span class="line"><span>↓</span></span>
+<span class="line"><span>AI写作</span></span>
+<span class="line"><span>AI绘图</span></span>
+<span class="line"><span>AI视频</span></span>
+<span class="line"><span>AI运营</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## Level 2</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>问题化扩展。</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>示例：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>为什么AI副业越来越卷？</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## Level 3</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>情绪化扩展。</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>示例：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>为什么很多人学AI后更焦虑？</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># Expansion Dimensions</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## User Groups</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 学生</span></span>
+<span class="line"><span>- 宝妈</span></span>
+<span class="line"><span>- 上班族</span></span>
+<span class="line"><span>- 中年人</span></span>
+<span class="line"><span>- 创业者</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## Emotional Directions</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 焦虑</span></span>
+<span class="line"><span>- 欲望</span></span>
+<span class="line"><span>- 猎奇</span></span>
+<span class="line"><span>- 逆袭</span></span>
+<span class="line"><span>- 身份冲突</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># Output</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## 一级主题</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## 二级主题</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## 长尾问题</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## 情绪标签</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## 传播等级</span></span></code></pre>
+<hr>
+<h1 id="六规范版-promptsdiscover_topicsmd">六、规范版 prompts/discover_topics.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># Discover Topics Prompt</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>根据用户输入：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 行业</span></span>
+<span class="line"><span>- 用户群</span></span>
+<span class="line"><span>- 平台</span></span>
+<span class="line"><span>- 内容方向</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>生成：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>1. 高热度方向</span></span>
+<span class="line"><span>2. 高传播方向</span></span>
+<span class="line"><span>3. 高情绪方向</span></span>
+<span class="line"><span>4. 高SEO潜力方向</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>优先：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 焦虑</span></span>
+<span class="line"><span>- 欲望</span></span>
+<span class="line"><span>- 阶层冲突</span></span>
+<span class="line"><span>- 信息差</span></span>
+<span class="line"><span>- 普通人逆袭</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>输出知乎风格主题。</span></span></code></pre>
+<hr>
+<h1 id="七规范版-promptsquestion_transformmd">七、规范版 prompts/question_transform.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># Question Transform Prompt</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>将普通主题转换为知乎问题。</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>要求：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 有代入感</span></span>
+<span class="line"><span>- 有讨论感</span></span>
+<span class="line"><span>- 有现实感</span></span>
+<span class="line"><span>- 有情绪</span></span>
+<span class="line"><span>- 有冲突</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>错误：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>AI副业教程</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>正确：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>为什么越来越多人做AI副业却赚不到钱？</span></span></code></pre>
+<hr>
+<h1 id="八规范版-databasepain_pointsmd">八、规范版 database/pain_points.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># Pain Points Database</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## 收入焦虑</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 工资低</span></span>
+<span class="line"><span>- 副业失败</span></span>
+<span class="line"><span>- AI替代</span></span>
+<span class="line"><span>- 裁员</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## 职场焦虑</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 35岁危机</span></span>
+<span class="line"><span>- 大厂毕业</span></span>
+<span class="line"><span>- 转行困难</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## 情感焦虑</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 单身</span></span>
+<span class="line"><span>- 婚姻压力</span></span>
+<span class="line"><span>- 内耗</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>## 成长焦虑</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>- 普通人逆袭</span></span>
+<span class="line"><span>- 阶层固化</span></span>
+<span class="line"><span>- 年龄焦虑</span></span></code></pre>
+<hr>
+<h1 id="九规范版-templatescluster_outputmd">九、规范版 templates/cluster_output.md</h1>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627; overflow-x: auto;--file-name-offset: -0.75rem;" tabindex="0" data-language="plaintext"><code><span class="line"><span># Topic Cluster Output</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 核心主题</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>{{topic}}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 一级主题簇</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>{{level_1}}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 二级问题簇</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>{{level_2}}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 情绪问题簇</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>{{emotional_topics}}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 知乎问题化</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>{{questions}}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 情绪标签</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>{{emotions}}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 钩子方向</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>{{hooks}}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 爆款标题</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>{{titles}}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 连载规划</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>{{serial_plan}}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># SEO关键词</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>{{seo_keywords}}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>---</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># GEO扩散建议</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>{{geo_strategy}}</span></span></code></pre>
+<hr>
+<p>这版才是：</p>
+<h1 id="真正符合-openclawqclaw-的-skill-工程化结构">真正符合 OpenClaw/QClaw 的 Skill 工程化结构</h1>
+<p>特点：</p>
+<p>✅ YAML Frontmatter ✅ 模块分离 ✅ Prompt 分离 ✅ Engine 分离 ✅ Database 分离 ✅ Template 分离 ✅ 可上传 GitHub ✅ 可被 Agent 调用 ✅ 可扩展工作流 ✅ 符合 Skill 化规范</p>
+<p>你接下来其实还可以继续升级成：</p>
+<ul>
+<li>
+<p>V2：自动抓知乎热点</p>
+</li>
+<li>
+<p>V3：自动分析10万赞回答</p>
+</li>
+<li>
+<p>V4：自动生成回答草稿</p>
+</li>
+<li>
+<p>V5：自动矩阵化多平台</p>
+</li>
+<li>
+<p>V6：自动SEO/GEO内容工厂</p>
+</li>
+</ul>
+<p>这套已经能进入：</p>
+<h1 id="知乎流量系统级别了">“知乎流量系统”级别了。🚀</h1></article><hr class="my-8 border-dashed"><a href="https://github.com/eastseao/rc/edit/main/src/content/posts/chat-ai059-2026.md" target="_blank" rel="noopener noreferrer" class="hover:text-accent text-muted-foreground flex justify-baseline gap-1.5 sm:hidden"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M7 7H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0-2.97-2.97L9 12v3h3zM16 5l3 3" /></svg><span>编辑页面</span></a><div id="btt-btn-container" class="fixed inset-e-4 bottom-8 z-50 md:sticky md:inset-e-auto md:float-end md:me-1 translate-y-14 opacity-0 transition duration-500"><button data-button="back-to-top" class="group bg-background relative px-2 py-1 size-14 rounded-full shadow-xl md:h-8 md:w-fit md:rounded-md md:shadow-none md:focus-visible:rounded-none md:bg-background/35 md:bg-clip-padding md:backdrop-blur-lg"><span id="progress-indicator" class="absolute inset-0 -z-10 block size-14 scale-110 rounded-full bg-transparent md:hidden md:h-8 md:rounded-md"></span><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block rotate-90 md:hidden" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M5 12h14M5 12l6 6M5 12l6-6" /></svg><span class="group-hover:text-accent sr-only text-sm md:not-sr-only"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-4" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M12 5v14M16 9l-4-4M8 9l4-4" /></svg>回到顶部</span></button></div><script data-astro-rerun>
+  function backToTop() {
+    const rootElement = document.documentElement;
+    const btnContainer = document.querySelector("#btt-btn-container");
+    const backToTopBtn = document.querySelector("[data-button='back-to-top']");
+    const progressIndicator = document.querySelector("#progress-indicator");
+
+    if (!rootElement || !btnContainer || !backToTopBtn || !progressIndicator)
+      return;
+
+    backToTopBtn.addEventListener("click", () => {
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+    });
+
+    let lastVisible = null;
+    function handleScroll() {
+      const scrollTotal = rootElement.scrollHeight - rootElement.clientHeight;
+      const scrollTop = rootElement.scrollTop;
+      const scrollPercent = Math.floor((scrollTop / scrollTotal) * 100);
+
+      progressIndicator.style.setProperty(
+        "background-image",
+        `conic-gradient(var(--accent), var(--accent) ${scrollPercent}%, transparent ${scrollPercent}%)`
+      );
+
+      const isVisible = scrollTop / scrollTotal > 0.3;
+
+      if (isVisible !== lastVisible) {
+        btnContainer.classList.toggle("opacity-100", isVisible);
+        btnContainer.classList.toggle("translate-y-0", isVisible);
+        btnContainer.classList.toggle("opacity-0", !isVisible);
+        btnContainer.classList.toggle("translate-y-14", !isVisible);
+        lastVisible = isVisible;
+      }
+    }
+
+    let ticking = false;
+    document.addEventListener("scroll", () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          handleScroll();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+  }
+  backToTop();
+</script><ul class="mt-4 mb-8 flex flex-wrap gap-4 sm:my-8"><li><a data-astro-transition-scope="astro-bztu2lml-1" href="/rc/tags/chatgpt/" class="flex items-center gap-0.5 border-foreground border-b-2 border-dashed hover:border-accent hover:text-accent hover:-mt-0.5 focus-visible:text-accent focus-visible:border-none text-sm"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="opacity-80 size-4" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M5 9h14M5 15h14M11 4 7 20M17 4l-4 16" /></svg>ChatGPT</a></li><li><a data-astro-transition-scope="astro-bztu2lml-2" href="/rc/tags/会话归档/" class="flex items-center gap-0.5 border-foreground border-b-2 border-dashed hover:border-accent hover:text-accent hover:-mt-0.5 focus-visible:text-accent focus-visible:border-none text-sm"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="opacity-80 size-4" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M5 9h14M5 15h14M11 4 7 20M17 4l-4 16" /></svg>会话归档</a></li></ul><div class="flex flex-none flex-col items-center justify-center gap-1 md:items-start"><span class="italic">分享这篇文章：</span><div class="text-center"><a href="https://x.com/intent/post?url=https://eastseao.github.io/rc/posts/chat-ai059-2026/" title="在 X 分享这篇文章" target="_blank" rel="noopener noreferrer" class="group inline-flex items-center gap-1 hover:text-accent scale-90 p-2 hover:rotate-6 sm:p-1"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="m4 4 11.733 16H20L8.267 4zM4 20l6.768-6.768m2.46-2.46L20 4" /></svg><span class="sr-only">在 X 分享这篇文章</span></a><a href="https://t.me/share/url?url=https://eastseao.github.io/rc/posts/chat-ai059-2026/" title="在 Telegram 分享这篇文章" target="_blank" rel="noopener noreferrer" class="group inline-flex items-center gap-1 hover:text-accent scale-90 p-2 hover:rotate-6 sm:p-1"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="m15 10-4 4 6 6 4-16-18 7 4 2 2 6 3-4" /></svg><span class="sr-only">在 Telegram 分享这篇文章</span></a><a href="mailto:?subject=See%20this%20post&amp;body=https://eastseao.github.io/rc/posts/chat-ai059-2026/" title="通过邮件分享这篇文章" target="_blank" rel="noopener noreferrer" class="group inline-flex items-center gap-1 hover:text-accent scale-90 p-2 hover:rotate-6 sm:p-1"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="m3 7 9 6 9-6" /></svg><span class="sr-only">通过邮件分享这篇文章</span></a></div></div><hr class="my-8 border-dashed"><div data-pagefind-ignore class="my-8 grid grid-cols-1 gap-6 sm:grid-cols-2"><a href="/rc/posts/packaging-paper-2026/" class="flex w-full gap-1 hover:opacity-75"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block flex-none rtl:rotate-180" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M5 12h14M5 12l6 6M5 12l6-6" /></svg><div><span>上一篇</span><div class="text-accent/85 text-sm">食品包装用纸分类 · 安全线纸 · 无铝质感替代笔记</div></div></a><a href="/rc/posts/chat-ai058-2026/" class="flex w-full justify-end gap-1 text-end hover:opacity-75 sm:col-start-2"><div><span>下一篇</span><div class="text-accent/85 text-sm">学习Agent的SKILL体系</div></div><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block flex-none rtl:rotate-180" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M5 12h14M13 18l6-6M13 6l6 6" /></svg></a></div></main><footer class="app-layout mt-auto"><div class="border-border flex flex-col items-center justify-between border-t py-6 sm:flex-row-reverse sm:py-4"><div class="flex flex-wrap items-center gap-1"><a href="https://github.com/eastseao/rc" title="GERVAS on Github" class="group inline-flex items-center gap-1 hover:text-accent p-2 hover:rotate-6 sm:p-1"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21" /></svg><span class="sr-only">GERVAS on Github</span></a></div><div class="my-2 flex flex-col items-center whitespace-nowrap sm:flex-row"><span>版权所有 &#169; 2026</span><span class="hidden sm:inline">&nbsp;|&nbsp;</span><span>保留所有权利。</span></div></div></footer><script type="module">var e=`theme`,t=`light`,n=`dark`;function r(){return localStorage.getItem(e)||(window.matchMedia(`(prefers-color-scheme: dark)`).matches?n:t)}var i=window.__theme?.value??r();function a(){localStorage.setItem(e,i),o()}function o(){let e=document.firstElementChild;e?.setAttribute(`data-theme`,i),e?.classList.toggle(`dark`,i===n),document.querySelector(`#theme-btn`)?.setAttribute(`aria-label`,i);let t=window.getComputedStyle(document.body).backgroundColor;document.querySelector(`meta[name='theme-color']`)?.setAttribute(`content`,t)}function s(){o(),document.querySelector(`#theme-btn`)?.addEventListener(`click`,()=>{i=i===t?n:t,a()})}s(),document.addEventListener(`astro:after-swap`,s),document.addEventListener(`astro:before-swap`,e=>{let t=document.querySelector(`meta[name='theme-color']`)?.getAttribute(`content`);t&&e.newDocument.querySelector(`meta[name='theme-color']`)?.setAttribute(`content`,t)}),window.matchMedia(`(prefers-color-scheme: dark)`).addEventListener(`change`,({matches:e})=>{i=e?n:t,a()});</script></body></html><script data-astro-rerun>
+  function createProgressBar() {
+    const progressContainer = document.createElement("div");
+    progressContainer.className =
+      "progress-container fixed top-0 z-10 h-1 w-full bg-background";
+
+    const progressBar = document.createElement("div");
+    progressBar.className = "progress-bar h-1 w-0 bg-accent";
+    progressBar.id = "myBar";
+
+    progressContainer.appendChild(progressBar);
+    document.body.appendChild(progressContainer);
+  }
+  createProgressBar();
+
+  function updateScrollProgress() {
+    document.addEventListener("scroll", () => {
+      const winScroll =
+        document.body.scrollTop || document.documentElement.scrollTop;
+      const height =
+        document.documentElement.scrollHeight -
+        document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      if (document) {
+        const myBar = document.getElementById("myBar");
+        if (myBar) {
+          myBar.style.width = scrolled + "%";
+        }
+      }
+    });
+  }
+  updateScrollProgress();
+
+  function addHeadingLinks() {
+    const headings = Array.from(
+      document.querySelectorAll("h2, h3, h4, h5, h6")
+    );
+    for (const heading of headings) {
+      heading.classList.add("group");
+      const link = document.createElement("a");
+      link.className =
+        "heading-link ms-2 no-underline opacity-75 md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100";
+      link.href = "#" + heading.id;
+
+      const span = document.createElement("span");
+      span.ariaHidden = "true";
+      span.innerText = "#";
+      link.appendChild(span);
+      heading.appendChild(link);
+    }
+  }
+  addHeadingLinks();
+
+  function attachCopyButtons() {
+    const copyButtonLabel = "Copy";
+    const codeBlocks = Array.from(document.querySelectorAll("pre"));
+
+    for (const codeBlock of codeBlocks) {
+      const wrapper = document.createElement("div");
+      wrapper.style.position = "relative";
+
+      const computedStyle = getComputedStyle(codeBlock);
+      const hasFileNameOffset =
+        computedStyle.getPropertyValue("--file-name-offset").trim() !== "";
+
+      const topClass = hasFileNameOffset
+        ? "top-(--file-name-offset)"
+        : "-top-3";
+
+      const copyButton = document.createElement("button");
+      copyButton.className = `copy-code absolute end-3 ${topClass} rounded bg-muted border border-muted px-2 py-1 text-xs leading-4 text-foreground font-medium`;
+      copyButton.innerHTML = copyButtonLabel;
+      codeBlock.setAttribute("tabindex", "0");
+      codeBlock.appendChild(copyButton);
+
+      codeBlock?.parentNode?.insertBefore(wrapper, codeBlock);
+      wrapper.appendChild(codeBlock);
+
+      copyButton.addEventListener("click", async () => {
+        await copyCode(codeBlock, copyButton);
+      });
+    }
+
+    async function copyCode(block, button) {
+      const code = block.querySelector("code");
+      const text = code?.innerText;
+
+      await navigator.clipboard.writeText(text ?? "");
+
+      button.innerText = "Copied";
+
+      setTimeout(() => {
+        button.innerText = copyButtonLabel;
+      }, 700);
+    }
+  }
+  attachCopyButtons();
+
+  /** Accessible image lightbox for article images. */
+  function initLightbox() {
+    const article = document.getElementById("article");
+    if (!article) return;
+
+    const prefersReducedMotion = () =>
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let overlay = null;
+    let lastFocused = null;
+
+    // Defer attribute mutations so they don't push the LCP timestamp.
+    // Event listeners below use delegation and don't need the attributes to exist yet.
+    requestAnimationFrame(() => {
+      const images = Array.from(article.querySelectorAll("img"));
+      for (const image of images) {
+        if (image.closest("a")) continue;
+        image.setAttribute("role", "button");
+        image.setAttribute("tabindex", "0");
+        image.setAttribute("aria-haspopup", "dialog");
+        image.setAttribute(
+          "aria-label",
+          image.alt ? `Zoom image: ${image.alt}` : "Zoom image"
+        );
+      }
+    });
+
+    function open(src, alt, trigger) {
+      if (overlay) return;
+      lastFocused = trigger ?? document.activeElement;
+
+      overlay = document.createElement("div");
+      overlay.setAttribute("role", "dialog");
+      overlay.setAttribute("aria-modal", "true");
+      overlay.setAttribute(
+        "aria-label",
+        alt ? `Image preview: ${alt}` : "Image preview"
+      );
+      overlay.className =
+        "fixed inset-0 z-50 flex cursor-zoom-out items-center justify-center bg-black/70 backdrop-blur-sm opacity-0 transition-opacity duration-200 motion-reduce:transition-none";
+
+      const closeButton = document.createElement("button");
+      closeButton.type = "button";
+      closeButton.setAttribute("aria-label", "Close image preview");
+      closeButton.className =
+        "absolute end-4 top-4 rounded p-2 text-3xl leading-none text-white";
+      closeButton.innerHTML = "&#10005;";
+      closeButton.addEventListener("click", close);
+
+      const image = document.createElement("img");
+      image.src = src;
+      image.alt = "";
+      image.className =
+        "max-h-[90dvh] max-w-[90dvw] cursor-default object-contain";
+
+      overlay.append(closeButton, image);
+      overlay.addEventListener("click", e => {
+        if (e.target === overlay && currentScale <= 1) close();
+      });
+
+      let currentScale = 1;
+      let translateX = 0;
+      let translateY = 0;
+      let initialDist = 0;
+      let initialScale = 1;
+      let panStartX = 0;
+      let panStartY = 0;
+      let panStartTranslateX = 0;
+      let panStartTranslateY = 0;
+      let lastTapTime = 0;
+
+      function applyTransform() {
+        image.style.transform = `scale(${currentScale}) translate(${translateX}px, ${translateY}px)`;
+      }
+
+      function resetTransform() {
+        currentScale = 1;
+        translateX = 0;
+        translateY = 0;
+        image.style.transform = "";
+      }
+
+      overlay.addEventListener(
+        "touchstart",
+        e => {
+          const t = e.touches;
+          if (t.length === 2) {
+            initialDist = Math.hypot(
+              t[1].clientX - t[0].clientX,
+              t[1].clientY - t[0].clientY
+            );
+            initialScale = currentScale;
+          } else if (t.length === 1) {
+            const now = Date.now();
+            if (now - lastTapTime < 300) {
+              e.preventDefault();
+              if (currentScale > 1) {
+                resetTransform();
+              } else {
+                currentScale = 2;
+                translateX = 0;
+                translateY = 0;
+                applyTransform();
+              }
+              lastTapTime = 0;
+              panStartX = t[0].clientX;
+              panStartY = t[0].clientY;
+              panStartTranslateX = translateX;
+              panStartTranslateY = translateY;
+            } else {
+              lastTapTime = now;
+              if (currentScale > 1) {
+                panStartX = t[0].clientX;
+                panStartY = t[0].clientY;
+                panStartTranslateX = translateX;
+                panStartTranslateY = translateY;
+              }
+            }
+          }
+        },
+        { passive: false }
+      );
+
+      overlay.addEventListener(
+        "touchmove",
+        e => {
+          const t = e.touches;
+          if (t.length === 2) {
+            e.preventDefault();
+            const dist = Math.hypot(
+              t[1].clientX - t[0].clientX,
+              t[1].clientY - t[0].clientY
+            );
+            currentScale = Math.min(
+              4,
+              Math.max(1, initialScale * (dist / initialDist))
+            );
+            applyTransform();
+          } else if (t.length === 1) {
+            if (currentScale > 1) {
+              e.preventDefault();
+              translateX =
+                panStartTranslateX + (t[0].clientX - panStartX) / currentScale;
+              translateY =
+                panStartTranslateY + (t[0].clientY - panStartY) / currentScale;
+              const maxX = Math.max(
+                0,
+                (image.clientWidth - overlay.clientWidth / currentScale) / 2
+              );
+              const maxY = Math.max(
+                0,
+                (image.clientHeight - overlay.clientHeight / currentScale) / 2
+              );
+              translateX = Math.min(maxX, Math.max(-maxX, translateX));
+              translateY = Math.min(maxY, Math.max(-maxY, translateY));
+              applyTransform();
+            } else {
+              e.preventDefault();
+            }
+          }
+        },
+        { passive: false }
+      );
+
+      overlay.addEventListener("touchend", e => {
+        if (e.touches.length === 0 && currentScale <= 1.05) {
+          resetTransform();
+        }
+      });
+
+      overlay.addEventListener("touchcancel", e => {
+        if (e.touches.length === 0 && currentScale <= 1.05) {
+          resetTransform();
+        }
+      });
+
+      document.body.appendChild(overlay);
+      document.body.style.overflow = "hidden";
+      document.addEventListener("keydown", onKeyDown);
+      window.__closeLightbox = close;
+
+      requestAnimationFrame(() => overlay?.classList.add("opacity-100"));
+      closeButton.focus();
+    }
+
+    function close() {
+      if (!overlay) return;
+      const el = overlay;
+      overlay = null;
+      window.__closeLightbox = null;
+
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = "";
+      lastFocused?.focus();
+      lastFocused = null;
+
+      if (prefersReducedMotion()) {
+        el.remove();
+        return;
+      }
+      const remove = () => el.remove();
+      el.addEventListener("transitionend", remove, { once: true });
+      setTimeout(remove, 250); // fallback in case transitionend never fires
+      el.classList.remove("opacity-100");
+    }
+
+    function onKeyDown(e) {
+      if (e.key === "Escape") {
+        close();
+      } else if (e.key === "Tab") {
+        trapFocus(e);
+      }
+    }
+
+    // Keep keyboard focus inside the open dialog.
+    function trapFocus(e) {
+      if (!overlay) return;
+      const focusables = overlay.querySelectorAll(
+        'a[href], button, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+
+    function triggerFromEvent(e) {
+      const image = e.target.closest("img");
+      if (!image || !article.contains(image) || image.closest("a")) return null;
+      return image;
+    }
+
+    function activate(image) {
+      open(image.currentSrc || image.src, image.alt, image);
+    }
+
+    article.addEventListener("click", e => {
+      const image = triggerFromEvent(e);
+      if (!image) return;
+      e.preventDefault();
+      activate(image);
+    });
+
+    article.addEventListener("keydown", e => {
+      if (e.key !== "Enter" && e.key !== " " && e.key !== "Spacebar") return;
+      const image = triggerFromEvent(e);
+      if (!image) return;
+      e.preventDefault();
+      activate(image);
+    });
+  }
+  initLightbox();
+
+  if (!window.__lightboxSwapBound) {
+    window.__lightboxSwapBound = true;
+    document.addEventListener("astro:before-swap", () =>
+      window.__closeLightbox?.()
+    );
+  }
+
+  document.addEventListener("astro:after-swap", () =>
+    window.scrollTo({ left: 0, top: 0, behavior: "instant" })
+  );
+</script>
