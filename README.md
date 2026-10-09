@@ -9,7 +9,7 @@
 [![部署](https://img.shields.io/badge/部署-GitHub%20Pages-c96442?style=flat-square)](https://eastseao.github.io/rc/)
 [![技术](https://img.shields.io/badge/技术-纯静态·无构建-6d6a63?style=flat-square)](#站点结构)
 
-**在线访问：https://eastseao.github.io/rc/**（原 `gervas.wang` 域名已过期，不再使用）
+**在线访问：https://eastseao.github.io/rc/**（原自定义域名已过期，不再使用）
 
 </div>
 
