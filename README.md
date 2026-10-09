@@ -1,195 +1,51 @@
 <div align="center">
 
-# 日常 · Agent 作品集
+# GERVAS · AI × Tools × Design × Life
 
-日常由 **Agent（WorkBuddy）** 生成的研究报告、行业分析与工具网页合集，按主题归档、随产出持续增补。
+> 我喜欢研究新技术，也喜欢做一些东西。写下来，做出来，然后继续探索。
 
-[![站点](https://img.shields.io/website?url=https%3A%2F%2Fgervas.wang&up_message=在线&down_message=离线&style=flat-square)](https://gervas.wang/)
-[![部署](https://img.shields.io/badge/部署-GitHub%20Pages-1c1b1a?style=flat-square&logo=github)](https://gervas.wang/)
-[![域名](https://img.shields.io/badge/域名-gervas.wang-a2431f?style=flat-square)](https://gervas.wang/)
-[![技术](https://img.shields.io/badge/技术-纯静态·无构建-6d6a63?style=flat-square)](#目录结构)
-[![登记](https://img.shields.io/badge/首页登记-7%20页%20%2B%201%20外链-c96442?style=flat-square)](#站点一览)
+[![站点](https://img.shields.io/badge/站点-eastseao.github.io%2Frc-1c1b1a?style=flat-square&logo=github)](https://eastseao.github.io/rc/)
+[![作品](https://img.shields.io/badge/作品-810%20篇-9a3412?style=flat-square)](https://eastseao.github.io/rc/#works)
+[![部署](https://img.shields.io/badge/部署-GitHub%20Pages-c96442?style=flat-square)](https://eastseao.github.io/rc/)
+[![技术](https://img.shields.io/badge/技术-纯静态·无构建-6d6a63?style=flat-square)](#站点结构)
 
-**[🌐 在线访问：gervas.wang](https://gervas.wang/)** · 备用地址 [eastseao.github.io/rc](https://eastseao.github.io/rc/)
+**在线访问：https://eastseao.github.io/rc/**（原 `gervas.wang` 域名已过期，不再使用）
 
 </div>
 
 ---
 
-## 站点一览
+## 站点结构
 
-首页卡片由 `index.html` 内的 `PAGES` 数组驱动，按日期倒序排列。当前 7 个本地页面 + 1 个外链：
+| 路径 | 说明 |
+|---|---|
+| `index.html` | 首页：GERVAS 个人主页（Latest / Projects / Explore / Now / About）+ 作品区块 |
+| `_pages_registry.js` | **作品登记表（数据源）**：810 篇作品的元数据，首页由此生成 |
+| `pages/` | 作品正文（历史子页，810 篇，全部开源、数据可复现） |
+| `tools/` · `assets/` | 工具子页与资源文件 |
+| `theme.css` · `STYLE-GUIDE.md` | 子页样式与页面规范 |
 
-| # | 页面 | 说明 | 访问 |
-|---|------|------|------|
-| 1 | 山姆饮品类 · 植物基原浆市场调研 | 山姆在售植物基原浆饮品 12 款 SKU 深度拆解、价格带分布、代工厂谱系、五大趋势与选品机会 | [pages/sams-plant-based-puree-2026.html](https://gervas.wang/pages/sams-plant-based-puree-2026.html) |
-| 2 | SKILL 介绍 · Agent Skills 概念手册 | 33 节概念手册：定义、渐进式披露、与 Prompt/Tool/MCP/Workflow 的区别、架构与生命周期 | [pages/skill.html](https://gervas.wang/pages/skill.html) |
-| 3 | 生产级 Agent Skill 架构规范 | 工程层规范 35 节：标准模型 14 模块、Contract/Schema、Decision Rules、Registry/Router/Runtime、Capability OS | [pages/skill-spec.html](https://gervas.wang/pages/skill-spec.html) |
-| 4 | 如何制作适合自己的 Skill | 七步法实操指南 13 节：选任务、挖方法、立规则、契约、案例训练、自评闭环、三个母 Skill | [pages/skill-diy.html](https://gervas.wang/pages/skill-diy.html) |
-| 5 | AI Agent 提效培训 · WorkBuddy 专题 | 面向食品生产企业的培训课件：概念科普、技术预备、主流智能体盘点、七大业务场景实战 | [pages/ai-agent-training.html](https://gervas.wang/pages/ai-agent-training.html) |
-| 6 | 超强厄尔尼诺 · 2027 全维度影响分析 | 气候研判报告：事件定性、全球与中国影响、农业能源生态卫生金融基建、风险矩阵与应对 | [pages/el-nino-2027-impact.html](https://gervas.wang/pages/el-nino-2027-impact.html) |
-| 7 | Prompt 库 | 个人 Prompt 收藏管理器：搜索、分类、收藏、一键复制，数据存 GitHub 可追溯 | [pages/prompt.html](https://gervas.wang/pages/prompt.html) |
-| — | 地平线 · 个人博客（外链，置于卡片末位） | 个人博客独立站（[eastseao/horizon](https://github.com/eastseao/horizon)，Jekyll 构建）：影评、随笔与生活记录 | [eastseao.github.io/horizon](https://eastseao.github.io/horizon/) |
+首页视觉风格参考 [astro-paper](https://github.com/satnaing/astro-paper) 模板；个人主页区块按 GERVAS 版式定制，作品区块展示最新 10 篇并支持搜索、分类筛选浏览全部 810 篇。
 
-> 仓库中另有未在首页列出的存档页面：`pages/el-nino-a-share-2026.html`（厄尔尼诺 · A 股板块分析）、`pages/zhihu-juzi.html`（知乎句子十年金句集）、`pages/yijing.html`（每日卜卦 · 六十四卦），可直接输入地址访问。
+## 更新作品
 
-顶栏右侧「**地平线 · 个人博客站 ↗**」为博客常驻入口。
+新增 / 修改子页后，更新首页只需两步：
 
----
+1. 编辑 `_pages_registry.js`：新增或修改条目（字段：`title` / `desc` / `date` / `category` / `url` / `kind` / `tags`）
+2. 运行 `node _build_home.js` 重新生成 `index.html`
 
-## 目录结构
+然后 `git add index.html _pages_registry.js` → commit → push，GitHub Pages 自动重建。
 
-```text
-rc/
-├── index.html                  # 首页：PAGES 登记表驱动的卡片目录（搜索 / 分类 / 统计 / 标签筛选）
-├── theme.css                   # ★ 全站主题：token + 变量别名层 + 统一返回浮钮（子页共用）
-├── CNAME                       # 自定义域名 gervas.wang（GitHub Pages 要求保留在根）
-├── README.md                   # 本文件
-├── assets/                     # 首页精选配图等公共静态资源
-│
-└── pages/                      # 全部子页面与数据文件
-    ├── sams-onboarding-sop-2026.html      # 山姆入驻全流程 SOP（5 阶段 21 节点）
-    ├── sams-onboarding-flow-2026.html     # 山姆入驻全流程概览
-    ├── sams-plant-based-puree-2026.html   # 山姆植物基原浆调研
-    ├── ai-daily-2026-09-16.html           # AI 日报晨报仪表盘
-    ├── pet-bottle-cost-2026.html          # PET 瓶身成本测算
-    ├── el-nino-2027-impact.html           # 厄尔尼诺 14 维影响
-    ├── el-nino-a-share-2026.html          # 厄尔尼诺 A 股板块映射
-    ├── skill.html                         # SKILL 系列 ① 概念手册（33 节）
-    ├── skill-spec.html                    # SKILL 系列 ② 生产级架构规范（35 节）
-    ├── skill-diy.html                     # SKILL 系列 ③ 制作适合自己的 Skill（七步法 13 节）
-    ├── ai-agent-training.html             # Agent 提效培训课件
-    ├── ebook-treasure-chest.html          # 电子书检索工具
-    ├── yijing.html                        # 每日卜卦小工具
-    ├── zhihu-juzi.html                    # 知乎句子七卷本
-    ├── prompt.html                        # Prompt 库（搜索 / 分类 / 收藏 / GitHub 写入）
-    └── prompts.json                       # Prompt 库数据文件
-```
+**维护工具**（均为仓库本地脚本，不入库）：
 
-**根目录只保留四件东西**：`index.html`（首页入口）、`theme.css`（全站主题）、`CNAME`（Pages 域名绑定，平台机制要求必须留在根）、`README.md`（仓库说明）。
+| 工具 | 作用 |
+|---|---|
+| `_build_home.js` | 读 `_pages_registry.js` → 注入模板 → 生成 `index.html`（写入前自动备份旧首页到 `_backup/`） |
+| `_home_template.html` | 首页模板（含 GERVAS 各区块与作品列表渲染逻辑） |
+| `_extract_pages.js` | 从旧版式源（含 `const PAGES = [...]` 的旧首页）批量刷新登记表：`node _extract_pages.js [旧首页路径]`，默认读 `_backup/index.homepage-20261009-old.html` |
 
----
+## 说明
 
-## 设计系统：theme.css 单一色源
-
-**2026-09-20 起全站统一**。所有配色 / 字体 / 圆角 / 阴影只在本仓库根目录的 [`theme.css`](theme.css) 里定义一次，首页与 15 个子页全部 `@import` 式引入：
-
-```html
-<link rel="stylesheet" href="../theme.css">   <!-- 子页；首页为 href="theme.css" -->
-```
-
-**必须放在各页自身 `<style>` 之前**。子页 `:root` 里只保留页面特有的语义色（涨跌色 `--up`/`--down`、分级色、体例变量），主题色一律由 theme.css 提供。
-
-| Token | 值 | 用途 |
-|-------|------|------|
-| `--bg` | `#f7f8fa` | 雾面底 |
-| `--band` | `#eef1f5` | 分带 / 次级底 |
-| `--card` / `--surface` | `#ffffff` | 卡片面 |
-| `--ink` | `#0f172a` | 标题墨色 |
-| `--line` / `--border` | `#dfe6ef` | 描边 hairline |
-| `--accent` | `#0d9488` | 青单 accent（链接 / 强调 / 徽章 / hover） |
-| `--accent-ink` | `#0f766e` | accent 深阶（hover / 小字号强调） |
-| `--accent-soft` | `#e3f5f2` | accent 浅底（徽章 / 选中态） |
-| `--warn` / `--danger` / `--ok` | `#b45309` / `#b91c1c` / `#047857` | 语义色 |
-| `--radius` / `--radius-sm` | `8px` / `5px` | 圆角 |
-| `--mono` | JetBrains Mono / Cascadia Mono | 元数据 / 编号 / 代码 |
-| `--sans` | Segoe UI / PingFang SC / Microsoft YaHei | 正文 |
-
-**别名层**：theme.css 同时把各页历史变量名（`--primary` `--brand` `--brand2` `--text` `--paper` `--hairline` `--ink2` `--ink3` `--r` `--r2` `--sh` `--red` `--green` `--amber` `--slate` …）映射到上表同一批值 —— 所以旧页面的组件 CSS 一行都不用改，只需删掉自己 `:root` 里的同名声明即可收编。
-
-**保留的例外**（有意不统一）：各页 hero 大色块的写死渐变、`sams-onboarding-sop` 的五阶段专属色 `--s1..--s5`、`el-nino` 系列的涨跌色 `--up`/`--down`、`yijing`/`zhihu-juzi` 的古典字体 `--serif`/`--kai`。它们是内容层级的视觉锚点，不属于「风格不一致」。
-
-**统一返回浮钮**：theme.css 提供 `.g-pill`（墨底青 hover），子页直接挂类名，页面内不再重复定义。
-
-### 移动端适配
-
-- 断点 `@media (max-width:1120px)`：长文页右 TOC 隐藏，主区扩宽。
-- 断点 `@media (max-width:900px)`：侧栏折叠为 `<details>`；首页卡片网格 3 列 → 2 列，精选大卡改单列（配图移到文字上方）。
-- 断点 `@media (max-width:640px)`：首页顶栏导航隐藏分类计数、工具条 chips 换行占满整行、卡片网格 1 列；浮钮内缩。
-
----
-
-## 技术要点
-
-- **PAGES 登记表驱动首页** —— `index.html` 内的 `PAGES` 数组是唯一需要维护的数据源：分类筛选、关键词搜索、统计数字、分类计数、页脚「最近更新」全部自动派生。增删页面只需在数组里加一条记录。
-- **精选大卡参与筛选** —— `featured()` 只在**当前筛选结果**里找带 `feature:true` 的条目；该分类没有精选条目时整块隐藏。这样切分类不会出现「行业研究筛选态里挂着金融分析精选卡」的矛盾。
-- **分类工具条 sticky** —— 分类 chips 与内容紧邻并吸附在顶栏下方（`top:var(--bar-h)`），点分类立即看到结果，不再出现「筛选器在上面、结果隔着一个精选区在下面」的断裂。
-- **theme.css 单一色源** —— 见上「设计系统」；改一处全站生效。
-- **Prompt 库 GitHub 同步** —— `pages/prompt.html` 数据源为 [`pages/prompts.json`](pages/prompts.json)；在页内配置 Fine-grained Token 后，添加 / 编辑 / 删除 / 收藏会以独立提交直接写回本仓库。
-- **三栏 docs 视觉** —— SKILL 系列等长文采用 sticky 左导航 + 主区 + sticky 右 TOC + 顶部进度条 + scrollspy，章节带 + 阅读地图。
-- **自定义域名** —— 仓库根目录 [`CNAME`](CNAME) 绑定 `gervas.wang`，推送 `main` 分支后 GitHub Pages 自动构建发布。
-- **零依赖** —— 所有页面纯 HTML + CSS + 少量原生 JS，无构建工具、无打包、无第三方 CDN。
-
----
-
-## 如何新增一个子网页
-
-1. 生成 HTML 文件，**放入 `pages/` 子目录**（建议语义化命名，如 `topic-2026-09-10.html`）。
-2. 子页 `<head>` 里加一行主题引用，**放在自身 `<style>` 之前**：
-   ```html
-   <link rel="stylesheet" href="../theme.css">
-   ```
-   然后把该页 `:root` 里与 theme.css 同名的 token 声明**删掉**（配色由全站统一），只保留页面特有的语义色。
-3. 子页内所有指向首页的链接写成 `../index.html`；返回浮钮直接挂全站统一的类名，页面内不要再写它的样式：
-   ```html
-   <a class="g-pill" href="../index.html">返回首页</a>
-   ```
-4. 在 `index.html` 的 `PAGES` 数组中新增一条记录（`url` 字段必须带 `pages/` 前缀）：
-
-```js
-{
-  title: "页面标题",
-  desc: "一句话描述（显示在卡片上，建议 45 字内，超了会被 3 行截断）",
-  kind: "长文",                       // 手册 / 长文 / 工具 / 仪表盘 / 收藏
-  url: "pages/your-page.html",       // 注意 pages/ 前缀
-  date: "2026-09-10",                // 日期决定首页排序（倒序）
-  category: "行业研究",               // 行业研究 / 效率工具 / 金融分析 / 生活
-  tags: ["标签一", "标签二"],          // 卡片只显示前 3 个
-  // 可选：feature:true 提升为顶部深色精选大卡（同时需 image:"assets/xxx.webp"）
-  //       feature 条目从网格中排除，不会重复出现
-  // 可选：personal:true 标记「关于」类卡片，不参与列表与筛选
-}
-```
-
-5. 推送后首页自动完成分类统计、计数、搜索与卡片渲染，**无需改动其他代码**。
-
-> `gradient` / `glyph` 字段为历史遗留数据，已不再渲染，可省略。
-
-### 维护提醒
-
-- 新增子页若引入了**新的分类**，把它加进 `index.html` 的 `CAT_ORDER` 数组可固定其在导航中的位置；不加则自动追加到末尾。
-- 精简配图：首页精选大卡配图统一用 WebP 并限制在 1344px 宽以内（`assets/pet-hero.webp` 为 40 KB，原 PNG 为 996 KB）。
-
----
-
-## Prompt 库的写入
-
-浏览与搜索无需任何配置；添加 / 编辑 / 删除 / 收藏需要 GitHub 写入权限：
-
-1. 打开 [github.com/settings/personal-access-tokens/new](https://github.com/settings/personal-access-tokens/new)；
-2. Repository access → Only select repositories → **rc**；
-3. Permissions → Contents → **Read and write**；
-4. 在 Prompt 库页面右上角 ⚙ 粘贴令牌保存——令牌只存在当前浏览器，不会上传到任何服务器。
-
-> 数据文件路径已迁移到 `pages/prompts.json`（2026-09-10 起），打开页面会自动读取该路径。如遇"找不到 prompts.json"报错，刷新一次即可。
-
----
-
-## 本地预览与部署
-
-- **本地预览**：双击 `index.html` 即可（Prompt 库的 GitHub 同步功能需联网）；或起一个静态服务器：
-
-  ```bash
-  python -m http.server 8000
-  # 访问 http://localhost:8000
-  ```
-
-- **部署**：推送 `main` 分支后，GitHub Pages 自动构建并发布到 [gervas.wang](https://gervas.wang/)（构建约 1–2 分钟生效）。`CNAME` 文件承载域名绑定，**勿删**。
-
----
-
-## 维护
-
-- 站点由 **Agent（WorkBuddy）** 生成与维护，人工仅做内容审校与登记表调整。
-- 所有子页面"返回首页"链接统一为 `../index.html`。
-- `dictn/` 是独立的离线子项目，不参与 Pages 构建。
+- 全部页面开源、数据可复现，欢迎自取
+- 历史作品正文位于 `pages/` 等目录，旧链接（`pages/*.html`）保持可访问
+- 首页 Latest 三篇（Agent Skill / Markdown 知识库 / OpenClaw）为占位草稿，正文整理中
