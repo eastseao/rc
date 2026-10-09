@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f172a'/%3E%3Cpath d='M8 21h16M8 16h16M8 11h9' stroke='%230d9488' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<title>方法论全景地图 · 四层工具箱与选择路径</title>
+<meta name="description" content="把当前世界主流方法论按四层拆解：认知层作底层操作系统，商业、科研、创新为三大应用层。含 38 个方法条目、选择地图与跨层反模式。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+:root{
+  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
+  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  --bar-h:50px;
+  --side-ink:#94a3b8; --side-ink-hi:#5eead4;
+  --side-hi:rgba(13,148,136,.18);
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+/* ══ 顶栏（墨黑 sticky） ══ */
+.s-bar{background:#0f172a;color:#f1f5f9;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f1f5f9}
+.s-nav a.on{color:#f1f5f9;background:var(--side-hi)}
+
+/* ══ 页头 ══ */
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+/* ══ 主体 ══ */
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+/* ══ 章节 ══ */
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));padding:3px 10px;border-radius:var(--radius-sm)}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:var(--fz);color:var(--ink-2);line-height:1.78;max-width:var(--maxw-text);margin-bottom:16px}
+
+/* 板块主题色（放样式表最末尾） */
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+/* ══ 层级金字塔 ══ */
+.pyramid{display:flex;flex-direction:column;gap:10px;margin-bottom:8px}
+.pline{display:flex;align-items:stretch;gap:12px}
+.pbox{flex:1 1 0;min-width:0;border:1.5px solid var(--pc);border-left:5px solid var(--pc);
+  border-radius:var(--radius);background:var(--pcs);padding:13px 16px 14px;cursor:pointer;
+  transition:box-shadow .16s,transform .16s}
+.pbox:hover{box-shadow:var(--shadow-hover);transform:translateY(-1px)}
+.pbox.on{box-shadow:0 0 0 3px var(--pcs),var(--shadow);border-color:var(--pc)}
+.pline.base .pbox{flex:0 0 100%}
+.ptop{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ptop .pname{font-family:var(--mono);font-size:12.5px;font-weight:700;color:var(--pc)}
+.ptop .ptag{font-family:var(--mono);font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:999px;
+  background:var(--pc);color:#fff}
+.pdesc{font-size:var(--fz-sm);color:var(--ink-2);margin-top:6px;line-height:1.62}
+.pcount{font-family:var(--mono);font-size:11px;color:var(--muted-2);margin-top:6px}
+.parrow{color:var(--muted-2);font-family:var(--mono);font-size:11px;flex:0 0 22px;
+  display:flex;align-items:center;justify-content:center}
+.parrow svg{display:block}
+.pcap{font-size:var(--fz-sm);color:var(--muted);margin-top:10px;line-height:1.7}
+
+/* ══ 选择地图 ══ */
+.mapgrid{display:grid;grid-template-columns:150px minmax(0,1fr) minmax(0,1.1fr);gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.mapgrid>div{background:#fff;padding:11px 13px;font-size:var(--fz-sm);color:var(--ink-2);line-height:1.6}
+.mapgrid .mh{background:var(--band);font-family:var(--mono);font-size:11px;font-weight:700;
+  color:#475569;letter-spacing:.04em;padding:9px 13px}
+.mapgrid .mk{font-weight:700;color:var(--ink);font-size:var(--fz-sm)}
+.mapgrid .mc{font-family:var(--mono);font-size:11.5px;color:var(--accent-ink)}
+.mapgrid .mc.combo{color:var(--warn);font-weight:700}
+
+/* ══ 方法卡片网格 ══ */
+.toolgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:14px}
+.tool{background:#fbfcfd;border:1px solid var(--line);border-top:3px solid var(--sc);
+  border-radius:var(--radius);padding:14px 16px 15px;display:flex;flex-direction:column;gap:7px}
+.tool-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.tool-h b{font-size:var(--fz-lg);font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.tool-h .src{font-family:var(--mono);font-size:10.5px;color:var(--muted-2)}
+.tool-ess{font-size:var(--fz-sm);color:var(--ink-2);line-height:1.62}
+.tool-w{font-size:12.5px;color:var(--muted);line-height:1.6}
+.tool-w em{font-style:normal;font-family:var(--mono);font-size:10.5px;font-weight:700;
+  color:var(--sc);letter-spacing:.04em;margin-inline-end:5px}
+.tool-w.risk{color:var(--warn)}
+.tool-w.risk em{color:var(--warn)}
+
+/* ══ 反模式 ══ */
+.antigrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(292px,1fr));gap:14px}
+.anti{background:var(--danger-soft);border:1px solid #f3c6c4;border-radius:var(--radius);padding:15px 17px}
+.anti h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.04em}
+.anti .an{font-size:var(--fz-md);font-weight:700;color:var(--danger);margin:6px 0 5px;line-height:1.45}
+.anti p{font-size:13.5px;line-height:1.7;color:var(--ink-2)}
+
+/* ══ 角色化建议 ══ */
+.rolegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));gap:14px}
+.role{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--sc);
+  border-radius:var(--radius);padding:15px 17px}
+.role .rl{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc);letter-spacing:.05em}
+.role h4{font-size:var(--fz-lg);font-weight:700;margin:6px 0 8px;color:var(--ink)}
+.role ul{list-style:none;display:flex;flex-direction:column;gap:5px}
+.role li{font-size:13.5px;color:var(--ink-2);padding-inline-start:13px;position:relative;line-height:1.6}
+.role li::before{content:"";position:absolute;inset-inline-start:0;top:9px;width:5px;height:5px;
+  border-radius:50%;background:var(--sc)}
+
+/* ══ 结论条 ══ */
+.srcnote{background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius);
+  padding:14px 16px;margin-bottom:16px;font-size:13.5px;line-height:1.72;color:var(--ink-2)}
+.srcnote b{color:var(--warn);font-weight:700}
+.callout{background:var(--accent-soft);border:1px solid var(--brandline);border-radius:var(--radius);
+  padding:17px 19px;font-size:15px;line-height:1.7;color:var(--ink)}
+.callout b{color:var(--accent-ink);font-weight:700}
+
+/* ══ 页脚 ══ */
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;
+  gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11.5px}
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2)}
+.s-disc p{max-width:var(--maxw-text)}
+
+/* ══ 响应式（七档刻度） ══ */
+@media (max-width:1100px){
+  .mapgrid{grid-template-columns:130px minmax(0,1fr)}
+  .mapgrid .mc{grid-column:2}
+}
+@media (max-width:900px){
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+  .s-main{padding:8px 18px 30px}
+  .mapgrid{grid-template-columns:1fr}
+  .mapgrid .mh{grid-column:1}
+  .mapgrid .mk,.mapgrid .mc{grid-column:1}
+}
+@media (max-width:760px){
+  .pline{flex-direction:column}
+  .parrow{transform:rotate(90deg);flex:0 0 20px;height:20px}
+}
+@media (max-width:640px){
+  .s-brand em{display:none}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in{padding:0 18px}
+  .s-body{padding:22px 18px 40px}
+  .s-foot-in{padding:22px 18px 10px}
+  .s-disc{padding:0 18px 20px}
+}
+</style>
+</head>
+<body>
+
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>方法论工具箱</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 分层</a>
+      <a href="#s1" data-sec="s1">01 选择地图</a>
+      <a href="#s2" data-sec="s2">02 认知层</a>
+      <a href="#s3" data-sec="s3">03 商业层</a>
+      <a href="#s4" data-sec="s4">04 科研层</a>
+      <a href="#s5" data-sec="s5">05 创新层</a>
+      <a href="#s6" data-sec="s6">06 反模式</a>
+      <a href="#s7" data-sec="s7">07 角色搭配</a>
+    </nav>
+  </div>
+</header>
+
+<div class="s-head">
+  <span class="s-eyebrow">思维与方法 · 全景地图</span>
+  <h1 class="s-h1">方法论全景地图 · 四层工具箱与选择路径</h1>
+  <p class="s-lede">方法论不是一份能统一罗列的清单，它按领域分裂成互不兼容的工具箱。这份地图把它们重组成有层级的结构：认知层是底层操作系统，商业、科研、创新是三个应用层。核心价值不在于记住多少，而在于<b>遇到什么问题时知道该切换到哪一层</b>。</p>
+  <div class="s-meta">
+    <span>条目总数 <b>38</b></span>
+    <span>分层 <b>4 层</b></span>
+    <span>整理日期 <b>2026-10-09</b></span>
+    <span>版本 <b>V1.0</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">第一性原理</span>
+    <span class="s-chip">系统思考</span>
+    <span class="s-chip">精益创业</span>
+    <span class="s-chip">双盲对照</span>
+    <span class="s-chip">设计思维</span>
+    <span class="s-chip">反模式</span>
+  </div>
+</div>
+
+<div class="s-body">
+<main class="s-main">
+
+  <section id="s0" class="st1">
+    <div class="sec-h">
+      <span class="idx st1">00</span>
+      <h2>四层结构：认知是底座，三个应用层向上生长</h2>
+      <span class="hint">点击任一层可跳转</span>
+    </div>
+    <p class="lede">下面这张图是全篇的索引。四层不是并列关系，而是「一个底座 + 三个分支」——认知层决定你怎么想，商业、科研、创新层决定你怎么在具体领域里落地。层与层之间的工具不通用，这正是很多人「学了很多方法却依然做不成事」的原因。</p>
+
+    <div class="pyramid">
+      <div class="pline base">
+        <div class="pbox on" data-go="s2" style="--pc:var(--s1);--pcs:var(--s1s)">
+          <div class="ptop">
+            <span class="ptag">底层 OS</span>
+            <span class="pname">① 思维 / 认知方法论</span>
+          </div>
+          <p class="pdesc">训练「怎么想」的工具箱：拆解假设、看清系统、追踪偏差、更新信念。它不解决任何具体问题，但它决定了其余三层用出来是有效还是搞笑。</p>
+          <p class="pcount">10 个条目 · 覆盖判断 / 学习 / 决策 / 不确定性</p>
+        </div>
+      </div>
+      <div class="parrow" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V6"/><path d="M6 11l6-6 6 6"/></svg>
+      </div>
+      <div class="pline">
+        <div class="pbox" data-go="s3" style="--pc:var(--s2);--pcs:var(--s2s)">
+          <div class="ptop">
+            <span class="ptag">应用层</span>
+            <span class="pname">② 商业 / 管理</span>
+          </div>
+          <p class="pdesc">让组织、团队、项目跑起来：迭代交付、目标对齐、数据驱动的缺陷消除、价值曲线与根因追问。</p>
+          <p class="pcount">10 个条目 · 面向落地与协作</p>
+        </div>
+        <div class="pbox" data-go="s4" style="--pc:var(--s3);--pcs:var(--s3s)">
+          <div class="ptop">
+            <span class="ptag">应用层</span>
+            <span class="pname">③ 科研 / 学术</span>
+          </div>
+          <p class="pdesc">让知识可信：因果论证、语境理解、干预中研究、在线对照实验、证据综合与可重复性。</p>
+          <p class="pcount">10 个条目 · 面向「别被忽悠」</p>
+        </div>
+        <div class="pbox" data-go="s5" style="--pc:var(--s4);--pcs:var(--s4s)">
+          <div class="ptop">
+            <span class="ptag">应用层</span>
+            <span class="pname">④ 创新 / 设计</span>
+          </div>
+          <p class="pdesc">从 0 造出新东西：共情洞察、任务定义、技术矛盾求解、双阶段发散收敛、快速假设验证。</p>
+          <p class="pcount">8 个条目 · 面向从无到有</p>
+        </div>
+      </div>
+    </div>
+    <p class="pcap">用法：先在上面的金字塔里定位「我现在的问题属于哪一层」，再进入对应章节挑工具。若一个具体问题同时牵动多层，先做应用层（它会暴露你缺哪个认知工具），再回头补底座。</p>
+  </section>
+
+  <section id="s1" class="st2">
+    <div class="sec-h">
+      <span class="idx st2">01</span>
+      <h2>选择地图：遇到什么处境，去哪一层拿工具</h2>
+      <span class="hint">这张表比任何清单都重要</span>
+    </div>
+    <p class="lede">方法论最大的成本不是不会用，而是用错层。下面按「你此刻的处境」反查该去哪儿——这是全篇最实用的一张表。</p>
+
+    <div class="mapgrid">
+      <div class="mh">处境信号</div>
+      <div class="mh">该去的层</div>
+      <div class="mh">先掏这几个工具</div>
+
+      <div class="mk">判断不清<br>总被带节奏</div>
+      <div class="mc">① 认知层</div>
+      <div>第一性原理 · 系统思考 · 批判性思维</div>
+
+      <div class="mk">学不动<br>读了很多记不住</div>
+      <div class="mc">① 认知层</div>
+      <div>费曼技巧 · 元认知 · 多元心智模型</div>
+
+      <div class="mk">项目老延期<br>反复返工</div>
+      <div class="mc">② 商业层</div>
+      <div>看板 WIP 限制 · 5 Whys · 敏捷迭代</div>
+
+      <div class="mk">团队对不齐<br>目标各说各话</div>
+      <div class="mc">② 商业层</div>
+      <div>金字塔原理 · OKR · 蓝海战略</div>
+
+      <div class="mk">要证明因果<br>怕数据被造假</div>
+      <div class="mc">③ 科研层</div>
+      <div>双盲 RCT · A/B 测试 · 元分析</div>
+
+      <div class="mk">进入新市场<br>不知利润从哪来</div>
+      <div class="mc combo">② + ③ 跨层</div>
+      <div>波特五力 · 混合方法 · 建模仿真</div>
+
+      <div class="mk">卡在创意<br>想不出新东西</div>
+      <div class="mc">④ 创新层</div>
+      <div>设计思维 · TRIZ · 双钻模型</div>
+
+      <div class="mk">产品做了没人用<br>说不清为什么</div>
+      <div class="mc combo">④ + ③ 跨层</div>
+      <div>JTBD 任务定义 · 扎根理论 · A/B 测试</div>
+    </div>
+
+    <div class="srcnote"><b>最常犯的一个错误</b>：用科研的严谨去压本该快速试错的商业决策（分析瘫痪），或用商业的「先出结果」去压科研的严谨（p-hacking 造假）。两者都是拿错了层的工具去做错层的事——先把层选对，再谈方法。</div>
+  </section>
+
+  <section id="s2" class="st1">
+    <div class="sec-h">
+      <span class="idx st1">02</span>
+      <h2>思维 / 认知方法论 · 底层操作系统</h2>
+      <span class="hint">10 个条目</span>
+    </div>
+    <p class="lede">这一层不产出结果，只改善你产生结果的方式。它最容易被跳过——多数人拿到工具箱直接去挑应用层工具，却从没训练过「怎么想」，于是工具越多越乱。</p>
+
+    <div class="toolgrid">
+      <div class="tool">
+        <div class="tool-h"><b>第一性原理</b><span class="src">亚里士多德 / 马斯克</span></div>
+        <p class="tool-ess">拆解到不可再分的基本真理，再从零重建，而不是在类比上打补丁。</p>
+        <p class="tool-w"><em>何时用</em>颠覆式创新、打破行业惯例、砍掉继承来的成本结构</p>
+        <p class="tool-w risk"><em>警惕</em>滥用会忽略行业经验里那些已验证的高效路径</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>系统思考</b><span class="src">Senge《第五项修炼》</span></div>
+        <p class="tool-ess">看反馈环路与杠杆点，而不是单点因果；问题常出在结构而非环节。</p>
+        <p class="tool-w"><em>何时用</em>库存失控、组织反复出现同类故障、改了 A 却坏了 B</p>
+        <p class="tool-w risk"><em>警惕</em>模型不等于现实，别沉迷画环路图而不落地</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>批判性思维</b><span class="src">Paul-Elder 模型</span></div>
+        <p class="tool-ess">主动拆解论点的前提、证据与推理链，找出隐藏假设。</p>
+        <p class="tool-w"><em>何时用</em>读研究报告、判断供应商说辞、防止被话术带走</p>
+        <p class="tool-w risk"><em>警惕</em>它不等于抬杠，目标是找真问题不是赢辩论</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>多元心智模型</b><span class="src">芒格 多元格栅</span></div>
+        <p class="tool-ess">用多学科的格栅看同一问题，避免单一工具的盲区。</p>
+        <p class="tool-w"><em>何时用</em>跨领域决策、单一学科解释力失效时</p>
+        <p class="tool-w risk"><em>警惕</em>模型越多越要懂各自的适用边界，否则只是换一种错</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>二阶思维</b><span class="src">Howard Marks</span></div>
+        <p class="tool-ess">连续追问「然后呢？再然后呢？」，算到二阶以后的连锁反应。</p>
+        <p class="tool-w"><em>何时用</em>政策与投资推演、产品改动的副作用评估</p>
+        <p class="tool-w risk"><em>警惕</em>容易过度推演导致决策瘫痪，需设停止条件</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>费曼技巧</b><span class="src">Feynman</span></div>
+        <p class="tool-ess">用讲给外行的方式复述，暴露自己理解里的空洞。</p>
+        <p class="tool-w"><em>何时用</em>检验是否真懂一概念、准备汇报前的自检</p>
+        <p class="tool-w risk"><em>警惕</em>只对可解释的知识有效，纯操作技能不适用</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>元认知</b><span class="src">Flavell</span></div>
+        <p class="tool-ess">把「思考过程本身」当作可观察对象来监控与纠错。</p>
+        <p class="tool-w"><em>何时用</em>长期学习、发现自己反复犯同一类错误时</p>
+        <p class="tool-w risk"><em>警惕</em>需要刻意练习才能建立，不是想明白就有了</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>贝叶斯更新</b><span class="src">Bayes / 概率论</span></div>
+        <p class="tool-ess">新证据到来时按比例修正信念，而不是非黑即白地改口。</p>
+        <p class="tool-w"><em>何时用</em>信息不完备下的持续决策、修正自己的判断</p>
+        <p class="tool-w risk"><em>警惕</em>先验怎么设会主导结论，要显式说明</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>反脆弱</b><span class="src">Taleb</span></div>
+        <p class="tool-ess">设计成能从波动中获益的系统，而不只是抵抗打击。</p>
+        <p class="tool-w"><em>何时用</em>职业路径设计、供应链与系统架构、长期押注</p>
+        <p class="tool-w risk"><em>警惕</em>别硬套到本来就该稳定的系统上</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>奥卡姆剃刀</b><span class="src">威廉 · 奥卡姆</span></div>
+        <p class="tool-ess">解释力相同时，优先采信假设更少的那个。</p>
+        <p class="tool-w"><em>何时用</em>排除过度复杂的理论、简化方案设计</p>
+        <p class="tool-w risk"><em>警惕</em>它是启发式而非定律，复杂现象有时真的复杂</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="s3" class="st2">
+    <div class="sec-h">
+      <span class="idx st2">03</span>
+      <h2>商业 / 管理方法论 · 让组织跑起来</h2>
+      <span class="hint">10 个条目</span>
+    </div>
+    <p class="lede">这一层回答「怎么把事做成」。它的共同特征是有明确的落地载体——看板、复盘会、OKR 文档、五问记录，都能在下周一的例会上用起来。</p>
+
+    <div class="toolgrid">
+      <div class="tool">
+        <div class="tool-h"><b>精益创业</b><span class="src">Eric Ries</span></div>
+        <p class="tool-ess">Build-Measure-Learn 小步快跑，用最短周期验证最危险的假设。</p>
+        <p class="tool-w"><em>何时用</em>新业务、需求高度不确定、不能一次押注</p>
+        <p class="tool-w risk"><em>警惕</em>MVP 不等于粗制滥造，验证的是假设不是做完了</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>敏捷 / Scrum</b><span class="src">Agile Manifesto</span></div>
+        <p class="tool-ess">短迭代交付 + 定期复盘对齐，把假设尽快摆到真实反馈面前。</p>
+        <p class="tool-w"><em>何时用</em>软件开发、需求易变、反馈周期长</p>
+        <p class="tool-w risk"><em>警惕</em>别退化成站会仪式，迭代要真能产出可验证物</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>看板 Kanban</b><span class="src">大野耐一 / Anderson</span></div>
+        <p class="tool-ess">限制在制品数量，让瓶颈自己暴露出来而不是被掩盖。</p>
+        <p class="tool-w"><em>何时用</em>持续交付流、团队总在加班却没出货</p>
+        <p class="tool-w risk"><em>警惕</em>不做 WIP 限制就只是「在墙上贴纸条」</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>六西格玛 DMAIC</b><span class="src">Motorola / GE</span></div>
+        <p class="tool-ess">Define-Measure-Analyze-Improve-Control，用数据驱动消除缺陷。</p>
+        <p class="tool-w"><em>何时用</em>制造与流程稳定的场景、质量成本高</p>
+        <p class="tool-w risk"><em>警惕</em>对小样本的探索性创新会消磨创意</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>OKR</b><span class="src">Drucker → Doerr</span></div>
+        <p class="tool-ess">把方向写成目标，再压成可量化的关键结果并公开对齐。</p>
+        <p class="tool-w"><em>何时用</em>组织上下对齐目标、季度节奏规划</p>
+        <p class="tool-w risk"><em>警惕</em>KR 一旦挂上考核就变 KPI，会诱发刷分</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>金字塔原理</b><span class="src">Barbara Minto</span></div>
+        <p class="tool-ess">结论先行、MECE 归类，让表达与汇报结构可被快速抓住。</p>
+        <p class="tool-w"><em>何时用</em>写报告、做汇报、向上汇报结论不明</p>
+        <p class="tool-w risk"><em>警惕</em>前提错了结构再漂亮也是错的</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>SWOT</b><span class="src">Learned 等</span></div>
+        <p class="tool-ess">把内部优势劣势与外部机会威胁放进四格一起看。</p>
+        <p class="tool-w"><em>何时用</em>战略起步、项目评估的快速扫描</p>
+        <p class="tool-w risk"><em>警惕</em>容易流于清单、不分优先级，填满不等于结论</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>波特五力</b><span class="src">Porter</span></div>
+        <p class="tool-ess">从供应商、买方、替代品、新进入者、现有竞争五处看利润结构。</p>
+        <p class="tool-w"><em>何时用</em>进入新市场前的行业吸引力判断</p>
+        <p class="tool-w risk"><em>警惕</em>静态视角，对颠覆式变化反应迟钝</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>蓝海战略</b><span class="src">Kim &amp; Mauborgne</span></div>
+        <p class="tool-ess">重画价值曲线，开出无人竞争的需求空间而非抢占同一战场。</p>
+        <p class="tool-w"><em>何时用</em>红海里利润被榨干、寻找未被满足的新需求</p>
+        <p class="tool-w risk"><em>警惕</em>执行难度被系统性低估，验证成本很高</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>5 Whys</b><span class="src">丰田</span></div>
+        <p class="tool-ess">连续问五次为什么，一层层逼近真实根因。</p>
+        <p class="tool-w"><em>何时用</em>质量事故、反复出现的故障、流程卡点</p>
+        <p class="tool-w risk"><em>警惕</em>第五个 why 常常是猜的，要留证据链</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="s4" class="st3">
+    <div class="sec-h">
+      <span class="idx st3">04</span>
+      <h2>科研 / 学术范式 · 让知识可信</h2>
+      <span class="hint">10 个条目</span>
+    </div>
+    <p class="lede">这一层回答「凭什么这么说」。对做采购调研、供应商比选、效果验证的人来说，这是全套工具箱里最防身的一层——它决定了你会不会被一份看起来专业的报告骗到。</p>
+
+    <div class="toolgrid">
+      <div class="tool">
+        <div class="tool-h"><b>实证主义 · 定量</b><span class="src">实证传统</span></div>
+        <p class="tool-ess">假设—演绎，用可重复的数据去证伪，不是去证明自己没错。</p>
+        <p class="tool-w"><em>何时用</em>可度量的现象、需要因果而非故事</p>
+        <p class="tool-w risk"><em>警惕</em>相关性不是因果，混杂因素必须显式处理</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>双盲随机对照 RCT</b><span class="src">Goldberg</span></div>
+        <p class="tool-ess">随机分组 + 双方不知情，是因果证据的金标准。</p>
+        <p class="tool-w"><em>何时用</em>药物、补贴、政策等效果的因果判定</p>
+        <p class="tool-w risk"><em>警惕</em>外部效度可能很差，实验室结论不一定迁移到现场</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>解释学 · 定性</b><span class="src">现象学 / 民族志</span></div>
+        <p class="tool-ess">理解意义与语境，回答「他们为什么这么做」而非「平均是几」。</p>
+        <p class="tool-w"><em>何时用</em>人、文化、动机、组织的深层逻辑</p>
+        <p class="tool-w risk"><em>警惕</em>难推广、主观性高，不能当因果证据用</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>扎根理论</b><span class="src">Glaser &amp; Strauss</span></div>
+        <p class="tool-ess">从数据自下而上长出理论，用持续比较法精炼范畴。</p>
+        <p class="tool-w"><em>何时用</em>进入新领域、几乎没有现成概念可用时</p>
+        <p class="tool-w risk"><em>警惕</em>容易循环论证，编码必须有反例检验</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>混合方法</b><span class="src">Creswell</span></div>
+        <p class="tool-ess">定量与定性互补，用两套逻辑夹逼一个复杂现实问题。</p>
+        <p class="tool-w"><em>何时用</em>既有规模数据又有深度访谈需求时</p>
+        <p class="tool-w risk"><em>警惕</em>两套哲学难调和，衔接设计要提前想清</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>行动研究</b><span class="src">Lewin</span></div>
+        <p class="tool-ess">在干预中研究、边做边改，理论在实践中被检验和修正。</p>
+        <p class="tool-w"><em>何时用</em>组织变革、教育、无法先做纯研究的场景</p>
+        <p class="tool-w risk"><em>警惕</em>研究者卷入太深，客观性常被质疑</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>A/B 测试</b><span class="src">在线实验</span></div>
+        <p class="tool-ess">实时分流 + 对照 + 显著性检验，用真实流量替代猜测。</p>
+        <p class="tool-w"><em>何时用</em>产品迭代、增长实验、定价与文案选择</p>
+        <p class="tool-w risk"><em>警惕</em>只能优化可测指标，测不到的长期伤害不会被发现</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>元分析</b><span class="src">Glass 1976</span></div>
+        <p class="tool-ess">把多项研究的效果量合并，估计整体效应并检验异质性。</p>
+        <p class="tool-w"><em>何时用</em>证据分散、单个研究结论互相矛盾时</p>
+        <p class="tool-w risk"><em>警惕</em>垃圾进垃圾出，纳入标准决定一切</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>建模仿真</b><span class="src">系统动力学 / ABM</span></div>
+        <p class="tool-ess">用模型替代真实系统做试错，成本低、可反复重来。</p>
+        <p class="tool-w"><em>何时用</em>无法实验的系统（供应链、疫情、市场）</p>
+        <p class="tool-w risk"><em>警惕</em>结论对假设极敏感，换组参数就翻转</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>开放科学 / 可重复</b><span class="src">预注册 / 复现</span></div>
+        <p class="tool-ess">数据与代码公开、预注册分析，从制度上防 p-hacking。</p>
+        <p class="tool-w"><em>何时用</em>评估一篇研究报告可不可信、跨团队协作研究</p>
+        <p class="tool-w risk"><em>警惕</em>学术文化阻力大，落地需要激励配合</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="s5" class="st4">
+    <div class="sec-h">
+      <span class="idx st4">05</span>
+      <h2>创新 / 设计方法论 · 从无到有</h2>
+      <span class="hint">8 个条目</span>
+    </div>
+    <p class="lede">这一层回答「新东西怎么被造出来」。跟前两层不同，它的第一步不是分析，而是理解人——共情与任务定义先于方案生成，顺序反了就会做出没人要的功能。</p>
+
+    <div class="toolgrid">
+      <div class="tool">
+        <div class="tool-h"><b>设计思维</b><span class="src">IDEO / d.school</span></div>
+        <p class="tool-ess">共情 → 定义 → 构思 → 原型 → 测试，五步走完一轮再走下一轮。</p>
+        <p class="tool-w"><em>何时用</em>用户导向的产品创新、需求模糊的新品类</p>
+        <p class="tool-w risk"><em>警惕</em>不等于「随便画个草图就行」，每步都有交付物要求</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>TRIZ</b><span class="src">阿奇舒勒</span></div>
+        <p class="tool-ess">用 40 条发明原理与矛盾矩阵，系统性解技术性矛盾。</p>
+        <p class="tool-w"><em>何时用</em>工程难题、专利布局、绕开已知技术障碍</p>
+        <p class="tool-w risk"><em>警惕</em>学习曲线陡，非工程背景上手成本高</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>双钻模型</b><span class="src">British Design Council</span></div>
+        <p class="tool-ess">先发散找到对的问题，再收敛做出对的方案，两阶段各来一次。</p>
+        <p class="tool-w"><em>何时用</em>从模糊问题到确定方案的完整流程</p>
+        <p class="tool-w risk"><em>警惕</em>第二阶段常草草收场，等于只做了一半</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>JTBD</b><span class="src">Christensen</span></div>
+        <p class="tool-ess">用户不是买产品，而是「雇用」它来完成某个任务，进度即价值。</p>
+        <p class="tool-w"><em>何时用</em>需求洞察、产品定位、找差异化切口</p>
+        <p class="tool-w risk"><em>警惕</em>任务怎么界定很主观，容易各说各话</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>SCAMPER</b><span class="src">Osborn</span></div>
+        <p class="tool-ess">替代、组合、调整、放大缩小etc.，七问批量激发创意。</p>
+        <p class="tool-w"><em>何时用</em>需要快速发散、突破固有思维定式</p>
+        <p class="tool-w risk"><em>警惕</em>偏修补型创意，难产生真正的突破</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>第一性原理创新</b><span class="src">物理 / 经济极限</span></div>
+        <p class="tool-ess">回到物理与经济的基本极限重新构想，跳过改良路径。</p>
+        <p class="tool-w"><em>何时用</em>成本或性能需要数量级下降时</p>
+        <p class="tool-w risk"><em>警惕</em>忽略生态协同与既有标准的惯性</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>精益创新</b><span class="src">Blank / Ries</span></div>
+        <p class="tool-ess">用最小成本、最短周期验证一个关键假设是否成立。</p>
+        <p class="tool-w"><em>何时用</em>创业早期、想法多但资源少</p>
+        <p class="tool-w risk"><em>警惕</em>误把「快」当「对」，验证后仍需转向</p>
+      </div>
+      <div class="tool">
+        <div class="tool-h"><b>开放式创新</b><span class="src">Chesbrough</span></div>
+        <p class="tool-ess">内部与外部的知识都用，不研发边界画在组织墙上。</p>
+        <p class="tool-w"><em>何时用</em>大企业研发、生态位不全、需要快速补能力</p>
+        <p class="tool-w risk"><em>警惕</em>知识产权与协作治理成本高</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="s6" class="strd">
+    <div class="sec-h">
+      <span class="idx strd">06</span>
+      <h2>五个跨层反模式：最常见的五种翻车方式</h2>
+      <span class="hint">这一节比上面四节更值钱</span>
+    </div>
+    <p class="lede">会背方法论不算本事，会识别自己正在犯哪一类错误才算。下面五条横跨所有层，是实际工作里最高频的失败模式——每一条都对应一个「拿错层」或「用过头」的典型场景。</p>
+
+    <div class="antigrid">
+      <div class="anti">
+        <h4>反模式 01 · 分析瘫痪</h4>
+        <div class="an">用科研的严谨，压死了本该快速试错的决策</div>
+        <p>要求一个上线要三个月的功能先做完整双盲验证，于是永远停在准备阶段。业务窗口不等人，科研层在这里是错的工具。</p>
+      </div>
+      <div class="anti">
+        <h4>反模式 02 · p-hacking / 速赢造假</h4>
+        <div class="an">用商业的「先出结果」，压过了科研的严谨</div>
+        <p>反复换口径直到出现显著差异，或只报有利指标。当结论对参数选择敏感时，它其实什么都没证明。</p>
+      </div>
+      <div class="anti">
+        <h4>反模式 03 · 锤子综合症</h4>
+        <div class="an">精通一个方法，就到处套用</div>
+        <p>六西格玛出身的人看什么都像缺陷，六西格玛解决不了创意枯竭；第一性原理出身的人会把一切都拆到物理极限，忽略协作与情感。</p>
+      </div>
+      <div class="anti">
+        <h4>反模式 04 · 认知层缺位</h4>
+        <div class="an">只学应用层工具，从没训练过怎么想</div>
+        <p>工具清单越攒越长，遇到问题时依然不知道该选哪个——因为选工具本身就是一个思考问题，恰好是唯一没被训练的那件事。</p>
+      </div>
+      <div class="anti">
+        <h4>反模式 05 · 方法时装化</h4>
+        <div class="an">追新词，不理解适用边界，仪式化推行</div>
+        <p>全员 OKR 却没对齐过目标，敏捷站会变成进度朗读，设计思维贴在墙上没人真做共情。动作有了，思考没跟上。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="s7" class="st5">
+    <div class="sec-h">
+      <span class="idx st5">07</span>
+      <h2>三重身份的工具搭配与最终结论</h2>
+      <span class="hint">按角色落地</span>
+    </div>
+    <p class="lede">同样是「四层地图」，产品经理、开发者与战略研究者该配的组合完全不同。下面按三种典型角色给出搭配，核心逻辑是：<b>底层配思维层，应用层按场景各配一个</b>——不是每层都要塞满，而是按当下的问题取用。</p>
+
+    <div class="rolegrid">
+      <div class="role st1">
+        <div class="rl">战略判断 / 研究者</div>
+        <h4>底座换思维层</h4>
+        <ul>
+          <li>系统思考：看清组织与供应链的反馈环</li>
+          <li>二阶思维：推演政策与投资的连锁反应</li>
+          <li>贝叶斯更新：修正自己的判断而非非黑即白改口</li>
+          <li>反模式自查：别掉进「锤子综合症」</li>
+        </ul>
+      </div>
+      <div class="role st2">
+        <div class="rl">产品迭代 / 管理</div>
+        <h4>主用商业层</h4>
+        <ul>
+          <li>精益创业：小步验证最危险的假设</li>
+          <li>看板 WIP 限制：让瓶颈自己浮出来</li>
+          <li>OKR：把方向压成可对齐的关键结果</li>
+          <li>5 Whys：故障与反复返工的根因</li>
+        </ul>
+      </div>
+      <div class="role st3">
+        <div class="rl">尽调 / 验证</div>
+        <h4>主用科研层</h4>
+        <ul>
+          <li>批判性思维：拆解供应商说辞的隐藏前提</li>
+          <li>双盲 / RCT 思维：问「对照组在哪」</li>
+          <li>A/B 测试：不靠猜测做决策</li>
+          <li>开放科学：先问数据代码能不能复现</li>
+        </ul>
+      </div>
+      <div class="role st4">
+        <div class="rl">从零做新东西</div>
+        <h4>主用创新层</h4>
+        <ul>
+          <li>JTBD：先问用户雇它干什么任务</li>
+          <li>双钻：发散找对问题，收敛做对方案</li>
+          <li>设计思维五步：共情先于方案</li>
+          <li>精益创新：低成本验证关键假设</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:22px">
+      <b>核心不是知道多少，而是能根据问题切换到对的层。</b>这份地图的价值在于「索引 + 边界」——知道每个方法在什么处境下有效、在什么处境下有害，而不是背诵 38 个名词。真正需要训练的是两件事：<b>识别自己此刻面对的是哪一类问题</b>，以及<b>克制住「什么都要套上最新方法」的冲动</b>。
+    </div>
+
+    <div class="srcnote" style="margin-top:16px"><b>关于边界</b>：本页的 38 个条目是「按领域分层」的整理结果，每条标注了核心机制、适用时机与常见误用。它不能替代原方法论的完整论证——需要深挖某一层时，仍应回到该方法的原始文献核对。此外，条目归类带判断成分，同一方法归到不同层在特定场景下是合理的，这取决于你要解决的具体问题。</div>
+  </section>
+
+</main>
+</div>
+
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>方法论全景地图 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc">
+    <p>本页为方法论索引与选择工具，不构成对任何单一方法的权威定义。各方法论的完整论证请参考其原始文献；分类归属带编辑判断，随使用场景可调整。</p>
+  </div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+  返回首页
+</a>
+
+<script>
+/* 顶栏滚动高亮：不用 offsetTop（有定位祖先时基准不对），用 rect.top + scrollY */
+(function(){
+  var links = [].slice.call(document.querySelectorAll('.s-nav a'));
+  var secs  = links.map(function(a){ return document.getElementById(a.dataset.sec); });
+  function spy(){
+    var y = window.scrollY + 130, cur = 0;
+    for (var i = 0; i < secs.length; i++){
+      if (!secs[i]) continue;
+      var top = secs[i].getBoundingClientRect().top + window.scrollY;
+      if (top <= y) cur = i;
+    }
+    links.forEach(function(a,i){ a.classList.toggle('on', i === cur); });
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('load', spy);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(spy);
+  spy();
+})();
+
+/* 金字塔点击跳转 */
+(function(){
+  [].forEach.call(document.querySelectorAll('.pbox[data-go]'), function(b){
+    b.addEventListener('click', function(){
+      var t = document.getElementById(b.dataset.go);
+      if (t) t.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+})();
+</script>
+</body>
+</html>
