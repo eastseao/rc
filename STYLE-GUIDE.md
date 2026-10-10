@@ -1,6 +1,7 @@
 # GERVAS 子页风格设定
 
-> **版本** V1.1 · **生效** 2026-09-21 · **基准页** `pages/sams-onboarding-sop-2026.html` · **适用范围** 全站子页
+> **版本** V1.2 · **生效** 2026-10-10 · **基准页** `pages/sams-onboarding-sop-2026.html` · **适用范围** 全站子页
+> ⚠️ **2026-10-10 全站换暖**：主色由青绿 `#0d9488` 改为暖赭 `#a16207`，底色/墨色/线色同步移到暖色域；五阶段体例色也已由冷色相改为「赭 / 橄榄 / 砖红 / 绛紫 / 石青」。
 >
 > 可视化版本：`pages/style-guide.html`（同一套内容的可点击版，本身就是规范的第一份示范）
 >
@@ -115,47 +116,47 @@ token 分三层理解：
 
 | token | 值 | 用途 |
 |---|---|---|
-| `--bg` | `#f7f8fa` | 页面底色 |
-| `--band` | `#eef1f5` | 表头 / 分带 / 页脚 |
-| `--surface` | `#ffffff` | 卡片面 |
-| `--card` | `#ffffff` | 卡片面（同 `--surface`） |
-| `--panel` | `#ffffff` | 面板（同 `--surface`） |
-| `--code` | `#f1f5f9` | 代码块底 |
+| `--bg` | `#fbfaf7` | 页面底色 |
+| `--band` | `#f0eee4` | 表头 / 分带 / 页脚 |
+| `--surface` | `#f7f5ef` | 卡片面 |
+| `--card` | `#f7f5ef` | 卡片面（同 `--surface`） |
+| `--panel` | `#f7f5ef` | 面板（同 `--surface`） |
+| `--code` | `#f5f2ea` | 代码块底 |
 
 #### 文字层
 
 | token | 值 | 用途 |
 |---|---|---|
-| `--ink` | `#0f172a` | 标题 / 主文字 |
-| `--ink-2` | `#334155` | 正文 / 次强 |
-| `--ink-3` | `#64748b` | 弱文字 |
-| `--muted` | `#64748b` | 说明文字 |
-| `--muted-2` | `#8494a8` | 最弱 / mono 注释 |
+| `--ink` | `#2b2724` | 标题 / 主文字 |
+| `--ink-2` | `#4a443c` | 正文 / 次强 |
+| `--ink-3` | `#7a7368` | 弱文字 |
+| `--muted` | `#7a7368` | 说明文字 |
+| `--muted-2` | `#9a9184` | 最弱 / mono 注释 |
 
 #### 描边层
 
 | token | 值 | 用途 |
 |---|---|---|
-| `--line` | `#dfe6ef` | 常规描边 / 分隔线 |
-| `--line-2` | `#c3ceda` | 强描边 |
-| `--border` | `#dfe6ef` | 同 `--line` |
+| `--line` | `#e4dfd3` | 常规描边 / 分隔线 |
+| `--line-2` | `#cfc8b8` | 强描边 |
+| `--border` | `#e4dfd3` | 同 `--line` |
 
-#### 主色 · 青
+#### 主色 · 暖赭
 
 | token | 值 | 用途 |
 |---|---|---|
-| `--accent` | `#0d9488` | 主色 / 眉标 / 选中态 |
-| `--accent-ink` | `#0f766e` | 主色深（正文可读） |
-| `--accent-soft` | `#e3f5f2` | 主色浅底 |
+| `--accent` | `#a16207` | 主色 / 眉标 / 选中态 |
+| `--accent-ink` | `#8a5406` | 主色深（正文可读） |
+| `--accent-soft` | `#f6ead3` | 主色浅底 |
 
 #### 语义色
 
 | token | 值 | 用途 |
 |---|---|---|
-| `--warn` / `--warn-soft` | `#b45309` / `#fdf3e3` | 注意、口径说明 |
-| `--danger` / `--danger-soft` | `#b91c1c` / `#fdeceb` | 红线、拒收、风险 |
-| `--ok` / `--ok-soft` | `#047857` / `#e6f4ef` | 正向、达标 |
-| `--info` / `--info-soft` | `#475569` / `#eef1f5` | 中性提示 |
+| `--warn` / `--warn-soft` | `#b45309` / `#fbf0dd` | 注意、口径说明 |
+| `--danger` / `--danger-soft` | `#b91c1c` / `#faeae6` | 红线、拒收、风险 |
+| `--ok` / `--ok-soft` | `#4f7a1c` / `#eef2da` | 正向、达标 |
+| `--info` / `--info-soft` | `#6a6357` / `#f0eee4` | 中性提示 |
 
 > 语义色一律**成对使用**：深色给文字与图标，浅色给底。单独用浅色当文字、或深色当大面积底，都会掉出这套色阶的对比度。
 
@@ -166,7 +167,7 @@ token 分三层理解：
 | `--radius` | `8px` | 面板、卡片、表格外框、节点、白底正文卡 |
 | `--radius-sm` | `5px` | 小标签、按钮、手风琴、阶段带、导航项 |
 | `--shadow` | `0 1px 2px rgba(15,23,42,.05), 0 10px 26px -16px rgba(15,23,42,.2)` | 常规浮起 |
-| `--shadow-hover` | `0 2px 6px rgba(15,23,42,.07), 0 18px 40px -18px rgba(13,148,136,.28)` | hover 浮起（带一层青调） |
+| `--shadow-hover` | `0 2px 6px rgba(15,23,42,.07), 0 18px 40px -18px rgba(13,148,136,.28)` | hover 浮起（带一层暖赭调） |
 
 ### 2.3 字体
 
@@ -190,15 +191,15 @@ token 分三层理解：
 |---|---|---|---|
 | `--primary` | `--accent` | `--red` | `--danger` |
 | `--primary-dark` | `--accent-ink` | `--redsoft` | `--danger-soft` |
-| `--primary-light` | `--accent-soft` | `--redline` | `#f3c6c4` |
+| `--primary-light` | `--accent-soft` | `--redline` | `#e8c6bd` |
 | `--brand` | `--accent` | `--green` | `--ok` |
 | `--brand2` | `--accent-ink` | `--oksoft` | `--ok-soft` |
 | `--brand-2` | `--accent-ink` | `--safe` | `--ok` |
 | `--brandsoft` | `--accent-soft` | `--amber` | `--warn` |
-| `--brandline` | `#5eead4` | `--amber-bg` | `--warn-soft` |
-| `--accent-dark` | `--accent-ink` | `--amber-line` | `#fcd9a8` |
+| `--brandline` | `#d8a94a` | `--amber-bg` | `--warn-soft` |
+| `--accent-dark` | `--accent-ink` | `--amber-line` | `#f2dbaa` |
 | `--accent-deep` | `--accent-ink` | `--warnsoft` | `--warn-soft` |
-| `--text` | `--ink` | `--warnline` | `#f3ddb4` |
+| `--text` | `--ink` | `--warnline` | `#f2dfb8` |
 | `--paper` | `--surface` | `--slate` | `--info` |
 | `--ink2` | `--ink-2` | `--slate-bg` | `--info-soft` |
 | `--ink3` | `--ink-3` | `--slate-line` | `--line-2` |
@@ -224,11 +225,11 @@ token 分三层理解：
 
 | token | 实色 | 浅底 | 阶段 |
 |---|---|---|---|
-| `--s1` / `--s1s` | `#0d9488` | `#ccfbf1` | 一 · 立项与准入 |
-| `--s2` / `--s2s` | `#2563eb` | `#dbeafe` | 二 · 选品与共创 |
-| `--s3` / `--s3s` | `#7c3aed` | `#ede9fe` | 三 · 合规与审核 |
-| `--s4` / `--s4s` | `#ea580c` | `#ffedd5` | 四 · 系统与生产准备 |
-| `--s5` / `--s5s` | `#db2777` | `#fce7f3` | 五 · 交付与上架 |
+| `--s1` / `--s1s` | `#a16207` | `#f6ead3` | 一 · 立项与准入 |
+| `--s2` / `--s2s` | `#5f7a1e` | `#eaf0d8` | 二 · 选品与共创 |
+| `--s3` / `--s3s` | `#83416b` | `#f3e3ec` | 三 · 合规与审核 |
+| `--s4` / `--s4s` | `#a03a24` | `#f7e2dc` | 四 · 系统与生产准备 |
+| `--s5` / `--s5s` | `#3f6b7a` | `#e2ecef` | 五 · 交付与上架 |
 
 #### 板块主题色开关
 
@@ -244,7 +245,7 @@ token 分三层理解：
 
 | 项 | 说明 |
 |---|---|
-| `--sc` | 板块主题色（实色）。默认 `var(--accent)` 青绿。 |
+| `--sc` | 板块主题色（实色）。默认 `var(--accent)` 暖赭。 |
 | `--scs` | 板块主题色的浅底版本。默认 `var(--accent-soft)`。 |
 | 怎么用 | 给 `<section>` 或任意容器加一个 `.st1`—`.st5` / `.strd`，容器内所有引用 `var(--sc)` / `var(--scs)` 的组件立即整体换色。 |
 | 谁跟着换 | `.sec-h .idx`、`details.acc`、`.dept`、`.card-h`；节点图里的 `.fstage` / `.fnode` / `.conn` 也吃 `--sc`。 |
@@ -283,8 +284,8 @@ token 分三层理解：
 | token | 值 | 说明 |
 |---|---|---|
 | `--bar-h` | `50px` | 顶栏高度。同时决定 `section` 的 `scroll-margin-top`（锚点跳转不被顶栏压住）与节点图粘性侧栏的 `top`。 |
-| `--side-ink` | `#94a3b8` | 顶栏链接的默认色与品牌副标色。 |
-| `--side-ink-hi` | `#5eead4` | 预留的顶栏高亮色（当前未启用）。 |
+| `--side-ink` | `#a39a8c` | 顶栏链接的默认色与品牌副标色。 |
+| `--side-ink-hi` | `#d8a94a` | 预留的顶栏高亮色（当前未启用）。 |
 | `--side-hi` | `rgba(13,148,136,.18)` | 顶栏链接 hover 与选中态的底色。 |
 | ~~`--sidew`~~ | ~~`250px`~~ | **已废弃** —— 深色侧栏并入顶栏后无消费者，可安全删除。 |
 | ~~`--side-bg`~~ | ~~`#141c2b`~~ | 同上 |
@@ -309,13 +310,13 @@ token 分三层理解：
 <style>
 /* ② 只写本页专属的体例变量与组件，不写配色 */
 :root{
-  --s1:#0d9488; --s2:#2563eb; --s3:#7c3aed; --s4:#ea580c; --s5:#db2777;
-  --s1s:#ccfbf1; --s2s:#dbeafe; --s3s:#ede9fe; --s4s:#ffedd5; --s5s:#fce7f3;
+  --s1:#a16207; --s2:#5f7a1e; --s3:#83416b; --s4:#a03a24; --s5:#3f6b7a;
+  --s1s:#f6ead3; --s2s:#eaf0d8; --s3s:#f3e3ec; --s4s:#f7e2dc; --s5s:#e2ecef;
   --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
   --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
   --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
   --bar-h:50px;
-  --side-ink:#94a3b8; --side-ink-hi:#5eead4; --side-hi:rgba(13,148,136,.18);
+  --side-ink:#a39a8c; --side-ink-hi:#d8a94a; --side-hi:rgba(13,148,136,.18);
   --sc:var(--accent); --scs:var(--accent-soft);
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -383,7 +384,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);
 
 | 层 | 类名 | `max-width` | `padding` | 说明 |
 |---|---|---|---|---|
-| 顶栏底 | `.s-bar` | — | — | `#0f172a` 墨黑，`position:sticky;top:0`，`z-index:60` |
+| 顶栏底 | `.s-bar` | — | — | `#2b2724` 墨黑，`position:sticky;top:0`，`z-index:60` |
 | 顶栏内层 | `.s-bar-in` | `var(--maxw)` | `0 32px` | 高度 `--bar-h`（50px），flex 居中，gap 12px |
 | 页头 | `.s-head` | `var(--maxw-read)` | `44px 32px 0` | 眉标 → h1 → lede → meta → chips，五件套 |
 | 主体 | `.s-body` | `var(--maxw-read)` | `26px 32px 50px` | 承接所有 `section` |
@@ -445,9 +446,9 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);
 
 | 类名 | 用途 | 关键取值 |
 |---|---|---|
-| `.rl` | 红线卡：硬约束、警示事项 | 边框 `#f3c6c4` + 底 `--danger-soft` + `--radius` + padding `15px 17px`。`h4` mono 11.5px 700 `--danger`；`.mid` 15px 700；`p` 13.5px 行高 1.72 |
+| `.rl` | 红线卡：硬约束、警示事项 | 边框 `#e8c6bd` + 底 `--danger-soft` + `--radius` + padding `15px 17px`。`h4` mono 11.5px 700 `--danger`；`.mid` 15px 700；`p` 13.5px 行高 1.72 |
 | `.srcnote` | 数据口径 / 来源说明条 | `--warn-soft` 底 + `--warnline` 边，padding `14px 16px`，`margin-bottom:16px`；`b` 用 `--warn` |
-| `.card` + `.card-h` + `.card-b` | 详情卡，顶部一条 3px 主题色 | `#fbfcfd` 底；`.card-h` padding `14px 18px`、底色 `--scs`、`border-top:3px solid var(--sc)`；`.card-b` padding 18px |
+| `.card` + `.card-h` + `.card-b` | 详情卡，顶部一条 3px 主题色 | `#faf8f2` 底；`.card-h` padding `14px 18px`、底色 `--scs`、`border-top:3px solid var(--sc)`；`.card-b` padding 18px |
 | `.kv` | 键值网格（`dl` + `dt`/`dd`） | 列宽 `104px minmax(0,1fr)`，gap `10px 16px`；`dt` mono 11.5px 700 `--accent-ink`；560 以下退单列 |
 | `.warnbox` | 卡内注意事项盒 | `--warn-soft` 底 + `--warnline` 边，padding `14px 16px`；`h5` mono 11.5px 700 `--warn` |
 | `.dept` | 部门 / 角色块（左 3px 主题色条） | `padding-left:14px`；`.role` mono 11px `--muted-2`；`.ntag` mono 10.5px 描边胶囊；`.note` 用 `--scs` 底 |
@@ -484,9 +485,9 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);
 |---|---|---|
 | `.tblwrap` | 表格外框 | 1px `--line` + `--radius` + `overflow:hidden`，`margin-bottom:20px`；窄屏 760 以下改为横向滚动 |
 | `table` | 表格本体 | 100% 宽，`border-collapse:collapse`，13px。窄屏 `min-width:600px` + 12.5px |
-| `th` | 表头 | `--band` 底，`#475569` 字，mono 11px 700，字距 .06em，padding `10px 13px`，下描边 |
+| `th` | 表头 | `--band` 底，`#6a6357` 字，mono 11px 700，字距 .06em，padding `10px 13px`，下描边 |
 | `td` | 单元格 | 13px，`--ink-2`，`vertical-align:top`，padding `10px 13px`，下描边 |
-| 条纹 | 偶数行底色 | `tbody tr:nth-child(even) td{background:#fbfcfd}`；末行去描边 |
+| 条纹 | 偶数行底色 | `tbody tr:nth-child(even) td{background:#faf8f2}`；末行去描边 |
 
 ```html
 <div class="tblwrap">
@@ -510,7 +511,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);
 | `.tabs` / `.tab` / `.tab.on` / `.tabpane` / `.tabpane.on` | 选项卡切换 | 按钮圆角 `--radius-sm`、padding `7px 14px`；选中态 `--accent-soft` 底 + `--accent` 边 + `--accent-ink` 字。**`.tabpane` 必须与 `.tabs` 同级**，靠 `data-pane` 与 `id` 配对，约 20 行 JS |
 | `details.acc` | 手风琴（原生，零 JS） | 左 3px `--sc` 边；`summary` padding `13px 16px`、14.5px 700；`::after` 显示 `+` / `–`；展开时 `summary` 底变 `--scs` |
 | `.s-drop` / `.s-dropbtn` / `.s-panel` | 顶栏二级下拉 | 面板 `top:calc(100% + 8px)`、`min-width:214px`、圆角 10px、阴影 `0 20px 44px -18px rgba(15,23,42,.42)`；`hover` 展开只在 `(hover:hover) and (min-width:901px)` 生效 |
-| `.g-pill` | 返回首页浮钮 | 定义在 `theme.css`，子页直接用。fixed、右下 18px / 20px、`#0f172a` 底、mono 12px、`z-index:9999`。**必须贴底**，贴顶会被墨黑顶栏压住 |
+| `.g-pill` | 返回首页浮钮 | 定义在 `theme.css`，子页直接用。fixed、右下 18px / 20px、`#2b2724` 底、mono 12px、`z-index:9999`。**必须贴底**，贴顶会被墨黑顶栏压住 |
 
 ```html
 <!-- 选项卡：.tabs 与 .tabpane 必须是同级兄弟 -->
@@ -648,7 +649,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);
 |---|---|---|
 | 1 | **四档宽度无横滑** | 1920 / 1280 / 800 / 420 四档下，页面都不出现横向滚动条 |
 | 2 | **行宽分层正确** | 长段落不超 940px；表格与卡片吃满正文列（1440 内） |
-| 3 | **主色唯一** | 全页主色为青 `#0d9488`，没有残留的旧蓝或旧红 |
+| 3 | **主色唯一** | 全页主色为青 `#a16207`，没有残留的旧蓝或旧红 |
 | 4 | **顶栏行为** | 吸顶正常，滚动时当前章节高亮；窄屏横滑不裁下拉面板 |
 | 5 | **浮钮位置** | `.g-pill` 贴屏幕右下，不遮顶栏、不压页脚文字 |
 
@@ -659,7 +660,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);
 > ⚠️ **本节是 V2 预案，尚未实施。**
 > 落地前，登记一律按 [6.3](#63-在首页登记) 的旧方式。本节只描述**改造后的目标状态**。
 > 完整方案（决策记录、脚本设计、实施步骤、验收清单、风险回滚）存于
-> `F:\日常工作\36-rc首页免维护规范-20261007\RC首页免维护方案_20261007.md`。
+> `F:\RC\36-rc首页免维护规范-20261007\RC首页免维护方案_20261007.md`。
 >
 > ⚠️ **本节也尚未同步到可视化版** `pages/style-guide.html` —— 那份目前仍是 V1 内容，属待清欠账，V2 落地时一并补齐（两份文件须保持同构）。
 
