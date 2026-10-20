@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23a16207'/%3E%3Cpath d='M20 42V22h10l8-6v32l-8-6H20z' stroke='white' stroke-width='4' fill='none' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>微信小程序从 0 到上线 · 全流程作业手册</title>
+<meta name="description" content="以「人生处方单」为样本的微信小程序全流程作业手册：5 阶段 19 节点、开发者工具导入到上传、提审发布、五条红线与校验清单。">
+<link rel="stylesheet" href="../theme.css">
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   体例变量（本页专属，不在 theme.css 收编范围）
+   五阶段语义色 · 字号/间距刻度 · 方案 C 布局尺度
+   ═══════════════════════════════════════════════════════════════ */
+:root{
+  /* 五阶段专属色 */
+  --s1:#a16207; --s2:#5f7a1e; --s3:#83416b; --s4:#a03a24; --s5:#3f6b7a;
+  --s1s:#f6ead3; --s2s:#eaf0d8; --s3s:#f3e3ec; --s4s:#f7e2dc; --s5s:#e2ecef;
+  /* 字号刻度 */
+  --fz-xs:12px; --fz-sm:13px; --fz:14px; --fz-md:15px;
+  --fz-lg:17px; --fz-xl:21px; --fz-2xl:29px;
+  /* 间距刻度 */
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:22px; --sp6:30px; --sp7:42px;
+  /* 方案 C 布局尺度 */
+  --bar-h:50px; --sidew:250px; --gap:34px;
+  --side-bg:#141c2b; --side-ink:#a39a8c; --side-ink-hi:#d8a94a;
+  --side-hi:rgba(161,97,7,.18); --side-mut:#5b6b80;
+  /* 板块主题色：默认青绿，加 .st1—.st5 切到对应阶段色 */
+  --sc:var(--accent);
+  --scs:var(--accent-soft);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+
+/* ══ 顶栏（墨黑） ══ */
+.s-bar{background:#2b2724;color:#f5f2ea;position:sticky;top:0;z-index:60}
+.s-bar-in{max-width:var(--maxw);margin:0 auto;padding:0 32px;height:var(--bar-h);display:flex;align-items:center;gap:12px}
+.s-brand{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.s-brand em{font-style:normal;font-size:12px;font-weight:400;color:var(--side-ink);letter-spacing:.02em;margin-inline-start:8px}
+/* ⚠️ 这里不能写 overflow-x:auto —— 它会让 overflow-y 隐式变成 auto，
+   于是下拉面板被导航自身的滚动容器裁掉（点开看不见）。
+   桌面 6 项在 --maxw 内放得下，无需滚动；窄屏断点里再开横滑。 */
+.s-nav{margin-inline-start:auto;display:flex;align-items:center;gap:2px;font-size:13px}
+.s-nav a{padding:5px 11px;border-radius:var(--radius-sm);color:var(--side-ink);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-nav a:hover{color:#f5f2ea}
+.s-nav a.on{color:#f5f2ea;background:var(--side-hi);font-weight:600}
+
+/* ══ 顶栏「五阶段」下拉（原左侧栏跳转已并入此处） ══ */
+.s-drop{position:relative;display:inline-flex}
+.s-dropbtn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border:0;background:none;
+  border-radius:var(--radius-sm);color:var(--side-ink);font:inherit;font-size:13px;cursor:pointer;
+  white-space:nowrap;transition:.15s}
+.s-dropbtn:hover,.s-drop.open .s-dropbtn{color:#f5f2ea;background:var(--side-hi)}
+.s-dropbtn .cv{width:9px;height:9px;flex:0 0 auto;opacity:.7;transition:transform .18s}
+.s-drop.open .s-dropbtn .cv{transform:rotate(180deg)}
+.s-panel{position:absolute;top:calc(100% + 8px);inset-inline-end:0;z-index:70;display:none;
+  min-width:214px;background:#f7f5ef;border:1px solid var(--line);border-radius:10px;padding:7px;
+  box-shadow:0 20px 44px -18px rgba(43,39,36,.42)}
+.s-drop.open .s-panel{display:block}
+@media (hover:hover) and (min-width:901px){ .s-drop:hover .s-panel{display:block} }
+.s-panel a{display:flex;gap:8px;align-items:baseline;padding:7px 10px;border-radius:var(--radius-sm);
+  font-size:13px;color:var(--ink-2);text-decoration:none;white-space:nowrap;transition:.15s}
+.s-panel a:hover{background:var(--accent-soft);color:var(--accent-ink)}
+.s-panel a .n{flex:0 0 auto;min-width:1.4em;font-family:var(--mono);font-size:11px;color:var(--ink-3);font-weight:600}
+
+/* ══ 文档头部 ══ */
+.s-head{max-width:var(--maxw-read);margin:0 auto;padding:44px 32px 0}
+.s-eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.s-eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.s-h1{font-size:clamp(23px,2.9vw,32px);font-weight:700;letter-spacing:-.014em;line-height:1.28;margin:14px 0 12px;color:var(--ink)}
+.s-lede{font-size:14.5px;color:var(--muted);line-height:1.8;max-width:var(--maxw-text)}
+.s-meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:6px 16px}
+.s-meta b{color:var(--ink);font-weight:700}
+.s-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.s-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+/* ══ 主体：单栏正文（原深色侧栏目录已并入顶栏） ══ */
+.s-body{max-width:var(--maxw-read);margin:0 auto;padding:26px 32px 50px}
+.s-main{min-width:0;max-width:var(--maxw-read);margin:0 auto;background:#f7f5ef;border:1px solid var(--line);border-radius:10px;padding:8px 34px 40px}
+
+/* ══ 章节 ══ */
+section{padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--bar-h) + 14px)}
+section:first-of-type{border-top:0;padding-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h .idx{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc,var(--accent));background:var(--scs,var(--accent-soft));border:1px solid transparent;padding:3px 10px;border-radius:var(--radius-sm);letter-spacing:.06em;white-space:nowrap}
+.sec-h h2{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);line-height:1.4}
+.sec-h .hint{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+.lede{font-size:14px;color:var(--ink-2);margin-bottom:16px;max-width:var(--maxw-text);line-height:1.78}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1100px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+
+/* 红线 */
+.rl{border:1px solid #e8c6bd;background:var(--danger-soft);border-radius:var(--radius);padding:15px 17px}
+.rl h4{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--danger);letter-spacing:.06em;margin-bottom:7px}
+.rl .mid{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.rl p{font-size:13.5px;color:var(--ink-2);line-height:1.72}
+
+/* ══ 全流程节点图 ══════════════════════════════════════════════════
+   格式对齐「供应商产品入驻山姆会员店全流程概览」页：左侧蛇形节点流
+   （行内 → 表先后，行尾 ↵ 表换行接续）+ 右侧粘性详情侧栏。
+   与概览页的差别：概览页的节点状态标签在这里换成「主周期」，
+   并且阶段骨架保留下来 —— 每个阶段自成一条色带，而不是打平成一张大图。 */
+/* 节点尺度：JS 用这三个变量实算「每行放得下几个」，改了就两边同步。
+   ⚠️ .frow 的 gap 作用在「所有相邻 flex 项」上 —— 节点之间夹着 .conn，
+   一行 k 个节点共有 2k-1 个项、2k-2 个间隙，算行宽时必须把箭头两侧的 gap 都算进去。
+   --nw 是**最小宽**：节点会 flex:1 伸展把整行填满（宽屏下不留空档），
+   但 JS 一律按这个最小值算列数 —— 保守估算，实际只会更宽松，不会算多一个溢出去。 */
+:root{ --nw:150px; --ngap:8px; --nconn:16px }
+
+.flow-layout{display:flex;gap:20px;align-items:flex-start}
+.flow{flex:1 1 auto;min-width:0;background:#faf8f2;border:1px solid var(--line);border-radius:var(--radius);padding:16px 16px 18px}
+#flowStage{display:flex;flex-direction:column;gap:16px}
+
+/* 阶段带 */
+.fstage{border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);background:var(--scs);padding:10px 12px 12px}
+.fstage-h{display:flex;align-items:baseline;flex-wrap:wrap;gap:3px 10px;margin-bottom:10px}
+.fstage-h .sno{flex:none;font-family:var(--mono);font-size:10.5px;font-weight:700;color:#f7f5ef;background:var(--sc);border-radius:999px;padding:2px 9px;letter-spacing:.06em}
+.fstage-h .sname{font-size:14.5px;font-weight:700;color:var(--sc);line-height:1.4}
+.fstage-h .sgoal{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* 节点 */
+/* justify-content:center 是**无条件**的，别挪进媒体查询。
+   满行时节点靠 flex:1 伸展正好铺满，居中不产生任何位移；
+   只有「末行不满」（阶段节点数 % 列数 ≠ 0）时才起作用 —— 此时把
+   余下的 1~2 个节点居中，正好落在居中下箭头的正下方。
+   若改成 flex-start，孤节点会贴到左边缘、而箭头还在中间，两者错位。 */
+.frow{display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:var(--ngap)}
+.fnode{position:relative;flex:1 1 var(--nw);min-width:var(--nw);max-width:260px;min-height:104px;background:#f7f5ef;border:1.5px solid var(--line);
+  border-top:4px solid var(--sc);border-radius:10px;padding:9px 10px;cursor:pointer;
+  transition:transform .15s,box-shadow .15s,border-color .15s}
+.fnode:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(15,23,42,.1)}
+.fnode.on{border-color:var(--sc);box-shadow:0 0 0 3px var(--scs)}
+.fnode:focus-visible{outline:2px solid var(--sc);outline-offset:2px}
+.fnode .num{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:999px;
+  padding:0 6px;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sc);background:var(--scs);margin-bottom:6px}
+.fnode .t{font-size:13px;font-weight:600;line-height:1.42;color:var(--ink);min-height:37px}
+.fnode .d{display:inline-block;margin-top:6px;font-family:var(--mono);font-size:10.5px;color:var(--muted-2);
+  background:var(--scs);border-radius:999px;padding:2px 8px;line-height:1.5}
+
+/* 连接符 */
+.conn{display:flex;align-items:center;justify-content:center;flex:0 0 var(--nconn);color:var(--sc);opacity:.45}
+.conn svg,.wrap-turn svg{display:block}
+.wrap-break{flex-basis:100%;height:0}
+.wrap-turn{flex-basis:100%;display:flex;justify-content:center;margin:2px 0;color:var(--sc);opacity:.45}
+
+/* 节点详情：右侧粘性侧栏（窄屏由媒体查询退回节点图下方） */
+/* 侧栏 340px 不是随手定的：它决定了两栏区间 (#flowStage = 视口 − 543) 里
+   节点图还剩多少画布。加宽到 380 就会把 1280 这一档压成
+   #flowStage 697 → .frow 669 < 696（4 列下限）→ 退回 3 列，
+   而 3 列下「4 节点阶段」必成 3+1 孤节点，见 chooseCols 注释。
+   340px 时最低生效档 1271 仍有 #flowStage 728 → .frow 700 ≥ 696 ✓
+   再收窄则侧栏里的 KV 文字会开始一字一列，也是下限。 */
+.detail{flex:0 0 340px;position:sticky;top:calc(var(--bar-h) + 18px);
+  max-height:calc(100vh - var(--bar-h) - 36px);overflow-y:auto}
+.card{background:#faf8f2;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);border-top:3px solid var(--sc,var(--accent));background:var(--scs,var(--accent-soft))}
+.card-h .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--sc,var(--accent));background:#f7f5ef;border:1px solid var(--sc,var(--accent));border-radius:999px;padding:2px 9px;margin-bottom:7px;letter-spacing:.04em}
+.card-h h3{font-size:16px;font-weight:700;color:var(--ink);line-height:1.45}
+.card-b{padding:18px}
+.kv{display:grid;grid-template-columns:104px minmax(0,1fr);gap:10px 16px}
+.kv dt{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent-ink);padding-top:3px;letter-spacing:.02em}
+.kv dd{font-size:13.5px;color:var(--ink);line-height:1.72}
+.kv dd ul{margin:0;padding-left:18px}
+.kv dd li{margin-bottom:6px;line-height:1.7}
+@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px 0}.kv dt{padding-top:8px}}
+
+.warnbox{margin-top:16px;background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px}
+.warnbox h5{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--warn);margin-bottom:8px;letter-spacing:.06em}
+.warnbox ul{margin:0;padding-left:18px}
+.warnbox li{font-size:13.5px;color:var(--ink);margin-bottom:7px;line-height:1.7}
+
+/* ══ 表格 ══ */
+.tblwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--band);color:#6a6357;text-align:left;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.7}
+tbody tr:nth-child(even) td{background:#faf8f2}
+tbody tr:last-child td{border-bottom:0}
+
+/* ══ 选项卡 ══ */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.tab{border:1px solid var(--line);background:#f7f5ef;color:var(--muted);border-radius:var(--radius-sm);padding:7px 14px;font-size:13px;cursor:pointer;font-weight:600;font-family:inherit;transition:.15s}
+.tab:hover{border-color:var(--accent);color:var(--accent-ink)}
+.tab.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink)}
+.tabpane{display:none}
+.tabpane.on{display:block}
+
+/* ══ 注意事项手风琴 ══ */
+details.acc{background:#f7f5ef;border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+details.acc summary{cursor:pointer;padding:13px 16px;font-size:14.5px;font-weight:700;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:after{content:"+";font-family:var(--mono);font-size:16px;color:var(--sc);font-weight:700;flex:0 0 auto}
+details.acc[open] summary{background:var(--scs)}
+details.acc[open] summary:after{content:"–"}
+details.acc .body{padding:12px 16px 14px}
+details.acc ul{margin:0;padding-left:18px}
+details.acc li{font-size:13.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.72}
+details.acc summary .cnt{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:auto;margin-right:10px}
+
+/* ══ 部门 ══ */
+.dept{margin-bottom:16px;border-left:3px solid var(--sc);padding-left:14px}
+.dept:last-child{margin-bottom:0}
+.dept h4{font-size:14.5px;font-weight:700;color:var(--sc);margin-bottom:7px}
+.dept .role{font-family:var(--mono);font-size:11px;color:var(--muted-2);font-weight:400;margin-left:8px}
+.dept ul{margin:0 0 8px 0;padding-left:18px}
+.dept li{font-size:13.5px;color:var(--ink-2);margin-bottom:5px;line-height:1.7}
+.dept .ntag{display:inline-block;margin-left:6px;font-family:var(--mono);font-size:10.5px;color:var(--sc);background:var(--scs);border:1px solid var(--sc);border-radius:5px;padding:1px 6px;white-space:nowrap;line-height:1.5;vertical-align:1px;font-weight:700}
+.dept .note{font-size:13px;color:var(--ink-2);background:var(--scs);border-radius:var(--radius-sm);padding:10px 12px;line-height:1.7}
+
+.srcnote{font-size:13.5px;color:var(--ink-2);background:var(--warn-soft);border:1px solid var(--warnline);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}
+.srcnote b{color:var(--warn)}
+.empty{padding:26px;text-align:center;color:var(--muted);font-size:13px}
+
+/* ══ 页脚 ══ */
+.s-foot{background:var(--band);border-top:1px solid var(--line)}
+.s-foot-in{max-width:var(--maxw);margin:0 auto;padding:26px 32px 10px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:12.5px;color:var(--muted)}
+.s-foot b{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ink)}
+.s-foot .sp{margin-inline-start:auto;font-family:var(--mono);font-size:11px;color:var(--muted-2)}
+/* ⚠️ .s-disc 是**外壳**（与 .s-foot-in 同宽同左边界），故取 --maxw；
+   免责声明文本本身交给内层 <p> 吃全局 p{max-width:var(--maxw-text)}。
+   别把 max-width 改成 --maxw-text —— 那样整块会居中，与上方页脚文字错位。 */
+.s-disc{max-width:var(--maxw);margin:0 auto;padding:0 32px 24px;font-size:12px;color:var(--muted-2);line-height:1.7}
+
+/* ══ 板块主题色开关（放最后，确保优先级） ══ */
+.st1{--sc:var(--s1);--scs:var(--s1s)}
+.st2{--sc:var(--s2);--scs:var(--s2s)}
+.st3{--sc:var(--s3);--scs:var(--s3s)}
+.st4{--sc:var(--s4);--scs:var(--s4s)}
+.st5{--sc:var(--s5);--scs:var(--s5s)}
+.strd{--sc:var(--danger);--scs:var(--danger-soft)}
+
+/* ══ 响应式 ══ */
+/* 单栏回退断点 1270 是**算出来的**，不是拍的：
+   两栏时 #flowStage = 视口 − 543（实测 1280→737、1360→817；侧栏 340 是常数）。
+   而 4 列要求 .frow ≥ 4*150 + 3*16 + 6*8 = 696 → #flowStage ≥ 696+28 = 724
+   → 视口 ≥ 724+543 = 1267。取 1271 生效（留 4px 余量），故断点写 1270。
+   ⚠️ 改侧栏宽度或 --nw 都必须重算这个数，否则 1267~1280 这一段会掉回 3 列。
+   低于此值时是单栏，行宽够，仍是 4 列；4 列真正放不下要到视口 ≈ 875 以下。 */
+@media(max-width:1270px){
+  /* 放不下「节点流 + 粘性侧栏」两栏 → 详情退回节点图下方（节点流仍 4 个一行） */
+  .flow-layout{flex-direction:column;gap:18px}
+  .detail{flex:0 0 auto;width:100%;position:static;max-height:none;overflow:visible}
+}
+@media(max-width:900px){
+  .s-main{padding:8px 18px 30px}
+  /* 窄屏 6 项排不下 → 允许横向滚动；
+     同时把面板改为相对视口定位，否则会被导航的滚动容器裁掉 */
+  .s-nav{overflow-x:auto;scrollbar-width:none}
+  .s-nav::-webkit-scrollbar{display:none}
+  .s-drop{position:static}
+  .s-panel{position:fixed;inset-inline:12px;top:calc(var(--bar-h) + 8px);min-width:0;max-height:60vh;overflow-y:auto}
+}
+@media(max-width:600px){
+  .s-brand em{display:none}
+}
+@media(max-width:760px){
+  /* 宽表在窄屏改为横向滚动，避免列被压成「一字一列」 */
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px;font-size:12.5px}
+  th,td{padding:9px 11px}
+}
+/* 原 `@media(max-width:640px){.frow{justify-content:center}}` 已删除：
+   那条规则把「末行不满 → 居中」错绑在视口宽度上，而末行满不满只取决于
+   阶段节点数 % 列数。现在 .frow 本身已无条件居中。 */
+@media(max-width:640px){
+  .s-brand em{display:none}
+  .s-nav a{padding:5px 8px;font-size:12.5px}
+  .s-head{padding:30px 18px 0}
+  .s-bar-in,.s-foot-in,.s-disc{padding-inline:18px}
+}
+
+/* ── 本页专属：节点状态色（与五阶段色无关，是"进度"语义） ── */
+.fnode .d.st-ok{color:var(--ok)}
+.fnode .d.st-warn{color:var(--warn)}
+.fnode .d.st-danger{color:var(--danger)}
+b.st-ok{color:var(--ok)}
+b.st-warn{color:var(--warn)}
+b.st-danger{color:var(--danger)}
+/* ── 真机截图带（四屏并排） ──
+   四张截图的原始像素比例略有差异（2.01–2.06），所以外框用 aspect-ratio 锁死高度，
+   图片走 contain：宁可留 1-2px 边，也不要裁掉底部的 home 条与 tabBar。 */
+.shots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:16px}
+.shots figure{min-width:0;margin:0}
+.shots .ph{display:block;aspect-ratio:403/822;border:1px solid var(--line);border-radius:14px;
+  overflow:hidden;background:#f4f4f6;cursor:zoom-in;transition:border-color .15s,box-shadow .15s}
+.shots .ph:hover{border-color:var(--accent);box-shadow:0 6px 18px -10px rgba(43,39,36,.35)}
+.shots img{display:block;width:100%;height:100%;object-fit:contain}
+.shots figcaption{margin-top:9px;font-size:12px;color:var(--muted);line-height:1.6}
+.shots figcaption b{display:block;font-size:13px;color:var(--ink);font-weight:700;margin-bottom:2px}
+/* 两列时把网格宽度封顶在 640，单张尺寸与桌面四列（310 左右）保持一致，
+   否则 900px 断点下每张会撑到 380，一屏放不下两张。 */
+@media(max-width:900px){.shots{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;max-width:640px;margin:16px auto 0}}
+/* 窄屏：阶段头的说明文字独占一行，避免只剩一两个字换行（widow） */
+@media(max-width:560px){
+  .fstage-h .sgoal{flex:1 1 100%}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ 1. 顶栏 ══ -->
+<header class="s-bar">
+  <div class="s-bar-in">
+    <span class="s-brand">GERVAS<em>日常 · Agent 作品集</em></span>
+    <nav class="s-nav" id="topnav" aria-label="章节导航">
+      <a href="#s0" data-sec="s0">00 怎么读</a>
+      <a href="#s1" data-sec="s1">01 节点图</a>
+      <a href="#s2" data-sec="s2">02 开发者工具</a>
+      <a href="#s3" data-sec="s3">03 提审发布</a>
+      <a href="#s4" data-sec="s4">04 红线</a>
+      <a href="#s5" data-sec="s5">05 自检</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ══ 2. 页头 ══ -->
+<div class="s-head">
+  <span class="s-eyebrow">建站与技术 · 手机应用 / 小程序</span>
+  <h1 class="s-h1">微信小程序从 0 到上线 · 全流程作业手册</h1>
+  <p class="s-lede">以「人生处方单」V0.2 为样本，把一个小程序从内容源确认、数据切片、设计编码、本地校验，一路到导入微信开发者工具、上传体验版、提审发布的全过程拆成 5 个阶段 19 个节点。每个节点都标了当前真实状态——已做的、待做的、以及卡住的。</p>
+  <div class="s-meta">
+    <span>文档版本 <b>V1.0</b></span>
+    <span>编制日期 <b>2026-10-20</b></span>
+    <span>样本项目 <b>人生处方单 V0.2</b></span>
+    <span>规模 <b>14 页 / 46 个 JS / 主包 688KB</b></span>
+  </div>
+  <div class="s-chips">
+    <span class="s-chip">微信小程序</span>
+    <span class="s-chip">开发者工具</span>
+    <span class="s-chip">上传与提审</span>
+    <span class="s-chip">云开发</span>
+    <span class="s-chip">分包与体积</span>
+    <span class="s-chip">校验脚本</span>
+  </div>
+</div>
+
+<!-- ══ 3. 正文卡 ══ -->
+<div class="s-body">
+  <main class="s-main">
+
+    <section id="s0">
+      <div class="sec-h"><span class="idx st1">00</span><h2>怎么读这页</h2><span class="hint">先看状态图例，再看图</span></div>
+      <p class="lede">这不是一篇「应该怎么做」的教程，是一个真实项目走到哪一步的实录。所以每个节点都带状态：哪些已经跑通、哪些还没动、哪些被现实卡住。看的时候先扫状态，再看内容——卡住的节点才是你真正要花时间的地方。</p>
+
+      <div class="grid g3">
+        <div class="panel">
+          <div style="font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ok);margin-bottom:6px">已做 · DONE</div>
+          <p style="font-size:var(--fz-sm);color:var(--ink-2);line-height:1.7">跑通过，产出物在仓库里，校验为绿。可以直接照抄做法，但别照抄结论——你的数据不一样。</p>
+        </div>
+        <div class="panel">
+          <div style="font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--warn);margin-bottom:6px">待做 · TODO</div>
+          <p style="font-size:var(--fz-sm);color:var(--ink-2);line-height:1.7">步骤清楚、工具就位，只是还没执行。这类节点最容易拖，因为没有技术难度，只有「还没轮到我」。</p>
+        </div>
+        <div class="panel">
+          <div style="font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--danger);margin-bottom:6px">卡点 · BLOCK</div>
+          <p style="font-size:var(--fz-sm);color:var(--ink-2);line-height:1.7">不是不会做，是受外部条件限制：平台规则、资质、时间窗。这类节点决定上线日期，而不是开发进度。</p>
+        </div>
+      </div>
+
+      <div class="srcnote" style="margin-top:20px"><b>口径说明</b>：节点里的体积、页数、断言数都取自 <code>tools/check_v01.py</code> 与 <code>tools/test_logic.js</code> 的实测输出（2026-10-20 复跑，errors 0 · 69/69 PASS）。微信侧的规则（主包 1.5MB、单 JS 500KB、压缩器不认 ES2020）来自开发者工具本体与官方文档，不是经验值。</div>
+    </section>
+
+    <section id="s1">
+      <div class="sec-h"><span class="idx st2">01</span><h2>全流程节点图</h2><span class="hint">点任意节点看详情</span></div>
+      <p class="lede">五个阶段的分界不是时间，而是「拿到什么才能进入下一步」：许可没确认，内容就不能用；数据没切片，页面就写不了；质量面板没绿，上传就没有意义。十九个节点横向串联——行内箭头是先后，行尾箭头是换行接续。</p>
+      <div class="flow-layout">
+        <div class="flow"><div id="flowStage"></div></div>
+        <div class="detail" id="detail"><div class="card"><div class="empty">点左侧任意节点，这里显示该节点的作业说明、工具命令与注意事项。</div></div></div>
+      </div>
+
+      <div class="sec-h" style="margin-top:28px"><h2 style="font-size:var(--fz-lg)">走完这十九个节点，产出物是这四屏</h2><span class="hint">真机预览截图，非设计稿</span></div>
+      <p class="lede" style="margin-bottom:0">照片款卡片、八个场景的分组计数、清单的空状态、关于板块——每一处都能回溯到上面某个节点。点图看原尺寸。</p>
+
+      <div class="shots">
+        <figure>
+          <a class="ph" href="../assets/xcx/01-today.png" target="_blank" rel="noopener">
+            <img src="../assets/xcx/01-today.png" alt="今天页：照片款卡片，含分类徽章、B 级证据与三个动作按钮" loading="lazy">
+          </a>
+          <figcaption><b>今天</b>照片款卡片：分类徽章、B 级证据、三个动作</figcaption>
+        </figure>
+        <figure>
+          <a class="ph" href="../assets/xcx/02-find.png" target="_blank" rel="noopener">
+            <img src="../assets/xcx/02-find.png" alt="找页：八个场景与各自的条目计数" loading="lazy">
+          </a>
+          <figcaption><b>找</b>8 个场景分组，右侧是各自的条目数</figcaption>
+        </figure>
+        <figure>
+          <a class="ph" href="../assets/xcx/03-list.png" target="_blank" rel="noopener">
+            <img src="../assets/xcx/03-list.png" alt="清单页的空状态：清单还空着，去「找」挑一条" loading="lazy">
+          </a>
+          <figcaption><b>清单</b>空状态给一条明确的下一步，不是空白页</figcaption>
+        </figure>
+        <figure>
+          <a class="ph" href="../assets/xcx/04-mine.png" target="_blank" rel="noopener">
+            <img src="../assets/xcx/04-mine.png" alt="我的页：适合我的建议入口、数据统计与关于板块" loading="lazy">
+          </a>
+          <figcaption><b>我的</b>建议入口、数据统计与关于板块</figcaption>
+        </figure>
+      </div>
+
+      <div class="srcnote" style="margin-top:18px"><b>图注</b>：四张截于 2026-10-19 的真机预览，对应节点 7–10（设计系统、页面骨架、核心组件）。「我的」页的关于板块此后改成了折叠式（下载电子书 / 署名与许可 / 免责声明收进「更多」，另加「关于作者」），图里仍是改版前的平铺形态。</div>
+    </section>
+
+    <section id="s2">
+      <div class="sec-h"><span class="idx st3">02</span><h2>微信开发者工具：从导入到上传</h2><span class="hint">这一段最容易卡在配置上</span></div>
+      <p class="lede">代码写完了不等于能看到效果。开发者工具这一段有四个独立的坑：导入层级、基础库与编译设置、域名校验、云函数部署。任何一个没对，表现都是「页面白屏」或「功能静默失效」，而不是报错——所以每一步都要有明确的验收动作。</p>
+
+      <div class="tblwrap">
+        <table>
+          <thead>
+            <tr><th style="width:120px">步骤</th><th style="width:150px">在哪儿</th><th>要做什么</th><th style="width:150px">验收标准</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>1 导入项目</b></td>
+              <td>启动页「导入项目」</td>
+              <td>目录选 <b>含 <code>miniprogramRoot</code> 的那一层</b>（项目根），不要选 <code>miniprogram/</code> 子目录。填 AppID。</td>
+              <td>编译成功，模拟器出首屏</td>
+            </tr>
+            <tr>
+              <td><b>2 核对配置</b></td>
+              <td>资源管理器根目录</td>
+              <td>确认根目录有且只有一对 <code>project.config.json</code> + <code>project.private.config.json</code>，且含 <code>cloudfunctionRoot</code>。</td>
+              <td>右键 <code>cloudfunctions/</code> 有「上传并部署」菜单</td>
+            </tr>
+            <tr>
+              <td><b>3 基础库</b></td>
+              <td>详情 → 本地设置</td>
+              <td>调试基础库选项目要求的最低版本（本项目 3.17.4），不要图省事选最新——最新库会在老机型上崩。</td>
+              <td>控制台无「基础库版本过低」告警</td>
+            </tr>
+            <tr>
+              <td><b>4 编译选项</b></td>
+              <td>详情 → 本地设置</td>
+              <td>勾「将 JS 编译成 ES5」；<code>babelSetting.ignore</code> <b>留空</b>（填了会把压缩一起跳过）。</td>
+              <td>代码质量面板无相关扣分</td>
+            </tr>
+            <tr>
+              <td><b>5 压缩开关</b></td>
+              <td><code>project.config.json</code> 的 <code>setting</code></td>
+              <td>写 <code>minified</code>（JS）、<code>minifyWXML</code>、<code>minifyWXSS</code>。字段名里<b>没有</b> <code>minifyJS</code>。</td>
+              <td>「代码质量」里三项压缩全部通过</td>
+            </tr>
+            <tr>
+              <td><b>6 重新打开项目</b></td>
+              <td>菜单 → 关闭 / 重新打开</td>
+              <td>工具<b>只在打开项目时读一次</b>配置文件。改完必须重开，否则改了等于没改。</td>
+              <td>质量面板状态跟着变</td>
+            </tr>
+            <tr>
+              <td><b>7 预览 / 真机调试</b></td>
+              <td>工具栏「预览」「真机调试」</td>
+              <td>扫码在真机跑一遍主流程，重点验外链、canvas 出图、文件下载。</td>
+              <td>真机上主流程无白屏、无静默失败</td>
+            </tr>
+            <tr>
+              <td><b>8 上传体验版</b></td>
+              <td>工具栏「上传」</td>
+              <td>填版本号（如 0.2.0）与备注，写清「这次改了什么」，否则三个版本后没人分得清。</td>
+              <td>后台「版本管理」出现该版本</td>
+            </tr>
+            <tr>
+              <td><b>9 设为体验版</b></td>
+              <td>后台 → 版本管理 → 开发版本</td>
+              <td>把刚上传的版本设为体验版，加体验成员后生成体验版二维码。</td>
+              <td>非开发者身份的成员能扫码打开</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sec-h"><h2 style="font-size:var(--fz-lg)">四类常见报错与根因</h2></div>
+      <div class="tblwrap" style="margin-bottom:0">
+        <table>
+          <thead><tr><th style="width:220px">表现</th><th style="width:230px">真实根因</th><th>怎么确认</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>改 <code>project.config.json</code> 毫无反应</td>
+              <td>改的不是工具认的那一份。工具认「它自己生成过配置」的目录。</td>
+              <td>看日志里 <code>opening project</code> 的 <code>projectId</code> 指向哪一层</td>
+            </tr>
+            <tr>
+              <td>「对 JS 文件进行压缩」不通过，但 WXML/WXSS 通过</td>
+              <td>判定源码只读 <code>setting.minified</code>，与编译产物无关。</td>
+              <td>grep 工具本体校验函数；或把三份配置的 <code>minified</code> 全置 true</td>
+            </tr>
+            <tr>
+              <td>图片空白，但文件确实在云存储里</td>
+              <td><code>&lt;image&gt;</code> 直接绑了 <code>cloud://</code>，一次解析失败就被当相对路径并<b>缓存失败结果</b>。</td>
+              <td>日志搜 <code>onProxyError</code> / <code>ENOENT ...cloud:</code></td>
+            </tr>
+            <tr>
+              <td>功能在开发者工具正常，真机失效</td>
+              <td>外链域名没备案、进不了请求白名单；工具里勾了「不校验合法域名」把问题掩盖了。</td>
+              <td>真机关掉调试、或看后台「服务器域名」配置</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="s3">
+      <div class="sec-h"><span class="idx st4">03</span><h2>提审与发布</h2><span class="hint">代码之外的第二道关</span></div>
+      <p class="lede">审核不看你的代码写得好不好，只看三件事：类目对不对、有没有资质、有没有碰敏感表述。这三件事在写代码之前就该想清楚——写完再改，改的是名称、类目和整页文案。</p>
+
+      <div class="grid g2">
+        <div class="panel">
+          <h3 style="font-size:var(--fz-lg);margin-bottom:10px">提审前必须准备好的四样</h3>
+          <ul style="padding-left:18px;font-size:var(--fz-sm);color:var(--ink-2);line-height:1.8">
+            <li><b>类目</b>：与服务实际内容一致。内容涉健康建议，就不能挂在纯工具类目下不管。</li>
+            <li><b>资质</b>：医疗、金融、教育等类目要前置资质。用词越接近这些领域，被要求补资质的概率越高。</li>
+            <li><b>用户隐私保护指引</b>：凡是调用登录、获取头像昵称、位置、相册的，必须逐项声明，否则直接驳回。</li>
+            <li><b>测试账号</b>：需要登录才能看全貌的，审核备注里给一个可用账号，否则审核员看不到内容会判「功能不完整」。</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3 style="font-size:var(--fz-lg);margin-bottom:10px">发布之后才算完</h3>
+          <ul style="padding-left:18px;font-size:var(--fz-sm);color:var(--ink-2);line-height:1.8">
+            <li><b>全量发布</b>：审核通过只是「可以发」，还要在后台点发布，并可选择分阶段发布。</li>
+            <li><b>云函数仍要单独部署</b>：代码审核通过不会替你部署云函数，没部署的能力继续静默降级。</li>
+            <li><b>回滚预案</b>：后台支持版本回退，但云函数与数据结构不一定能回退——改数据结构前先备份。</li>
+            <li><b>体验版常驻</b>：留一个体验版给下个版本自测，别把版本号占满。</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="srcnote" style="margin-top:20px"><b>时间口径</b>：审核时长官方只给区间不给承诺，节假日与类目敏感度都会拉长。排期时把「提审 → 通过」按最坏情况算，不要按最快算。</div>
+    </section>
+
+    <section id="s4">
+      <div class="sec-h"><span class="idx strd">04</span><h2>五条红线</h2><span class="hint">踩了不是返工，是发不出去</span></div>
+      <p class="lede">下面五条都不是「建议」，是平台的硬规则或已验证的静默失败。它们的共同点是：<b>不会报错，只会让你以为没问题</b>。</p>
+      <div class="grid g2" id="redlines"></div>
+    </section>
+
+    <section id="s5">
+      <div class="sec-h"><span class="idx st5">05</span><h2>交付自检清单</h2><span class="hint">上传前逐条打勾</span></div>
+      <p class="lede">前半是本地脚本能自动查的，后半只能人工看。自动化的部分每次改完都要跑一遍——它们挡住的都是「不会报错但会出错」的问题。</p>
+
+      <div class="tblwrap">
+        <table>
+          <thead><tr><th style="width:190px">检查项</th><th style="width:230px">怎么查</th><th>通过标准</th></tr></thead>
+          <tbody>
+            <tr><td><b>结构与体积</b></td><td><code>python tools/check_v01.py</code></td><td>errors 0；主包 &lt; 1.5MB；单 JS &lt; 500KB</td></tr>
+            <tr><td><b>未使用 JS / 孤儿组件</b></td><td><code>python tools/audit.py</code></td><td>0 issues（只被分包用的工具必须在分包里）</td></tr>
+            <tr><td><b>WXML 语法</b></td><td><code>node tools/check_wxml.js</code></td><td>全部文件 0 issues</td></tr>
+            <tr><td><b>ES2020 兼容</b></td><td><code>python tools/check_minify_compat.py</code></td><td>blockers 0（<code>?.</code> <code>??</code> <code>**</code> 一律不许出现）</td></tr>
+            <tr><td><b>逻辑行为</b></td><td><code>node tools/test_logic.js</code></td><td>全部断言通过（本项目 69 项）</td></tr>
+            <tr><td><b>分享卡坐标</b></td><td><code>node tools/check_card_layout.js</code></td><td>不出画布、不压小程序码</td></tr>
+            <tr><td><b>代码质量面板</b></td><td>开发者工具 → 代码质量</td><td>五项硬性项全绿</td></tr>
+            <tr><td><b>图片与外链</b></td><td>全局搜 <code>cloud://</code> 与 <code>http://</code></td><td><code>image</code> 的 src 全走 https；<code>cloud://</code> 只出现在 API 调用里</td></tr>
+            <tr><td><b>真机主流程</b></td><td>预览 / 真机调试</td><td>首页、清单、搜索、出图、下载全部可用</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ══ 4. 页脚 ══ -->
+<footer class="s-foot">
+  <div class="s-foot-in">
+    <b>GERVAS</b>
+    <span>小程序上线流程手册 · V1.0</span>
+    <span class="sp">Copyright 2026 gervas.wang</span>
+  </div>
+  <div class="s-disc"><p>本页是单一项目的流程实录，微信侧的规则以开发者工具与官方文档的当期表述为准；节点状态截至 2026-10-20，随项目推进更新。</p></div>
+</footer>
+
+<a class="g-pill" href="../index.html" title="返回作品集首页">返回首页</a>
+
+<script>
+/* ── 数据 ─────────────────────────────────────────────────────
+   state: done 已做 / todo 待做 / block 卡点
+   ⚠️ 节点号必须连续，STAGES 的 node_ids 要覆盖全部节点 */
+var NODES = [
+{"no":1,"stage":"一","state":"done","title":"选题与内容源确认",
+ "scope":"选定内容源，并先按许可判断能不能商用。本项目的内容源是一本开源生活指南（765 条，CC BY 4.0）——许可允许转载、改编、商用，条件是保留署名与许可说明。判断在动手之前完成，不是事后补。",
+ "tools":["读上游仓库 README 与 LICENSE","确认字段结构能否支撑检索与打分"],
+ "pre":"无","output":"许可结论一页纸 + 改编范围清单",
+ "notes":["CC BY 4.0 不要求你开源自己的代码，只要求署名。署名可以逐页标，也可以集中一页——本项目选后者。","重新分类、拆条、加交互都算「改编」，都在许可范围内。不用为了规避而改成「原创」。","顺序不能反：先看许可再看内容。反过来做，等于把返工风险留到写完代码之后。"]},
+
+{"no":2,"stage":"一","state":"block","title":"命名与类目预判",
+ "scope":"定名并判断类目归属。法定或医疗类词汇（处方、诊断、治疗、疗效）在名称与类目上都有额外审核；类目选错比名称违规更常见，也更难救。",
+ "tools":["后台「设置 → 基本设置 → 小程序名称」查重","微信开放社区搜同名与近似名","类目对照表核对是否有前置资质要求"],
+ "pre":"主体已注册","output":"三个备选名 + 类目归属 + 资质清单",
+ "notes":["小程序名称<b>一年只能改两次</b>。改名成本极高，别用「测试版」「V1」这类占位名直接上线。","「处方」属医疗术语。工具类小程序用医疗词，可能被要求补《医疗机构执业许可证》，或直接被驳。这条不解决，后面全白做。","类目与代码审核是两件事：类目不过，代码再好也发不出去。","判断依据要以当期后台的类目说明为准，不要拿别人的经验套。"]},
+
+{"no":3,"stage":"一","state":"todo","title":"主体、公众号与域名白名单",
+ "scope":"确认小程序主体、能否绑定同主体公众号、服务器域名白名单能填什么。这三件事在写第一行代码前就该有结论，因为它们决定了哪些能力根本做不了。",
+ "tools":["后台「设置 → 基本设置」","后台「设置 → 关联公众号」","后台「开发管理 → 服务器域名」"],
+ "pre":"营业执照 / 主体信息","output":"主体清单 + 公众号关联状态 + 可填域名的结论",
+ "notes":["打开公众号主页的接口要求小程序与公众号<b>同主体或已关联</b>，否则线上直接失败，代码无法绕过。","服务器域名只能填<b>已备案</b>的域名。境外图床、GitHub、境外 CDN 全部进不来——这条决定了后面所有外链方案。","域名白名单里没有的地址，开发者工具勾了「不校验合法域名」能跑，真机不行。这个差异要在方案设计阶段就承认。"]},
+
+{"no":4,"stage":"二","state":"done","title":"抓取与字段归一",
+ "scope":"把上游的 markdown 解析成结构化条目：编号、章节、标题、正文、成本、证据强度、收益、性价比、分类。765 条零丢失、字段完整率 100% 是这一节点的验收线。",
+ "tools":["<code>python tools/build_data.py</code>（纯标准库，无第三方依赖）"],
+ "pre":"上游仓库本地副本","output":"765 条归一化数据 + 字段完整率报告",
+ "notes":["字段完整率必须 100%。缺字段的条目在排序时会静默掉队，用户看到的是「怎么没推这条」。","evidence 保留原始字母（A/B/C），不要自己映射成 1/2/3——徽章、筛选、排序都用它。","章节（ch）与分类（scene）是两套独立维度，都要抽。匹配引擎靠章节定位、靠分类分散。","清洗规则写进脚本，不要手工改 JSON。手工改过的数据，下一次重跑就没了。"]},
+
+{"no":5,"stage":"二","state":"done","title":"切片与体积预算",
+ "scope":"按微信的硬限制切片：单个 JS 超过 500KB 会被跳过 ES6 转译与压缩；主包必须小于 1.5MB。1.79MB 的全量证据数据不可能全塞进包，必须分层。",
+ "tools":["<code>tools/build_data.py</code>（按 250KB 预算切分）","<code>python tools/check_v01.py</code>（体积红线）"],
+ "pre":"归一化数据就绪","output":"items-1/2/3.js + full-seed-1/2.js + cloud/full.json",
+ "notes":["云函数返回上限 1MB，所以大文件不能走云函数，要走 <code>wx.cloud.downloadFile</code> 直连云存储。","分片文件名固定，汇总入口用同名 require，上层代码零改动——这是分片能随时调整的前提。","体积是<b>设计约束</b>不是事后优化。先算清「数据多少、图多少、代码多少」，再决定页面怎么排。","主包只放索引（标题 + 收益首句 + 链接），全量证据上云。这一刀砍下去，分包从 1836KB 降到 476KB。"]},
+
+{"no":6,"stage":"二","state":"done","title":"数据落位与配图中转",
+ "scope":"包内留精简种子，全量走云存储；配图走「本地抓 → 云存储 → 小程序读」，因为境外图库域名过不了白名单。",
+ "tools":["<code>python tools/fetch_photos.py</code>（抓图 + 去重 + 体积上限）","<code>wx.cloud.uploadFile</code>"],
+ "pre":"云开发已开通","output":"cloud/full.json、cloud/photos/*、photos.js 精简清单",
+ "notes":["境外图库（Pexels / Pixabay / Unsplash）都没有 ICP 备案，进不了请求白名单——<b>唯一通路是云存储中转</b>。","<code>&lt;image&gt;</code> 绝不能直接绑 <code>cloud://</code>：一次解析失败就会被当相对路径重试，并且<b>缓存失败结果</b>，之后补传文件、重载页面照样白，必须整个重启。正确做法是显式换 https 临时链接。","抓图脚本默认「重跑不换图」。图库的 popular 排序不稳定，不这样用户审过的图会被静默换掉。","自动抓图必须人眼过一遍：slug 不可信（搜 stethoscope 可能返回办公桌）。"]},
+
+{"no":7,"stage":"三","state":"done","title":"设计系统落地",
+ "scope":"先把 token 定死再写页面：字号六档、间距七档、圆角三档、深浅双主题。定完之后所有页面只允许用这些值，不允许临时加第七档字号。",
+ "tools":["<code>app.wxss</code> 的 CSS 变量层","深浅双主题用 <code>@media (prefers-color-scheme: dark)</code>"],
+ "pre":"页面数量与信息架构已定","output":"token 层 + 通用组件样式",
+ "notes":["字号只有 28/22/18/16/15/12 六档，<b>没有 14px</b>。层次感来自字号落差与留白落差，不是加阴影。","每页不要大标题，最大字号留给卡片里的关键数字。这是内容型页面，不是设置页。","一个动作改多个相互依赖的显示态，必须走<b>单出口 setData</b>。分散 setData 会漏刷，表现是「工具条上永远显示没选」。","唯一可作为分层变量的只有 <code>--surface-2</code> 和 <code>--separator-weak</code>，别自己造第三层底色。"]},
+
+{"no":8,"stage":"三","state":"done","title":"页面骨架与分包",
+ "scope":"5 个主包页 + 9 个分包页。app.json 的 pages[0] 就是冷启动落地页，这个位置决定用户第一眼看到什么。",
+ "tools":["<code>app.json</code> 的 pages / subPackages / preloadRule","<code>wx.switchTab</code>"],
+ "pre":"信息架构已定","output":"14 页骨架 + 分包配置",
+ "notes":["非 tabBar 页放在 pages[0] 会挡住底部 Tab。做「看过就跳过」的开屏页就用这个特性：在 <code>onLoad</code> 里 <code>switchTab</code> 跳走，跳转发生在首帧之前，用户感知不到。","只被分包使用的工具函数必须放进分包，否则触发「主包内不应存在主包未使用的 JS」。","preloadRule 只对「可能马上进分包」的页面配，配多了等于把分包体积转嫁到主包启动耗时上。"]},
+
+{"no":9,"stage":"三","state":"done","title":"核心组件与分享卡",
+ "scope":"item-card / nav-bar / evidence-badge / empty-state 四个通用组件；Canvas 分享卡（1080×1920）单独一套几何常量。",
+ "tools":["<code>components/</code>","<code>pkgA/utils/draw-card.js</code>","<code>node tools/check_card_layout.js</code>"],
+ "pre":"页面骨架就绪","output":"4 个通用组件 + 两张分享卡模板",
+ "notes":["卡片高度必须 JS 算（<code>(windowWidth−40)×16/9</code>）。WXSS 的 <code>aspect-ratio</code> 在旧客户端不稳，别用。","浮层不要用 <code>backdrop-filter</code>：安卓低版本会整块失效或渲染成纯白，用「半透明白 + 细白边」替代。","小程序码默认是<b>白底方形</b> PNG，画进圆托会顶出四个白角——浅色底看不出来，压在照片上才露馅。要 <code>isHyaline: true</code> + canvas 侧 <code>arc()+clip()</code> 双保险。","<code>drawImage</code> 失败必须自动降级到备用排版，不能让用户拿到一张空白图。"]},
+
+{"no":10,"stage":"三","state":"done","title":"云开发接入",
+ "scope":"wx.cloud.init 的时机、四个云函数（分享码 / 登录 / 取数 / 同步）、以及云函数没部署时的降级策略。",
+ "tools":["<code>wx.cloud.init</code>","<code>wx.cloud.callFunction</code>","<code>cloudfunctions/</code>"],
+ "pre":"云环境已创建，ENV 已填","output":"云开发配置 + 4 个云函数代码",
+ "notes":["⭐⭐ <b>init 不能挂在功能开关后面</b>。曾写成「只在拉全量数据的函数里 init」，而那个函数被配置检查挡着——结果只配了配图时，云开发从未初始化，功能整块静默失效。正确做法是导出独立的 <code>init()</code>，在 <code>app.onLaunch</code> 首行调用。","登录态要读本地存档判断，不要每次问微信；<code>wx.login</code> 只给一次性 code（5 分钟），换 openid 必须过服务端。","云函数没部署时必须静默降级（catch 掉），不能让主流程报错——用户不该因为一个可选能力而用不了小程序。"]},
+
+{"no":11,"stage":"四","state":"done","title":"静态校验四件套",
+ "scope":"每次改完代码跑四项：项目结构与体积、未使用 JS 与孤儿组件、WXML 语法、压缩兼容性。这四项挡的都是「不报错但会出错」的问题。",
+ "tools":["<code>python tools/check_v01.py</code>","<code>python tools/audit.py</code>","<code>node tools/check_wxml.js</code>","<code>python tools/check_minify_compat.py</code>"],
+ "pre":"代码可运行","output":"四份报告全绿",
+ "notes":["压缩兼容是最阴的一条：内置压缩器是老版 uglify，<b>解析不了 ES2020</b>（<code>?.</code> <code>??</code> 逻辑赋值 <code>**</code> <code>1_000</code> 私有字段），出现即<b>静默失败</b>——不报错，只是没压缩。","<code>babelSetting.ignore</code> 里的文件会<b>连同压缩一起被跳过</b>，务必留空。","这些脚本要能一键复跑，否则改两行就不会有人跑。验收标准是「全绿」，不是「看着没问题」。"]},
+
+{"no":12,"stage":"四","state":"done","title":"逻辑单测",
+ "scope":"匹配引擎、每日一条、清单状态的行为断言。本项目 69 项，既测「不报错」，也测「推荐质量」。",
+ "tools":["<code>node tools/test_logic.js</code>"],
+ "pre":"逻辑抽到 utils，能被 Node 直接 require","output":"69/69 通过",
+ "notes":["断言要能抓住质量问题，例如「选了当下处境，前 3 条至少 2 条落在相关章节」。只测不崩，等于没测。","页面 API 在 Node 里不存在——所以逻辑必须与页面解耦，这也是可测性的前提。","分批挑选会打乱排序，输出前必须按分数重排。这种不变式最适合写成断言。"]},
+
+{"no":13,"stage":"四","state":"done","title":"视觉坐标自检",
+ "scope":"分享卡是画布 1080×1920 的绝对坐标排版，改一个数字就可能压住二维码。用一个假 ctx 把真排版跑一遍，断言不出画布、不压码、圆形不压文字。",
+ "tools":["<code>node tools/check_card_layout.js</code>"],
+ "pre":"几何常量从 <code>draw-card.js</code> 导出","output":"坐标级自检通过",
+ "notes":["<b>几何必须单一来源</b>：把 <code>QR_A / QR_B / AV / qrBox</code> 从绘制模块导出，校验脚本 import 它，绝不在脚本里抄一份数字——两套口径一定会对不上。","CJK 字形视觉中心 ≈ 基线 − 0.38 × 字号。做对齐计算用这个，不要凭眼睛调。","分享卡有两套模板（排版款 / 照片款），几何完全不同，必须各跑一遍。"]},
+
+{"no":14,"stage":"五","state":"todo","title":"导入微信开发者工具",
+ "scope":"选对项目根、确认配置成对、首次编译。这一步的失败方式极其隐蔽：项目能打开、能编译，但改配置毫无反应。",
+ "tools":["启动页「导入项目」","资源管理器","详情 → 本地设置"],
+ "pre":"代码在本地、AppID 已拿到","output":"项目导入成功、模拟器出首屏",
+ "notes":["⭐⭐ <b>导入的是哪一层，工具就读哪一层的 <code>project.config.json</code></b>。选错子目录，工具会在那里另生成一份配置，改根目录那份毫无反应——这个坑曾让人白折腾四轮。","判据：哪个目录<b>同时存在</b>工具生成的 <code>project.config.json</code> + <code>project.private.config.json</code>，那就是工具认的根。","要导含 <code>miniprogramRoot</code> / <code>cloudfunctionRoot</code> 的那一层，否则右键云函数目录根本没有「上传并部署」。","工具<b>只在打开项目时读一次</b>配置，改完必须重新打开项目。"]},
+
+{"no":15,"stage":"五","state":"todo","title":"编译设置与代码质量面板",
+ "scope":"基础库版本、ES6 转 ES5、压缩三开关，最后看「代码质量」面板。面板里的五项硬性项全绿才算过。",
+ "tools":["详情 → 本地设置","<code>project.config.json</code> 的 <code>setting</code>","工具内「代码质量」入口"],
+ "pre":"项目已导入","output":"质量面板五项全绿",
+ "notes":["压缩字段是 <code>minified</code>（JS）/ <code>minifyWXML</code> / <code>minifyWXSS</code>，<b>不存在 <code>minifyJS</code></b>。写错字段名等于没开。","判定源码只看 <code>setting.minified</code>，与编译产物无关——所以「我明明勾了压缩」不算证据。","「主包内不应存在主包未使用的 JS」「无使用或无依赖文件」这两项要靠结构调整解决，不是改配置能绕过去的。","基础库选项目要求的最低版本，别选最新：最新库在老机型上更容易崩。"]},
+
+{"no":16,"stage":"五","state":"todo","title":"预览与真机调试",
+ "scope":"扫码在真机跑一遍主流程，重点验三件在工具里验不出来的事：外链请求、canvas 出图、文件下载。",
+ "tools":["工具栏「预览」「真机调试」","控制台 / 日志"],
+ "pre":"编译通过","output":"真机主流程跑通",
+ "notes":["开发者工具勾了「不校验合法域名」时一切正常，<b>真机不一定</b>。所有外链方案都必须在真机验一遍。","日志目录：<code>%LOCALAPPDATA%\\微信开发者工具\\User Data\\&lt;hash&gt;\\WeappLog\\logs\\</code>，最新的那个大 .log 就是当前会话，带毫秒时间戳，比截图快。","静态数据（如本地模拟）测不出网络问题，真机第一次跑就可能出现「云存储读不到」这类只在真机发生的事。"]},
+
+{"no":17,"stage":"五","state":"todo","title":"上传体验版",
+ "scope":"上传代码、在后台设为体验版、交给内测成员。上传前必须确认云函数已部署，否则体验版里相关能力会静默降级。",
+ "tools":["工具栏「上传」","后台「版本管理 → 开发版本」"],
+ "pre":"真机验证通过","output":"体验版二维码",
+ "notes":["版本号与备注要写清「这次改了什么」。三个版本之后，没有备注的版本号基本无法分辨。","上传前确认云函数已部署：不部署也能上传成功，但分享卡二维码、登录 openid 等能力会退化成占位。","体验版只对添加过的体验成员可见，交付测试前先确认成员名单。"]},
+
+{"no":18,"stage":"五","state":"todo","title":"提交审核与发布",
+ "scope":"填类目、声明隐私接口、提交审核、应对驳回、发布。审核通过只是「可以发」，还要点发布。",
+ "tools":["后台「版本管理 → 提交审核」","「设置 → 服务内容声明 → 用户隐私保护指引」"],
+ "pre":"体验版验证通过","output":"线上版本",
+ "notes":["凡调用登录、头像昵称、位置、相册的接口，都要在用户隐私保护指引里逐项声明，否则直接驳回。","医疗健康类表述是高频驳回点：避免「治疗」「诊断」「疗效」「替代就医」这类承诺性用词。","驳回后修改要重新提交并等新一轮审核，排期按最坏情况算。","发布之后云函数仍要单独部署过，代码审核通过不会替你部署。"]},
+
+{"no":19,"stage":"五","state":"block","title":"云函数部署",
+ "scope":"右键每个云函数目录上传并部署；确认返回值（openid、二维码 buffer）与新增参数生效。本项目 4 个函数尚未部署。",
+ "tools":["资源管理器右键「上传并部署：云端安装依赖」","云开发控制台 → 云函数 → 日志"],
+ "pre":"cloudfunctionRoot 正确指向 cloudfunctions/","output":"4 个云函数上线 + 调用成功",
+ "notes":["右键<b>没有</b>「上传并部署」菜单，说明导入层级错了、cloudfunctionRoot 没生效——这不是权限问题。","改过云函数参数（例如让二维码带透明通道）必须<b>重新部署</b>才生效，改代码不部署等于没改。","部署完要在控制台看一次调用日志，确认没有「依赖未安装」这类只在云端出现的问题。","没部署时小程序仍可用，只是相关能力静默降级——所以这个卡点很容易被一直拖着，直到上线前才发现。"]}
+];
+
+var STAGES = [
+ {"no":"一","name":"立项与素材","goal":"能不能做、能不能这么叫","node_ids":[1,2,3]},
+ {"no":"二","name":"数据与内容管线","goal":"上游内容变成能进包的数据","node_ids":[4,5,6]},
+ {"no":"三","name":"设计与编码","goal":"token、页面、组件、云能力","node_ids":[7,8,9,10]},
+ {"no":"四","name":"本地校验","goal":"把不报错的错提前挡住","node_ids":[11,12,13]},
+ {"no":"五","name":"上传、提审与发布","goal":"从开发者工具走到线上","node_ids":[14,15,16,17,18,19]}
+];
+
+var REDLINES = [
+ ["域名","境外域名永远进不来","服务器域名白名单只认已备案域名。GitHub、境外图库、境外 CDN 全部过不了。唯一通路是中转：本地抓 → 云存储 → 小程序读。这一条在方案设计阶段不承认，后面所有外链都要重写。"],
+ ["体积","主包 1.5M、单 JS 500K","主包超过 1.5M 直接传不上去；单个 JS 超过 500KB 会被<b>跳过 ES6 转译与压缩</b>——不报错，只是没压缩。数据必须切片，大文件必须上云。"],
+ ["兼容","ES2020 会让压缩静默失败","内置压缩器解析不了 <code>?.</code> <code>??</code> 逻辑赋值 <code>**</code> 数字分隔符。出现任何一处，整个文件的压缩就悄悄失效，质量面板才会告诉你。写完立刻跑兼容检查。"],
+ ["名称","一年只能改两次","小程序名称改名次数受限。带法定/医疗词的名字不只是「可能被拒」，还可能被要求补资质。名称与类目要在写代码之前定死。"],
+ ["部署","云函数不会自动上线","代码审核通过 ≠ 云函数部署。没部署时小程序照常能开，只是相关能力静默降级——这种「看起来没事」的失败，往往拖到上线后才发现。"]
+];
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+/* 少数文案里要保留 <code>，用 raw 字段绕开转义 */
+function raw(s){return String(s);}
+var STAGE_IDX={'一':1,'二':2,'三':3,'四':4,'五':5};
+function scls(s){return ' st'+(STAGE_IDX[s]||1);}
+
+var STATE_TXT={done:'已做',todo:'待做',block:'卡点'};
+var STATE_CLS={done:'ok',todo:'warn',block:'danger'};
+
+/* 红线 */
+(function(){
+  var box=document.getElementById('redlines');
+  REDLINES.forEach(function(r){
+    var d=document.createElement('div');
+    d.className='rl';
+    d.innerHTML='<h4>红线 · '+esc(r[0])+'</h4><div class="mid">'+esc(r[1])+'</div><p>'+raw(r[2])+'</p>';
+    box.appendChild(d);
+  });
+})();
+
+/* ══ 全流程节点图 ══
+   组件复用自 pages/sams-onboarding-sop-2026.html，五条实现约束原样保留：
+   ① 每行列数必须实算：k*nw + (k-1)*conn + (2k-2)*gap ≤ .frow 行宽
+   ② 行宽是 .frow 的宽度，不是 #flowStage.clientWidth（中间隔着 .fstage 的 padding+border）
+   ③ 列数不取「最大放得下」，取「排出来不参差」（chooseCols 打分）
+   ④ 行尾用 .wrap-break 强制换行 + .wrap-turn 箭头
+   ⑤ 首屏 clientWidth 可能为 0，靠 load / fonts.ready 重排纠正 */
+var FLOW=(function(){
+  var box=document.getElementById('flowStage');
+  var RIGHT='<svg width="14" height="10" viewBox="0 0 22 14" fill="none" aria-hidden="true"><path d="M1 7h17M14 2l5 5-5 5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var DOWN='<svg width="14" height="18" viewBox="0 0 16 22" fill="none" aria-hidden="true"><path d="M8 1v17M3 14l5 5 5-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var cur=1;
+
+  function px(name,dflt){
+    var v=parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name));
+    return isNaN(v)?dflt:v;
+  }
+  function score(k,counts){
+    var rows=0,waste=0;
+    for(var i=0;i<counts.length;i++){
+      var r=Math.ceil(counts[i]/k);
+      rows+=r; waste+=r*k-counts[i];
+    }
+    return rows*3+waste;
+  }
+  function chooseCols(kmax){
+    var counts=STAGES.map(function(s){return s.node_ids.length;});
+    var best=kmax,bs=score(kmax,counts);
+    for(var k=kmax-1;k>=1;k--){
+      var s=score(k,counts);
+      if(s<bs){bs=s;best=k;}
+    }
+    return best;
+  }
+  function framePad(){
+    var st=box.querySelector('.fstage');
+    if(!st) return 0;
+    var cs=getComputedStyle(st);
+    return (parseFloat(cs.paddingLeft)||0)+(parseFloat(cs.paddingRight)||0)
+          +(parseFloat(cs.borderLeftWidth)||0)+(parseFloat(cs.borderRightWidth)||0);
+  }
+  function perRow(){
+    var w=box.clientWidth-framePad();
+    var nw=px('--nw',150),gp=px('--ngap',8),cn=px('--nconn',16);
+    if(w<=0) return 3;
+    var kmax=Math.max(1,Math.min(6,Math.floor((w+cn+2*gp)/(nw+cn+2*gp))));
+    return chooseCols(kmax);
+  }
+  function cells(list,cols){
+    var h='';
+    list.forEach(function(n,i){
+      h+='<div class="fnode'+(n.no===cur?' on':'')+'" data-no="'+n.no+'" role="button" tabindex="0"'
+        +' aria-label="节点 '+n.no+'：'+esc(n.title)+'，'+esc(STATE_TXT[n.state])+'">'
+        +'<span class="num">'+n.no+'</span>'
+        +'<div class="t">'+esc(n.title)+'</div>'
+        +'<span class="d st-'+STATE_CLS[n.state]+'">'+esc(STATE_TXT[n.state])+'</span>'
+        +'</div>';
+      if(i<list.length-1){
+        h += ((i+1)%cols===0)
+          ? '<div class="wrap-break"></div><div class="wrap-turn">'+DOWN+'</div>'
+          : '<div class="conn">'+RIGHT+'</div>';
+      }
+    });
+    return h;
+  }
+  function render(){
+    var cols=perRow(),h='';
+    STAGES.forEach(function(st){
+      var list=st.node_ids.map(function(id){
+        return NODES.filter(function(x){return x.no===id;})[0];
+      }).filter(function(x){return !!x;});
+      if(!list.length) return;
+      h+='<div class="fstage'+scls(st.no)+'">'
+        +'<div class="fstage-h"><span class="sno">阶段 '+esc(st.no)+'</span>'
+        +'<span class="sname">'+esc(st.name)+'</span>'
+        +'<span class="sgoal">'+esc(st.goal)+'</span></div>'
+        +'<div class="frow">'+cells(list,cols)+'</div></div>';
+    });
+    box.innerHTML=h;
+    var ns=box.querySelectorAll('.fnode');
+    for(var i=0;i<ns.length;i++){
+      ns[i].addEventListener('click',function(){showNode(+this.getAttribute('data-no'));});
+      ns[i].addEventListener('keydown',function(e){
+        if(e.key==='Enter'||e.key===' '){e.preventDefault();showNode(+this.getAttribute('data-no'));}
+      });
+    }
+  }
+  var lastCols=-1;
+  function relayout(){
+    var c=perRow();
+    if(c===lastCols) return;
+    lastCols=c;
+    render();
+  }
+  relayout();
+  window.addEventListener('load',relayout);
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(relayout);
+  var t; window.addEventListener('resize',function(){clearTimeout(t);t=setTimeout(relayout,180);});
+  return {relayout:relayout,setCur:function(no){cur=no;}};
+})();
+
+function showNode(no,scroll){
+  var n=NODES.filter(function(x){return x.no===no;})[0];
+  if(!n) return;
+  if(scroll===undefined) scroll=true;
+  FLOW.setCur(no);
+  var nodes=document.querySelectorAll('.fnode');
+  for(var i=0;i<nodes.length;i++){
+    nodes[i].classList.toggle('on',nodes[i].getAttribute('data-no')==String(no));
+  }
+  var notes=n.notes.map(function(t){return '<li>'+raw(t)+'</li>';}).join('');
+  var tools=n.tools.map(function(t){return '<li>'+raw(t)+'</li>';}).join('');
+  var h='<div class="card'+scls(n.stage)+'"><div class="card-h">'
+    +'<span class="tag">阶段 '+esc(n.stage)+'　节点 '+n.no+'</span>'
+    +'<h3>'+esc(n.title)+'</h3></div><div class="card-b">'
+    +'<dl class="kv">'
+    +'<dt>工作内容</dt><dd>'+esc(n.scope)+'</dd>'
+    +'<dt>工具与命令</dt><dd><ul style="padding-left:16px;margin:0">'+tools+'</ul></dd>'
+    +'<dt>前置条件</dt><dd>'+esc(n.pre)+'</dd>'
+    +'<dt>产出物</dt><dd>'+esc(n.output)+'</dd>'
+    +'<dt>当前状态</dt><dd><b class="st-'+STATE_CLS[n.state]+'">'+esc(STATE_TXT[n.state])+'</b></dd>'
+    +'</dl>'
+    +'<div class="warnbox"><h5>注意事项</h5><ul>'+notes+'</ul></div>'
+    +'</div></div>';
+  document.getElementById('detail').innerHTML=h;
+  if(scroll){document.getElementById('detail').scrollIntoView({behavior:'smooth',block:'nearest'});}
+}
+
+/* 顶栏当前章节高亮 */
+(function(){
+  var links=[].slice.call(document.querySelectorAll('#topnav a'));
+  var secs=links.map(function(a){return document.getElementById(a.getAttribute('data-sec'));});
+  function onScroll(){
+    var y=window.scrollY+90,idx=0;
+    for(var i=0;i<secs.length;i++){ if(secs[i]&&secs[i].offsetTop<=y) idx=i; }
+    links.forEach(function(a,i){a.classList.toggle('on',i===idx);});
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});
+  onScroll();
+})();
+</script>
+</body>
+</html>
