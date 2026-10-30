@@ -67,17 +67,16 @@ p{max-width:34em}
 :focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
 
-/* ══ 一、首屏：碑 ═══════════════════════════════════════
-   只放三处信息：左上自述、右上导航、底部一行事实。
-   其余留白，视线全部归给字。 */
+/* ══ 一、页头 ═══════════════════════════════════════════
+   两行：左上入口 + 右上导航，下一行事实。
+   不再占满一屏，不做字标。 */
 .hero{
   position:relative;
-  min-height:100svh;display:grid;grid-template-rows:auto 1fr auto;
-  padding:var(--pad);
+  display:grid;grid-template-rows:auto auto;
+  padding:var(--pad) var(--pad) 0;
 }
 .hero-top{display:block}
-.hero-lede{font-size:var(--fs-lede);line-height:1.5;max-width:30ch}
-.hero-act{margin-top:22px}
+.hero-act{margin-top:0}
 .btn{
   display:inline-block;padding:13px 26px;background:var(--ink);color:var(--on-ink);
   text-decoration:none;font-size:var(--fs-body);border-radius:0;
@@ -88,15 +87,17 @@ p{max-width:34em}
 .hero-nav{position:absolute;top:var(--pad);right:var(--pad);display:flex;gap:26px;flex-wrap:wrap}
 .hero-nav a{font-size:var(--fs-body);text-decoration:none;color:var(--ink-2);transition:color .16s var(--ease)}
 .hero-nav a:hover{color:var(--accent-ink)}
-.hero-mid{display:flex;align-items:center;justify-content:center;min-height:0}
 .mark{
   font-size:var(--fs-mark);line-height:.8;font-weight:500;letter-spacing:-.03em;
-  text-align:center;white-space:nowrap;color:var(--ink);will-change:transform;
+  text-align:center;white-space:nowrap;color:var(--ink);
 }
-.hero-foot{display:flex;justify-content:space-between;gap:24px;align-items:baseline;flex-wrap:wrap}
-.hero-foot p{font-size:var(--fs-body);color:var(--ink-2)}
+/* 事实行兼作页面一级标题：视觉不放大，只提供语义与可检索文本 */
+.hero-foot{
+  display:flex;justify-content:space-between;gap:24px;align-items:baseline;flex-wrap:wrap;
+  margin:26px 0 0;font-size:var(--fs-body);font-weight:400;line-height:1.5;
+}
+.hero-foot span{color:var(--ink-2)}
 .hero-foot .nums{font-variant-numeric:tabular-nums;color:var(--ink)}
-.hero-fig{display:none}
 
 /* ══ 二、最新一篇 ═══════════════════════════════════════ */
 .latest{
@@ -231,18 +232,11 @@ p{max-width:34em}
 }
 @media (max-width:760px){
   :root{--pad:18px;--gap:88px;--fs-mark:23.5vw}
-  /* 手机：碑先立，解释与按钮随后——标题永远在第一句之上 */
-  .hero{grid-template-rows:auto auto auto auto 1fr}
-  .hero-mid{order:-3;align-items:flex-start;padding-top:14px}
-  .hero-nav{position:static;order:-2;gap:22px;padding-top:0;margin-top:20px}
+  /* 手机：导航在上，入口随后，事实行其后，图出血收底 */
+  .hero{grid-template-rows:auto auto auto}
+  .hero-nav{position:static;order:-2;gap:22px;padding-top:0;margin-top:0}
   .hero-top{order:-1;padding-top:26px}
-  .hero-foot{flex-direction:column;gap:4px;align-items:flex-start}
-  .hero-fig{
-    display:block;align-self:end;width:100%;
-    margin:24px calc(-1 * var(--pad)) calc(-1 * var(--pad));
-    overflow:hidden;
-  }
-  .hero-fig img{width:100%;aspect-ratio:4/5;object-fit:cover;object-position:top left}
+  .hero-foot{flex-direction:column;gap:4px;align-items:flex-start;padding-bottom:0}
   .latest-desc{max-width:none}
   .latest-acts{grid-template-columns:1fr}
   .act{height:60px}
@@ -270,23 +264,14 @@ p{max-width:34em}
   </nav>
   <div class="hero-top">
     <div class="hero-intro">
-      <p class="hero-lede">一个人在杭州，三年写下 815 篇笔记、做了 21 个工具，全部开源，全部可检索。</p>
       <p class="hero-act"><a class="btn" href="archive.html">打开档案</a></p>
     </div>
   </div>
 
-  <div class="hero-mid">
-    <h1 class="mark" id="mark-hero">GERVAS</h1>
-  </div>
-
-  <div class="hero-foot">
-    <p>杭州 · 自 2023 年 10 月</p>
-    <p class="nums">815 篇 · 21 个工具 · 九类</p>
-  </div>
-
-  <figure class="hero-fig" aria-hidden="true">
-    <img src="assets/works/first-principles-2026.jpg" alt="" width="960" height="600">
-  </figure>
+  <h1 class="hero-foot">
+    <span>杭州 · 自 2023 年 10 月</span>
+    <span class="nums">815 篇 · 21 个工具 · 九类</span>
+  </h1>
 </header>
 
 <!-- ══ 最新一篇 ══════════════════════════════════════════ -->
@@ -431,21 +416,7 @@ p{max-width:34em}
     tick(); setInterval(tick, 20000);
   }
 
-  /* signature move：首屏字标随滚动轻微下沉缩放 */
-  var markHero = $('mark-hero');
-  if (markHero && !reduceMotion) {
-    var ticking = false;
-    window.addEventListener('scroll', function(){
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(function(){
-        var vh = window.innerHeight || 800;
-        var p = Math.min(Math.max(window.scrollY / vh, 0), 1);
-        markHero.style.transform = 'scale(' + (1 - 0.07 * p).toFixed(4) + ')';
-        ticking = false;
-      });
-    }, { passive:true });
-  }
+  /* signature move：首屏不再有字标，滚动缩放随之撤掉 */
 
   /* 活物：指向（悬停/聚焦）哪一行，右图就换成哪一篇 */
   var names = [].slice.call(document.querySelectorAll('.sname[data-img]'));
